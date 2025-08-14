@@ -1,7 +1,7 @@
 import type { RootFilterQuery } from "mongoose";
 
-import type { HelperDocument } from "#/db/models/staff/helper.model.js";
-import { HelperModel } from "#/db/models/staff/helper.model.js";
+import type { HelperDocument } from "#/db/models/helper.model.js";
+import { HelperModel } from "#/db/models/helper.model.js";
 
 export class HelperRepository {
   public async findByUserAndGuild(

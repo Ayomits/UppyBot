@@ -18,12 +18,9 @@ import {
 import { inject, injectable } from "tsyringe";
 
 import { HelperRoles } from "#/config/index.js";
-import {
-  type HelperDocument,
-  HelperModel,
-} from "#/db/models/staff/helper.model.js";
-import { BumpReminderRepository } from "#/db/repositories/BumpReminder.js";
-import { HelperRepository } from "#/db/repositories/HelperModel.js";
+import { type HelperDocument, HelperModel } from "#/db/models/helper.model.js";
+import { BumpReminderRepository } from "#/db/repositories/bump-reminder.repository.js";
+import { HelperRepository } from "#/db/repositories/helper.repository.js";
 import {
   throwModuleDisabledError,
   throwNotHelperError,
@@ -31,9 +28,9 @@ import {
 } from "#/errors/index.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { Replies } from "#/utils/constants/BumpBanButton.js";
-import { MonitoringBot } from "#/utils/enums/monitoring-bots.js";
+import { HelperInfoBumpBanButtonMessages } from "#/messages/helper/index.js";
 
+import { MonitoringBot } from "../bump-reminder/bump-reminder.const.js";
 import {
   BumpBanButtonId,
   BumpRemainingRefreshButtonId,
@@ -227,7 +224,7 @@ export class HelperService {
       }
 
       return await interaction.reply({
-        content: Replies.SUCCESUFULL_ROLE_REMOVE,
+        content: HelperInfoBumpBanButtonMessages.SuccessfullRoleRemove,
         ephemeral: true,
       });
     }
@@ -240,7 +237,7 @@ export class HelperService {
       }
 
       return await interaction.reply({
-        content: Replies.SUCCESUFULL_ROLE_ADD,
+        content: HelperInfoBumpBanButtonMessages.SuccessfullRoleAdd,
         ephemeral: true,
       });
     }

@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 
-import type { BumpReminderModuleDocument } from "#/db/models/bump-reminder/bump-reminder.model.js";
-import { BumpReminderModuleModel } from "#/db/models/bump-reminder/bump-reminder.model.js";
+import type { BumpReminderModuleDocument } from "#/db/models/bump-reminder.model.js";
+import { BumpReminderModuleModel } from "#/db/models/bump-reminder.model.js";
 
 @injectable()
 export class BumpReminderRepository {

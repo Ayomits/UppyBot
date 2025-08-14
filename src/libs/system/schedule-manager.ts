@@ -3,7 +3,7 @@ import cron from "node-cron";
 import type { Job } from "node-schedule";
 import { scheduleJob } from "node-schedule";
 
-import { type BumpReminderModuleDocument } from "#/db/models/bump-reminder/bump-reminder.model.js";
+import { type BumpReminderModuleDocument } from "#/db/models/bump-reminder.model.js";
 import Logger from "#/utils/logger/index.js";
 
 type ScheduleCallback = (

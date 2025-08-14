@@ -11,9 +11,9 @@ import { inject, injectable } from "tsyringe";
 import {
   type BumpReminderModuleDocument,
   BumpReminderModuleModel,
-} from "#/db/models/bump-reminder/bump-reminder.model.js";
-import { HelperModel } from "#/db/models/staff/helper.model.js";
-import { BumpReminderRepository } from "#/db/repositories/BumpReminder.js";
+} from "#/db/models/bump-reminder.model.js";
+import { HelperModel } from "#/db/models/helper.model.js";
+import { BumpReminderRepository } from "#/db/repositories/bump-reminder.repository.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import ScheduleManager from "#/libs/system/schedule-manager.js";
 import { parseHHMMSS } from "#/libs/system/time-parser.js";
@@ -25,7 +25,7 @@ import { MonitoringBot } from "./bump-reminder.const.js";
 export class BumpReminderHandlerService {
   constructor(
     @inject(BumpReminderRepository)
-    private bumpReminderRepository: BumpReminderRepository
+    private bumpReminderRepository: BumpReminderRepository,
   ) {}
 
   public async handleMonitoringMessage(message: Message) {
@@ -60,21 +60,21 @@ export class BumpReminderHandlerService {
           guild,
           bumpSettings,
           embed,
-          message.interactionMetadata.user
+          message.interactionMetadata.user,
         );
       case MonitoringBot.SdcMonitoring:
         return this.handleSdcMonitoring(
           guild,
           bumpSettings,
           embed,
-          message.interactionMetadata.user
+          message.interactionMetadata.user,
         );
       case MonitoringBot.ServerMonitoring:
         return this.handleServerMonitoring(
           guild,
           bumpSettings,
           embed,
-          message.interactionMetadata.user
+          message.interactionMetadata.user,
         );
     }
   }
@@ -83,7 +83,7 @@ export class BumpReminderHandlerService {
     guild: Guild,
     bumpSettings: BumpReminderModuleDocument,
     embed: APIEmbed,
-    user: User
+    user: User,
   ) {
     const nextTimestamp = new Date(embed.timestamp!).getTime();
 
@@ -95,13 +95,13 @@ export class BumpReminderHandlerService {
       nextTimestamp,
       updateLast,
       user,
-      guild
+      guild,
     );
     await this.setWarningAndSchedule(
       bumpSettings,
       "discordMonitoring",
       nextTimestamp,
-      guild
+      guild,
     );
   }
 
@@ -109,7 +109,7 @@ export class BumpReminderHandlerService {
     guild: Guild,
     bumpSettings: BumpReminderModuleDocument,
     embed: APIEmbed,
-    user: User
+    user: User,
   ) {
     let timestamp: number;
 
@@ -121,7 +121,7 @@ export class BumpReminderHandlerService {
         timestamp,
         true,
         user,
-        guild
+        guild,
       );
     } else {
       const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
@@ -134,7 +134,7 @@ export class BumpReminderHandlerService {
         bumpSettings,
         "sdcMonitoring",
         timestamp,
-        false
+        false,
       );
     }
 
@@ -142,7 +142,7 @@ export class BumpReminderHandlerService {
       bumpSettings,
       "sdcMonitoring",
       timestamp,
-      guild
+      guild,
     );
   }
 
@@ -150,7 +150,7 @@ export class BumpReminderHandlerService {
     guild: Guild,
     bumpSettings: BumpReminderModuleDocument,
     embed: APIEmbed,
-    user: User
+    user: User,
   ) {
     let timestamp: number;
     if (embed.description.includes("Server bumped by")) {
@@ -163,7 +163,7 @@ export class BumpReminderHandlerService {
         timestamp,
         true,
         user,
-        guild
+        guild,
       );
     } else {
       const delay = parseHHMMSS(embed.description);
@@ -173,7 +173,7 @@ export class BumpReminderHandlerService {
         bumpSettings,
         "serverMonitoring",
         timestamp,
-        false
+        false,
       );
     }
 
@@ -181,7 +181,7 @@ export class BumpReminderHandlerService {
       bumpSettings,
       "serverMonitoring",
       timestamp,
-      guild
+      guild,
     );
   }
 
@@ -191,7 +191,7 @@ export class BumpReminderHandlerService {
     next: Date | number | string,
     updateLast: boolean,
     user?: User,
-    guild?: Guild
+    guild?: Guild,
   ) {
     const nextDate = new Date(next);
 
@@ -206,7 +206,7 @@ export class BumpReminderHandlerService {
 
     await BumpReminderModuleModel.findByIdAndUpdate(
       bumpSettings._id,
-      updateData
+      updateData,
     );
   }
 
@@ -214,7 +214,7 @@ export class BumpReminderHandlerService {
     bumpSettings: BumpReminderModuleDocument,
     key: keyof BumpReminderModuleDocument,
     nextTimestamp: Date | number | string,
-    guild: Guild
+    guild: Guild,
   ) {
     const eventTime = new Date(nextTimestamp);
     const warningTime = new Date(eventTime.getTime() - 30_000);
@@ -236,7 +236,7 @@ export class BumpReminderHandlerService {
         } else if (type === "event") {
           await this.handleEvent(guild, bumpSettings, String(key));
         }
-      }
+      },
     );
   }
 
@@ -244,11 +244,11 @@ export class BumpReminderHandlerService {
     key: string,
     user: User,
     guild: Guild,
-    bumpsettings: BumpReminderModuleDocument
+    bumpsettings: BumpReminderModuleDocument,
   ) {
     try {
       const channel = guild.channels.cache.get(
-        bumpsettings.pingChannelId
+        bumpsettings.pingChannelId,
       ) as TextChannel;
       if (!channel) {
         return;
@@ -267,7 +267,7 @@ export class BumpReminderHandlerService {
             "helperpoints.twoweeks": pointstoadd,
           },
         },
-        { returnDocument: "after" }
+        { returnDocument: "after" },
       );
 
       if (!updated) {
@@ -281,7 +281,7 @@ export class BumpReminderHandlerService {
         .setTitle(user.username || user.displayName)
         .setDescription(
           `<@${user.id}> успешно продвинул сервер **${guild.name}**\n` +
-            `На данный момент у вас — ${formatPoints(updatedPoints)}`
+            `На данный момент у вас — ${formatPoints(updatedPoints)}`,
         );
 
       await channel.send({ embeds: [embed] });
@@ -293,11 +293,11 @@ export class BumpReminderHandlerService {
   public async sendWarningMessage(
     guild: Guild,
     bumpsettings: BumpReminderModuleDocument,
-    key: string
+    key: string,
   ) {
     try {
       const channel = guild.channels.cache.get(
-        bumpsettings.pingChannelId
+        bumpsettings.pingChannelId,
       ) as TextChannel;
       if (!channel) {
         return;
@@ -332,10 +332,10 @@ export class BumpReminderHandlerService {
   public async handleEvent(
     guild: Guild,
     bumpsettings: BumpReminderModuleDocument,
-    key: string
+    key: string,
   ) {
     const channel = guild.channels.cache.get(
-      bumpsettings.pingChannelId
+      bumpsettings.pingChannelId,
     ) as TextChannel;
     if (!channel) {
       return;
@@ -359,7 +359,7 @@ export class BumpReminderHandlerService {
 
   private async handleBump(userId: Snowflake, guild: Guild) {
     const dbguild = await this.bumpReminderRepository.findOrCreateByGuildId(
-      guild.id
+      guild.id,
     );
     const allHelpers = await HelperModel.find({
       guildId: guild.id,
