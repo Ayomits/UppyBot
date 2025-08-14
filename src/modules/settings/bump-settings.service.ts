@@ -14,7 +14,7 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { BumpReminderRepository } from "#/db/repositories/BumpReminder.js";
+import { BumpReminderRepository } from "#/db/repositories/bump-reminder.repository.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { BumpReminderSettingsMessages } from "#/messages/helper/index.js";
 
@@ -30,13 +30,13 @@ import {
 export class BumpReminderSettingsService {
   constructor(
     @inject(BumpReminderRepository)
-    private bumpReminderRepository: BumpReminderRepository
+    private bumpReminderRepository: BumpReminderRepository,
   ) {}
 
   async handleSettings(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     const repl = await interaction.editReply(
-      await this.createSettingsMessage(interaction)
+      await this.createSettingsMessage(interaction),
     );
 
     const collector = repl.createMessageComponentCollector({
@@ -67,7 +67,7 @@ export class BumpReminderSettingsService {
     await interaction.deferReply({ ephemeral: true });
     const bumpReminder =
       await this.bumpReminderRepository.findOrCreateByGuildId(
-        interaction.guildId
+        interaction.guildId,
       );
     await bumpReminder.updateOne({
       enable: !bumpReminder.enable,
@@ -88,7 +88,7 @@ export class BumpReminderSettingsService {
   }
 
   private async handleSetPingChannels(
-    interaction: ChannelSelectMenuInteraction
+    interaction: ChannelSelectMenuInteraction,
   ) {
     await interaction.deferReply({ ephemeral: true });
     await this.bumpReminderRepository.updateByGuildId(interaction.guild.id, {
@@ -112,7 +112,7 @@ export class BumpReminderSettingsService {
   private async createSettingsMessage(interaction: Interaction) {
     const bumpSettings =
       await this.bumpReminderRepository.findOrCreateByGuildId(
-        interaction.guildId
+        interaction.guildId,
       );
 
     const embed = new EmbedBuilder()
@@ -138,7 +138,7 @@ export class BumpReminderSettingsService {
           name: `> Канал для бампов`,
           value: `${!bumpSettings.pingChannelId.length ? "Нет" : roleMention(bumpSettings.pingChannelId)}`,
           inline: true,
-        }
+        },
       );
 
     const pingRoles =
@@ -146,11 +146,11 @@ export class BumpReminderSettingsService {
         new RoleSelectMenuBuilder()
           .addDefaultRoles(
             bumpSettings.helperRoleID.filter((role) =>
-              interaction.guild.roles.cache.get(role)
-            )
+              interaction.guild.roles.cache.get(role),
+            ),
           )
           .setCustomId(BumpSettingSetPingRolesId)
-          .setPlaceholder(`Выберите роль хелпера`)
+          .setPlaceholder(`Выберите роль хелпера`),
       );
 
     const bumpbanRole =
@@ -158,11 +158,11 @@ export class BumpReminderSettingsService {
         new RoleSelectMenuBuilder()
           .addDefaultRoles(
             bumpSettings.bumpbanRole.filter((role) =>
-              interaction.guild.roles.cache.get(role)
-            )
+              interaction.guild.roles.cache.get(role),
+            ),
           )
           .setCustomId(BumpSettingSetBumpBanRolesId)
-          .setPlaceholder(`Выберите роль бамп-бана`)
+          .setPlaceholder(`Выберите роль бамп-бана`),
       );
 
     const pingChannel =
@@ -170,7 +170,7 @@ export class BumpReminderSettingsService {
         new ChannelSelectMenuBuilder()
           .setChannelTypes(ChannelType.GuildText)
           .setCustomId(BumpSettingSetChannelId)
-          .setPlaceholder(`Выберите канал для бампов`)
+          .setPlaceholder(`Выберите канал для бампов`),
       );
 
     const toggleModule = new ButtonBuilder()
@@ -185,7 +185,7 @@ export class BumpReminderSettingsService {
 
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       toggleModule,
-      refreshButton
+      refreshButton,
     );
 
     return {

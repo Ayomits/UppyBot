@@ -1,8 +1,8 @@
 import type { GuildMember, Message, PartialGuildMember } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { BumpReminderRepository } from "#/db/repositories/BumpReminder.js";
-import { HelperRepository } from "#/db/repositories/HelperModel.js";
+import { BumpReminderRepository } from "#/db/repositories/bump-reminder.repository.js";
+import { HelperRepository } from "#/db/repositories/helper.repository.js";
 import Logger from "#/utils/logger/index.js";
 
 import { BumpReminderHandlerService } from "./bump-reminder-handler.service.js";

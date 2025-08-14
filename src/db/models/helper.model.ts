@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 
-import type { UserDocument } from "../base/index.js";
+import type { UserDocument } from "./base-documents.type.js";
 
 type ForTime = {
   weekly: number;

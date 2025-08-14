@@ -1,7 +1,7 @@
 import type { Snowflake } from "discord.js";
 import { model, Schema } from "mongoose";
 
-import type { BaseModuleGuildDocument } from "../base/index.js";
+import type { BaseModuleGuildDocument } from "./base-documents.type.js";
 
 export type MonitoringType = {
   last: Date | null;
