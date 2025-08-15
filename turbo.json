@@ -21,6 +21,7 @@
     "lint:fix": {
       "dependsOn": ["^lint:fix"],
       "outputLogs": "errors-only"
-    }
+    },
+    "dev": {}
   }
 }

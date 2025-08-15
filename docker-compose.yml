@@ -1,0 +1,34 @@
+services:
+  fear-bot:
+    container_name: feat-bot
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/app
+    environment:
+      - APP_ENV=dev
+    restart: always
+    depends_on:
+      - fear-mongo
+  fear-mongo:
+    image: mongo:7.0.9-jammy
+    container_name: fear-mongo
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+volumes:
+  mongo_data:
+    driver: local

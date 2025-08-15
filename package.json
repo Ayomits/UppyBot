@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx turbo build --concurrency=4",
+    "dev": "npx turbo dev --concurrency=4",
     "format:fix": "npx turbo format:fix --concurrency=4",
     "lint:fix": "npx turbo lint:fix --concurrency=4",
     "format:check": "npx turbo format:check --concurrency=4",
