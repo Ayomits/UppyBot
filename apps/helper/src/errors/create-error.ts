@@ -14,14 +14,14 @@ export class InteractionError {
 
   async throw(
     interaction: Interaction,
-    options: Partial<InteractionErrorMessage> = this.options
+    options: Partial<InteractionErrorMessage> = this.options,
   ) {
     return this.handleResponse(interaction, options);
   }
 
   private async handleResponse(
     interaction: Interaction,
-    options?: Partial<InteractionErrorMessage>
+    options?: Partial<InteractionErrorMessage>,
   ) {
     options =
       typeof options != "undefined"
@@ -50,7 +50,7 @@ export class InteractionError {
 }
 
 export function createError(
-  callback: (interaction: Interaction) => Partial<InteractionErrorMessage>
+  callback: (interaction: Interaction) => Partial<InteractionErrorMessage>,
 ) {
   const getOptions = (interaction: Interaction) => {
     return callback(interaction);
@@ -59,7 +59,7 @@ export function createError(
   return {
     throw: (
       interaction: Interaction,
-      modifiedOptions?: Partial<InteractionErrorMessage>
+      modifiedOptions?: Partial<InteractionErrorMessage>,
     ) => {
       const instance = new InteractionError(getOptions(interaction));
       return instance.throw(interaction, modifiedOptions);
