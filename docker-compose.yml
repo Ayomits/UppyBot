@@ -5,6 +5,8 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./:/app
+    ports:
+      - "0.0.0.0:9001:9001"
     environment:
       - APP_ENV=dev
     restart: always
