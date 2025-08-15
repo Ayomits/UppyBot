@@ -1,6 +1,6 @@
 services:
   fear-bot:
-    container_name: feat-bot
+    container_name: fear-bot
     build:
       dockerfile: ./Dockerfile
     volumes:
@@ -9,6 +9,7 @@ services:
       - "0.0.0.0:9001:9001"
     environment:
       - APP_ENV=dev
+      - MONGO_URL=mongodb://fear-mongo:27018/?authSource=admin
     restart: always
     depends_on:
       - fear-mongo
