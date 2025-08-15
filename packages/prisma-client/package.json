@@ -9,7 +9,10 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "lint:check": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "build": "tsc -b && tsc-alias"
+    "build": "tsc -b && tsc-alias",
+    "prisma:generate": "pnpx prisma generate",
+    "prisma:migrate": "pnpx prisma migrate dev",
+    "prisma:migrations-create": "pnpx prisma migrate dev"
   },
   "imports": {
     "#/*": "./dist/*"

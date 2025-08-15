@@ -22,6 +22,9 @@
       "dependsOn": ["^lint:fix"],
       "outputLogs": "errors-only"
     },
+    "prisma:generate": {},
+    "prisma:migrate": {},
+    "prisma:migrations-create": {},
     "dev": {}
   }
 }
