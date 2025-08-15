@@ -22,9 +22,9 @@ import { type HelperDocument, HelperModel } from "#/db/models/helper.model.js";
 import { BumpReminderRepository } from "#/db/repositories/bump-reminder.repository.js";
 import { HelperRepository } from "#/db/repositories/helper.repository.js";
 import {
-  throwModuleDisabledError,
-  throwNotHelperError,
-  throwUserNotFoundError,
+  ModuleDisabledError,
+  NotHelperError,
+  UserNotFoundError,
 } from "#/errors/index.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
@@ -42,25 +42,25 @@ export class HelperService {
   constructor(
     @inject(HelperRepository) private helperRepository: HelperRepository,
     @inject(BumpReminderRepository)
-    private bumpReminderRepository: BumpReminderRepository,
+    private bumpReminderRepository: BumpReminderRepository
   ) {}
 
   async handleHelperInfo(user: User, interaction: ChatInputCommandInteraction) {
     const member = interaction.member as GuildMember;
     const helper = await this.helperRepository.findByUserAndGuild(
       member.id,
-      interaction.guildId,
+      interaction.guildId
     );
     if (!member) {
-      return throwUserNotFoundError(interaction);
+      return UserNotFoundError.throw(interaction);
     }
 
     if (!helper) {
-      return throwNotHelperError(interaction);
+      return NotHelperError.throw(interaction);
     }
 
     const repl = await interaction.reply(
-      await this.createHelperInfoMessage(interaction, member, helper),
+      await this.createHelperInfoMessage(interaction, member, helper)
     );
 
     const collector = repl.createMessageComponentCollector({
@@ -77,17 +77,17 @@ export class HelperService {
       await this.handleBumpBanButton(interaction, user.id);
       const helper = await this.helperRepository.findByUserAndGuild(
         member.id,
-        interaction.guildId,
+        interaction.guildId
       );
       await interaction.editReply(
-        await this.createHelperInfoMessage(interaction, member, helper),
+        await this.createHelperInfoMessage(interaction, member, helper)
       );
     });
   }
 
   async handleHelperTop(
     interaction: ChatInputCommandInteraction,
-    period: Period,
+    period: Period
   ) {
     const guildId = interaction.guildId;
 
@@ -100,7 +100,7 @@ export class HelperService {
     }
 
     const sorted = helpers.sort(
-      (a, b) => b.helperpoints[period] - a.helperpoints[period],
+      (a, b) => b.helperpoints[period] - a.helperpoints[period]
     );
 
     const chunkSize = 10;
@@ -119,7 +119,7 @@ export class HelperService {
         .setDefaults(interaction.user)
         .setDescription(description)
         .setTitle(
-          `Топ пользователей по количеству баллов за ${this.getPeriodText(period)}`,
+          `Топ пользователей по количеству баллов за ${this.getPeriodText(period)}`
         )
 
         .setFooter({
@@ -169,11 +169,11 @@ export class HelperService {
   async handleBumpRemaining(interaction: ChatInputCommandInteraction) {
     const bumpSettings =
       await this.bumpReminderRepository.findOrCreateByGuildId(
-        interaction.guildId,
+        interaction.guildId
       );
-    if (!bumpSettings.enable) return throwModuleDisabledError(interaction);
+    if (!bumpSettings.enable) return ModuleDisabledError.throw(interaction);
     const repl = await interaction.reply(
-      await this.createRemainingMessage(interaction),
+      await this.createRemainingMessage(interaction)
     );
 
     const collector = repl.createMessageComponentCollector({
@@ -190,19 +190,19 @@ export class HelperService {
 
   private async handleBumpBanButton(
     interaction: ButtonInteraction,
-    userId: Snowflake,
+    userId: Snowflake
   ) {
     const dbguild = await this.bumpReminderRepository.findOrCreateByGuildId(
-      interaction.guildId,
+      interaction.guildId
     );
 
     const dbhelper = await this.helperRepository.findByUserAndGuild(
       userId,
-      interaction.guildId,
+      interaction.guildId
     );
 
     if (!dbhelper) {
-      return throwNotHelperError(interaction);
+      return NotHelperError.throw(interaction);
     }
 
     const member = (await interaction.guild.members
@@ -210,7 +210,7 @@ export class HelperService {
       .catch(() => null)) as GuildMember;
 
     if (!member) {
-      return throwUserNotFoundError(interaction);
+      return UserNotFoundError.throw(interaction);
     }
 
     const nextBump = dbhelper.nextBump as number;
@@ -250,7 +250,7 @@ export class HelperService {
 
     const bumpSettings =
       await this.bumpReminderRepository.findOrCreateByGuildId(
-        interaction.guildId,
+        interaction.guildId
       );
 
     const sdc = await interaction.guild.members
@@ -273,7 +273,7 @@ export class HelperService {
         name: `> Server Monitoring (/bump)`,
         value: this.getMonitoringInfo(
           serverMonitoring,
-          bumpSettings?.serverMonitoring?.next,
+          bumpSettings?.serverMonitoring?.next
         ),
         inline: true,
       },
@@ -281,16 +281,16 @@ export class HelperService {
         name: `> Discord Monitoring (/like)`,
         value: this.getMonitoringInfo(
           discordMonitoring,
-          bumpSettings?.discordMonitoring?.next,
+          bumpSettings?.discordMonitoring?.next
         ),
         inline: true,
-      },
+      }
     );
     const refreshButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(BumpRemainingRefreshButtonId)
         .setLabel(`Обновить`)
-        .setStyle(ButtonStyle.Secondary),
+        .setStyle(ButtonStyle.Secondary)
     );
     return { embeds: [embed], components: [refreshButton] };
   }
@@ -298,7 +298,7 @@ export class HelperService {
   private async createHelperInfoMessage(
     interaction: Interaction,
     selectedHelper: GuildMember,
-    SelectedHelperIndb: HelperDocument,
+    SelectedHelperIndb: HelperDocument
   ) {
     const remaining = 6 - (SelectedHelperIndb.nextBump as number);
     const bumpBanValue =
@@ -308,7 +308,7 @@ export class HelperService {
     const embed = new EmbedBuilder()
       .setDefaults(selectedHelper.user)
       .setTitle(
-        `${UsersUtility.getUsername(selectedHelper.user)} - ${selectedHelper.id}`,
+        `${UsersUtility.getUsername(selectedHelper.user)} - ${selectedHelper.id}`
       )
       .addFields(
         {
@@ -340,7 +340,7 @@ export class HelperService {
           name: "> Баллы за всё время:",
           value: `${SelectedHelperIndb.helperpoints.alltime}`,
           inline: true,
-        },
+        }
       );
 
     const selectedMember = await interaction.guild.members
@@ -352,7 +352,7 @@ export class HelperService {
       interaction.user.id !== selectedHelper.id &&
       selectedMember &&
       interactionMember.roles.highest.comparePositionTo(
-        selectedMember.roles.highest,
+        selectedMember.roles.highest
       ) > 0;
 
     const buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -360,7 +360,7 @@ export class HelperService {
         .setCustomId(`BumpBanButton_${interaction.user.id}`)
         .setStyle(ButtonStyle.Primary)
         .setLabel("Выдать/Снять БампБан")
-        .setDisabled(!canManage),
+        .setDisabled(!canManage)
     );
 
     return {
@@ -372,7 +372,7 @@ export class HelperService {
   private async fetchHelperRoles(userId: string, interaction: Interaction) {
     const dbhelper = await this.helperRepository.findByUserAndGuild(
       userId,
-      interaction.guildId,
+      interaction.guildId
     );
 
     if (!dbhelper) return null;
@@ -383,7 +383,7 @@ export class HelperService {
     if (!member) return null;
 
     const roles = HelperRoles.filter((roleId) =>
-      member.roles.cache.has(roleId),
+      member.roles.cache.has(roleId)
     ).map((roleId) => `<@&${roleId}>`);
 
     return roles.length > 0 ? roles.join(", ") : "Нет нужных ролей";
@@ -391,15 +391,15 @@ export class HelperService {
 
   private async fetchBumpBan(
     userid: string,
-    interaction: Interaction,
+    interaction: Interaction
   ): Promise<string | null> {
     const dbguild = await this.bumpReminderRepository.findOrCreateByGuildId(
-      interaction.guildId,
+      interaction.guildId
     );
 
     const dbhelper = await this.helperRepository.findByUserAndGuild(
       userid,
-      interaction.guildId,
+      interaction.guildId
     );
 
     if (!dbhelper || !dbguild || !dbguild.enable) return null;
@@ -445,7 +445,7 @@ export class HelperService {
 
   private getMonitoringInfo(
     member: GuildMember | null,
-    timestamp: Date | null,
+    timestamp: Date | null
   ) {
     if (!member) return bold("Мониторинг не подключен");
     if (!timestamp) return bold("Не использована ни одна команда мониторинга");
