@@ -8,7 +8,7 @@ import { type BumpReminderModuleDocument } from "#/db/models/bump-reminder.model
 type ScheduleCallback = (
   guild: Guild,
   monitoring: string,
-  type: "warning" | "event"
+  type: "warning" | "event",
 ) => Promise<void>;
 
 class ScheduleManager {
@@ -21,7 +21,7 @@ class ScheduleManager {
       warning?: string | number | Date;
       event: string | number | Date;
     },
-    callback: ScheduleCallback
+    callback: ScheduleCallback,
   ): void {
     const baseKey = this.generateKey(guild.id, monitoring);
 
@@ -84,7 +84,7 @@ class ScheduleManager {
       bumpSettings: BumpReminderModuleDocument;
       keys: string[];
     }>,
-    callback: ScheduleCallback
+    callback: ScheduleCallback,
   ) {
     cron.schedule("*/30 * * * * *", async () => {
       for (const guild of guilds) {
@@ -110,7 +110,7 @@ class ScheduleManager {
               guild,
               key,
               { warning: warningTime, event: eventTime },
-              callback
+              callback,
             );
           }
         }
