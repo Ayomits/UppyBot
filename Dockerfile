@@ -9,5 +9,6 @@ COPY ./docker/supervisord/dev/supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./ /app
 
 RUN npm install pnpm -g
+RUN mkdir -p /var/log/supervisor/
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
