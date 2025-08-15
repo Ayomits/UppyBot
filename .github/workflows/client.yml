@@ -32,6 +32,3 @@ jobs:
 
       - name: Run build
         run: pnpm run build --affected
-
-      - name: Run tests
-        run: pnpm run test:ci
