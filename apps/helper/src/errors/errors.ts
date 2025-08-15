@@ -1,7 +1,6 @@
 import { bold } from "discord.js";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
-import { DefaultColors } from "#/utils/enums/default-colors.js";
 
 import { createError } from "./create-error.js";
 
@@ -12,8 +11,7 @@ export const throwChannelDoesNotExistsError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Указанный канал ${bold("не существует")}`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Указанный канал ${bold("не существует")}`),
   ],
   ephemeral: true,
 }));
@@ -23,8 +21,7 @@ export const throwChannelTypeError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Указанный канал ${bold("не")} является текстовым`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Указанный канал ${bold("не")} является текстовым`),
   ],
   ephemeral: true,
 }));
@@ -34,8 +31,7 @@ export const throwModuleDisabledError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Модуль, чьи команды Вы используете, не включен`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Модуль, чьи команды Вы используете, не включен`),
   ],
 }));
 
@@ -44,8 +40,7 @@ export const throwForbiddenError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`У Вас недостаточно прав!`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`У Вас недостаточно прав!`),
   ],
   ephemeral: true,
 }));
@@ -55,8 +50,7 @@ export const throwSomethingWentWrongError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Что-то пошло не так`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Что-то пошло не так`),
   ],
   ephemeral: true,
 }));
@@ -66,8 +60,7 @@ export const throwNotHelperError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Указанный пользователь ${bold("не")} хелпер`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Указанный пользователь ${bold("не")} хелпер`),
   ],
   ephemeral: true,
 }));
@@ -77,8 +70,7 @@ export const throwUserNotFoundError = createError((interaction) => ({
     new EmbedBuilder()
       .setDefaults(interaction.user)
       .setTitle(ErrorTitle)
-      .setDescription(`Указанный пользователь ${bold("не")} найден`)
-      .setColor(DefaultColors.Default),
+      .setDescription(`Указанный пользователь ${bold("не")} найден`),
   ],
   ephemeral: true,
 }));
