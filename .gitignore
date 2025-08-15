@@ -1,6 +1,6 @@
-.env
-node_modules
-dist/
-.idea
-.vscode
-TUNGTUNGTUNGSAHUR
+**/.env
+**/node_modules
+**/dist/
+**/.idea
+**/.vscode
+**/.turbo

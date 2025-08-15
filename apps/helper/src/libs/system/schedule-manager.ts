@@ -4,12 +4,11 @@ import type { Job } from "node-schedule";
 import { scheduleJob } from "node-schedule";
 
 import { type BumpReminderModuleDocument } from "#/db/models/bump-reminder.model.js";
-import Logger from "#/utils/logger/index.js";
 
 type ScheduleCallback = (
   guild: Guild,
   monitoring: string,
-  type: "warning" | "event",
+  type: "warning" | "event"
 ) => Promise<void>;
 
 class ScheduleManager {
@@ -22,7 +21,7 @@ class ScheduleManager {
       warning?: string | number | Date;
       event: string | number | Date;
     },
-    callback: ScheduleCallback,
+    callback: ScheduleCallback
   ): void {
     const baseKey = this.generateKey(guild.id, monitoring);
 
@@ -85,45 +84,35 @@ class ScheduleManager {
       bumpSettings: BumpReminderModuleDocument;
       keys: string[];
     }>,
-    callback: ScheduleCallback,
+    callback: ScheduleCallback
   ) {
     cron.schedule("*/30 * * * * *", async () => {
       for (const guild of guilds) {
-        try {
-          const { bumpSettings, keys } = await fetchSettings(guild);
-          if (!bumpSettings || !bumpSettings.enable) continue;
+        const { bumpSettings, keys } = await fetchSettings(guild);
+        if (!bumpSettings || !bumpSettings.enable) continue;
 
-          const now = new Date();
+        const now = new Date();
 
-          for (const key of keys) {
-            const warningTime = bumpSettings[key]?.warning;
-            const eventTime = bumpSettings[key]?.next;
+        for (const key of keys) {
+          const warningTime = bumpSettings[key]?.warning;
+          const eventTime = bumpSettings[key]?.next;
 
-            if (!eventTime || eventTime <= now) continue;
-            if (!warningTime || warningTime <= now) continue;
+          if (!eventTime || eventTime <= now) continue;
+          if (!warningTime || warningTime <= now) continue;
 
-            const baseKey = this.generateKey(guild.id, key);
+          const baseKey = this.generateKey(guild.id, key);
 
-            const hasWarning = this.cache.has(`${baseKey}_warning`);
-            const hasEvent = this.cache.has(`${baseKey}_event`);
+          const hasWarning = this.cache.has(`${baseKey}_warning`);
+          const hasEvent = this.cache.has(`${baseKey}_event`);
 
-            if (!hasWarning || !hasEvent) {
-              Logger.info(
-                `[RecoveryCron] Восстановление ${key} в ${guild.name}`,
-              );
-              this.set(
-                guild,
-                key,
-                { warning: warningTime, event: eventTime },
-                callback,
-              );
-            }
+          if (!hasWarning || !hasEvent) {
+            this.set(
+              guild,
+              key,
+              { warning: warningTime, event: eventTime },
+              callback
+            );
           }
-        } catch (error) {
-          Logger.error(
-            `[RecoveryCron] Ошибка при восстановлении в ${guild.name}:`,
-            error,
-          );
         }
       }
     });
