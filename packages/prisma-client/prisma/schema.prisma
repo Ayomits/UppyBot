@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,31 +16,32 @@ model HelperBotSettings {
   // Пояснение: force в контексте этой модели означает количество секунд для предварительного напоминания
   // Вычисляется разницой date и force
   force         Int      @default(0)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
 }
 
 model MonitoringReminds {
-  id       Bytes                  @id @default(auto()) @map("_id") @db.ObjectId
-  guildId  String                 @map("guild_id")
-  type     String                 @map("type")
-  date     DateTime
-  force    DateTime?
+  id        Bytes                  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String                 @map("guild_id")
+  type      String                 @map("type")
+  date      DateTime
+  force     DateTime?
   // Поле будет обновляться после успешного напоминания
   // Удаляться напоминания не будут после исполнения, это полезно для логгирования
-  isActive Boolean                @default(true) @map("is_active")
-  logId    Bytes                  @map("log_id") @db.ObjectId
-  log      MonitoringRemindsLogs?
+  isActive  Boolean                @default(true) @map("is_active")
+  logId     Bytes?                 @map("log_id") @db.ObjectId
+  log       MonitoringRemindsLogs?
+  // Напоминания старше двух месяцев будут вычищяться, чтобы не занимать место в базе
+  createdAt DateTime               @default(now()) @map("created_at")
+  updatedAt DateTime               @updatedAt @map("updated_at")
 
   @@map("monitoring_reminds")
 }
 
 model MonitoringRemindsLogs {
   id        Bytes             @id @default(auto()) @map("_id") @db.ObjectId
-  messageId String
-  channelId String
-  remind    MonitoringReminds @relation(fields: [remindId], references: [id])
+  messageId String            @map("message_id")
+  channelId String            @map("channel_id")
   remindId  Bytes             @unique @map("remind_id") @db.ObjectId
+  remind    MonitoringReminds @relation(fields: [remindId], references: [id])
 
   @@map("helper_monitoring_reminder_logs")
 }
