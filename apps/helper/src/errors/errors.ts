@@ -6,7 +6,7 @@ import { createError } from "./create-error.js";
 
 const ErrorTitle = "Ошибка";
 
-export const throwChannelDoesNotExistsError = createError((interaction) => ({
+export const ChannelDoesNotExistsError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -16,7 +16,7 @@ export const throwChannelDoesNotExistsError = createError((interaction) => ({
   ephemeral: true,
 }));
 
-export const throwChannelTypeError = createError((interaction) => ({
+export const ChannelTypeError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -26,7 +26,7 @@ export const throwChannelTypeError = createError((interaction) => ({
   ephemeral: true,
 }));
 
-export const throwModuleDisabledError = createError((interaction) => ({
+export const ModuleDisabledError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -35,7 +35,7 @@ export const throwModuleDisabledError = createError((interaction) => ({
   ],
 }));
 
-export const throwForbiddenError = createError((interaction) => ({
+export const ForbiddenError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -45,7 +45,7 @@ export const throwForbiddenError = createError((interaction) => ({
   ephemeral: true,
 }));
 
-export const throwSomethingWentWrongError = createError((interaction) => ({
+export const SomethingWentWrongError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -55,7 +55,7 @@ export const throwSomethingWentWrongError = createError((interaction) => ({
   ephemeral: true,
 }));
 
-export const throwNotHelperError = createError((interaction) => ({
+export const NotHelperError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
@@ -65,7 +65,7 @@ export const throwNotHelperError = createError((interaction) => ({
   ephemeral: true,
 }));
 
-export const throwUserNotFoundError = createError((interaction) => ({
+export const UserNotFoundError = createError((interaction) => ({
   embeds: [
     new EmbedBuilder()
       .setDefaults(interaction.user)
