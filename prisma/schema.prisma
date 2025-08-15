@@ -12,3 +12,41 @@ datasource db {
   provider = "mongodb"
   url      = env("MONGO_URL")
 }
+
+model HelperBotSettings {
+  id            Bytes    @id @default(auto()) @map("_id") @db.ObjectId
+  guildId       String   @map("guild_id")
+  helperRoleID  String[] @default([]) @map("helper_role_id")
+  pingChannelId String?  @map("ping_channel_id")
+  bumpbanRole   String[] @default([]) @map("bump_ban_role")
+  // Пояснение: force в контексте этой модели означает количество секунд для предварительного напоминания
+  // Вычисляется разницой date и force
+  force         Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+}
+
+model MonitoringReminds {
+  id       Bytes                  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId  String                 @map("guild_id")
+  type     String                 @map("type")
+  date     DateTime
+  force    DateTime?
+  // Поле будет обновляться после успешного напоминания
+  // Удаляться напоминания не будут после исполнения, это полезно для логгирования
+  isActive Boolean                @default(true) @map("is_active")
+  logId    Bytes                  @map("log_id") @db.ObjectId
+  log      MonitoringRemindsLogs?
+
+  @@map("monitoring_reminds")
+}
+
+model MonitoringRemindsLogs {
+  id        Bytes             @id @default(auto()) @map("_id") @db.ObjectId
+  messageId String
+  channelId String
+  remind    MonitoringReminds @relation(fields: [remindId], references: [id])
+  remindId  Bytes             @unique @map("remind_id") @db.ObjectId
+
+  @@map("helper_monitoring_reminder_logs")
+}
