@@ -4,5 +4,6 @@
 **/.idea
 **/.vscode
 **/.turbo
+**/generated/**
 supervisord.log
 supervisord.pid
