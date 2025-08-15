@@ -13,16 +13,16 @@ export class BumpReminderService {
     @inject(BumpReminderHandlerService)
     private bumpReminderHandler: BumpReminderHandlerService,
     @inject(BumpReminderRepository)
-    private bumpReminderRepository: BumpReminderRepository
+    private bumpReminderRepository: BumpReminderRepository,
   ) {}
 
   async handleMemberUpdate(
     oldMember: GuildMember | PartialGuildMember,
-    newMember: GuildMember
+    newMember: GuildMember,
   ) {
     const bumpSettings =
       await this.bumpReminderRepository.findOrCreateByGuildId(
-        newMember.guild.id
+        newMember.guild.id,
       );
 
     if (!bumpSettings || !bumpSettings.enable) return;
@@ -34,7 +34,7 @@ export class BumpReminderService {
 
     const existingEntry = await this.helperRepository.findByUserAndGuild(
       newMember.user.id,
-      newMember.guild.id
+      newMember.guild.id,
     );
 
     if (!hadRole && hasRole && !existingEntry) {

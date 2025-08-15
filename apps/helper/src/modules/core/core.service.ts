@@ -4,7 +4,6 @@ import { injectable } from "tsyringe";
 
 @injectable()
 export class CoreService {
-
   async handleReady() {
     return await Promise.all([this.connectToDb()]);
   }
