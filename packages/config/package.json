@@ -14,7 +14,6 @@
   "imports": {
     "#/*": "./dist/*"
   },
-  "author": "pvashkaa & ApzdTeam",
   "license": "ISC",
   "homepage": "",
   "dependencies": {
