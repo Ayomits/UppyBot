@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Prisma client",
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "format:fix": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
@@ -20,7 +21,6 @@
   "license": "ISC",
   "homepage": "",
   "dependencies": {
-    "@prisma/client": "^6.14.0",
     "prisma": "^6.14.0"
   },
   "devDependencies": {

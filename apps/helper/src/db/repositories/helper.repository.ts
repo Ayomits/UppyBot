@@ -6,7 +6,7 @@ import { HelperModel } from "#/db/models/helper.model.js";
 export class HelperRepository {
   public async findByUserAndGuild(
     userId: string,
-    guildId: string,
+    guildId: string
   ): Promise<HelperDocument | null> {
     return await HelperModel.findOne({ userId, guildId }).exec();
   }
@@ -19,7 +19,7 @@ export class HelperRepository {
   public async updateHelper(
     userId: string,
     guildId: string,
-    update: Partial<HelperDocument>,
+    update: Partial<HelperDocument>
   ): Promise<HelperDocument | null> {
     return await HelperModel.findOneAndUpdate({ userId, guildId }, update, {
       new: true,
@@ -27,12 +27,14 @@ export class HelperRepository {
   }
 
   public async createHelper(
-    data: Partial<HelperDocument>,
+    data: Partial<HelperDocument>
   ): Promise<HelperDocument> {
     return await HelperModel.create(data);
   }
 
-  public async deleteHelper(filter: RootFilterQuery<HelperDocument>) {
-    return await HelperModel.deleteOne(filter);
+  public async deleteHelper(
+    filter: RootFilterQuery<HelperDocument>
+  ): Promise<void> {
+    await HelperModel.deleteOne(filter);
   }
 }
