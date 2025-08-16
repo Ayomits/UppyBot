@@ -11,9 +11,7 @@
     "lint:check": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "build": "tsc -b && tsc-alias",
-    "prisma:generate": "pnpx prisma generate",
-    "prisma:migrate": "pnpx prisma migrate dev",
-    "prisma:migrations-create": "pnpx prisma migrate dev"
+    "prisma:generate": "pnpx prisma generate"
   },
   "imports": {
     "#/*": "./dist/*"
@@ -21,6 +19,7 @@
   "license": "ISC",
   "homepage": "",
   "dependencies": {
+    "@prisma/client": "6.14.0",
     "prisma": "^6.14.0"
   },
   "devDependencies": {
