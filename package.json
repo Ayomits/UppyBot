@@ -11,8 +11,6 @@
     "format:check": "pnpx turbo format:check --concurrency=4",
     "lint:check": "pnpx turbo lint:check --concurrency=4",
     "prisma:generate": "pnpx turbo prisma:generate",
-    "prisma:migrate": "pnpx turbo prisma:migrate",
-    "prisma:migrations-create": "pnpx turbo prisma:migrations-create",
     "prepare": "husky"
   },
   "keywords": [],
