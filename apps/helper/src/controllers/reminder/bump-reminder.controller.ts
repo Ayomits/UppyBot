@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type ArgsOf, Discord, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
@@ -13,16 +14,16 @@ export class BumpReminderController {
 
   @On({ event: "messageCreate" })
   async onMessageCreate([message]: ArgsOf<"messageCreate">) {
-    return this.bumpReminderService.handleMessageCreate(message);
+    return;
   }
 
   @On({ event: "messageUpdate" })
   async onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
-    return this.bumpReminderService.handleMessageUpdate(message);
+    return;
   }
 
   @On({ event: "guildMemberUpdate" })
   async onMemberUpdate([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
-    return this.bumpReminderService.handleMemberUpdate(oldMember, newMember);
+    return;
   }
 }
