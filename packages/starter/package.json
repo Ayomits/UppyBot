@@ -1,17 +1,17 @@
 {
-  "name": "@fear/helper-bot",
+  "name": "@fear/starter",
   "version": "1.0.0",
   "type": "module",
-  "description": "Helper bot",
+  "description": "Starter boilerplate",
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "format:fix": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "lint:check": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "build": "tsc -b && tsc-alias",
-    "dev": "nodemon",
-    "prod": "node dist/main.js"
+    "prisma:generate": "pnpx prisma generate"
   },
   "imports": {
     "#/*": "./dist/*"
@@ -20,17 +20,8 @@
   "homepage": "",
   "dependencies": {
     "@discordx/importer": "^1.3.3",
-    "@discordx/pagination": "^4.0.1",
-    "@fear/config": "workspace:^",
-    "@fear/prisma": "workspace:^",
-    "@fear/starter": "workspace:^",
     "discord.js": "^14.21.0",
     "discordx": "^11.12.5",
-    "dotenv": "^17.2.1",
-    "mongoose": "^8.16.4",
-    "mongoose-paginate-v2": "^1.9.1",
-    "node-cron": "^4.2.1",
-    "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0"
   },

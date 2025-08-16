@@ -1,23 +1,29 @@
 import dt from "dotenv";
+import * as glob from "glob";
+import path from "path";
+
+const rootPath = path.resolve(path.dirname("./"), "../../..");
 
 export class ConfigService {
-  private entries: dt.DotenvParseOutput;
+  constructor() {
+    const envFiles = glob.sync(`${rootPath}/**/.env`, {
+      ignore: ["node_modules/**"],
+    });
 
-  constructor(options?: dt.DotenvConfigOptions) {
-    const config = dt.config(options);
-    if (config.error || !config) {
-      throw new Error(`Failded to parse config \n ${options}`);
-    }
-    this.entries = config.parsed!;
+    console.log(process.cwd());
+    console.log(envFiles);
+
+    envFiles.forEach((path) => {
+      dt.config({ path });
+    });
   }
 
   public get<T = string>(key: string, default_?: T): T {
-    const existed = this.entries[key] ?? default_;
-    return existed as T;
+    return (process.env[key] ?? default_) as T;
   }
 
-  public getOrThrow<T = string>(key: string): T {
-    const existed = this.get<T>(key);
+  public getOrThrow<T = string>(key: string, default_?: T): T {
+    const existed = this.get<T>(key, default_);
     if (!existed) {
       throw new Error(`Environment key ${key} does not exists`);
     }
