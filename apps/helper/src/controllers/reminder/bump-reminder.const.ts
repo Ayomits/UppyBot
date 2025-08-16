@@ -1,4 +1,4 @@
-import type { LiteralEnum } from "@ts-fetcher/types";
+import type { LiteralEnum } from "@fear/utils";
 
 export const MonitoringBot = {
   SdcMonitoring: "464272403766444044",
