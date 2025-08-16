@@ -1,4 +1,4 @@
-import { configService } from "@fear/config";
+import { ConfigService } from "@fear/config";
 import mongoose from "mongoose";
 import { injectable } from "tsyringe";
 
@@ -9,6 +9,7 @@ export class CoreService {
   }
 
   private async connectToDb(): Promise<void> {
-    await mongoose.connect(configService.get("MONGO_URL"));
+    const config = new ConfigService();
+    await mongoose.connect(config.get("MONGO_URL"));
   }
 }
