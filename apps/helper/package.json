@@ -27,10 +27,6 @@
     "discord.js": "^14.21.0",
     "discordx": "^11.12.5",
     "dotenv": "^17.2.1",
-    "mongoose": "^8.16.4",
-    "mongoose-paginate-v2": "^1.9.1",
-    "node-cron": "^4.2.1",
-    "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0"
   },
