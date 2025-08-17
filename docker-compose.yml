@@ -1,6 +1,7 @@
 services:
   fear-bot:
     container_name: fear-bot
+    network_mode: host
     build:
       dockerfile: ./Dockerfile
     volumes:

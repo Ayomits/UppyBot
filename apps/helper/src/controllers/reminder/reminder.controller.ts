@@ -2,7 +2,7 @@
 import { type ArgsOf, Discord, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { BumpReminderService } from "./bump-reminder.service.js";
+import { BumpReminderService } from "./reminder.service.js";
 
 @Discord()
 @singleton()
