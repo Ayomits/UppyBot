@@ -26,4 +26,9 @@ export class BumpReminderController {
   async onMemberUpdate([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
     return;
   }
+
+  @On({ event: "guildMemberRemove" })
+  async onMemberRemove([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
+    return;
+  }
 }
