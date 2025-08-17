@@ -5,6 +5,7 @@
 **/.vscode
 **/.turbo
 **/.pnpm-store
+**/coverage
 **/generated/**
 supervisord.log
 supervisord.pid

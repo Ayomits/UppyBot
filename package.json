@@ -10,13 +10,18 @@
     "lint:fix": "pnpx turbo lint:fix --concurrency=4",
     "format:check": "pnpx turbo format:check --concurrency=4",
     "lint:check": "pnpx turbo lint:check --concurrency=4",
+    "test:watch": "vitest",
+    "test:ci": "vitest --run",
     "prepare": "husky"
   },
   "keywords": [],
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "3.2.4",
     "husky": "^9.1.7",
-    "turbo": "^2.5.6"
+    "turbo": "^2.5.6",
+    "vitest": "^3.2.4"
   }
 }
