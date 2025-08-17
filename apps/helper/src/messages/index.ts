@@ -16,14 +16,14 @@ export const HelperBotMessages = {
           {
             name: "Канал для пингов",
             value: TextFormattingUtility.snowflakeMention(
-              settings?.pingChannelId
+              settings?.pingChannelId,
             ),
             inline: true,
           },
           {
             name: "Роли хелпера",
             value: TextFormattingUtility.snowflakeMention(
-              settings?.helperRoleIds.map((role) => roleMention(role))
+              settings?.helperRoleIds.map((role) => roleMention(role)),
             ),
             inline: true,
           },
