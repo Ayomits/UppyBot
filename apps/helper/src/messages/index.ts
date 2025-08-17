@@ -24,7 +24,7 @@ export const HelperBotMessages = {
             value: TextFormattingUtility.snowflakeMention(
               settings.pingChannelId
                 ? channelMention(settings?.pingChannelId)
-                : null,
+                : null
             ),
             inline: true,
           },
@@ -33,14 +33,14 @@ export const HelperBotMessages = {
             value: TextFormattingUtility.snowflakeMention(
               settings.logChannelId
                 ? channelMention(settings?.logChannelId)
-                : null,
+                : null
             ),
             inline: true,
           },
           {
             name: blockQuote("Роли хелпера"),
             value: TextFormattingUtility.snowflakeMention(
-              settings?.bumpRoleIds.map((role) => roleMention(role)),
+              settings?.bumpRoleIds.map((role) => roleMention(role))
             ),
             inline: false,
           },
@@ -49,7 +49,7 @@ export const HelperBotMessages = {
             value: TextFormattingUtility.snowflakeMention(
               settings?.bumpBanRoleId
                 ? roleMention(settings?.bumpBanRoleId)
-                : null,
+                : null
             ),
             inline: true,
           },
@@ -75,7 +75,7 @@ export const HelperBotMessages = {
               value: TextFormattingUtility.snowflakeMention(
                 settings.pingChannelId
                   ? channelMention(settings?.pingChannelId)
-                  : null,
+                  : null
               ),
               inline: true,
             },
@@ -84,11 +84,16 @@ export const HelperBotMessages = {
               value: TextFormattingUtility.snowflakeMention(
                 settings.logChannelId
                   ? channelMention(settings?.logChannelId)
-                  : null,
+                  : null
               ),
               inline: true,
             },
           ],
+        },
+        buttons: {
+          backward: {
+            label: "Назад",
+          },
         },
         select: {
           actions: {
@@ -112,7 +117,7 @@ export const HelperBotMessages = {
             {
               name: "Возможные роли сотрудника",
               value: TextFormattingUtility.snowflakeMention(
-                settings?.bumpRoleIds.map((r) => roleMention(r)),
+                settings?.bumpRoleIds.map((r) => roleMention(r))
               ),
               inline: true,
             },
@@ -121,11 +126,16 @@ export const HelperBotMessages = {
               value: TextFormattingUtility.snowflakeMention(
                 settings?.bumpBanRoleId
                   ? roleMention(settings?.bumpBanRoleId)
-                  : null,
+                  : null
               ),
               inline: true,
             },
           ],
+        },
+        buttons: {
+          backward: {
+            label: "Назад",
+          },
         },
         select: {
           actions: {

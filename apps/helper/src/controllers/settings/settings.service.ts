@@ -11,6 +11,7 @@ import {
   type GuildMember,
   type Interaction,
   type InteractionEditReplyOptions,
+  type Message,
   RoleSelectMenuBuilder,
   type RoleSelectMenuInteraction,
   StringSelectMenuBuilder,
@@ -29,294 +30,314 @@ import {
 
 @injectable()
 export class SettingsService {
-  constructor() {}
-
-  public async handleSettings(interaction: ChatInputCommandInteraction) {
+  public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
-    const reply = await interaction.editReply(
-      await this.createMainPanelMessage(interaction),
-    );
 
-    const collector = createSafeCollector(reply, {
+    const message = await this.buildMainSettingsPanel(interaction);
+    const reply = await interaction.editReply(message);
+
+    this.setupSettingsCollector(reply);
+  }
+
+  private setupSettingsCollector(message: Message) {
+    const collector = createSafeCollector(message, {
       filter: (i) => (i.member as GuildMember).permissions.has("Administrator"),
     });
 
     collector.on("collect", (interaction) => {
-      const customId = interaction.customId;
-
-      const handlers = {
+      const actionHandlers = {
         [SettingsCustomIds.buttons.updaters.panel]:
-          this.handleUpdateSettingsMessage.bind(this),
+          this.refreshSettingsPanel.bind(this),
         [SettingsCustomIds.buttons.managers.channels]:
-          this.handleManageChannels.bind(this),
+          this.openChannelManagement.bind(this),
         [SettingsCustomIds.buttons.managers.roles]:
-          this.handleManageRoles.bind(this),
+          this.openRoleManagement.bind(this),
       };
 
-      return handlers[customId]?.(interaction);
+      actionHandlers[interaction.customId]?.(interaction);
     });
   }
 
-  private async handleUpdateSettingsMessage(interaction: ButtonInteraction) {
-    await interaction.deferUpdate();
-    await interaction.editReply(await this.createMainPanelMessage(interaction));
-  }
-
-  private async createMainPanelMessage(
-    interaction: Interaction,
+  // =============Главная панель==============
+  private async buildMainSettingsPanel(
+    interaction: Interaction
   ): Promise<InteractionEditReplyOptions> {
-    const guildId = interaction.guildId;
-
-    const settings = await this.fetchSettings(guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
       .setTitle(HelperBotMessages.settings.panel.title)
       .setFields(HelperBotMessages.settings.panel.fields(settings))
       .setDefaults(interaction.user);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel(HelperBotMessages.settings.panel.buttons.managers.channels)
-        .setCustomId(SettingsCustomIds.buttons.managers.channels)
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setLabel(HelperBotMessages.settings.panel.buttons.managers.roles)
-        .setCustomId(SettingsCustomIds.buttons.managers.roles)
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setLabel(HelperBotMessages.settings.panel.buttons.updaters.panel)
-        .setCustomId(SettingsCustomIds.buttons.updaters.panel)
-        .setStyle(ButtonStyle.Secondary),
+    const controls = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      this.createChannelManagementButton(),
+      this.createRoleManagementButton(),
+      this.createRefreshButton()
     );
 
-    return {
-      embeds: [embed],
-      components: [row],
-    };
+    return { embeds: [embed], components: [controls] };
   }
 
-  //=================Управление каналами===============
+  private createChannelManagementButton() {
+    return new ButtonBuilder()
+      .setLabel(HelperBotMessages.settings.panel.buttons.managers.channels)
+      .setCustomId(SettingsCustomIds.buttons.managers.channels)
+      .setStyle(ButtonStyle.Secondary);
+  }
 
-  private async handleManageChannels(interaction: ButtonInteraction) {
+  private createRoleManagementButton() {
+    return new ButtonBuilder()
+      .setLabel(HelperBotMessages.settings.panel.buttons.managers.roles)
+      .setCustomId(SettingsCustomIds.buttons.managers.roles)
+      .setStyle(ButtonStyle.Secondary);
+  }
+
+  private createRefreshButton() {
+    return new ButtonBuilder()
+      .setLabel(HelperBotMessages.settings.panel.buttons.updaters.panel)
+      .setCustomId(SettingsCustomIds.buttons.updaters.panel)
+      .setStyle(ButtonStyle.Secondary);
+  }
+
+  //==============Управление каналами=============
+  private async openChannelManagement(interaction: ButtonInteraction) {
     await interaction.deferReply({ ephemeral: true });
-    const repl = await interaction.editReply(
-      await this.createManageChannelsPanelMessage(interaction),
-    );
+    const message = await this.buildChannelManagementPanel(interaction);
+    const reply = await interaction.editReply(message);
 
-    const collector = createSafeCollector(repl, {
+    this.setupChannelManagementCollector(reply);
+  }
+
+  private setupChannelManagementCollector(message: Message) {
+    const collector = createSafeCollector(message, {
       filter: (i) => i.memberPermissions.has("Administrator"),
     });
 
-    let field: ObjectKeys<Settings> | null = null;
+    let selectedField: ObjectKeys<Settings> | null = null;
 
     collector.on("collect", (interaction) => {
-      const customId = interaction.customId;
-
-      if (customId === SettingsCustomIds.selects.managers.channels) {
-        const inter = interaction as StringSelectMenuInteraction;
-        field = inter.values[0] as ObjectKeys<Settings>;
-        return this.handleManageChannelSelectType(inter);
-      } else if (customId === SettingsCustomIds.selects.actions.channel) {
-        return this.handleManageChannelAction(
-          interaction as ChannelSelectMenuInteraction,
-          field,
-        );
+      if (interaction.isStringSelectMenu()) {
+        selectedField = interaction.values[0] as ObjectKeys<Settings>;
+        this.handleChannelFieldSelection(interaction);
+      } else if (interaction.isChannelSelectMenu()) {
+        this.handleChannelSelection(interaction, selectedField!);
+      } else if (interaction.isButton()) {
+        this.handleChannelBackward(interaction);
       }
     });
   }
 
-  private async handleManageChannelSelectType(
-    interaction: StringSelectMenuInteraction,
-  ) {
-    await interaction.deferUpdate();
-
-    const channelSelect =
-      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-        new ChannelSelectMenuBuilder()
-          .setCustomId(SettingsCustomIds.selects.actions.channel)
-          .setChannelTypes(ChannelType.GuildText)
-          .setPlaceholder(
-            HelperBotMessages.settings.managers.channels.select.actions.channel,
-          ),
-      );
-
-    await interaction.editReply({
-      components: [channelSelect],
-    });
-  }
-
-  private async handleManageChannelAction(
-    interaction: ChannelSelectMenuInteraction,
-    field: ObjectKeys<Settings>,
-  ) {
-    await interaction.deferUpdate();
-    const channelId = interaction.values[0];
-
-    await SettingsModel.updateOne(
-      {
-        guildId: interaction.guildId,
-      },
-      { [field]: channelId },
-    );
-
-    await interaction.editReply(
-      await this.createManageChannelsPanelMessage(interaction),
-    );
-  }
-
-  private async createManageChannelsPanelMessage(
-    interaction: Interaction,
+  private async buildChannelManagementPanel(
+    interaction: Interaction
   ): Promise<InteractionEditReplyOptions> {
-    const settings = await this.fetchSettings(interaction.guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId);
+
     const embed = new EmbedBuilder()
       .setTitle(HelperBotMessages.settings.managers.channels.embed.title)
       .setFields(
-        HelperBotMessages.settings.managers.channels.embed.fields(settings),
+        HelperBotMessages.settings.managers.channels.embed.fields(settings)
       )
       .setDefaults(interaction.user);
 
-    const select =
+    const channelFieldSelector =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.channels)
           .setOptions(
-            ...HelperBotMessages.settings.managers.channels.select.options,
+            ...HelperBotMessages.settings.managers.channels.select.options
           )
           .setPlaceholder(
-            HelperBotMessages.settings.managers.channels.select.placeholder,
-          ),
+            HelperBotMessages.settings.managers.channels.select.placeholder
+          )
       );
 
-    return {
-      embeds: [embed],
-      components: [select],
-    };
+    return { embeds: [embed], components: [channelFieldSelector] };
   }
 
-  //=================Управление ролями=================
+  private async handleChannelFieldSelection(
+    interaction: StringSelectMenuInteraction
+  ) {
+    await interaction.deferUpdate();
 
-  private async handleManageRoles(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    const channelSelector =
+      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+        new ChannelSelectMenuBuilder()
+          .setCustomId(SettingsCustomIds.selects.actions.channel.action)
+          .setChannelTypes(ChannelType.GuildText)
+          .setPlaceholder(
+            HelperBotMessages.settings.managers.channels.select.actions.channel
+          )
+      );
 
-    const repl = await interaction.editReply(
-      await this.createManageRolesPanelMessage(interaction),
+    const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(SettingsCustomIds.selects.actions.channel.backward)
+        .setLabel(
+          HelperBotMessages.settings.managers.channels.buttons.backward.label
+        )
+        .setStyle(ButtonStyle.Danger)
     );
 
-    const collector = createSafeCollector(repl, {
+    await interaction.editReply({ components: [channelSelector, backward] });
+  }
+
+  private async handleChannelSelection(
+    interaction: ChannelSelectMenuInteraction,
+    field: ObjectKeys<Settings>
+  ) {
+    await interaction.deferUpdate();
+
+    await SettingsModel.updateOne(
+      { guildId: interaction.guildId },
+      { [field]: interaction.values[0] }
+    );
+
+    await interaction.editReply(
+      await this.buildChannelManagementPanel(interaction)
+    );
+  }
+
+  private async handleChannelBackward(interaction: ButtonInteraction) {
+    await interaction.deferUpdate();
+    await interaction.editReply(
+      await this.buildChannelManagementPanel(interaction)
+    );
+  }
+
+  // ==============Управление ролями====================
+  private async openRoleManagement(interaction: ButtonInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+    const message = await this.buildRoleManagementPanel(interaction);
+    const reply = await interaction.editReply(message);
+
+    this.setupRoleManagementCollector(reply);
+  }
+
+  private setupRoleManagementCollector(message: Message) {
+    const collector = createSafeCollector(message, {
       filter: (i) => i.memberPermissions.has("Administrator"),
     });
 
-    let field: ObjectKeys<Settings> | null = null;
+    let selectedField: ObjectKeys<Settings> | null = null;
 
     collector.on("collect", (interaction) => {
-      const customId = interaction.customId;
-
-      if (customId === SettingsCustomIds.selects.managers.roles) {
-        const inter = interaction as StringSelectMenuInteraction;
-        field = inter.values[0] as ObjectKeys<Settings>;
-        this.handleManageRolesSelectType(inter, field);
-      } else if (customId === SettingsCustomIds.selects.actions.role) {
-        return this.handleManageRolesAction(
-          interaction as RoleSelectMenuInteraction,
-          field,
-        );
+      if (interaction.isStringSelectMenu()) {
+        selectedField = interaction.values[0] as ObjectKeys<Settings>;
+        this.handleRoleFieldSelection(interaction, selectedField);
+      } else if (interaction.isRoleSelectMenu()) {
+        this.handleRoleSelection(interaction, selectedField!);
+      } else if (interaction.isButton()) {
+        this.handleRoleBackward(interaction);
       }
     });
   }
 
-  private async handleManageRolesSelectType(
-    interaction: StringSelectMenuInteraction,
-    field: ObjectKeys<Settings>,
-  ) {
-    const settings = await SettingsModel.findOne({
-      guildId: interaction.guildId,
-    });
+  private async buildRoleManagementPanel(
+    interaction: Interaction
+  ): Promise<InteractionEditReplyOptions> {
+    const settings = await this.getOrCreateSettings(interaction.guildId);
 
-    await interaction.deferUpdate();
+    const embed = new EmbedBuilder()
+      .setTitle(HelperBotMessages.settings.managers.roles.embed.title)
+      .setFields(
+        HelperBotMessages.settings.managers.roles.embed.fields(settings)
+      )
+      .setDefaults(interaction.user);
 
-    const roleSelect = new RoleSelectMenuBuilder()
-      .setCustomId(SettingsCustomIds.selects.actions.role)
-      .setPlaceholder(
-        HelperBotMessages.settings.managers.roles.select.actions.role,
+    const roleFieldSelector =
+      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId(SettingsCustomIds.selects.managers.roles)
+          .setOptions(
+            ...HelperBotMessages.settings.managers.roles.select.options
+          )
+          .setPlaceholder(
+            HelperBotMessages.settings.managers.roles.select.placeholder
+          )
       );
 
-    if (MULTIPLE_ROLE_SELECT_FIELDS.includes(field)) {
-      roleSelect.setMaxValues(0).setMaxValues(25);
+    return { embeds: [embed], components: [roleFieldSelector] };
+  }
 
-      const dbField = settings[field] as string[];
-      if (dbField.length > 0) {
-        roleSelect.setDefaultRoles(dbField.slice(0, 25));
+  private async handleRoleFieldSelection(
+    interaction: StringSelectMenuInteraction,
+    field: ObjectKeys<Settings>
+  ) {
+    const settings = await this.getOrCreateSettings(interaction.guildId);
+    await interaction.deferUpdate();
+
+    const roleSelector = new RoleSelectMenuBuilder()
+      .setCustomId(SettingsCustomIds.selects.actions.role.action)
+      .setPlaceholder(
+        HelperBotMessages.settings.managers.roles.select.actions.role
+      );
+
+    const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(SettingsCustomIds.selects.actions.role.backward)
+        .setLabel(
+          HelperBotMessages.settings.managers.roles.buttons.backward.label
+        )
+        .setStyle(ButtonStyle.Danger)
+    );
+
+    if (MULTIPLE_ROLE_SELECT_FIELDS.includes(field)) {
+      roleSelector.setMaxValues(25);
+      const currentRoles = settings[field] as string[];
+      if (currentRoles.length > 0) {
+        roleSelector.setDefaultRoles(currentRoles.slice(0, 25));
       }
     }
 
     await interaction.editReply({
       components: [
-        new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect),
+        new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+          roleSelector
+        ),
+        backward,
       ],
     });
   }
 
-  private async handleManageRolesAction(
+  private async handleRoleSelection(
     interaction: RoleSelectMenuInteraction,
-    field: ObjectKeys<Settings>,
+    field: ObjectKeys<Settings>
   ) {
     await interaction.deferUpdate();
 
-    const value =
+    const newValue =
       interaction.values.length > 1
         ? interaction.values
         : interaction.values[0];
 
     await SettingsModel.updateOne(
-      {
-        guildId: interaction.guildId,
-      },
-      { [field]: value },
+      { guildId: interaction.guildId },
+      { [field]: newValue }
     );
 
     await interaction.editReply(
-      await this.createManageRolesPanelMessage(interaction),
+      await this.buildRoleManagementPanel(interaction)
     );
   }
 
-  private async createManageRolesPanelMessage(
-    interaction: Interaction,
-  ): Promise<InteractionEditReplyOptions> {
-    const settings = await SettingsModel.findOne({
-      guildId: interaction.guild!.id,
-    });
-    const embed = new EmbedBuilder()
-      .setTitle(HelperBotMessages.settings.managers.roles.embed.title)
-      .setFields(
-        HelperBotMessages.settings.managers.roles.embed.fields(settings),
-      )
-      .setDefaults(interaction.user);
-
-    const select =
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId(SettingsCustomIds.selects.managers.roles)
-          .setOptions(
-            ...HelperBotMessages.settings.managers.roles.select.options,
-          )
-          .setPlaceholder(
-            HelperBotMessages.settings.managers.roles.select.placeholder,
-          ),
-      );
-
-    return {
-      embeds: [embed],
-      components: [select],
-    };
+  private async handleRoleBackward(interaction: ButtonInteraction) {
+    await interaction.deferUpdate();
+    await interaction.editReply(
+      await this.buildRoleManagementPanel(interaction)
+    );
   }
 
-  private async fetchSettings(guildId: string) {
+  // ============Утилитарные методы=========
+  private async getOrCreateSettings(guildId: string) {
     return await SettingsModel.findOneAndUpdate(
-      {
-        guildId,
-      },
+      { guildId },
       {},
-      { upsert: true, new: true },
+      { upsert: true, new: true }
     );
+  }
+
+  private async refreshSettingsPanel(interaction: ButtonInteraction) {
+    await interaction.deferUpdate();
+    await interaction.editReply(await this.buildMainSettingsPanel(interaction));
   }
 }
