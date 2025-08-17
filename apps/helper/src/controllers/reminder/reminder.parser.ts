@@ -83,12 +83,22 @@ export class ReminderParser {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
-    return {
-      timestamp: new Date(),
-      success: true,
-      guild: "",
-      author: "",
-    };
+    const embed = message.embeds[0];
+
+    const guildId = message.guildId;
+    const authorId = message.interactionMetadata.user.id;
+
+    const timestamp = new Date(embed.timestamp);
+
+    if (
+      MonitoringBotMessage.discordMonitoring.success.find((m) =>
+        embed.description.includes(m),
+      )
+    ) {
+      return this.handleSuccess(timestamp, guildId, authorId);
+    }
+
+    return this.handleFailure(timestamp, guildId, authorId);
   }
 
   private handleEmptyEmbeds(message: Message): HandlerValue {

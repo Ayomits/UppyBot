@@ -13,4 +13,11 @@ export const MonitoringBotMessage = {
     success: "Server bumped by",
     failure: "The next bump for this server will be available",
   },
+  discordMonitoring: {
+    success: [
+      "Вы успешно лайкнули сервер",
+      "You successfully liked the server",
+    ],
+    failure: ["You are so hot", "Не так быстро"],
+  },
 } as const;
