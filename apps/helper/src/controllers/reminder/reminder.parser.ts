@@ -58,7 +58,7 @@ export class ReminderParser {
         timestamp,
         guildId,
         authorId,
-        RemindType.SdcMonitoring,
+        RemindType.SdcMonitoring
       );
     }
 
@@ -66,7 +66,7 @@ export class ReminderParser {
       new Date(),
       guildId,
       authorId,
-      RemindType.SdcMonitoring,
+      RemindType.SdcMonitoring
     );
   }
 
@@ -89,25 +89,18 @@ export class ReminderParser {
         timestamp,
         guildId,
         authorId,
-        RemindType.ServerMonitoring,
+        RemindType.ServerMonitoring
       );
     }
 
-    const timestampRegex = /\d{1,2}:\d{1,2}:\d{1,2}/g;
-    const miliSeconds = Array.from(
-      embed.description
-        .matchAll(timestampRegex)
-        .map((i) => i[0])
-        .map((i) => {
-          const splited = i.split(":");
-          return (
-            (Number(splited[0]) * 3_600 +
-              Number(splited[1]) * 60 +
-              Number(splited[2])) *
-            1_000
-          );
-        }),
-    )[0];
+    const timestampRegex = /\d{1,2}:\d{1,2}:\d{1,2}/;
+    const splited = embed.description.match(timestampRegex)[0].split(":");
+
+    const miliSeconds =
+      (Number(splited[0]) * 3_600 +
+        Number(splited[1]) * 60 +
+        Number(splited[2])) *
+      1_000;
 
     const timestamp = new Date(now.getTime() + miliSeconds);
 
@@ -115,7 +108,7 @@ export class ReminderParser {
       timestamp,
       guildId,
       authorId,
-      RemindType.ServerMonitoring,
+      RemindType.ServerMonitoring
     );
   }
 
@@ -132,14 +125,14 @@ export class ReminderParser {
 
     if (
       MonitoringBotMessage.discordMonitoring.success.find((m) =>
-        embed.description.includes(m),
+        embed.description.includes(m)
       )
     ) {
       return this.handleSuccess(
         timestamp,
         guildId,
         authorId,
-        RemindType.DiscordMonitoring,
+        RemindType.DiscordMonitoring
       );
     }
 
@@ -147,7 +140,7 @@ export class ReminderParser {
       timestamp,
       guildId,
       authorId,
-      RemindType.DiscordMonitoring,
+      RemindType.DiscordMonitoring
     );
   }
 
@@ -157,7 +150,7 @@ export class ReminderParser {
         null,
         message.guildId,
         message.interactionMetadata.user.id,
-        RemindType.DiscordMonitoring,
+        RemindType.DiscordMonitoring
       );
     }
   }
@@ -166,7 +159,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guildId: string,
     authorId: string,
-    type: RemindType,
+    type: RemindType
   ): HandlerValue {
     return {
       timestamp: timestamp,
@@ -181,7 +174,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guildId: string,
     authorId: string,
-    type: RemindType,
+    type: RemindType
   ): HandlerValue {
     return {
       timestamp: timestamp,
