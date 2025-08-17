@@ -30,8 +30,5 @@ jobs:
       - name: Check lint
         run: pnpm run lint:check --affected
 
-      - name: Generate prisma types
-        run: pnpm run prisma:generate
-
       - name: Run build
         run: pnpm run build --affected

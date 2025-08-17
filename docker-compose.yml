@@ -10,7 +10,7 @@ services:
       - "0.0.0.0:9001:9001"
     environment:
       - APP_ENV=dev
-      - MONGO_URL=mongodb://fear-mongo:27017/?authSource=admin
+      - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
     env_file: .env
     restart: always
     depends_on:
