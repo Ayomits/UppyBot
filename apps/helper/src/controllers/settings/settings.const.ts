@@ -20,11 +20,11 @@ export const SettingsCustomIds = {
     actions: {
       role: {
         action: "settings-manager-role-action",
-        backward: "settings-manager-role-backward"
+        backward: "settings-manager-role-backward",
       },
       channel: {
         action: "settings-manager-channels-action",
-        backward: "settings-manager-channels-backward"
+        backward: "settings-manager-channels-backward",
       },
     },
   },

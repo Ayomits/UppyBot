@@ -60,7 +60,7 @@ export class SettingsService {
 
   // =============Главная панель==============
   private async buildMainSettingsPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
@@ -72,7 +72,7 @@ export class SettingsService {
     const controls = new ActionRowBuilder<ButtonBuilder>().addComponents(
       this.createChannelManagementButton(),
       this.createRoleManagementButton(),
-      this.createRefreshButton()
+      this.createRefreshButton(),
     );
 
     return { embeds: [embed], components: [controls] };
@@ -128,14 +128,14 @@ export class SettingsService {
   }
 
   private async buildChannelManagementPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
       .setTitle(HelperBotMessages.settings.managers.channels.embed.title)
       .setFields(
-        HelperBotMessages.settings.managers.channels.embed.fields(settings)
+        HelperBotMessages.settings.managers.channels.embed.fields(settings),
       )
       .setDefaults(interaction.user);
 
@@ -144,18 +144,18 @@ export class SettingsService {
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.channels)
           .setOptions(
-            ...HelperBotMessages.settings.managers.channels.select.options
+            ...HelperBotMessages.settings.managers.channels.select.options,
           )
           .setPlaceholder(
-            HelperBotMessages.settings.managers.channels.select.placeholder
-          )
+            HelperBotMessages.settings.managers.channels.select.placeholder,
+          ),
       );
 
     return { embeds: [embed], components: [channelFieldSelector] };
   }
 
   private async handleChannelFieldSelection(
-    interaction: StringSelectMenuInteraction
+    interaction: StringSelectMenuInteraction,
   ) {
     await interaction.deferUpdate();
 
@@ -165,17 +165,17 @@ export class SettingsService {
           .setCustomId(SettingsCustomIds.selects.actions.channel.action)
           .setChannelTypes(ChannelType.GuildText)
           .setPlaceholder(
-            HelperBotMessages.settings.managers.channels.select.actions.channel
-          )
+            HelperBotMessages.settings.managers.channels.select.actions.channel,
+          ),
       );
 
     const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.channel.backward)
         .setLabel(
-          HelperBotMessages.settings.managers.channels.buttons.backward.label
+          HelperBotMessages.settings.managers.channels.buttons.backward.label,
         )
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     await interaction.editReply({ components: [channelSelector, backward] });
@@ -183,24 +183,24 @@ export class SettingsService {
 
   private async handleChannelSelection(
     interaction: ChannelSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     await interaction.deferUpdate();
 
     await SettingsModel.updateOne(
       { guildId: interaction.guildId },
-      { [field]: interaction.values[0] }
+      { [field]: interaction.values[0] },
     );
 
     await interaction.editReply(
-      await this.buildChannelManagementPanel(interaction)
+      await this.buildChannelManagementPanel(interaction),
     );
   }
 
   private async handleChannelBackward(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildChannelManagementPanel(interaction)
+      await this.buildChannelManagementPanel(interaction),
     );
   }
 
@@ -233,14 +233,14 @@ export class SettingsService {
   }
 
   private async buildRoleManagementPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
       .setTitle(HelperBotMessages.settings.managers.roles.embed.title)
       .setFields(
-        HelperBotMessages.settings.managers.roles.embed.fields(settings)
+        HelperBotMessages.settings.managers.roles.embed.fields(settings),
       )
       .setDefaults(interaction.user);
 
@@ -249,11 +249,11 @@ export class SettingsService {
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.roles)
           .setOptions(
-            ...HelperBotMessages.settings.managers.roles.select.options
+            ...HelperBotMessages.settings.managers.roles.select.options,
           )
           .setPlaceholder(
-            HelperBotMessages.settings.managers.roles.select.placeholder
-          )
+            HelperBotMessages.settings.managers.roles.select.placeholder,
+          ),
       );
 
     return { embeds: [embed], components: [roleFieldSelector] };
@@ -261,7 +261,7 @@ export class SettingsService {
 
   private async handleRoleFieldSelection(
     interaction: StringSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     const settings = await this.getOrCreateSettings(interaction.guildId);
     await interaction.deferUpdate();
@@ -269,16 +269,16 @@ export class SettingsService {
     const roleSelector = new RoleSelectMenuBuilder()
       .setCustomId(SettingsCustomIds.selects.actions.role.action)
       .setPlaceholder(
-        HelperBotMessages.settings.managers.roles.select.actions.role
+        HelperBotMessages.settings.managers.roles.select.actions.role,
       );
 
     const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.role.backward)
         .setLabel(
-          HelperBotMessages.settings.managers.roles.buttons.backward.label
+          HelperBotMessages.settings.managers.roles.buttons.backward.label,
         )
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     if (MULTIPLE_ROLE_SELECT_FIELDS.includes(field)) {
@@ -292,7 +292,7 @@ export class SettingsService {
     await interaction.editReply({
       components: [
         new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-          roleSelector
+          roleSelector,
         ),
         backward,
       ],
@@ -301,7 +301,7 @@ export class SettingsService {
 
   private async handleRoleSelection(
     interaction: RoleSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     await interaction.deferUpdate();
 
@@ -312,18 +312,18 @@ export class SettingsService {
 
     await SettingsModel.updateOne(
       { guildId: interaction.guildId },
-      { [field]: newValue }
+      { [field]: newValue },
     );
 
     await interaction.editReply(
-      await this.buildRoleManagementPanel(interaction)
+      await this.buildRoleManagementPanel(interaction),
     );
   }
 
   private async handleRoleBackward(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildRoleManagementPanel(interaction)
+      await this.buildRoleManagementPanel(interaction),
     );
   }
 
@@ -332,7 +332,7 @@ export class SettingsService {
     return await SettingsModel.findOneAndUpdate(
       { guildId },
       {},
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
   }
 

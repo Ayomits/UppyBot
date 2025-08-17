@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Message, Snowflake } from "discord.js";
 import { injectable } from "tsyringe";
 
