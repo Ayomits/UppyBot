@@ -79,12 +79,12 @@ export class ReminderParser {
     const guildId = message.guildId;
     const authorId = message.interactionMetadata.user.id;
 
-    const now = Date.now();
+    const now = new Date();
 
     if (
       embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
     ) {
-      const timestamp = new Date(now + 3_600 * 1_000);
+      const timestamp = new Date(now.getTime() + 3_600 * 4 * 1_000);
       return this.handleSuccess(
         timestamp,
         guildId,
@@ -109,7 +109,7 @@ export class ReminderParser {
         }),
     )[0];
 
-    const timestamp = new Date(now + miliSeconds);
+    const timestamp = new Date(now.getTime() + miliSeconds);
 
     return this.handleFailure(
       timestamp,

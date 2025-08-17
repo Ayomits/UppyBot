@@ -15,7 +15,7 @@ export class BumpReminderService {
       return;
     }
 
-    const payload = await this.commandParser.handleMonitoring(message);
+    const payload = this.commandParser.handleMonitoring(message);
 
     if (!payload) {
       return;
