@@ -58,7 +58,7 @@ export class ReminderParser {
         timestamp,
         guildId,
         authorId,
-        RemindType.SdcMonitoring
+        RemindType.SdcMonitoring,
       );
     }
 
@@ -66,7 +66,7 @@ export class ReminderParser {
       new Date(),
       guildId,
       authorId,
-      RemindType.SdcMonitoring
+      RemindType.SdcMonitoring,
     );
   }
 
@@ -89,7 +89,7 @@ export class ReminderParser {
         timestamp,
         guildId,
         authorId,
-        RemindType.ServerMonitoring
+        RemindType.ServerMonitoring,
       );
     }
 
@@ -108,7 +108,7 @@ export class ReminderParser {
       timestamp,
       guildId,
       authorId,
-      RemindType.ServerMonitoring
+      RemindType.ServerMonitoring,
     );
   }
 
@@ -125,14 +125,14 @@ export class ReminderParser {
 
     if (
       MonitoringBotMessage.discordMonitoring.success.find((m) =>
-        embed.description.includes(m)
+        embed.description.includes(m),
       )
     ) {
       return this.handleSuccess(
         timestamp,
         guildId,
         authorId,
-        RemindType.DiscordMonitoring
+        RemindType.DiscordMonitoring,
       );
     }
 
@@ -140,7 +140,7 @@ export class ReminderParser {
       timestamp,
       guildId,
       authorId,
-      RemindType.DiscordMonitoring
+      RemindType.DiscordMonitoring,
     );
   }
 
@@ -150,7 +150,7 @@ export class ReminderParser {
         null,
         message.guildId,
         message.interactionMetadata.user.id,
-        RemindType.DiscordMonitoring
+        RemindType.DiscordMonitoring,
       );
     }
   }
@@ -159,7 +159,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guildId: string,
     authorId: string,
-    type: RemindType
+    type: RemindType,
   ): HandlerValue {
     return {
       timestamp: timestamp,
@@ -174,7 +174,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guildId: string,
     authorId: string,
-    type: RemindType
+    type: RemindType,
   ): HandlerValue {
     return {
       timestamp: timestamp,
