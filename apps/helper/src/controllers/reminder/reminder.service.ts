@@ -15,8 +15,12 @@ export class BumpReminderService {
       return;
     }
 
-    return message.reply(
-      JSON.stringify(await this.commandParser.handleMonitoring(message)),
-    );
+    const payload = await this.commandParser.handleMonitoring(message);
+
+    if (!payload) {
+      return;
+    }
+
+    return message.reply(JSON.stringify(payload));
   }
 }

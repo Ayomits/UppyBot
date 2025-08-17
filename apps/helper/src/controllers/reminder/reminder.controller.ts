@@ -2,7 +2,6 @@
 import { type ArgsOf, Discord, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { ReminderParser } from "./reminder.parser.js";
 import { BumpReminderService } from "./reminder.service.js";
 
 @Discord()
@@ -20,7 +19,7 @@ export class BumpReminderController {
 
   @On({ event: "messageUpdate" })
   async onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
-    return;
+    return this.reminderService.handleCommand(message);
   }
 
   @On({ event: "guildMemberUpdate" })
