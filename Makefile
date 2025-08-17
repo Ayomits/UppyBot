@@ -3,8 +3,6 @@ init:
 	make build
 	make up
 	make update_bot
-	make generate_prisma
-	make migrate_prisma
 	make restart_bot
 
 down:
@@ -19,12 +17,6 @@ up:
 update_bot:
 	docker exec -it fear-bot pnpm install
 
-generate_prisma:
-	docker exec -it fear-bot pnpm run prisma:generate
-
-migrate_prisma:
-	docker exec -it fear-bot pnpm run prisma:migrate
-
 console_bot:
 	docker exec -it fear-bot sh
 
@@ -33,3 +25,7 @@ restart_bot:
 
 restart:
 	docker compose restart
+
+lint_fix:
+	docker exec -it fear-bot pnpm run lint:fix
+	docker exec -it fear-bot pnpm run format:fix
