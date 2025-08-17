@@ -19,6 +19,6 @@ export class SettingsController {
     defaultMemberPermissions: ["Administrator"],
   })
   handleSettings(interaction: ChatInputCommandInteraction) {
-    return this.settingsService.handleSettings(interaction);
+    return this.settingsService.handleSettingsCommand(interaction);
   }
 }
