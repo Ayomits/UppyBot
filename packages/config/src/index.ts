@@ -10,9 +10,6 @@ export class ConfigService {
       ignore: ["node_modules/**"],
     });
 
-    console.log(process.cwd());
-    console.log(envFiles);
-
     envFiles.forEach((path) => {
       dt.config({ path });
     });
