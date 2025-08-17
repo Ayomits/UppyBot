@@ -18,8 +18,14 @@ export const SettingsCustomIds = {
       channels: "settings-manager-channels",
     },
     actions: {
-      role: "settings-manager-role-action",
-      channel: "settings-manager-channels-action",
+      role: {
+        action: "settings-manager-role-action",
+        backward: "settings-manager-role-backward"
+      },
+      channel: {
+        action: "settings-manager-channels-action",
+        backward: "settings-manager-channels-backward"
+      },
     },
   },
 } as const;
