@@ -25,3 +25,11 @@ export const MonitoringBotMessage = {
     failure: "Не так быстро, сэр",
   },
 } as const;
+
+export const RemindType = {
+  DiscordMonitoring: 0,
+  ServerMonitoring: 1,
+  SdcMonitoring: 2,
+} as const;
+
+export type RemindType = LiteralEnum<typeof RemindType>;
