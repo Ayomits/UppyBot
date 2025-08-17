@@ -7,3 +7,10 @@ export const MonitoringBot = {
 } as const;
 
 export type MonitoringBot = LiteralEnum<typeof MonitoringBot>;
+
+export const MonitoringBotMessage = {
+  serverMonitoring: {
+    success: "Server bumped by",
+    failure: "The next bump for this server will be available",
+  },
+} as const;
