@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import type { Message } from "discord.js";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   MonitoringBot,
@@ -44,6 +44,10 @@ describe("ReminderParser", () => {
 
   beforeEach(() => {
     parser = new ReminderParser();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("getHandler", () => {
@@ -188,6 +192,47 @@ describe("ReminderParser", () => {
       ),
     ).toStrictEqual(
       parser.handleFailure(now, guildId, userId, RemindType.SdcMonitoring),
+    );
+  });
+
+  test("handleServerMonitoring (success)", () => {
+    const timestamp = new Date(now.getTime() + 3_600 * 4 * 1_000);
+
+    expect(
+      parser.handleServerMonitoring(
+        createMockMessage({
+          embeds: [
+            // @ts-expect-error its tests
+            createMockEmbed(MonitoringBotMessage.serverMonitoring.success),
+          ],
+        }),
+      ),
+    ).toStrictEqual(
+      parser.handleSuccess(
+        timestamp,
+        guildId,
+        userId,
+        RemindType.ServerMonitoring,
+      ),
+    );
+    expect(
+      parser.handleServerMonitoring(
+        createMockMessage({
+          embeds: [
+            // @ts-expect-error its tests
+            createMockEmbed(
+              MonitoringBotMessage.serverMonitoring.failure + " " + "04:00:00",
+            ),
+          ],
+        }),
+      ),
+    ).toStrictEqual(
+      parser.handleFailure(
+        timestamp,
+        guildId,
+        userId,
+        RemindType.ServerMonitoring,
+      ),
     );
   });
 });
