@@ -1,17 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Message, Snowflake } from "discord.js";
 import { injectable } from "tsyringe";
 
-import type { RemindType } from "#/models/reminder.model.js";
+import { RemindType } from "#/models/reminder.model.js";
 import { RemindModel } from "#/models/reminder.model.js";
 
 import { MonitoringBot, MonitoringBotMessage } from "./reminder.const.js";
 
 interface HandlerValue {
   guild: Snowflake;
-  author: Snowflake;
+  authorId: Snowflake;
   success: boolean;
   timestamp: Date | null;
+  type: RemindType;
 }
 
 @injectable()
@@ -24,23 +24,43 @@ export class ReminderParser {
       [MonitoringBot.ServerMonitoring]: this.handleServerMonitoring.bind(this),
     };
 
-    return handlers[message.author.id as MonitoringBot]?.(message);
+    const handler = handlers[message.author.id as MonitoringBot];
+
+    return handler?.(message);
   }
 
   private handleSdcMonitoring(message: Message): HandlerValue {
     const embed = message.embeds[0];
 
-    return {
-      timestamp: new Date(),
-      success: true,
-      guild: "",
-      author: "",
-    };
+    if (!embed?.description) {
+      return;
+    }
+
+    const guildId = message.guildId;
+    const authorId = message.interactionMetadata.user.id;
+
+    const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
+    if (
+      embed.description?.includes(MonitoringBotMessage.sdcMonitoring.success)
+    ) {
+      const timestamp = new Date(match[0]);
+      return this.handleSuccess(
+        timestamp,
+        guildId,
+        authorId,
+        RemindType.SdcMonitoring,
+      );
+    }
+
+    return this.handleFailure(
+      new Date(),
+      guildId,
+      authorId,
+      RemindType.SdcMonitoring,
+    );
   }
 
-  private async handleServerMonitoring(
-    message: Message,
-  ): Promise<HandlerValue> {
+  private handleServerMonitoring(message: Message): HandlerValue {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -55,7 +75,12 @@ export class ReminderParser {
       embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
     ) {
       const timestamp = new Date(now + 3_600 * 1_000);
-      return this.handleSuccess(timestamp, guildId, authorId);
+      return this.handleSuccess(
+        timestamp,
+        guildId,
+        authorId,
+        RemindType.ServerMonitoring,
+      );
     }
 
     const timestampRegex = /\d{1,2}:\d{1,2}:\d{1,2}/g;
@@ -76,7 +101,12 @@ export class ReminderParser {
 
     const timestamp = new Date(now + miliSeconds);
 
-    return this.handleFailure(timestamp, guildId, authorId);
+    return this.handleFailure(
+      timestamp,
+      guildId,
+      authorId,
+      RemindType.ServerMonitoring,
+    );
   }
 
   private handleDiscordMonitoring(message: Message): HandlerValue {
@@ -95,10 +125,20 @@ export class ReminderParser {
         embed.description.includes(m),
       )
     ) {
-      return this.handleSuccess(timestamp, guildId, authorId);
+      return this.handleSuccess(
+        timestamp,
+        guildId,
+        authorId,
+        RemindType.DiscordMonitoring,
+      );
     }
 
-    return this.handleFailure(timestamp, guildId, authorId);
+    return this.handleFailure(
+      timestamp,
+      guildId,
+      authorId,
+      RemindType.DiscordMonitoring,
+    );
   }
 
   private handleEmptyEmbeds(message: Message): HandlerValue {
@@ -107,6 +147,7 @@ export class ReminderParser {
         null,
         message.guildId,
         message.interactionMetadata.user.id,
+        RemindType.DiscordMonitoring,
       );
     }
   }
@@ -114,26 +155,30 @@ export class ReminderParser {
   private handleSuccess(
     timestamp: Date | null,
     guildId: string,
-    author: string,
-  ) {
+    authorId: string,
+    type: RemindType,
+  ): HandlerValue {
     return {
       timestamp: timestamp,
       success: true,
       guild: guildId,
-      author: author,
+      authorId: authorId,
+      type: type,
     };
   }
 
   private handleFailure(
     timestamp: Date | null,
     guildId: string,
-    author: string,
-  ) {
+    authorId: string,
+    type: RemindType,
+  ): HandlerValue {
     return {
       timestamp: timestamp,
       success: false,
       guild: guildId,
-      author: author,
+      authorId: authorId,
+      type,
     };
   }
 

@@ -20,4 +20,8 @@ export const MonitoringBotMessage = {
     ],
     failure: ["You are so hot", "Не так быстро"],
   },
+  sdcMonitoring: {
+    success: "Успешный up",
+    failure: "Не так быстро, сэр",
+  },
 } as const;
