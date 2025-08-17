@@ -1,10 +1,11 @@
 import type { Message, Snowflake } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { RemindType } from "#/models/reminder.model.js";
-import { RemindModel } from "#/models/reminder.model.js";
-
-import { MonitoringBot, MonitoringBotMessage } from "./reminder.const.js";
+import {
+  MonitoringBot,
+  MonitoringBotMessage,
+  RemindType,
+} from "./reminder.const.js";
 
 interface HandlerValue {
   guild: Snowflake;
@@ -17,19 +18,28 @@ interface HandlerValue {
 @injectable()
 export class ReminderParser {
   public handleMonitoring(message: Message) {
-    const handlers = {
-      [MonitoringBot.DiscordMonitoring]:
-        this.handleDiscordMonitoring.bind(this),
-      [MonitoringBot.SdcMonitoring]: this.handleSdcMonitoring.bind(this),
-      [MonitoringBot.ServerMonitoring]: this.handleServerMonitoring.bind(this),
-    };
+    const handler = this.getHandler(message.author.id as MonitoringBot);
 
-    const handler = handlers[message.author.id as MonitoringBot];
+    if (!handler) {
+      return;
+    }
 
     return handler?.(message);
   }
 
-  private handleSdcMonitoring(message: Message): HandlerValue {
+  public getHandler(monitoring: MonitoringBot) {
+    if (monitoring === MonitoringBot.DiscordMonitoring) {
+      return this.handleDiscordMonitoring;
+    } else if (monitoring === MonitoringBot.SdcMonitoring) {
+      return this.handleSdcMonitoring;
+    } else if (monitoring === MonitoringBot.ServerMonitoring) {
+      return this.handleServerMonitoring;
+    } else {
+      return null;
+    }
+  }
+
+  public handleSdcMonitoring(message: Message): HandlerValue {
     const embed = message.embeds[0];
 
     if (!embed?.description) {
@@ -43,7 +53,7 @@ export class ReminderParser {
     if (
       embed.description?.includes(MonitoringBotMessage.sdcMonitoring.success)
     ) {
-      const timestamp = new Date(match[0]);
+      const timestamp = new Date(Number(match[1]));
       return this.handleSuccess(
         timestamp,
         guildId,
@@ -60,7 +70,7 @@ export class ReminderParser {
     );
   }
 
-  private handleServerMonitoring(message: Message): HandlerValue {
+  public handleServerMonitoring(message: Message): HandlerValue {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -109,7 +119,7 @@ export class ReminderParser {
     );
   }
 
-  private handleDiscordMonitoring(message: Message): HandlerValue {
+  public handleDiscordMonitoring(message: Message): HandlerValue {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -141,7 +151,7 @@ export class ReminderParser {
     );
   }
 
-  private handleEmptyEmbeds(message: Message): HandlerValue {
+  public handleEmptyEmbeds(message: Message): HandlerValue {
     if (!message.embeds.length) {
       return this.handleFailure(
         null,
@@ -152,7 +162,7 @@ export class ReminderParser {
     }
   }
 
-  private handleSuccess(
+  public handleSuccess(
     timestamp: Date | null,
     guildId: string,
     authorId: string,
@@ -167,7 +177,7 @@ export class ReminderParser {
     };
   }
 
-  private handleFailure(
+  public handleFailure(
     timestamp: Date | null,
     guildId: string,
     authorId: string,
@@ -180,32 +190,5 @@ export class ReminderParser {
       authorId: authorId,
       type,
     };
-  }
-
-  private async fetchByType(
-    guildId: string,
-    type: RemindType,
-    timestamp: Date,
-  ) {
-    return await RemindModel.findOne(
-      {
-        guildId: guildId,
-        type: type,
-        timestamp: { $gt: new Date(), $lte: timestamp },
-      },
-      {},
-    );
-  }
-
-  private async createNewRemind(
-    guildId: string,
-    timestamp: Date,
-    type: RemindType,
-  ) {
-    return await RemindModel.create({
-      guildId,
-      timestamp,
-      type,
-    });
   }
 }
