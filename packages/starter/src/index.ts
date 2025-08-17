@@ -15,7 +15,7 @@ export const IMPORT_PATTERN = `./**/*.controller.js`;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function loadImports(_: any, matches: string[]) {
   matches.forEach(
-    (match) => import(`.${match.replace("src", "").replace("dist", "")}`)
+    (match) => import(`.${match.replace("src", "").replace("dist", "")}`),
   );
 }
 
@@ -23,7 +23,7 @@ export function createProject(
   token: string,
   options?: Partial<ClientOptions> & {
     env?: string;
-  }
+  },
 ) {
   const main = async () => {
     const { env = "dev", ...rest } = options;
