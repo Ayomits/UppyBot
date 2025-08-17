@@ -1,6 +1,5 @@
 import "reflect-metadata";
 
-import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
 import { GatewayIntentBits } from "discord.js";
 import {
@@ -11,12 +10,23 @@ import {
 } from "discordx";
 import { container } from "tsyringe";
 
+export const IMPORT_PATTERN = `./**/*.controller.js`;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function loadImports(_: any, matches: string[]) {
+  matches.forEach(
+    (match) => import(`.${match.replace("src", "").replace("dist", "")}`)
+  );
+}
+
 export function createProject(
   token: string,
-  options?: Partial<ClientOptions> & { env?: string },
+  options?: Partial<ClientOptions> & {
+    env?: string;
+  }
 ) {
   const main = async () => {
-    const { env, ...rest } = options;
+    const { env = "dev", ...rest } = options;
     DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
     const client = new Client({
       intents: [
@@ -25,19 +35,10 @@ export function createProject(
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
       ],
+      silent: env !== "dev",
       simpleCommand: {
         prefix: "!",
       },
-      silent: env !== "dev",
-      botGuilds:
-        env === "dev"
-          ? [
-              "1265957323193716788",
-              "532331179760812033",
-              "1391117548036165752",
-              "1369790516627247255",
-            ]
-          : undefined,
       ...rest,
     });
 
@@ -71,8 +72,6 @@ export function createProject(
         console.error(err);
       }
     });
-
-    await importx(`${dirname(import.meta.url)}/**/!(*.d).{ts,js}`);
 
     await client.login(token).then(() => {
       console.log("Successfully logged in");
