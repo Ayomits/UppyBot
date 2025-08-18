@@ -1,7 +1,8 @@
 import { type ChatInputCommandInteraction } from "discord.js";
-import { type ArgsOf, type Client, Discord, On, Slash } from "discordx";
+import { type ArgsOf, type Client, Discord, Guard, On, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
 
+import { IsHelper } from "#/guards/is-helper.guard.js";
 import { HelperBotMessages } from "#/messages/index.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
@@ -23,6 +24,7 @@ export class BumpReminderController {
     name: HelperBotMessages.remind.statusAll.command.name,
     description: HelperBotMessages.remind.statusAll.command.description,
   })
+  @Guard(IsHelper)
   reminderStatus(interaction: ChatInputCommandInteraction) {
     return this.reminderService.handleReminderStatus(interaction);
   }
