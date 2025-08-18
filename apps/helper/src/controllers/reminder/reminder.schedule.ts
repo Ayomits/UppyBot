@@ -131,7 +131,7 @@ export class ReminderSchedule {
     const members = await guild.members.fetch();
     const channels = await guild.channels.fetch();
     const bot = members.get(botId);
-    const channel = channels.get(settings.pingChannelId);
+    const channel = channels.get(settings?.pingChannelId);
 
     if (!bot || !channel || !settings) {
       return await RemindModel.deleteOne({ _id: remind._id });
@@ -151,7 +151,6 @@ export class ReminderSchedule {
         settings.bumpRoleIds,
         remind.type as RemindType,
         bot.user,
-        remind._id,
       );
     }
 
@@ -171,7 +170,6 @@ export class ReminderSchedule {
           settings.bumpRoleIds,
           remind.type as RemindType,
           bot.user,
-          remind._id,
         ),
       );
     }
@@ -186,8 +184,6 @@ export class ReminderSchedule {
     pings: Snowflake[],
     type: RemindType,
     bot: User,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    remindId: any,
   ) {
     const embed = new EmbedBuilder()
       .setDefaults(bot)
@@ -204,11 +200,10 @@ export class ReminderSchedule {
         })
         .catch(console.error);
     }, 500);
-    await RemindModel.deleteOne({ _id: remindId });
   }
 
   private async sendWarning(...args: Parameters<typeof this.sendRemind>) {
-    const [channel, pings, type, , remindId] = args;
+    const [channel, pings, type] = args;
     setTimeout(() => {
       channel
         .send({
@@ -219,6 +214,5 @@ export class ReminderSchedule {
         })
         .catch(console.error);
     }, 500);
-    await RemindModel.deleteOne({ _id: remindId });
   }
 }

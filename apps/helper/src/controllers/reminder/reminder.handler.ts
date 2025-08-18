@@ -49,6 +49,11 @@ export class ReminderHandler {
         { upsert: true },
       );
 
+      if (payload.success && lastRemind) {
+        await RemindModel.deleteOne({ _id: lastRemind._id });
+        lastRemind = null;
+      }
+
       if (!lastRemind || payload.success) {
         lastRemind = await this.createRemind(
           guildId,
@@ -67,7 +72,7 @@ export class ReminderHandler {
 
       const isAnomaly = GMTTime.getTime() != payloadGMT.getTime();
 
-      if (!payload.success && isAnomaly) {
+      if (isAnomaly) {
         lastRemind = await this.updateAnomaly(
           lastRemind._id,
           payload.timestamp,

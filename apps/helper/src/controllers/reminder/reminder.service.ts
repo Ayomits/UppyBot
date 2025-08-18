@@ -4,27 +4,35 @@ import type {
   Guild,
   GuildMember,
   Interaction,
+  InteractionEditReplyOptions,
   UserContextMenuCommandInteraction,
 } from "discord.js";
 import { injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { HelperBotMessages } from "#/messages/index.js";
-import { RemindModel } from "#/models/reminder.model.js";
+import { type RemindDocument, RemindModel } from "#/models/reminder.model.js";
 
-import { MonitoringBot, RemindType } from "./reminder.const.js";
+import {
+  getCommandByRemindType,
+  getRemindTypeText,
+  MonitoringBot,
+  RemindType,
+} from "./reminder.const.js";
 
 @injectable()
 export class ReminderService {
   // Эта команда показывает кд всех ботов
-  async handleReminderStatus(interaction: ChatInputCommandInteraction) {}
+  async handleReminderStatus(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+    await interaction.editReply(
+      await this.buildReminderStatusMessage(interaction),
+    );
+  }
 
-  // Эта команда показывает кд конкретного бота
-  async handleReminderBotStatus(
-    interaction: UserContextMenuCommandInteraction,
-  ) {}
-
-  private async buildReminderStatusMessage(interaction: Interaction) {
+  private async buildReminderStatusMessage(
+    interaction: Interaction,
+  ): Promise<InteractionEditReplyOptions> {
     const [discordMonitoring, sdcMonitoring, serverMonitoring] =
       await Promise.all([
         this.fetchMonitoringBot(
@@ -60,9 +68,24 @@ export class ReminderService {
       guildId: interaction.guildId,
     }).sort({ timestamp: -1 });
 
+    const monitoringsMap = Object.fromEntries(
+      monitorings.map((m) => [
+        getCommandByRemindType(m.type as RemindType),
+        m as RemindDocument,
+      ]),
+    );
+
     const embed = new EmbedBuilder()
       .setDefaults(interaction.user)
-      .setTitle(HelperBotMessages.remind.statusAll.embed.title);
+      .setTitle(HelperBotMessages.remind.statusAll.embed.title)
+      .setFields(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        HelperBotMessages.remind.statusAll.embed.fields(monitoringsMap as any),
+      );
+
+    return {
+      embeds: [embed],
+    };
   }
 
   private async fetchMonitoringBot(

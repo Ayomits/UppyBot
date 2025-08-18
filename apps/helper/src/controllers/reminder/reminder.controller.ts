@@ -1,8 +1,12 @@
-import { type ArgsOf, type Client, Discord, On } from "discordx";
+import { type ChatInputCommandInteraction } from "discord.js";
+import { type ArgsOf, type Client, Discord, On, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
+
+import { HelperBotMessages } from "#/messages/index.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
 import { ReminderSchedule } from "./reminder.schedule.js";
+import { ReminderService } from "./reminder.service.js";
 
 @Discord()
 @singleton()
@@ -11,9 +15,16 @@ export class BumpReminderController {
     @inject(ReminderHandler)
     private reminderHandler: ReminderHandler,
     @inject(ReminderSchedule) private remindSchedule: ReminderSchedule,
+    @inject(ReminderService) private reminderService: ReminderService,
   ) {}
 
-  reminderStatus() {}
+  @Slash({
+    name: HelperBotMessages.remind.statusAll.command.name,
+    description: HelperBotMessages.remind.statusAll.command.description,
+  })
+  reminderStatus(interaction: ChatInputCommandInteraction) {
+    return this.reminderService.handleReminderStatus(interaction);
+  }
 
   @On({ event: "ready" })
   onReady([client]: ArgsOf<"ready">) {

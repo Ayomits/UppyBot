@@ -49,13 +49,14 @@ export class ReminderParser {
     }
 
     const guildId = message.guildId;
-    const authorId = message.interactionMetadata.user.id;
+    const authorId = message.interactionMetadata?.user?.id ?? message.author.id;
 
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
+
     if (
       embed.description?.includes(MonitoringBotMessage.sdcMonitoring.success)
     ) {
-      const timestamp = DateTime.fromMillis(Number(match[1]))
+      const timestamp = DateTime.fromJSDate(new Date(Number(match[1]) * 1_000))
         .setZone(DefaultTimezone)
         .plus({ hours: 4 })
         .toJSDate();
@@ -85,7 +86,8 @@ export class ReminderParser {
     const embed = message.embeds[0];
 
     const guildId = message.guildId;
-    const authorId = message.interactionMetadata.user.id;
+    const authorId =
+      message?.interactionMetadata?.user?.id ?? message.author.id;
 
     if (
       embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
@@ -131,7 +133,7 @@ export class ReminderParser {
     const embed = message.embeds[0];
 
     const guildId = message.guildId;
-    const authorId = message.interactionMetadata.user.id;
+    const authorId = message.interactionMetadata?.user?.id ?? message.author.id;
 
     const timestamp = DateTime.fromJSDate(new Date(embed.timestamp))
       .setZone(DefaultTimezone)
@@ -163,7 +165,7 @@ export class ReminderParser {
       return this.handleFailure(
         null,
         message.guildId,
-        message.interactionMetadata.user.id,
+        message.interactionMetadata?.user?.id ?? message.author.id,
         RemindType.DiscordMonitoring,
       );
     }
