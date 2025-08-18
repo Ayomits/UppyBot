@@ -173,7 +173,7 @@ describe("ReminderParser", () => {
             createMockEmbed(
               MonitoringBotMessage.sdcMonitoring.success +
                 " " +
-                `<t:${timestamp}:R>`,
+                `<t:${Math.floor(timestamp / 1_000)}:R>`,
             ),
           ],
         }),

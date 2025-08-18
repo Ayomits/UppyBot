@@ -1,0 +1,22 @@
+import { getModelForClass, prop } from "@typegoose/typegoose";
+import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
+import type { Snowflake } from "discord.js";
+
+import type { RemindType } from "#/controllers/reminder/reminder.const.js";
+
+export class Bump extends TimeStamps {
+  @prop({ required: true, index: true, alias: "guild_id" })
+  guildId: Snowflake;
+
+  @prop({ required: true, index: true })
+  type: RemindType;
+
+  @prop({ required: true, index: true, alias: "author_id" })
+  authorId: Snowflake;
+}
+
+export const BumpModel = getModelForClass(Bump, {
+  options: {
+    customName: "bumps",
+  },
+});
