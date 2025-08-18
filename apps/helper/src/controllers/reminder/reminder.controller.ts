@@ -1,34 +1,37 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { type ArgsOf, Discord, On } from "discordx";
+import { type ArgsOf, type Client, Discord, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { BumpReminderService } from "./reminder.service.js";
+import { ReminderHandler } from "./reminder.handler.js";
+import { ReminderSchedule } from "./reminder.schedule.js";
 
 @Discord()
 @singleton()
 export class BumpReminderController {
   constructor(
-    @inject(BumpReminderService)
-    private reminderService: BumpReminderService,
+    @inject(ReminderHandler)
+    private reminderHandler: ReminderHandler,
+    @inject(ReminderSchedule) private remindSchedule: ReminderSchedule,
   ) {}
 
+  reminderStatus() {}
+
+  @On({ event: "ready" })
+  onReady([client]: ArgsOf<"ready">) {
+    return this.remindSchedule.initReminds(client as Client);
+  }
+
   @On({ event: "messageCreate" })
-  async onMessageCreate([message]: ArgsOf<"messageCreate">) {
-    return this.reminderService.handleCommand(message);
+  onMessageCreate([message]: ArgsOf<"messageCreate">) {
+    return this.reminderHandler.handleCommand(message);
   }
 
   @On({ event: "messageUpdate" })
-  async onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
-    return this.reminderService.handleCommand(message);
-  }
-
-  @On({ event: "guildMemberUpdate" })
-  async onMemberUpdate([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
-    return;
+  onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
+    return this.reminderHandler.handleCommand(message);
   }
 
   @On({ event: "guildMemberRemove" })
-  async onMemberRemove([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
-    return;
+  onMemberRemove([oldMember]: ArgsOf<"guildMemberRemove">) {
+    return this.remindSchedule.handleGuildRemove(oldMember);
   }
 }

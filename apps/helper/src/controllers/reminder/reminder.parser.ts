@@ -1,7 +1,9 @@
 import type { Message, Snowflake } from "discord.js";
+import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
 import {
+  DefaultTimezone,
   MonitoringBot,
   MonitoringBotMessage,
   RemindType,
@@ -17,7 +19,7 @@ interface HandlerValue {
 
 @injectable()
 export class ReminderParser {
-  public handleMonitoring(message: Message) {
+  public handleMonitoring(message: Message): HandlerValue | void {
     const handler = this.getHandler(message.author.id as MonitoringBot);
 
     if (!handler) {
@@ -29,11 +31,11 @@ export class ReminderParser {
 
   public getHandler(monitoring: MonitoringBot) {
     if (monitoring === MonitoringBot.DiscordMonitoring) {
-      return this.handleDiscordMonitoring;
+      return this.handleDiscordMonitoring.bind(this);
     } else if (monitoring === MonitoringBot.SdcMonitoring) {
-      return this.handleSdcMonitoring;
+      return this.handleSdcMonitoring.bind(this);
     } else if (monitoring === MonitoringBot.ServerMonitoring) {
-      return this.handleServerMonitoring;
+      return this.handleServerMonitoring.bind(this);
     } else {
       return null;
     }
@@ -53,7 +55,11 @@ export class ReminderParser {
     if (
       embed.description?.includes(MonitoringBotMessage.sdcMonitoring.success)
     ) {
-      const timestamp = new Date(Number(match[1]));
+      const timestamp = DateTime.fromMillis(Number(match[1]))
+        .setZone(DefaultTimezone)
+        .plus({ hours: 4 })
+        .toJSDate();
+
       return this.handleSuccess(
         timestamp,
         guildId,
@@ -63,7 +69,9 @@ export class ReminderParser {
     }
 
     return this.handleFailure(
-      new Date(),
+      DateTime.fromJSDate(new Date(Number(match[1]) * 1_000))
+        .setZone(DefaultTimezone)
+        .toJSDate(),
       guildId,
       authorId,
       RemindType.SdcMonitoring,
@@ -79,12 +87,13 @@ export class ReminderParser {
     const guildId = message.guildId;
     const authorId = message.interactionMetadata.user.id;
 
-    const now = new Date();
-
     if (
       embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
     ) {
-      const timestamp = new Date(now.getTime() + 3_600 * 4 * 1_000);
+      const timestamp = DateTime.now()
+        .setZone(DefaultTimezone)
+        .plus({ hours: 4 })
+        .toJSDate();
       return this.handleSuccess(
         timestamp,
         guildId,
@@ -94,15 +103,18 @@ export class ReminderParser {
     }
 
     const timestampRegex = /\d{1,2}:\d{1,2}:\d{1,2}/;
-    const splited = embed.description.match(timestampRegex)[0].split(":");
+    const splited = embed.description
+      .match(timestampRegex)[0]
+      .split(":")
+      .map((i) => Number(i));
 
-    const miliSeconds =
-      (Number(splited[0]) * 3_600 +
-        Number(splited[1]) * 60 +
-        Number(splited[2])) *
-      1_000;
-
-    const timestamp = new Date(now.getTime() + miliSeconds);
+    const timestamp = DateTime.now()
+      .plus({
+        hours: splited[0] ?? 0,
+        minutes: splited[1] ?? 0,
+        seconds: splited[2] ?? 0,
+      })
+      .toJSDate();
 
     return this.handleFailure(
       timestamp,
@@ -121,7 +133,9 @@ export class ReminderParser {
     const guildId = message.guildId;
     const authorId = message.interactionMetadata.user.id;
 
-    const timestamp = new Date(embed.timestamp);
+    const timestamp = DateTime.fromJSDate(new Date(embed.timestamp))
+      .setZone(DefaultTimezone)
+      .toJSDate();
 
     if (
       MonitoringBotMessage.discordMonitoring.success.find((m) =>

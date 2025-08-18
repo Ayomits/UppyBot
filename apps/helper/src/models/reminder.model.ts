@@ -1,8 +1,14 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import {
+  type DocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
+@modelOptions({})
 export class Remind extends TimeStamps {
-  @prop({ alias: "guild_id", required: true })
+  @prop({ alias: "guild_id", required: true, index: true })
   guildId: string;
 
   @prop({ required: true })
@@ -13,3 +19,5 @@ export class Remind extends TimeStamps {
 }
 
 export const RemindModel = getModelForClass(Remind);
+
+export type RemindDocument = DocumentType<Remind>;
