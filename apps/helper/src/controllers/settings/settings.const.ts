@@ -8,6 +8,9 @@ export const SettingsCustomIds = {
       roles: "settings-manage-roles",
       channels: "settings-manage-channels",
     },
+    actions: {
+      setForceTime: "settings-set-force-time",
+    },
     updaters: {
       panel: "settings-update-panel",
     },
@@ -27,6 +30,9 @@ export const SettingsCustomIds = {
         backward: "settings-manager-channels-backward",
       },
     },
+  },
+  modal: {
+    setForceTime: "settings-set-force-modal",
   },
 } as const;
 

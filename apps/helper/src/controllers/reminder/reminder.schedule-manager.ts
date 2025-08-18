@@ -127,51 +127,55 @@ export class ReminderScheduleManager {
     settings?: SettingsDocument,
     deletePrevious = false,
   ) {
-    const botId = getBotByRemindType(remind.type as RemindType);
-    const members = await guild.members.fetch();
-    const channels = await guild.channels.fetch();
-    const bot = members.get(botId);
-    const channel = channels.get(settings?.pingChannelId);
+    try {
+      const botId = getBotByRemindType(remind.type as RemindType);
+      const members = await guild.members.fetch().catch(() => null);
+      const channels = await guild.channels.fetch().catch(() => null);
+      const bot = members.get(botId);
+      const channel = channels.get(settings?.pingChannelId);
 
-    if (!bot || !channel || !settings) {
-      return await RemindModel.deleteOne({ _id: remind._id });
-    }
+      if (!bot || !channel || !settings) {
+        return await RemindModel.deleteOne({ _id: remind._id });
+      }
 
-    const timestamp = DateTime.fromJSDate(new Date(remind.timestamp))
-      .setZone(DefaultTimezone)
-      .toJSDate();
+      const timestamp = DateTime.fromJSDate(new Date(remind.timestamp))
+        .setZone(DefaultTimezone)
+        .toJSDate();
 
-    if (
-      DateTime.now().setZone(DefaultTimezone).toJSDate().getTime() >
-      timestamp.getTime()
-    ) {
-      await RemindModel.deleteOne({ _id: remind._id });
-      return this.sendWarning(
-        channel as TextChannel,
-        settings.bumpRoleIds,
-        remind.type as RemindType,
-        bot.user,
-      );
-    }
-
-    const id = this.generateId(guild.id, remind.type as RemindType);
-
-    let existedRemind = this.scheduleManager.getJob(id);
-
-    if (deletePrevious) {
-      this.scheduleManager.stopJob(id);
-      existedRemind = null;
-    }
-
-    if (!existedRemind) {
-      this.scheduleManager.startOnceJob(id, timestamp, () =>
-        this.sendRemind(
+      if (
+        DateTime.now().setZone(DefaultTimezone).toJSDate().getTime() >
+        timestamp.getTime()
+      ) {
+        await RemindModel.deleteOne({ _id: remind._id });
+        return this.sendWarning(
           channel as TextChannel,
           settings.bumpRoleIds,
           remind.type as RemindType,
           bot.user,
-        ),
-      );
+        );
+      }
+
+      const id = this.generateId(guild.id, remind.type as RemindType);
+
+      let existedRemind = this.scheduleManager.getJob(id);
+
+      if (deletePrevious) {
+        this.scheduleManager.stopJob(id);
+        existedRemind = null;
+      }
+
+      if (!existedRemind) {
+        this.scheduleManager.startOnceJob(id, timestamp, () =>
+          this.sendRemind(
+            channel as TextChannel,
+            settings.bumpRoleIds,
+            remind.type as RemindType,
+            bot.user,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
 

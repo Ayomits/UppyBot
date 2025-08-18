@@ -14,6 +14,10 @@ import { ReminderParser } from "./reminder.parser.js";
 import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
 
 @injectable()
+/**
+ * Класс для реагирования на команды от мониторингов
+ * Умеет обрабатывать случаи, когда какие-то шаловливые ручки полезли в базу
+ */
 export class ReminderHandler {
   constructor(
     @inject(ReminderParser) private commandParser: ReminderParser,
@@ -55,7 +59,7 @@ export class ReminderHandler {
         lastRemind = null;
       }
 
-      if (!lastRemind || payload.success) {
+      if (payload.success || !lastRemind) {
         lastRemind = await this.createRemind(
           guildId,
           payload.timestamp,
@@ -63,7 +67,7 @@ export class ReminderHandler {
         );
       }
 
-      const payloadGMT = DateTime.fromJSDate(payload.timestamp)
+      const GMTpayload = DateTime.fromJSDate(payload.timestamp)
         .setZone(DefaultTimezone)
         .toJSDate();
 
@@ -71,7 +75,7 @@ export class ReminderHandler {
         .setZone(DefaultTimezone)
         .toJSDate();
 
-      const isAnomaly = GMTTime.getTime() != payloadGMT.getTime();
+      const isAnomaly = GMTTime.getTime() != GMTpayload.getTime();
 
       if (isAnomaly) {
         lastRemind = await this.updateAnomaly(
