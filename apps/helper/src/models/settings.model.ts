@@ -1,4 +1,8 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import {
+  type DocumentType,
+  getModelForClass,
+  prop,
+} from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 export class Settings extends TimeStamps {
@@ -26,3 +30,5 @@ export const SettingsModel = getModelForClass(Settings, {
     customName: "helper_bot_settings",
   },
 });
+
+export type SettingsDocument = DocumentType<Settings>;
