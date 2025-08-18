@@ -11,13 +11,14 @@ import {
   type RemindType,
 } from "./reminder.const.js";
 import { ReminderParser } from "./reminder.parser.js";
-import { ReminderSchedule } from "./reminder.schedule.js";
+import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
 
 @injectable()
 export class ReminderHandler {
   constructor(
     @inject(ReminderParser) private commandParser: ReminderParser,
-    @inject(ReminderSchedule) private reminderSchedule: ReminderSchedule,
+    @inject(ReminderScheduleManager)
+    private reminderSchedule: ReminderScheduleManager,
   ) {}
 
   public async handleCommand(message: Message) {
