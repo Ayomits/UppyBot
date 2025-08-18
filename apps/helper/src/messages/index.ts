@@ -20,96 +20,109 @@ import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
 import type { RemindDocument } from "#/models/reminder.model.js";
 import type { Settings } from "#/models/settings.model.js";
 
+const createChannelField = (name: string, channelId: Snowflake | null) => ({
+  name: blockQuote(name),
+  value: TextFormattingUtility.snowflakeMention(
+    channelId ? channelMention(channelId) : null,
+  ),
+  inline: true,
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createPropertyField = (name: string, property: any) => ({
+  name: blockQuote(name),
+  value: typeof property === "string" ? property : String(property),
+  inline: true,
+});
+
+const createRoleField = (
+  name: string,
+  roleIds: Snowflake | Snowflake[] | null,
+) => ({
+  name: blockQuote(name),
+  value: TextFormattingUtility.snowflakeMention(
+    Array.isArray(roleIds)
+      ? roleIds.map(roleMention)
+      : roleIds
+        ? roleMention(roleIds)
+        : null,
+  ),
+  inline: !Array.isArray(roleIds),
+});
+
+const canUseMonitoring = (monitoring?: RemindDocument) => {
+  if (!monitoring) return codeBlock("Нет активных напоминаний");
+
+  const now = DateTime.now().setZone(DefaultTimezone).toJSDate().getTime();
+  const timestamp = DateTime.fromJSDate(monitoring.timestamp)
+    .setZone(DefaultTimezone)
+    .toJSDate()
+    .getTime();
+
+  return timestamp > now
+    ? time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime)
+    : codeBlock("Пора использовать");
+};
+
 export const HelperBotMessages = {
+  guards: {
+    isHelper: {
+      invalidSettings:
+        "В настройках ботах нужно выставить роли для сотрудников!",
+      notHelper: "Вы не имеете роли сотрудников",
+    },
+  },
+
   settings: {
     command: {
       name: "settings",
       description: "Команда позволяет настроить бота",
     },
+
     panel: {
       title: "Настройки бота",
-      fields: (settings: Settings): EmbedField[] => {
-        return [
-          {
-            name: blockQuote("Канал для пингов"),
-            value: TextFormattingUtility.snowflakeMention(
-              settings?.pingChannelId
-                ? channelMention(settings?.pingChannelId)
-                : null,
-            ),
-            inline: true,
-          },
-          {
-            name: blockQuote("Канал для логов"),
-            value: TextFormattingUtility.snowflakeMention(
-              settings?.logChannelId
-                ? channelMention(settings?.logChannelId)
-                : null,
-            ),
-            inline: true,
-          },
-          {
-            name: blockQuote("Роли хелпера"),
-            value: TextFormattingUtility.snowflakeMention(
-              settings?.bumpRoleIds.map((role) => roleMention(role)),
-            ),
-            inline: false,
-          },
-          {
-            name: blockQuote("Роль бамп бана"),
-            value: TextFormattingUtility.snowflakeMention(
-              settings?.bumpBanRoleId
-                ? roleMention(settings?.bumpBanRoleId)
-                : null,
-            ),
-            inline: true,
-          },
-        ];
-      },
-      buttons: {
+      fields: (settings: Settings): EmbedField[] => [
+        createChannelField("Канал для пингов", settings?.pingChannelId ?? null),
+        createChannelField("Канал для логов", settings?.logChannelId ?? null),
+        createRoleField("Роли хелпера", settings?.bumpRoleIds ?? null),
+        createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
+        createPropertyField(
+          "Преждевременный пинг (секунды)",
+          settings.force ?? 0,
+        ),
+      ],
+      components: {
         managers: {
           roles: "Управление ролями",
           channels: "Управление каналами",
+        },
+        actions: {
+          setForceTime: "Преждевременный пинг",
         },
         updaters: {
           panel: "Обновить панель",
         },
       },
     },
+
     managers: {
       channels: {
         embed: {
           title: "Управление каналами",
           fields: (settings: Settings): EmbedField[] => [
-            {
-              name: blockQuote("Канал для пингов"),
-              value: TextFormattingUtility.snowflakeMention(
-                settings.pingChannelId
-                  ? channelMention(settings?.pingChannelId)
-                  : null,
-              ),
-              inline: true,
-            },
-            {
-              name: blockQuote("Канал для логов"),
-              value: TextFormattingUtility.snowflakeMention(
-                settings.logChannelId
-                  ? channelMention(settings?.logChannelId)
-                  : null,
-              ),
-              inline: true,
-            },
+            createChannelField(
+              "Канал для пингов",
+              settings.pingChannelId ?? null,
+            ),
+            createChannelField(
+              "Канал для логов",
+              settings.logChannelId ?? null,
+            ),
           ],
         },
-        buttons: {
-          backward: {
-            label: "Назад",
-          },
-        },
+        buttons: { backward: { label: "Назад" } },
         select: {
-          actions: {
-            channel: "Выберите канал",
-          },
+          actions: { channel: "Выберите канал" },
           placeholder: "Выберите опцию настройки",
           options: [
             new StringSelectMenuOptionBuilder()
@@ -121,37 +134,32 @@ export const HelperBotMessages = {
           ],
         },
       },
+      force: {
+        modal: {
+          actions: {
+            setForceTime: {
+              content: "Вы успешно установить время преждевременного пинга",
+            },
+          },
+        },
+      },
       roles: {
         embed: {
           title: blockQuote("Управление ролями"),
           fields: (settings: Settings): EmbedField[] => [
-            {
-              name: "Возможные роли сотрудника",
-              value: TextFormattingUtility.snowflakeMention(
-                settings?.bumpRoleIds.map((r) => roleMention(r)),
-              ),
-              inline: true,
-            },
-            {
-              name: blockQuote("Роль для бамп бана"),
-              value: TextFormattingUtility.snowflakeMention(
-                settings?.bumpBanRoleId
-                  ? roleMention(settings?.bumpBanRoleId)
-                  : null,
-              ),
-              inline: true,
-            },
+            createRoleField(
+              "Возможные роли сотрудника",
+              settings?.bumpRoleIds ?? null,
+            ),
+            createRoleField(
+              "Роль для бамп бана",
+              settings?.bumpBanRoleId ?? null,
+            ),
           ],
         },
-        buttons: {
-          backward: {
-            label: "Назад",
-          },
-        },
+        buttons: { backward: { label: "Назад" } },
         select: {
-          actions: {
-            role: "Выберите роль",
-          },
+          actions: { role: "Выберите роль" },
           placeholder: "Выберите опцию настройки",
           options: [
             new StringSelectMenuOptionBuilder()
@@ -165,6 +173,7 @@ export const HelperBotMessages = {
       },
     },
   },
+
   remind: {
     statusAll: {
       command: {
@@ -184,55 +193,34 @@ export const HelperBotMessages = {
             ReturnType<typeof getCommandByRemindType>,
             RemindDocument
           >,
-        ): EmbedField[] => {
-          function canUse(monitoring?: RemindDocument) {
-            if (!monitoring) {
-              return codeBlock("Нет активных напоминаний");
-            }
-
-            const now = DateTime.now()
-              .setZone(DefaultTimezone)
-              .toJSDate()
-              .getTime();
-            const timestamp = DateTime.fromJSDate(monitoring.timestamp)
-              .setZone(DefaultTimezone)
-              .toJSDate()
-              .getTime();
-
-            return timestamp > now
-              ? time(
-                  Math.floor(timestamp / 1_000),
-                  TimestampStyles.RelativeTime,
-                )
-              : codeBlock("Пора использовать");
-          }
-          return [
-            {
-              name: blockQuote(MonitoringCommand.DiscordMonitoring),
-              value: canUse(monitorings.like),
-              inline: true,
-            },
-            {
-              name: blockQuote(MonitoringCommand.SdcMonitoring),
-              value: canUse(monitorings.up),
-              inline: true,
-            },
-            {
-              name: blockQuote(MonitoringCommand.ServerMonitoring),
-              value: canUse(monitorings.bump),
-              inline: true,
-            },
-          ];
-        },
+        ): EmbedField[] => [
+          {
+            name: blockQuote(MonitoringCommand.DiscordMonitoring),
+            value: canUseMonitoring(monitorings.like),
+            inline: true,
+          },
+          {
+            name: blockQuote(MonitoringCommand.SdcMonitoring),
+            value: canUseMonitoring(monitorings.up),
+            inline: true,
+          },
+          {
+            name: blockQuote(MonitoringCommand.ServerMonitoring),
+            value: canUseMonitoring(monitorings.bump),
+            inline: true,
+          },
+        ],
       },
     },
+
     warning: {
       content: (roles: Snowflake[], command: string) =>
-        `${roles.map((r) => roleMention(r))}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
+        `${roles.map(roleMention).join(" ")}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
     },
+
     ping: {
       content: (roles: Snowflake[], command: string) =>
-        `${roles.map((r) => roleMention(r))}, пора использовать команду ${command}!`,
+        `${roles.map(roleMention).join(" ")}, пора использовать команду ${command}!`,
       embed: {
         title: "Продвижение сервера",
         description: "Самое время для прописания команды мониторинга",

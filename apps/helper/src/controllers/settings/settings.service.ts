@@ -12,10 +12,14 @@ import {
   type Interaction,
   type InteractionEditReplyOptions,
   type Message,
+  ModalBuilder,
+  type ModalSubmitInteraction,
   RoleSelectMenuBuilder,
   type RoleSelectMenuInteraction,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 import { injectable } from "tsyringe";
 
@@ -23,6 +27,7 @@ import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { type Settings, SettingsModel } from "#/models/settings.model.js";
 
+import { MonitoringCooldownHours } from "../reminder/reminder.const.js";
 import {
   MULTIPLE_ROLE_SELECT_FIELDS,
   SettingsCustomIds,
@@ -52,6 +57,8 @@ export class SettingsService {
           this.openChannelManagement.bind(this),
         [SettingsCustomIds.buttons.managers.roles]:
           this.openRoleManagement.bind(this),
+        [SettingsCustomIds.buttons.actions.setForceTime]:
+          this.openSetForceModal.bind(this),
       };
 
       actionHandlers[interaction.customId]?.(interaction);
@@ -73,6 +80,7 @@ export class SettingsService {
       this.createChannelManagementButton(),
       this.createRoleManagementButton(),
       this.createRefreshButton(),
+      this.createForceRemindButton(),
     );
 
     return { embeds: [embed], components: [controls] };
@@ -80,23 +88,83 @@ export class SettingsService {
 
   private createChannelManagementButton() {
     return new ButtonBuilder()
-      .setLabel(HelperBotMessages.settings.panel.buttons.managers.channels)
+      .setLabel(HelperBotMessages.settings.panel.components.managers.channels)
       .setCustomId(SettingsCustomIds.buttons.managers.channels)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createRoleManagementButton() {
     return new ButtonBuilder()
-      .setLabel(HelperBotMessages.settings.panel.buttons.managers.roles)
+      .setLabel(HelperBotMessages.settings.panel.components.managers.roles)
       .setCustomId(SettingsCustomIds.buttons.managers.roles)
+      .setStyle(ButtonStyle.Secondary);
+  }
+
+  private createForceRemindButton() {
+    return new ButtonBuilder()
+      .setLabel(
+        HelperBotMessages.settings.panel.components.actions.setForceTime,
+      )
+      .setCustomId(SettingsCustomIds.buttons.actions.setForceTime)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createRefreshButton() {
     return new ButtonBuilder()
-      .setLabel(HelperBotMessages.settings.panel.buttons.updaters.panel)
+      .setLabel(HelperBotMessages.settings.panel.components.updaters.panel)
       .setCustomId(SettingsCustomIds.buttons.updaters.panel)
       .setStyle(ButtonStyle.Secondary);
+  }
+
+  //===============Преждевременный пинг
+  private openSetForceModal(interaction: ButtonInteraction) {
+    const modal = new ModalBuilder()
+      .setTitle(
+        HelperBotMessages.settings.panel.components.actions.setForceTime,
+      )
+      .setCustomId(SettingsCustomIds.modal.setForceTime);
+
+    const time = new ActionRowBuilder<TextInputBuilder>().addComponents(
+      new TextInputBuilder()
+        .setLabel("Количество секунд")
+        .setPlaceholder("Введите количество секунд")
+        .setCustomId("time")
+        .setRequired(true)
+        .setStyle(TextInputStyle.Short),
+    );
+
+    return interaction.showModal(modal.addComponents(time));
+  }
+
+  public async handleSetForceModal(interaction: ModalSubmitInteraction) {
+    const fieldSeconds = Number(interaction.fields.getTextInputValue("time"));
+    let seconds = 0;
+    if (Number.isNaN(fieldSeconds)) {
+      seconds = 0;
+    } else {
+      seconds = fieldSeconds;
+    }
+
+    seconds = Math.min(
+      Math.max(0, seconds),
+      3_600 * MonitoringCooldownHours - 2,
+    );
+
+    await SettingsModel.findOneAndUpdate(
+      {
+        guildId: interaction.guildId,
+      },
+      {
+        force: seconds * 1_000,
+      },
+    );
+
+    return interaction.reply({
+      content:
+        HelperBotMessages.settings.managers.force.modal.actions.setForceTime
+          .content,
+      ephemeral: true,
+    });
   }
 
   //==============Управление каналами=============
