@@ -80,13 +80,13 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.success[0],
-              now
+              now,
             ),
           ],
-        }) as any
-      )
+        }) as any,
+      ),
     ).toStrictEqual(
-      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring)
+      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring),
     );
   });
 
@@ -99,13 +99,13 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.success[1],
-              now
+              now,
             ),
           ],
-        }) as any
-      )
+        }) as any,
+      ),
     ).toStrictEqual(
-      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring)
+      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring),
     );
   });
 
@@ -118,13 +118,13 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.failure[1],
-              now
+              now,
             ),
           ],
-        }) as any
-      )
+        }) as any,
+      ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring)
+      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
     );
   });
 
@@ -137,13 +137,13 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.failure[1],
-              now
+              now,
             ),
           ],
-        }) as any
-      )
+        }) as any,
+      ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring)
+      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
     );
   });
 
@@ -156,10 +156,10 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed("92482340", now),
           ],
-        }) as any
-      )
+        }) as any,
+      ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring)
+      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
     );
   });
 
@@ -173,18 +173,18 @@ describe("ReminderParser", () => {
             createMockEmbed(
               MonitoringBotMessage.sdcMonitoring.success +
                 " " +
-                `<t:${timestamp}:R>`
+                `<t:${timestamp}:R>`,
             ),
           ],
-        })
-      )
+        }),
+      ),
     ).toStrictEqual(
       parser.handleSuccess(
         DateTime.now().plus({ hours: 4 }).toJSDate(),
         guildId,
         userId,
-        RemindType.SdcMonitoring
-      )
+        RemindType.SdcMonitoring,
+      ),
     );
   });
 
@@ -197,13 +197,13 @@ describe("ReminderParser", () => {
             createMockEmbed(
               MonitoringBotMessage.sdcMonitoring.failure +
                 " " +
-                `<t:${Math.floor(now.getTime() / 1_000)}:R>`
+                `<t:${Math.floor(now.getTime() / 1_000)}:R>`,
             ),
           ],
-        })
-      )
+        }),
+      ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.SdcMonitoring)
+      parser.handleFailure(now, guildId, userId, RemindType.SdcMonitoring),
     );
   });
 
@@ -217,15 +217,15 @@ describe("ReminderParser", () => {
             // @ts-expect-error its tests
             createMockEmbed(MonitoringBotMessage.serverMonitoring.success),
           ],
-        })
-      )
+        }),
+      ),
     ).toStrictEqual(
       parser.handleSuccess(
         timestamp,
         guildId,
         userId,
-        RemindType.ServerMonitoring
-      )
+        RemindType.ServerMonitoring,
+      ),
     );
     expect(
       parser.handleServerMonitoring(
@@ -233,18 +233,18 @@ describe("ReminderParser", () => {
           embeds: [
             // @ts-expect-error its tests
             createMockEmbed(
-              MonitoringBotMessage.serverMonitoring.failure + " " + "04:00:00"
+              MonitoringBotMessage.serverMonitoring.failure + " " + "04:00:00",
             ),
           ],
-        })
-      )
+        }),
+      ),
     ).toStrictEqual(
       parser.handleFailure(
         timestamp,
         guildId,
         userId,
-        RemindType.ServerMonitoring
-      )
+        RemindType.ServerMonitoring,
+      ),
     );
   });
 });
