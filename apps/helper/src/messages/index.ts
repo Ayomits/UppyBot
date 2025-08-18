@@ -3,6 +3,7 @@ import {
   channelMention,
   type EmbedField,
   roleMention,
+  type Snowflake,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 
@@ -151,6 +152,25 @@ export const HelperBotMessages = {
               .setValue("bumpBanRoleId"),
           ],
         },
+      },
+    },
+  },
+  remind: {
+    statusAll: {
+      embed: {
+        title: "Статус мониторингов",
+      },
+    },
+    warning: {
+      content: (roles: Snowflake[], command: string) =>
+        `${roles.map((r) => roleMention(r))}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
+    },
+    ping: {
+      content: (roles: Snowflake[], command: string) =>
+        `${roles.map((r) => roleMention(r))}, пора использовать команду ${command}!`,
+      embed: {
+        title: "Продвижение сервера",
+        description: "Самое время для прописания команды мониторинга",
       },
     },
   },
