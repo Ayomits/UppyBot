@@ -1,13 +1,23 @@
 import {
   blockQuote,
   channelMention,
+  codeBlock,
   type EmbedField,
   roleMention,
   type Snowflake,
   StringSelectMenuOptionBuilder,
+  time,
+  TimestampStyles,
 } from "discord.js";
+import { DateTime } from "luxon";
 
+import {
+  DefaultTimezone,
+  type getCommandByRemindType,
+  MonitoringCommand,
+} from "#/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
+import type { RemindDocument } from "#/models/reminder.model.js";
 import type { Settings } from "#/models/settings.model.js";
 
 export const HelperBotMessages = {
@@ -23,7 +33,7 @@ export const HelperBotMessages = {
           {
             name: blockQuote("Канал для пингов"),
             value: TextFormattingUtility.snowflakeMention(
-              settings.pingChannelId
+              settings?.pingChannelId
                 ? channelMention(settings?.pingChannelId)
                 : null,
             ),
@@ -32,7 +42,7 @@ export const HelperBotMessages = {
           {
             name: blockQuote("Канал для логов"),
             value: TextFormattingUtility.snowflakeMention(
-              settings.logChannelId
+              settings?.logChannelId
                 ? channelMention(settings?.logChannelId)
                 : null,
             ),
@@ -157,8 +167,63 @@ export const HelperBotMessages = {
   },
   remind: {
     statusAll: {
+      command: {
+        name: "remaining",
+        description: "Время до команд",
+        args: {
+          type: {
+            name: "type",
+            description: "Какой именно мониторинг",
+          },
+        },
+      },
       embed: {
         title: "Статус мониторингов",
+        fields: (
+          monitorings: Record<
+            ReturnType<typeof getCommandByRemindType>,
+            RemindDocument
+          >,
+        ): EmbedField[] => {
+          function canUse(monitoring?: RemindDocument) {
+            if (!monitoring) {
+              return codeBlock("Нет активных напоминаний");
+            }
+
+            const now = DateTime.now()
+              .setZone(DefaultTimezone)
+              .toJSDate()
+              .getTime();
+            const timestamp = DateTime.fromJSDate(monitoring.timestamp)
+              .setZone(DefaultTimezone)
+              .toJSDate()
+              .getTime();
+
+            return timestamp > now
+              ? time(
+                  Math.floor(timestamp / 1_000),
+                  TimestampStyles.RelativeTime,
+                )
+              : codeBlock("Пора использовать");
+          }
+          return [
+            {
+              name: blockQuote(MonitoringCommand.DiscordMonitoring),
+              value: canUse(monitorings.like),
+              inline: true,
+            },
+            {
+              name: blockQuote(MonitoringCommand.SdcMonitoring),
+              value: canUse(monitorings.up),
+              inline: true,
+            },
+            {
+              name: blockQuote(MonitoringCommand.ServerMonitoring),
+              value: canUse(monitorings.bump),
+              inline: true,
+            },
+          ];
+        },
       },
     },
     warning: {
