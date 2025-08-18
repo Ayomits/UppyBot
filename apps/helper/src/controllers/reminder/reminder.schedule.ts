@@ -37,7 +37,7 @@ export class ReminderSchedule {
   private remindsMap: Record<string, RemindDocument> = {};
 
   constructor(
-    @inject(ScheduleManager) private scheduleManager: ScheduleManager
+    @inject(ScheduleManager) private scheduleManager: ScheduleManager,
   ) {}
 
   public async handleGuildRemove(oldMember: PartialGuildMember | GuildMember) {
@@ -60,7 +60,7 @@ export class ReminderSchedule {
     }
 
     this.scheduleManager.startPeriodJob("diff-equal", 60_000, () =>
-      this.diff(client)
+      this.diff(client),
     );
   }
 
@@ -106,7 +106,7 @@ export class ReminderSchedule {
 
     const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
     const remindsMap = Object.fromEntries(
-      reminds.map((r) => [this.generateId(r.guildId, r.type as RemindType), r])
+      reminds.map((r) => [this.generateId(r.guildId, r.type as RemindType), r]),
     );
 
     this.settingsMap = settingsMap;
@@ -125,7 +125,7 @@ export class ReminderSchedule {
     guild: Guild,
     remind: RemindDocument,
     settings?: SettingsDocument,
-    deletePrevious = false
+    deletePrevious = false,
   ) {
     const botId = getBotByRemindType(remind.type as RemindType);
     const members = await guild.members.fetch();
@@ -151,7 +151,7 @@ export class ReminderSchedule {
         settings.bumpRoleIds,
         remind.type as RemindType,
         bot.user,
-        remind._id
+        remind._id,
       );
     }
 
@@ -171,8 +171,8 @@ export class ReminderSchedule {
           settings.bumpRoleIds,
           remind.type as RemindType,
           bot.user,
-          remind._id
-        )
+          remind._id,
+        ),
       );
     }
   }
@@ -187,7 +187,7 @@ export class ReminderSchedule {
     type: RemindType,
     bot: User,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    remindId: any
+    remindId: any,
   ) {
     const embed = new EmbedBuilder()
       .setDefaults(bot)
@@ -198,7 +198,7 @@ export class ReminderSchedule {
         .send({
           content: HelperBotMessages.remind.ping.content(
             pings,
-            getCommandByRemindType(type)
+            getCommandByRemindType(type),
           ),
           embeds: [embed],
         })
@@ -214,7 +214,7 @@ export class ReminderSchedule {
         .send({
           content: HelperBotMessages.remind.warning.content(
             pings,
-            getCommandByRemindType(type)
+            getCommandByRemindType(type),
           ),
         })
         .catch(console.error);
