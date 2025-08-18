@@ -1,5 +1,4 @@
 import type { LiteralEnum } from "@fear/utils";
-import { blockQuote } from "discord.js";
 
 export const MonitoringBot = {
   SdcMonitoring: "464272403766444044",
@@ -22,8 +21,8 @@ export const MonitoringBotMessage = {
     failure: ["You are so hot", "Не так быстро"],
   },
   sdcMonitoring: {
-    success: "Успешный up",
-    failure: "Не так быстро, сэр",
+    success: "Время фиксации",
+    failure: "Up",
   },
 } as const;
 
@@ -36,9 +35,9 @@ export const RemindType = {
 export type RemindType = LiteralEnum<typeof RemindType>;
 
 export const MonitoringCommand = {
-  DiscordMonitoring: "/like",
-  ServerMonitoring: "/bump",
-  SdcMonitoring: "/up",
+  DiscordMonitoring: "like",
+  ServerMonitoring: "bump",
+  SdcMonitoring: "up",
 } as const;
 
 export type MonitoringCommand = LiteralEnum<typeof MonitoringCommand>;
@@ -57,11 +56,11 @@ export function getRemindTypeText(type: RemindType) {
 export function getCommandByRemindType(type: RemindType) {
   switch (type) {
     case RemindType.DiscordMonitoring:
-      return blockQuote(MonitoringCommand.DiscordMonitoring);
+      return MonitoringCommand.DiscordMonitoring;
     case RemindType.SdcMonitoring:
-      return blockQuote(MonitoringCommand.SdcMonitoring);
+      return MonitoringCommand.SdcMonitoring;
     case RemindType.ServerMonitoring:
-      return blockQuote(MonitoringCommand.ServerMonitoring);
+      return MonitoringCommand.ServerMonitoring;
   }
 }
 
