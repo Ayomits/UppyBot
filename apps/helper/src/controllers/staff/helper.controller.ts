@@ -1,12 +1,13 @@
 import type { ChatInputCommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
-import { inject } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 
 import type { Period } from "./helper.const.js";
 import { HelperService } from "./helper.service.js";
 
 @Discord()
+@singleton()
 export class HelperController {
   constructor(@inject(HelperService) private helperService: HelperService) {}
 
