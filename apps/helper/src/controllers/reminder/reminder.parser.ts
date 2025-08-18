@@ -6,6 +6,7 @@ import {
   DefaultTimezone,
   MonitoringBot,
   MonitoringBotMessage,
+  MonitoringCooldownHours,
   RemindType,
 } from "./reminder.const.js";
 
@@ -36,9 +37,8 @@ export class ReminderParser {
       return this.handleSdcMonitoring.bind(this);
     } else if (monitoring === MonitoringBot.ServerMonitoring) {
       return this.handleServerMonitoring.bind(this);
-    } else {
-      return null;
     }
+    return null;
   }
 
   public handleSdcMonitoring(message: Message): HandlerValue {
@@ -53,12 +53,16 @@ export class ReminderParser {
 
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
 
+    const discordMessageTimestampDate = DateTime.fromJSDate(
+      new Date(Number(match[1]) * 1_000),
+    ).setZone(DefaultTimezone);
+
     if (
       embed.description?.includes(MonitoringBotMessage.sdcMonitoring.success)
     ) {
-      const timestamp = DateTime.fromJSDate(new Date(Number(match[1]) * 1_000))
+      const timestamp = discordMessageTimestampDate
         .setZone(DefaultTimezone)
-        .plus({ hours: 4 })
+        .plus({ hours: MonitoringCooldownHours })
         .toJSDate();
 
       return this.handleSuccess(
@@ -70,9 +74,7 @@ export class ReminderParser {
     }
 
     return this.handleFailure(
-      DateTime.fromJSDate(new Date(Number(match[1]) * 1_000))
-        .setZone(DefaultTimezone)
-        .toJSDate(),
+      discordMessageTimestampDate.toJSDate(),
       guildId,
       authorId,
       RemindType.SdcMonitoring,
@@ -94,7 +96,7 @@ export class ReminderParser {
     ) {
       const timestamp = DateTime.now()
         .setZone(DefaultTimezone)
-        .plus({ hours: 4 })
+        .plus({ hours: MonitoringCooldownHours })
         .toJSDate();
       return this.handleSuccess(
         timestamp,

@@ -5,7 +5,7 @@ import { inject, singleton } from "tsyringe";
 import { HelperBotMessages } from "#/messages/index.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
-import { ReminderSchedule } from "./reminder.schedule.js";
+import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
 import { ReminderService } from "./reminder.service.js";
 
 @Discord()
@@ -14,7 +14,8 @@ export class BumpReminderController {
   constructor(
     @inject(ReminderHandler)
     private reminderHandler: ReminderHandler,
-    @inject(ReminderSchedule) private remindSchedule: ReminderSchedule,
+    @inject(ReminderScheduleManager)
+    private remindSchedule: ReminderScheduleManager,
     @inject(ReminderService) private reminderService: ReminderService,
   ) {}
 
