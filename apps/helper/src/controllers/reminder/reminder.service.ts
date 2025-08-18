@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type {
   ChatInputCommandInteraction,
   Guild,
   GuildMember,
   Interaction,
   InteractionEditReplyOptions,
-  UserContextMenuCommandInteraction,
 } from "discord.js";
 import { injectable } from "tsyringe";
 
@@ -15,14 +13,12 @@ import { type RemindDocument, RemindModel } from "#/models/reminder.model.js";
 
 import {
   getCommandByRemindType,
-  getRemindTypeText,
   MonitoringBot,
   RemindType,
 } from "./reminder.const.js";
 
 @injectable()
 export class ReminderService {
-  // Эта команда показывает кд всех ботов
   async handleReminderStatus(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     await interaction.editReply(

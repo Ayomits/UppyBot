@@ -32,7 +32,7 @@ import {
 } from "./reminder.const.js";
 
 @injectable()
-export class ReminderSchedule {
+export class ReminderScheduleManager {
   private settingsMap: Record<Snowflake, Settings> = {};
   private remindsMap: Record<string, RemindDocument> = {};
 
@@ -189,6 +189,7 @@ export class ReminderSchedule {
       .setDefaults(bot)
       .setTitle(HelperBotMessages.remind.ping.embed.title)
       .setDescription(HelperBotMessages.remind.ping.embed.description);
+
     setTimeout(() => {
       channel
         .send({

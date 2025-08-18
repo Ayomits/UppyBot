@@ -86,3 +86,5 @@ export function getRemindTypeByBot(type: MonitoringBot) {
 }
 
 export const DefaultTimezone = "Europe/Moscow";
+
+export const MonitoringCooldownHours = 4;
