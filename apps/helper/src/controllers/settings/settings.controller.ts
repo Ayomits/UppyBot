@@ -1,9 +1,13 @@
-import type { ChatInputCommandInteraction } from "discord.js";
-import { Discord, Slash } from "discordx";
+import type {
+  ChatInputCommandInteraction,
+  ModalSubmitInteraction,
+} from "discord.js";
+import { Discord, ModalComponent, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { HelperBotMessages } from "#/messages/index.js";
 
+import { SettingsCustomIds } from "./settings.const.js";
 import { SettingsService } from "./settings.service.js";
 
 @Discord()
@@ -20,5 +24,10 @@ export class SettingsController {
   })
   handleSettings(interaction: ChatInputCommandInteraction) {
     return this.settingsService.handleSettingsCommand(interaction);
+  }
+
+  @ModalComponent({ id: SettingsCustomIds.modal.setForceTime })
+  setForceTime(interaction: ModalSubmitInteraction) {
+    return this.settingsService.handleSetForceModal(interaction);
   }
 }
