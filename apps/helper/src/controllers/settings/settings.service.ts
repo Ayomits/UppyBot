@@ -155,7 +155,7 @@ export class SettingsService {
         guildId: interaction.guildId,
       },
       {
-        force: seconds * 1_000,
+        force: seconds,
       },
     );
 

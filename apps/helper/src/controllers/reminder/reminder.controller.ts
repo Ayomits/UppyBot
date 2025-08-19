@@ -43,9 +43,4 @@ export class BumpReminderController {
   onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
     return this.reminderHandler.handleCommand(message);
   }
-
-  @On({ event: "guildMemberRemove" })
-  onMemberRemove([oldMember]: ArgsOf<"guildMemberRemove">) {
-    return this.remindSchedule.handleGuildRemove(oldMember);
-  }
 }
