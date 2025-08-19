@@ -22,26 +22,26 @@ export class ReminderService {
   async handleReminderStatus(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction)
+      await this.buildReminderStatusMessage(interaction),
     );
   }
 
   private async buildReminderStatusMessage(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const [discordMonitoring, sdcMonitoring, serverMonitoring] =
       await Promise.all([
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.DiscordMonitoring
+          MonitoringBot.DiscordMonitoring,
         ),
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.SdcMonitoring
+          MonitoringBot.SdcMonitoring,
         ),
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.ServerMonitoring
+          MonitoringBot.ServerMonitoring,
         ),
       ]);
 
@@ -70,7 +70,7 @@ export class ReminderService {
       monitorings.map((m) => [
         getCommandByRemindType(m.type as RemindType),
         m as RemindDocument,
-      ])
+      ]),
     );
 
     const embed = new EmbedBuilder()
@@ -78,7 +78,7 @@ export class ReminderService {
       .setTitle(HelperBotMessages.remind.statusAll.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        HelperBotMessages.remind.statusAll.embed.fields(monitoringsMap as any)
+        HelperBotMessages.remind.statusAll.embed.fields(monitoringsMap as any),
       );
 
     return {
@@ -88,7 +88,7 @@ export class ReminderService {
 
   private async fetchMonitoringBot(
     guild: Guild,
-    id: MonitoringBot
+    id: MonitoringBot,
   ): Promise<GuildMember | null> {
     return await guild.members.fetch(id).catch(() => null);
   }
