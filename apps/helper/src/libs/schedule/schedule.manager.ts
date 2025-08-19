@@ -12,9 +12,8 @@ export class ScheduleManager {
   public startOnceJob(
     name: string,
     date: Date,
-    callback: () => Promise<void> | void
+    callback: () => Promise<void> | void,
   ) {
-
     const existed = this.cache.get(name);
     if (existed) {
       this.stopJob(name);
@@ -27,7 +26,7 @@ export class ScheduleManager {
   public startPeriodJob(
     name: string,
     interval: number,
-    callback: () => Promise<void> | void
+    callback: () => Promise<void> | void,
   ) {
     this.cache.set(name, setInterval(callback, interval), Infinity);
   }
