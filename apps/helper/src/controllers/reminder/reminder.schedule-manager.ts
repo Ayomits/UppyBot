@@ -13,6 +13,7 @@ import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { isJsonDifferent } from "#/libs/json/diff.js";
 import { ScheduleManager } from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
+import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import {
   type SettingsDocument,
@@ -20,7 +21,10 @@ import {
 } from "#/models/settings.model.js";
 
 import {
+  BumpBanCheckerInterval,
+  BumpBanLimit,
   DefaultTimezone,
+  DiffCheckerInterval,
   getBotByRemindType,
   getCommandByRemindType,
   MonitoringCooldownHours,
@@ -60,12 +64,67 @@ export class ReminderScheduleManager {
 
     await Promise.all(promises);
 
-    this.scheduleManager.startPeriodJob("diff", 15_000, () =>
-      this.diff(client),
+    this.scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
+      this.handleDiff(client),
     );
   }
 
-  public async diff(client: Client) {
+  public async initBumpBan(client: Client) {
+    await this.handleBumpBan(client);
+    this.scheduleManager.startPeriodJob(
+      "bump-ban",
+      BumpBanCheckerInterval,
+      () => {
+        this.handleBumpBan(client);
+      },
+    );
+  }
+
+  private async handleBumpBan(client: Client) {
+    const guilds = client.guilds.cache;
+    const ids = guilds.map((guild) => guild.id);
+
+    const bumpModelFilter = {
+      guildId: { $in: ids },
+      removeIn: { $gte: BumpBanLimit },
+    };
+
+    const [bans, settings] = await Promise.all([
+      BumpBanModel.find(bumpModelFilter),
+      SettingsModel.find({
+        guildId: { $in: ids },
+      }),
+    ]);
+
+    const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
+
+    const entriesMap = Object.fromEntries(
+      bans.map((ban) => [
+        `remind.guildId-${Math.random()}`,
+        { ban, settings: settingsMap[ban.guildId] },
+      ]),
+    );
+
+    for (const [, entry] of Object.entries(entriesMap)) {
+      const { ban, settings } = entry;
+      const guild = guilds.get(entry.ban.guildId);
+
+      const [member, role] = await Promise.all([
+        guild.members.fetch(ban.userId).catch(() => null),
+        guild.roles
+          .fetch(settings.bumpBanRoleId, { cache: true })
+          .catch(console.error),
+      ]);
+
+      if (role && member) {
+        member.roles.remove(role).catch(console.error);
+      }
+    }
+
+    await BumpBanModel.deleteMany(bumpModelFilter);
+  }
+
+  private async handleDiff(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap)
       .map(([, entry]) => {
