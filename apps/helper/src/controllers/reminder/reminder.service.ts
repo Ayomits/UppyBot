@@ -62,7 +62,9 @@ export class ReminderService {
     const monitorings = await RemindModel.find({
       type: { $in: types },
       guildId: interaction.guildId,
-    }).sort({ timestamp: -1 });
+    })
+      .sort({ timestamp: -1 })
+      .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
       monitorings.map((m) => [
