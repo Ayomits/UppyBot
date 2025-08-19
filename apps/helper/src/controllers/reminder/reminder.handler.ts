@@ -101,7 +101,7 @@ export class ReminderHandler {
     return await RemindModel.create({
       guildId,
       timestamp,
-      type
+      type,
     });
   }
 
@@ -118,6 +118,7 @@ export class ReminderHandler {
     return await RemindModel.findOne({
       guildId,
       type,
+      isSended: false,
     }).sort({ timestamp: -1 });
   }
 }
