@@ -2,7 +2,7 @@ import type { Message } from "discord.js";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import { RemindModel } from "#/models/reminder.model.js";
+import { RemindModel } from "#/models/remind.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
 import {
@@ -22,14 +22,14 @@ export class ReminderHandler {
   constructor(
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
-    private reminderSchedule: ReminderScheduleManager,
+    private reminderSchedule: ReminderScheduleManager
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -44,26 +44,26 @@ export class ReminderHandler {
         return;
       }
 
-      let lastRemind = await this.fetchLastRemind(guildId, payload.type);
+      let remind = await this.fetchLastRemind(guildId, payload.type);
 
       const settings = await SettingsModel.findOne(
         {
           guildId,
         },
         {},
-        { upsert: true },
+        { upsert: true }
       );
 
-      if (payload.success && lastRemind) {
-        await RemindModel.deleteOne({ _id: lastRemind._id });
-        lastRemind = null;
+      if (payload.success && remind) {
+        await RemindModel.deleteOne({ _id: remind._id });
+        remind = null;
       }
 
-      if (payload.success || !lastRemind) {
-        lastRemind = await this.createRemind(
+      if (payload.success || !remind) {
+        remind = await this.createRemind(
           guildId,
           payload.timestamp,
-          payload.type,
+          payload.type
         );
       }
 
@@ -71,27 +71,23 @@ export class ReminderHandler {
         .setZone(DefaultTimezone)
         .toJSDate();
 
-      const GMTTime = DateTime.fromJSDate(lastRemind.timestamp)
+      const GMTTime = DateTime.fromJSDate(remind.timestamp)
         .setZone(DefaultTimezone)
         .toJSDate();
 
       const isAnomaly = GMTTime.getTime() != GMTpayload.getTime();
 
       if (isAnomaly) {
-        lastRemind = await this.updateAnomaly(
-          lastRemind._id,
-          payload.timestamp,
-        );
+        remind = await this.updateAnomaly(remind._id, payload.timestamp);
       }
 
-      await this.reminderSchedule.remind(
-        message.guild,
-        lastRemind,
+      await this.reminderSchedule.remind({
+        guild: message.guild,
+        remind,
         settings,
-        isAnomaly,
-      );
+      });
 
-      return message.reply(JSON.stringify(lastRemind));
+      return message.reply(JSON.stringify(remind));
     } catch (err) {
       console.error(err);
     }
@@ -100,7 +96,7 @@ export class ReminderHandler {
   private async createRemind(
     guildId: string,
     timestamp: Date,
-    type: RemindType,
+    type: RemindType
   ) {
     return await RemindModel.create({ guildId, timestamp, type });
   }
@@ -110,7 +106,7 @@ export class ReminderHandler {
     return await RemindModel.findOneAndUpdate(
       { _id: objectId },
       { timestamp },
-      { new: true },
+      { new: true }
     );
   }
 
