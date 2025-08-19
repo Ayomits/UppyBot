@@ -1,5 +1,4 @@
 import { LocalCache } from "@ts-fetcher/cache";
-import type { mongoose } from "@typegoose/typegoose";
 import {
   type Guild,
   type Snowflake,
@@ -28,14 +27,21 @@ import {
   type RemindType,
 } from "./reminder.const.js";
 
-type ReminderCache = {
+type RemindCache = {
   settings: SettingsDocument;
   remind: RemindDocument;
 };
 
+type RemindOptions = {
+  guild: Guild;
+  remind: RemindDocument;
+  settings: SettingsDocument;
+  shouldReveal?: boolean;
+};
+
 @injectable()
 export class ReminderScheduleManager {
-  private activeReminds: LocalCache<string, ReminderCache>;
+  private activeReminds: LocalCache<string, RemindCache>;
 
   constructor(
     @inject(ScheduleManager) private scheduleManager: ScheduleManager
@@ -61,13 +67,12 @@ export class ReminderScheduleManager {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap)
       .map(([, entry]) => {
-        const activeRemind = this.activeReminds.get<ReminderCache>(
+        const activeRemind = this.activeReminds.get<RemindCache>(
           entry.remind.id
         );
         const isDiff =
           isJsonDifferent(entry.remind, activeRemind?.remind) ||
           isJsonDifferent(entry.settings, activeRemind?.settings);
-        console.log(isDiff);
         if (isDiff) {
           return this.remind({
             guild: guilds.get(entry.remind.guildId),
@@ -80,29 +85,16 @@ export class ReminderScheduleManager {
     await Promise.all(promises);
   }
 
-  public async remind(options: {
-    guild: Guild;
-    remind: RemindDocument;
-    settings: SettingsDocument;
-    shouldReveal?: boolean;
-  }) {
+  public async remind(options: RemindOptions) {
     const { guild, remind, settings, shouldReveal } = options;
-    const bot = await guild.members
-      .fetch(getBotByRemindType(remind.type as RemindType))
-      .catch(() => null);
-    const channel = await guild.channels
-      .fetch(settings?.pingChannelId)
-      .catch(() => null);
 
-    if (!bot) {
-      this.activeReminds.delete(remind.id);
-      return await RemindModel.deleteOne({ _id: remind._id });
-    }
+    const validate = await this.validateRemind({ guild, remind, settings });
 
-    if (!channel || !settings) {
-      this.activeReminds.delete(remind.id);
+    if (!validate) {
       return;
     }
+
+    const { channel, bot } = validate;
 
     const commonId = this.generateCommonId(guild.id, remind.type);
     const forceId = this.generateForceId(guild.id, remind.type);
@@ -135,16 +127,11 @@ export class ReminderScheduleManager {
       },
     ];
 
-    const filter: mongoose.FilterQuery<RemindDocument> = {
-      _id: remind.id,
-    };
-
     if (currentTimeMilis > timestampTimeMilis) {
       const diff = currentTimeMilis - timestampTimeMilis;
 
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
-        this.activeReminds.set(...addActiveRemindArgs);
-        await RemindModel.deleteOne(filter);
+        await this.updateRemindDb(remind.id);
         return this.sendWarning(...remindArgs);
       }
     }
@@ -155,8 +142,7 @@ export class ReminderScheduleManager {
     if (!existedCommon || shouldReveal) {
       this.scheduleManager.updateJob(commonId, timestampTime, async () => {
         this.sendRemind(...remindArgs);
-        this.activeReminds.delete(remind.id);
-        await RemindModel.deleteOne(filter);
+        await this.updateRemindDb(remind.id);
       });
     }
 
@@ -172,7 +158,44 @@ export class ReminderScheduleManager {
         this.sendForce(settings.force, ...remindArgs);
       });
     }
+
     this.activeReminds.set(...addActiveRemindArgs);
+  }
+
+  private async validateRemind({
+    guild,
+    settings,
+    remind,
+  }: Omit<RemindOptions, "shouldReveal">) {
+    const bot = await guild.members
+      .fetch(getBotByRemindType(remind.type as RemindType))
+      .catch(() => null);
+    const channel = await guild.channels
+      .fetch(settings?.pingChannelId)
+      .catch(() => null);
+
+    if (!bot) {
+      await this.updateRemindDb(remind.id);
+      this.deleteRemindCache(remind.id);
+      return false;
+    }
+
+    if (!channel || !settings) {
+      this.deleteRemindCache(remind.id);
+      return false;
+    }
+    return {
+      bot,
+      channel,
+    };
+  }
+
+  private async updateRemindDb(id: string) {
+    return await RemindModel.updateOne({ _id: id }, { isSended: true });
+  }
+
+  private async deleteRemindCache(id: string) {
+    this.activeReminds.delete(id);
   }
 
   private async fetchRemindData(client: Client) {
@@ -181,7 +204,7 @@ export class ReminderScheduleManager {
 
     const [settings, reminds] = await Promise.all([
       await SettingsModel.find({ guildId: { $in: guildIds } }),
-      await RemindModel.find({ guildId: { $in: guildIds } }),
+      await RemindModel.find({ guildId: { $in: guildIds }, isSended: false }),
     ]);
 
     const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));

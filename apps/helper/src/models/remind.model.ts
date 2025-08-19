@@ -14,6 +14,9 @@ export class Remind extends TimeStamps {
 
   @prop({ required: true })
   timestamp: Date;
+
+  @prop({ default: false, required: true })
+  isSended: boolean;
 }
 
 export const RemindModel = getModelForClass(Remind, {
