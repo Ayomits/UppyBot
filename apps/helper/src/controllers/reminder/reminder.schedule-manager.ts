@@ -127,6 +127,8 @@ export class ReminderScheduleManager {
       },
     ];
 
+    let isPastRemind = false;
+
     if (currentTimeMilis > timestampTimeMilis) {
       const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
 
@@ -134,6 +136,7 @@ export class ReminderScheduleManager {
         await this.updateRemindDb(remind.id);
         return this.sendWarning(...remindArgs);
       }
+      isPastRemind = true;
     }
 
     const existedCommon = this.scheduleManager.getJob(commonId);
@@ -149,7 +152,8 @@ export class ReminderScheduleManager {
     if (
       (!existedForce || shouldReveal) &&
       settings.force > 0 &&
-      settings.force < MonitoringCooldownHours * 3_600
+      settings.force < MonitoringCooldownHours * 3_600 &&
+      !isPastRemind
     ) {
       const forceTime = DateTime.fromJSDate(timestampTime)
         .minus({ seconds: settings.force })
