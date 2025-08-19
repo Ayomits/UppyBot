@@ -75,10 +75,10 @@ export class ReminderService {
 
     const embed = new EmbedBuilder()
       .setDefaults(interaction.user)
-      .setTitle(HelperBotMessages.remind.statusAll.embed.title)
+      .setTitle(HelperBotMessages.staff.status.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        HelperBotMessages.remind.statusAll.embed.fields(monitoringsMap as any),
+        HelperBotMessages.staff.status.embed.fields(monitoringsMap as any),
       );
 
     return {

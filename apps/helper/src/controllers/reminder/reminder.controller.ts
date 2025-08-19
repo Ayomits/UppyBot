@@ -21,8 +21,8 @@ export class BumpReminderController {
   ) {}
 
   @Slash({
-    name: HelperBotMessages.remind.statusAll.command.name,
-    description: HelperBotMessages.remind.statusAll.command.description,
+    name: HelperBotMessages.staff.status.command.name,
+    description: HelperBotMessages.staff.status.command.description,
   })
   @Guard(IsHelper)
   reminderStatus(interaction: ChatInputCommandInteraction) {
