@@ -17,13 +17,13 @@ import {
   MonitoringCommand,
 } from "#/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
-import type { RemindDocument } from "#/models/reminder.model.js";
+import type { RemindDocument } from "#/models/remind.model.js";
 import type { Settings } from "#/models/settings.model.js";
 
 const createChannelField = (name: string, channelId: Snowflake | null) => ({
   name: blockQuote(name),
   value: TextFormattingUtility.snowflakeMention(
-    channelId ? channelMention(channelId) : null,
+    channelId ? channelMention(channelId) : null
   ),
   inline: true,
 });
@@ -37,7 +37,7 @@ const createPropertyField = (name: string, property: any) => ({
 
 const createRoleField = (
   name: string,
-  roleIds: Snowflake | Snowflake[] | null,
+  roleIds: Snowflake | Snowflake[] | null
 ) => ({
   name: blockQuote(name),
   value: TextFormattingUtility.snowflakeMention(
@@ -45,7 +45,7 @@ const createRoleField = (
       ? roleIds.map(roleMention)
       : roleIds
         ? roleMention(roleIds)
-        : null,
+        : null
   ),
   inline: !Array.isArray(roleIds),
 });
@@ -88,7 +88,7 @@ export const HelperBotMessages = {
         createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
         createPropertyField(
           "Преждевременный пинг (секунды)",
-          settings.force ?? 0,
+          settings.force ?? 0
         ),
       ],
       components: {
@@ -112,11 +112,11 @@ export const HelperBotMessages = {
           fields: (settings: Settings): EmbedField[] => [
             createChannelField(
               "Канал для пингов",
-              settings.pingChannelId ?? null,
+              settings.pingChannelId ?? null
             ),
             createChannelField(
               "Канал для логов",
-              settings.logChannelId ?? null,
+              settings.logChannelId ?? null
             ),
           ],
         },
@@ -149,11 +149,11 @@ export const HelperBotMessages = {
           fields: (settings: Settings): EmbedField[] => [
             createRoleField(
               "Возможные роли сотрудника",
-              settings?.bumpRoleIds ?? null,
+              settings?.bumpRoleIds ?? null
             ),
             createRoleField(
               "Роль для бамп бана",
-              settings?.bumpBanRoleId ?? null,
+              settings?.bumpBanRoleId ?? null
             ),
           ],
         },
@@ -192,7 +192,7 @@ export const HelperBotMessages = {
           monitorings: Record<
             ReturnType<typeof getCommandByRemindType>,
             RemindDocument
-          >,
+          >
         ): EmbedField[] => [
           {
             name: blockQuote(MonitoringCommand.DiscordMonitoring),
@@ -216,6 +216,11 @@ export const HelperBotMessages = {
     warning: {
       content: (roles: Snowflake[], command: string) =>
         `${roles.map(roleMention).join(" ")}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
+    },
+
+    force: {
+      content: (roles: Snowflake[], command: string, force: number) =>
+        `${roles.map(roleMention).join(" ")}, команда ${command} будет доступа ${time(Math.floor((Date.now() + force * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
     },
 
     ping: {
