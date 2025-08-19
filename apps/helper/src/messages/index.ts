@@ -53,13 +53,12 @@ const createRoleField = (
 const canUseMonitoring = (monitoring?: RemindDocument) => {
   if (!monitoring) return codeBlock("Нет активных напоминаний");
 
-  const now = DateTime.now().setZone(DefaultTimezone).toJSDate().getTime();
   const timestamp = DateTime.fromJSDate(monitoring.timestamp)
     .setZone(DefaultTimezone)
     .toJSDate()
     .getTime();
 
-  return timestamp > now
+  return !monitoring.isSended
     ? time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime)
     : codeBlock("Пора использовать");
 };
