@@ -12,7 +12,10 @@ export class Bump extends TimeStamps {
   type: RemindType;
 
   @prop({ required: true, index: true, alias: "author_id" })
-  authorId: Snowflake;
+  executorId: Snowflake;
+
+  @prop({ required: true, default: 0, min: 0 })
+  points: number;
 }
 
 export const BumpModel = getModelForClass(Bump, {

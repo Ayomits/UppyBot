@@ -1,8 +1,10 @@
 import {
   blockQuote,
+  bold,
   channelMention,
   codeBlock,
   type EmbedField,
+  inlineCode,
   roleMention,
   type Snowflake,
   StringSelectMenuOptionBuilder,
@@ -174,7 +176,40 @@ export const HelperBotMessages = {
   },
 
   remind: {
-    statusAll: {
+    warning: {
+      content: (roles: Snowflake[], command: string) =>
+        `${roles.map(roleMention).join(" ")}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
+    },
+
+    force: {
+      content: (roles: Snowflake[], command: string, force: number) =>
+        `${roles.map(roleMention).join(" ")}, команда ${command} будет доступа ${time(Math.floor((Date.now() + force * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
+    },
+
+    ping: {
+      content: (roles: Snowflake[], command: string) =>
+        `${roles.map(roleMention).join(" ")}, пора использовать команду ${command}!`,
+      embed: {
+        title: "Продвижение сервера",
+        description: "Самое время для прописания команды мониторинга",
+      },
+    },
+  },
+
+  monitoring: {
+    embed: {
+      title: "Продвижение сервера",
+      description: (points: number, command: MonitoringCommand) =>
+        [
+          "Большое спасибо, что продвигаете наш сервер на мониторингах",
+          `За это действие вы получили: ${bold(`${points} поинтов`)}`,
+          `Выполненная команда: ${inlineCode(command)}`,
+        ].join("\n"),
+    },
+  },
+
+  staff: {
+    status: {
       command: {
         name: "remaining",
         description: "Время до команд",
@@ -209,25 +244,6 @@ export const HelperBotMessages = {
             inline: true,
           },
         ],
-      },
-    },
-
-    warning: {
-      content: (roles: Snowflake[], command: string) =>
-        `${roles.map(roleMention).join(" ")}, у системы сбился таймер для ${command}. Пропишите пожалуйста команду для запуска`,
-    },
-
-    force: {
-      content: (roles: Snowflake[], command: string, force: number) =>
-        `${roles.map(roleMention).join(" ")}, команда ${command} будет доступа ${time(Math.floor((Date.now() + force * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
-    },
-
-    ping: {
-      content: (roles: Snowflake[], command: string) =>
-        `${roles.map(roleMention).join(" ")}, пора использовать команду ${command}!`,
-      embed: {
-        title: "Продвижение сервера",
-        description: "Самое время для прописания команды мониторинга",
       },
     },
   },

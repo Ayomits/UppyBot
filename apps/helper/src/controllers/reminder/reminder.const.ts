@@ -1,5 +1,12 @@
 import type { LiteralEnum } from "@fear/utils";
 
+export const DefaultTimezone = "Europe/Moscow";
+export const MonitoringCooldownHours = 4;
+
+// Изначально планировалось кнш делать это настройками
+// Жопке айоми стало лень : )
+export const BumpBanLimit = 5;
+
 export const MonitoringBot = {
   SdcMonitoring: "464272403766444044",
   ServerMonitoring: "315926021457051650",
@@ -41,6 +48,13 @@ export const MonitoringCommand = {
 } as const;
 
 export type MonitoringCommand = LiteralEnum<typeof MonitoringCommand>;
+
+export const PointsRate = {
+  [RemindType.DiscordMonitoring]: 1,
+  [RemindType.SdcMonitoring]: 1,
+  [RemindType.ServerMonitoring]: 2,
+  night: 2,
+} as const;
 
 export function getRemindTypeText(type: RemindType) {
   switch (type) {
@@ -84,7 +98,3 @@ export function getRemindTypeByBot(type: MonitoringBot) {
       return RemindType.ServerMonitoring;
   }
 }
-
-export const DefaultTimezone = "Europe/Moscow";
-
-export const MonitoringCooldownHours = 4;
