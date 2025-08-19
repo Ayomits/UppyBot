@@ -1,5 +1,8 @@
 import type { LiteralEnum } from "@fear/utils";
 
+export const BumpBanCheckerInterval = 15_000;
+export const DiffCheckerInterval = 15_000;
+
 export const DefaultTimezone = "Europe/Moscow";
 export const MonitoringCooldownHours = 4;
 
