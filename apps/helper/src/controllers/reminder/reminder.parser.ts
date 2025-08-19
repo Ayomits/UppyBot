@@ -10,7 +10,7 @@ import {
   RemindType,
 } from "./reminder.const.js";
 
-interface HandlerValue {
+export interface ParserValue {
   guild: Snowflake;
   authorId: Snowflake;
   success: boolean;
@@ -20,7 +20,7 @@ interface HandlerValue {
 
 @injectable()
 export class ReminderParser {
-  public handleMonitoring(message: Message): HandlerValue | void {
+  public handleMonitoring(message: Message): ParserValue | void {
     const handler = this.getHandler(message.author.id as MonitoringBot);
 
     if (!handler) {
@@ -41,7 +41,7 @@ export class ReminderParser {
     return null;
   }
 
-  public handleSdcMonitoring(message: Message): HandlerValue {
+  public handleSdcMonitoring(message: Message): ParserValue {
     const embed = message.embeds[0];
 
     if (!embed?.description) {
@@ -81,7 +81,7 @@ export class ReminderParser {
     );
   }
 
-  public handleServerMonitoring(message: Message): HandlerValue {
+  public handleServerMonitoring(message: Message): ParserValue {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -128,7 +128,7 @@ export class ReminderParser {
     );
   }
 
-  public handleDiscordMonitoring(message: Message): HandlerValue {
+  public handleDiscordMonitoring(message: Message): ParserValue {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -162,7 +162,7 @@ export class ReminderParser {
     );
   }
 
-  public handleEmptyEmbeds(message: Message): HandlerValue {
+  public handleEmptyEmbeds(message: Message): ParserValue {
     if (!message.embeds.length) {
       return this.handleFailure(
         null,
@@ -178,7 +178,7 @@ export class ReminderParser {
     guildId: string,
     authorId: string,
     type: RemindType,
-  ): HandlerValue {
+  ): ParserValue {
     return {
       timestamp: timestamp,
       success: true,
@@ -193,7 +193,7 @@ export class ReminderParser {
     guildId: string,
     authorId: string,
     type: RemindType,
-  ): HandlerValue {
+  ): ParserValue {
     return {
       timestamp: timestamp,
       success: false,
