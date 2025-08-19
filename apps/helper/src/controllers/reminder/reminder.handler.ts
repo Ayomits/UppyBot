@@ -22,14 +22,14 @@ export class ReminderHandler {
   constructor(
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
-    private reminderSchedule: ReminderScheduleManager
+    private reminderSchedule: ReminderScheduleManager,
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot
+          message.author.id as MonitoringBot,
         )
       ) {
         return;
@@ -51,7 +51,7 @@ export class ReminderHandler {
           guildId,
         },
         {},
-        { upsert: true }
+        { upsert: true },
       );
 
       if (payload.success && remind) {
@@ -63,7 +63,7 @@ export class ReminderHandler {
         remind = await this.createRemind(
           guildId,
           payload.timestamp,
-          payload.type
+          payload.type,
         );
       }
 
@@ -96,7 +96,7 @@ export class ReminderHandler {
   private async createRemind(
     guildId: string,
     timestamp: Date,
-    type: RemindType
+    type: RemindType,
   ) {
     return await RemindModel.create({
       guildId,
@@ -110,7 +110,7 @@ export class ReminderHandler {
     return await RemindModel.findOneAndUpdate(
       { _id: objectId },
       { timestamp },
-      { new: true }
+      { new: true },
     );
   }
 
