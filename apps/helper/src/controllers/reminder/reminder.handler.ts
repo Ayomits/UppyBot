@@ -98,7 +98,11 @@ export class ReminderHandler {
     timestamp: Date,
     type: RemindType
   ) {
-    return await RemindModel.create({ guildId, timestamp, type });
+    return await RemindModel.create({
+      guildId,
+      timestamp,
+      type
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
