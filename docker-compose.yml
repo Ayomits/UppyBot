@@ -3,13 +3,14 @@ services:
     container_name: fear-bot
     network_mode: host
     build:
+      args:
+        - APP_ENV=$APP_ENV
       dockerfile: ./Dockerfile
     volumes:
       - ./:/app
     ports:
       - "0.0.0.0:9001:9001"
     environment:
-      - APP_ENV=dev
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
     env_file: .env
     restart: always

@@ -25,6 +25,7 @@
     "prisma:generate": {},
     "prisma:migrate": {},
     "prisma:migrations-create": {},
-    "dev": {}
+    "dev": {},
+    "prod": {}
   }
 }
