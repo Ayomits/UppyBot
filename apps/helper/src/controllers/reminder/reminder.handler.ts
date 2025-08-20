@@ -101,7 +101,10 @@ export class ReminderHandler {
         settings,
       });
 
-      return await this.handleSuccess(message, payload, settings);
+      return (
+        payload.success &&
+        (await this.handleSuccess(message, payload, settings))
+      );
     } catch (err) {
       console.error(err);
     }
