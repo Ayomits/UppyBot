@@ -14,11 +14,6 @@ export class ScheduleManager {
     date: Date,
     callback: () => Promise<void> | void,
   ) {
-    const existed = this.cache.get(name);
-    if (existed) {
-      this.stopJob(name);
-      return this.startOnceJob(name, date, callback);
-    }
     const delay = date.getTime() - Date.now();
     this.cache.set(name, setTimeout(callback, delay), delay);
   }
