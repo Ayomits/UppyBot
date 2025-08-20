@@ -11,6 +11,6 @@ export function createSafeCollector<
     ...options,
     filter: (i, c) =>
       i.message.id === repl.id &&
-      (options.filter ? options.filter(i, c) : true),
+      (options?.filter ? options?.filter?.(i, c) : true),
   });
 }

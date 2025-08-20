@@ -74,3 +74,13 @@ export const UserNotFoundError = createError((interaction) => ({
   ],
   ephemeral: true,
 }));
+
+export const EmptyStaffRoleError = createError((interaction) => ({
+  embeds: [
+    new EmbedBuilder()
+      .setDefaults(interaction.user)
+      .setTitle(ErrorTitle)
+      .setDescription(`На сервере не настроены роли сотрудников`),
+  ],
+  ephemeral: true,
+}));

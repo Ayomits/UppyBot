@@ -6,7 +6,7 @@ import {
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 export class Settings extends TimeStamps {
-  @prop({ alias: "guild_id", required: true, unique: true })
+  @prop({ alias: "guild_id", required: true, index: true, unique: true })
   guildId: string;
 
   @prop({ alias: "bump_role_ids", default: [] })
