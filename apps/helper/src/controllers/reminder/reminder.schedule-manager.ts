@@ -126,24 +126,20 @@ export class ReminderScheduleManager {
 
   private async handleDiff(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
-    const promises = Object.entries(entriesMap)
-      .map(([, entry]) => {
-        const activeRemind = this.activeReminds.get<RemindCache>(
-          entry.remind.id,
-        );
-        const isDiff =
-          isJsonDifferent(entry.remind, activeRemind?.remind) ||
-          isJsonDifferent(entry.settings, activeRemind?.settings) ||
-          !activeRemind?.remind;
+    const promises = Object.entries(entriesMap).map(async ([, entry]) => {
+      const activeRemind = this.activeReminds.get<RemindCache>(entry.remind.id);
+      const isDiff =
+        typeof activeRemind?.remind === "undefined" ||
+        isJsonDifferent(entry.remind, activeRemind?.remind) ||
+        isJsonDifferent(entry.settings, activeRemind?.settings);
 
-        if (isDiff) {
-          return this.remind({
-            guild: guilds.get(entry.remind.guildId),
-            ...entry,
-          });
-        }
-      })
-      .filter(Boolean);
+      if (isDiff) {
+        await this.remind({
+          guild: guilds.get(entry.remind.guildId),
+          ...entry,
+        });
+      }
+    });
 
     await Promise.all(promises);
   }
@@ -152,7 +148,6 @@ export class ReminderScheduleManager {
     const { guild, remind, settings, shouldReveal } = options;
 
     const validate = await this.validateRemind({ guild, remind, settings });
-
     if (!validate) {
       return;
     }
@@ -184,39 +179,38 @@ export class ReminderScheduleManager {
         settings,
       },
       Infinity,
-      () => {
-        this.scheduleManager.stopJob(commonId);
-        this.scheduleManager.stopJob(forceId);
-      },
     ];
-
-    let isPastRemind = false;
 
     if (currentTimeMilis > timestampTimeMilis) {
       const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
-
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
         await this.updateRemindDb(remind.id);
         return this.sendWarning(...remindArgs);
       }
-      isPastRemind = true;
+      await this.updateRemindDb(remind.id);
+      return this.sendRemind(...remindArgs);
     }
 
     const existedCommon = this.scheduleManager.getJob(commonId);
-    const existedForce = this.scheduleManager.getJob(forceId);
 
-    if (!existedCommon || shouldReveal) {
+    const createCommonRemind = () =>
       this.scheduleManager.updateJob(commonId, timestampTime, async () => {
         this.sendRemind(...remindArgs);
+        this.deleteRemindCache(remind.id);
         await this.updateRemindDb(remind.id);
       });
+
+    if (shouldReveal) {
+      createCommonRemind();
+    }
+
+    if (!existedCommon) {
+      createCommonRemind();
     }
 
     if (
-      (!existedForce || shouldReveal) &&
       settings.force > 0 &&
-      settings.force < MonitoringCooldownHours * 3_600 &&
-      !isPastRemind
+      settings.force < MonitoringCooldownHours * 3_600
     ) {
       const forceTime = DateTime.fromJSDate(timestampTime)
         .minus({ seconds: settings.force })
@@ -261,7 +255,7 @@ export class ReminderScheduleManager {
     return await RemindModel.updateOne({ _id: id }, { isSended: true });
   }
 
-  private async deleteRemindCache(id: string) {
+  private deleteRemindCache(id: string) {
     this.activeReminds.delete(id);
   }
 
@@ -310,7 +304,7 @@ export class ReminderScheduleManager {
 
     setTimeout(() => {
       channel
-        .send({
+        ?.send({
           content: HelperBotMessages.remind.ping.content(
             pings,
             getCommandByRemindType(type),
@@ -325,7 +319,7 @@ export class ReminderScheduleManager {
     const [channel, pings, type] = args;
     setTimeout(() => {
       channel
-        .send({
+        ?.send({
           content: HelperBotMessages.remind.warning.content(
             pings,
             getCommandByRemindType(type),
@@ -342,7 +336,7 @@ export class ReminderScheduleManager {
     const [channel, pings, type] = args;
     setTimeout(() => {
       channel
-        .send({
+        ?.send({
           content: HelperBotMessages.remind.force.content(
             pings,
             getCommandByRemindType(type),
