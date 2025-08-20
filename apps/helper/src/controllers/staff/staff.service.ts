@@ -1,3 +1,4 @@
+import { Pagination, PaginationResolver } from "@discordx/pagination";
 import { createSafeCollector } from "@fear/utils";
 import {
   ActionRowBuilder,
@@ -36,7 +37,6 @@ import {
   RemindType,
 } from "../reminder/reminder.const.js";
 import { StaffCustomIds } from "./staff.const.js";
-import { Pagination, PaginationResolver } from "@discordx/pagination";
 
 const startDateValue = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 const endDateValue = { hour: 23, minute: 59, second: 59, millisecond: 59 };
