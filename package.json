@@ -6,6 +6,7 @@
   "scripts": {
     "build": "pnpx turbo build --concurrency=4",
     "dev": "pnpx turbo dev --concurrency=4",
+    "prod": "pnpx turbo dev --concurrency=4 --filter @fear/helper-bot",
     "format:fix": "pnpx turbo format:fix --concurrency=4",
     "lint:fix": "pnpx turbo lint:fix --concurrency=4",
     "format:check": "pnpx turbo format:check --concurrency=4",
