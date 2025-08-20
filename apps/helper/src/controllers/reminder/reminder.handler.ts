@@ -101,10 +101,7 @@ export class ReminderHandler {
         settings,
       });
 
-      return (
-        payload.success &&
-        (await this.handleSuccess(message, payload, settings))
-      );
+      return await this.handleSuccess(message, payload, settings);
     } catch (err) {
       console.error(err);
     }
@@ -155,14 +152,14 @@ export class ReminderHandler {
       { upsert: true },
     );
 
-    if (bumpBan.removeIn === 0 && bumpBanRole) {
-      member.roles.add(bumpBanRole).catch(console.error);
+    if (bumpBan.removeIn <= 0 && bumpBanRole) {
+      await member.roles.add(bumpBanRole).catch(console.error);
     }
 
     if (bumpBan?.removeIn + 1 >= BumpBanLimit) {
       await BumpBanModel.deleteOne({ _id: bumpBan._id });
       if (bumpBanRole) {
-        member.roles.remove(bumpBanRole).catch(console.error);
+        await member.roles.remove(bumpBanRole).catch(console.error);
       }
     }
 
