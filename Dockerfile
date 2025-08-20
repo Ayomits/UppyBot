@@ -23,10 +23,6 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
 
 RUN npm install pnpm -g
 
-RUN if [ "$APP_ENV" = "prod" ]; then \
-  pnpm install --frozen-lockfile && \
-  pnpm run build; \
-  fi
 RUN mkdir -p /var/log/supervisor/
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
