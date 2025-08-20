@@ -87,7 +87,6 @@ export const HelperBotMessages = {
       title: "Настройки бота",
       fields: (settings: Settings): EmbedField[] => [
         createChannelField("Канал для пингов", settings?.pingChannelId ?? null),
-        createChannelField("Канал для логов", settings?.logChannelId ?? null),
         createRoleField("Роли хелпера", settings?.bumpRoleIds ?? null),
         createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
         createPropertyField(
@@ -118,10 +117,6 @@ export const HelperBotMessages = {
               "Канал для пингов",
               settings.pingChannelId ?? null,
             ),
-            createChannelField(
-              "Канал для логов",
-              settings.logChannelId ?? null,
-            ),
           ],
         },
         buttons: { backward: { label: "Назад" } },
@@ -132,9 +127,6 @@ export const HelperBotMessages = {
             new StringSelectMenuOptionBuilder()
               .setLabel("Канал для пингов")
               .setValue("pingChannelId"),
-            new StringSelectMenuOptionBuilder()
-              .setLabel("Канал для логов")
-              .setValue("logChannelId"),
           ],
         },
       },
