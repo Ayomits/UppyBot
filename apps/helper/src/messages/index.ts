@@ -19,7 +19,10 @@ import {
   MonitoringCommand,
 } from "#/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
-import type { RemindDocument } from "#/models/remind.model.js";
+import type {
+  RemindDocument,
+  StaffInfoAgregation,
+} from "#/models/remind.model.js";
 import type { Settings } from "#/models/settings.model.js";
 
 const createChannelField = (name: string, channelId: Snowflake | null) => ({
@@ -209,6 +212,73 @@ export const HelperBotMessages = {
   },
 
   staff: {
+    top: {
+      command: {
+        name: "helper-top",
+        description: "Статистика хелпера",
+        args: {
+          user: {
+            name: "user",
+            description: "Пользователь",
+          },
+          from: {
+            name: "from",
+            description: "От какой даты",
+          },
+          to: {
+            name: "to",
+            description: "До какой даты",
+          },
+        },
+      },
+    },
+    info: {
+      context: {
+        name: "Статистика сотрудника",
+        description: "Просмотреть статистику",
+      },
+      command: {
+        name: "helper-info",
+        description: "Статистика хелпера",
+        args: {
+          user: {
+            name: "user",
+            description: "Пользователь",
+          },
+          from: {
+            name: "from",
+            description: "От какой даты",
+          },
+          to: {
+            name: "to",
+            description: "До какой даты",
+          },
+        },
+      },
+      embed: {
+        title: "Информация о сотруднике",
+        fields: (data: StaffInfoAgregation): EmbedField[] => {
+          return [
+            createPropertyField(
+              MonitoringCommand.DiscordMonitoring,
+              codeBlock(data?.like ? data?.like?.toString() : "0"),
+            ),
+            createPropertyField(
+              MonitoringCommand.SdcMonitoring,
+              codeBlock(data?.up ? data?.up?.toString() : "0"),
+            ),
+            createPropertyField(
+              MonitoringCommand.ServerMonitoring,
+              codeBlock(data?.bump ? data?.bump?.toString() : "0"),
+            ),
+            createPropertyField(
+              "Поинты за период",
+              codeBlock(data?.points ? data?.points?.toString() : "0"),
+            ),
+          ];
+        },
+      },
+    },
     status: {
       command: {
         name: "remaining",
@@ -219,6 +289,9 @@ export const HelperBotMessages = {
             description: "Какой именно мониторинг",
           },
         },
+      },
+      buttons: {
+        update: "Обновить информацию",
       },
       embed: {
         title: "Статус мониторингов",

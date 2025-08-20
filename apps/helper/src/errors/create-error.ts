@@ -33,18 +33,7 @@ export class InteractionError {
         throw new Error("Empty error message");
       }
 
-      const tryEdit = () => {
-        try {
-          return interaction.editReply(options);
-        } catch {
-          return interaction.followUp(options);
-        }
-      };
-
-      if (interaction.deferred || interaction.replied) {
-        return tryEdit();
-      }
-      return interaction.reply(options);
+      resolveSend(interaction, { ...options });
     }
   }
 }
@@ -66,4 +55,24 @@ export function createError(
     },
     getOptions,
   };
+}
+
+export async function resolveSend(
+  interaction: Interaction,
+  options: InteractionErrorMessage,
+) {
+  if (interaction.isRepliable()) {
+    const tryEdit = async () => {
+      try {
+        return await interaction.editReply(options);
+      } catch {
+        return await interaction.followUp(options);
+      }
+    };
+
+    if (interaction.deferred || interaction.replied) {
+      return await tryEdit();
+    }
+    return await interaction.reply(options);
+  }
 }

@@ -26,3 +26,10 @@ export const RemindModel = getModelForClass(Remind, {
 });
 
 export type RemindDocument = DocumentType<Remind>;
+
+export interface StaffInfoAgregation {
+  points: number;
+  bump: number;
+  like: number;
+  up: number;
+}
