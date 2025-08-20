@@ -185,11 +185,10 @@ export class ReminderScheduleManager {
       const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
       this.scheduleManager.stopJob(remind.id);
       this.deleteRemindCache(remind.id);
+      await this.updateRemindDb(remind.id);
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
-        await this.updateRemindDb(remind.id);
         return this.sendWarning(...remindArgs);
       }
-      await this.updateRemindDb(remind.id);
       return this.sendRemind(...remindArgs);
     }
 
