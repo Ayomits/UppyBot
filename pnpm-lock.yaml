@@ -30,8 +30,8 @@ importers:
         specifier: ^1.3.3
         version: 1.3.3
       '@discordx/pagination':
-        specifier: ^4.1.0
-        version: 4.1.0(discord.js@14.21.0)
+        specifier: 4.3.0
+        version: 4.3.0(discord.js@14.21.0)
       '@fear/config':
         specifier: workspace:^
         version: link:../../packages/config
@@ -290,8 +290,8 @@ packages:
     resolution: {integrity: sha512-Wpr1bh9GpTud7+fRlHUSihf2zrFzXgSC+8OCvwzODSH794mwWhKRYjGQKMgk3xfOmqiP8FTzs0/5GfYSbCOQ0Q==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
-  '@discordx/pagination@4.1.0':
-    resolution: {integrity: sha512-hXPWWADJHvcU0ECFABmXd/SgFUbd8rcBvENNbVcoPPrObtk85noAKEGGePWqq4Z+EBtK8RBdmizCD8vC7SWyYA==}
+  '@discordx/pagination@4.3.0':
+    resolution: {integrity: sha512-f+aDH6VVRR4/OqHXR451VymGPio6LhuBL9ABIPobW7RcnfJoqwf0O2hKrCBejcmctIcPE6NrwlB7nozXOSuD+w==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
       discord.js: '>=14 || ^14.0.0-dev'
@@ -1892,7 +1892,7 @@ snapshots:
 
   '@discordx/internal@1.1.5': {}
 
-  '@discordx/pagination@4.1.0(discord.js@14.21.0)':
+  '@discordx/pagination@4.3.0(discord.js@14.21.0)':
     dependencies:
       discord.js: 14.21.0
       lodash: 4.17.21

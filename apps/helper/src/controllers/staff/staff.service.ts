@@ -36,6 +36,7 @@ import {
   RemindType,
 } from "../reminder/reminder.const.js";
 import { StaffCustomIds } from "./staff.const.js";
+import { Pagination, PaginationResolver } from "@discordx/pagination";
 
 const startDateValue = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 const endDateValue = { hour: 23, minute: 59, second: 59, millisecond: 59 };
@@ -254,61 +255,36 @@ export class StaffService {
         .setTitle("Топ сотрудников")
         .setDescription(description)
         .setFooter({
-          text: `Страница ${currentPage + 1}/${maxPages} | Всего сотрудников: ${totalCount}`,
+          text: `Страница ${page + 1}/${maxPages} | Всего сотрудников: ${totalCount}`,
         });
     }
 
-    let currentPage = 0;
+    const resolver = new PaginationResolver(async (page) => {
+      const data = await fetchPage(page);
 
-    const initialData = await fetchPage(currentPage);
-
-    const embed = createEmbed(initialData, currentPage);
-
-    const createButtons = () => [
-      new ButtonBuilder()
-        .setCustomId(StaffCustomIds.top.pagination.prev)
-        .setLabel("⬅️")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(currentPage === 0),
-      new ButtonBuilder()
-        .setCustomId(StaffCustomIds.top.pagination.next)
-        .setLabel("➡️")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(currentPage >= maxPages - 1),
-    ];
-
-    const createActionRow = () =>
-      new ActionRowBuilder<ButtonBuilder>().addComponents(createButtons());
-
-    const reply = await interaction.editReply({
-      embeds: [embed],
-      components: [createActionRow()],
+      return { embeds: [createEmbed(data, page)] };
+    }, maxPages);
+    const pagination = new Pagination(interaction, resolver, {
+      buttons: {
+        forward: {
+          enabled: false,
+        },
+        backward: {
+          enabled: false,
+        },
+        next: {
+          label: "",
+        },
+        previous: {
+          label: "",
+        },
+      },
+      selectMenu: {
+        disabled: true,
+      },
     });
 
-    const collector = reply.createMessageComponentCollector({
-      filter: (i) => i.user.id === interaction.user.id,
-      time: 300000,
-    });
-
-    collector.on("collect", async (interaction) => {
-      await interaction.deferUpdate();
-
-      switch (interaction.customId) {
-        case StaffCustomIds.top.pagination.prev:
-          if (currentPage > 0) currentPage--;
-          break;
-        case StaffCustomIds.top.pagination.next:
-          if (currentPage < maxPages - 1) currentPage++;
-          break;
-      }
-
-      const data = await fetchPage(currentPage);
-
-      await interaction.editReply({
-        embeds: [createEmbed(data, currentPage)],
-        components: [createActionRow()],
-      });
-    });
+    return pagination.send();
   }
 
   private parseOptionsDateString(from?: string, to?: string) {
