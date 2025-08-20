@@ -5,6 +5,17 @@ init:
 	make update_bot
 	make restart_bot
 
+init_prod:
+	make down
+	make build
+	make up
+	make update_bot
+	make build_bot
+	make restart_bot
+
+build_bot:
+	docker exec -it fear-bot pnpm run build
+
 down:
 	docker compose down --remove-orphans
 
