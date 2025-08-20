@@ -183,6 +183,8 @@ export class ReminderScheduleManager {
 
     if (currentTimeMilis > timestampTimeMilis) {
       const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
+      this.scheduleManager.stopJob(remind.id);
+      this.deleteRemindCache(remind.id);
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
         await this.updateRemindDb(remind.id);
         return this.sendWarning(...remindArgs);
@@ -302,31 +304,28 @@ export class ReminderScheduleManager {
       .setTitle(HelperBotMessages.remind.ping.embed.title)
       .setDescription(HelperBotMessages.remind.ping.embed.description);
 
-    setTimeout(() => {
-      channel
-        ?.send({
-          content: HelperBotMessages.remind.ping.content(
-            pings,
-            getCommandByRemindType(type),
-          ),
-          embeds: [embed],
-        })
-        .catch(console.error);
-    }, 500);
+    channel
+      ?.send({
+        content: HelperBotMessages.remind.ping.content(
+          pings,
+          getCommandByRemindType(type),
+        ),
+        embeds: [embed],
+      })
+      .catch(console.error);
   }
 
   private async sendWarning(...args: Parameters<typeof this.sendRemind>) {
     const [channel, pings, type] = args;
-    setTimeout(() => {
-      channel
-        ?.send({
-          content: HelperBotMessages.remind.warning.content(
-            pings,
-            getCommandByRemindType(type),
-          ),
-        })
-        .catch(console.error);
-    }, 500);
+
+    channel
+      ?.send({
+        content: HelperBotMessages.remind.warning.content(
+          pings,
+          getCommandByRemindType(type),
+        ),
+      })
+      .catch(console.error);
   }
 
   private async sendForce(
@@ -334,16 +333,15 @@ export class ReminderScheduleManager {
     ...args: Parameters<typeof this.sendRemind>
   ) {
     const [channel, pings, type] = args;
-    setTimeout(() => {
-      channel
-        ?.send({
-          content: HelperBotMessages.remind.force.content(
-            pings,
-            getCommandByRemindType(type),
-            force,
-          ),
-        })
-        .catch(console.error);
-    }, 500);
+
+    channel
+      ?.send({
+        content: HelperBotMessages.remind.force.content(
+          pings,
+          getCommandByRemindType(type),
+          force,
+        ),
+      })
+      .catch(console.error);
   }
 }
