@@ -56,7 +56,7 @@ export class ReminderScheduleManager {
   public async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
-      this.remind({
+      this.createRemind({
         guild: guilds.get(entry.remind.guildId),
         ...entry,
       }),
@@ -135,7 +135,7 @@ export class ReminderScheduleManager {
         isJsonDifferent(entry.settings, activeRemind?.settings);
 
       if (isDiff) {
-        await this.remind({
+        await this.createRemind({
           guild: guilds.get(entry.remind.guildId),
           ...entry,
         });
@@ -145,10 +145,12 @@ export class ReminderScheduleManager {
     await Promise.all(promises);
   }
 
-  public async remind(options: RemindOptions) {
+  public async createRemind(options: RemindOptions) {
     const { guild, remind, settings, shouldReveal } = options;
 
     const validate = await this.validateRemind({ guild, remind, settings });
+    const activeRemind = this.activeReminds.get(remind.id);
+
     if (!validate) {
       return;
     }
@@ -158,76 +160,69 @@ export class ReminderScheduleManager {
     const commonId = this.generateCommonId(guild.id, remind.type);
     const forceId = this.generateForceId(guild.id, remind.type);
 
-    const currentTime = DateTime.now().setZone(DefaultTimezone).toJSDate();
-    const timestampTime = DateTime.fromJSDate(remind.timestamp)
-      .setZone(DefaultTimezone)
-      .toJSDate();
-
-    const currentTimeMilis = currentTime.getTime();
-    const timestampTimeMilis = timestampTime.getTime();
-
-    const remindArgs: Parameters<typeof this.sendRemind> = [
-      channel,
-      settings.bumpRoleIds,
-      remind.type as RemindType,
-      bot.user,
-    ];
-
-    const addActiveRemindArgs: Parameters<typeof this.activeReminds.set> = [
-      remind.id,
-      {
-        remind,
-        settings,
-      },
-      Infinity,
-    ];
-
-    if (currentTimeMilis > timestampTimeMilis) {
-      const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
-      this.scheduleManager.stopJob(commonId);
-      this.scheduleManager.stopJob(forceId);
-      this.deleteRemindCache(remind.id);
-      await this.updateRemindDb(remind.id);
-      if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
-        return this.sendWarning(...remindArgs);
-      }
-      return this.sendRemind(...remindArgs);
-    }
-
     const existedCommon = this.scheduleManager.getJob(commonId);
     const existedForce = this.scheduleManager.getJob(forceId);
 
-    const createCommonRemind = () =>
-      this.scheduleManager.updateJob(commonId, timestampTime, async () => {
-        this.sendRemind(...remindArgs);
-        this.deleteRemindCache(remind.id);
-        await this.updateRemindDb(remind.id);
-      });
-
-    if (!existedCommon || shouldReveal) {
-      createCommonRemind();
+    if ((existedCommon || existedForce || activeRemind) && !shouldReveal) {
+      return;
     }
 
-    const isValidForce =
-      settings.force > 0 && settings.force < MonitoringCooldownHours * 3_600;
-
-    if (isValidForce && !existedForce) {
-      const forceTime = DateTime.fromJSDate(timestampTime)
-        .minus({ seconds: settings.force })
-        .setZone(DefaultTimezone)
-        .toJSDate();
-      this.scheduleManager.updateJob(forceId, forceTime, async () => {
-        this.sendForce(settings.force, ...remindArgs);
-        this.deleteRemindCache(remind.id);
-        await this.updateRemindDb(remind.id);
-      });
-    }
-
-    if (existedForce && !isValidForce) {
+    if (shouldReveal) {
+      this.scheduleManager.stopJob(commonId);
       this.scheduleManager.stopJob(forceId);
     }
 
-    this.activeReminds.set(...addActiveRemindArgs);
+    const currentTime = DateTime.now().setZone(DefaultTimezone);
+    const dbTime = DateTime.fromJSDate(remind.timestamp).setZone(
+      DefaultTimezone,
+    );
+
+    async function cleanup() {
+      this.deleteRemindCache(remind.id);
+      await this.updateRemindDb(remind.id);
+    }
+
+    if (currentTime >= dbTime) {
+      const [currMilis, dbMilis] = [currentTime.toMillis(), dbTime.toMillis()];
+
+      const hours = Math.floor((currMilis - dbMilis) / 3_600);
+      const diff = Math.min(Math.max(hours, 0), MonitoringCooldownHours);
+
+      this.scheduleManager.stopJob(commonId);
+      this.scheduleManager.stopJob(forceId);
+
+      await cleanup.bind(this)();
+
+      if (diff >= MonitoringCooldownHours) {
+        return this.sendWarn(channel, settings.bumpRoleIds, remind.type, bot);
+      }
+      return this.sendRemind(channel, settings.bumpRoleIds, remind.type, bot);
+    }
+
+    this.scheduleManager.startOnceJob(commonId, dbTime.toJSDate(), async () => {
+      await cleanup.bind(this)();
+      this.sendRemind(channel, settings.bumpRoleIds, remind.type, bot);
+    });
+
+    if (
+      settings.force > 0 &&
+      settings.force < MonitoringCooldownHours * 3_600
+    ) {
+      this.scheduleManager.startOnceJob(
+        forceId,
+        dbTime.minus({ seconds: settings.force }).toJSDate(),
+        async () => {
+          await cleanup.bind(this)();
+          this.sendForce(
+            settings.force,
+            channel,
+            settings.bumpRoleIds,
+            remind.type,
+            bot,
+          );
+        },
+      );
+    }
   }
 
   private async validateRemind({
@@ -304,7 +299,7 @@ export class ReminderScheduleManager {
   private async sendRemind(
     channel: TextChannel,
     pings: Snowflake[],
-    type: RemindType,
+    type: RemindType | number,
     bot: User,
   ) {
     const embed = new EmbedBuilder()
@@ -323,7 +318,7 @@ export class ReminderScheduleManager {
       .catch(console.error);
   }
 
-  private async sendWarning(...args: Parameters<typeof this.sendRemind>) {
+  private async sendWarn(...args: Parameters<typeof this.sendRemind>) {
     const [channel, pings, type] = args;
 
     channel

@@ -70,7 +70,7 @@ export class ReminderHandler {
       );
 
       if (payload.success && remind) {
-        await RemindModel.deleteOne({ _id: remind._id });
+        await RemindModel.updateOne({ _id: remind._id }, { isSended: true });
         remind = null;
       }
 
@@ -96,12 +96,6 @@ export class ReminderHandler {
         remind = await this.updateAnomaly(remind._id, payload.timestamp);
       }
 
-      await this.reminderSchedule.remind({
-        guild: message.guild,
-        remind,
-        settings,
-      });
-
       if (Env.AppEnv == "dev") {
         return await this.handleSuccess(message, payload, settings);
       }
@@ -113,35 +107,6 @@ export class ReminderHandler {
     } catch (err) {
       console.error(err);
     }
-  }
-
-  private async createRemind(
-    guildId: string,
-    timestamp: Date,
-    type: RemindType,
-  ) {
-    return await RemindModel.create({
-      guildId,
-      timestamp,
-      type,
-    });
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async updateAnomaly(objectId: any, timestamp: Date) {
-    return await RemindModel.findOneAndUpdate(
-      { _id: objectId },
-      { timestamp },
-      { new: true },
-    );
-  }
-
-  private async fetchLastRemind(guildId: string, type: RemindType) {
-    return await RemindModel.findOne({
-      guildId,
-      type,
-      isSended: false,
-    }).sort({ timestamp: -1 });
   }
 
   private async handleBumpBan(
@@ -227,5 +192,34 @@ export class ReminderHandler {
       content: userMention(user.id),
       embeds: [embed],
     });
+  }
+
+  private async createRemind(
+    guildId: string,
+    timestamp: Date,
+    type: RemindType,
+  ) {
+    return await RemindModel.create({
+      guildId,
+      timestamp,
+      type,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async updateAnomaly(objectId: any, timestamp: Date) {
+    return await RemindModel.findOneAndUpdate(
+      { _id: objectId },
+      { timestamp },
+      { new: true },
+    );
+  }
+
+  private async fetchLastRemind(guildId: string, type: RemindType) {
+    return await RemindModel.findOne({
+      guildId,
+      type,
+      isSended: false,
+    }).sort({ timestamp: -1 });
   }
 }
