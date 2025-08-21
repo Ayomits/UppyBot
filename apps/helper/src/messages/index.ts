@@ -14,11 +14,13 @@ import {
 import { DateTime } from "luxon";
 
 import {
+  BumpBanLimit,
   DefaultTimezone,
   type getCommandByRemindType,
   MonitoringCommand,
 } from "#/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
+import type { BumpBan } from "#/models/bump-ban.model.js";
 import type {
   RemindDocument,
   StaffInfoAgregation,
@@ -249,7 +251,10 @@ export const HelperBotMessages = {
       },
       embed: {
         title: "Информация о сотруднике",
-        fields: (data: StaffInfoAgregation): EmbedField[] => {
+        fields: (
+          data: StaffInfoAgregation,
+          bubmBan?: BumpBan,
+        ): EmbedField[] => {
           return [
             createPropertyField(
               MonitoringCommand.DiscordMonitoring,
@@ -262,6 +267,12 @@ export const HelperBotMessages = {
             createPropertyField(
               MonitoringCommand.ServerMonitoring,
               codeBlock(data?.bump ? data?.bump?.toString() : "0"),
+            ),
+            createPropertyField(
+              "Бамп бан",
+              !bubmBan
+                ? codeBlock("Не активен")
+                : codeBlock(`${BumpBanLimit - bubmBan?.removeIn} до снятия`),
             ),
             createPropertyField(
               "Поинты за период",

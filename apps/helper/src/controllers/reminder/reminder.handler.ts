@@ -38,7 +38,7 @@ export class ReminderHandler {
   constructor(
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
-    private reminderSchedule: ReminderScheduleManager,
+    private remindScheduleManager: ReminderScheduleManager,
   ) {}
 
   public async handleCommand(message: Message) {
@@ -96,6 +96,12 @@ export class ReminderHandler {
         remind = await this.updateAnomaly(remind._id, payload.timestamp);
       }
 
+      await this.remindScheduleManager.createRemind({
+        remind,
+        settings,
+        guild: message.guild,
+      });
+
       if (Env.AppEnv == "dev") {
         return await this.handleSuccess(message, payload, settings);
       }
@@ -125,7 +131,7 @@ export class ReminderHandler {
       { upsert: true },
     );
 
-    if (bumpBan.removeIn <= 0 && bumpBanRole) {
+    if (bumpBan?.removeIn <= 0 && bumpBanRole) {
       await member.roles.add(bumpBanRole).catch(console.error);
     }
 

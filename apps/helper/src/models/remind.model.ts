@@ -15,7 +15,7 @@ export class Remind extends TimeStamps {
   @prop({ required: true })
   timestamp: Date;
 
-  @prop({ default: false, required: true })
+  @prop({ default: false, required: true, index: true })
   isSended: boolean;
 }
 
