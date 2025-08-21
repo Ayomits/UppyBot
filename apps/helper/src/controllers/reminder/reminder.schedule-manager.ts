@@ -67,7 +67,6 @@ export class ReminderScheduleManager {
     this.scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
       this.handleDiff(client),
     );
-    console.log(this.scheduleManager.getAll());
   }
 
   public async initBumpBan(client: Client) {
@@ -269,7 +268,7 @@ export class ReminderScheduleManager {
       await SettingsModel.find({ guildId: { $in: guildIds } }),
       await RemindModel.find({
         guildId: { $in: guildIds },
-        isSended: { $ne: true },
+        isSended: false,
       }),
     ]);
 

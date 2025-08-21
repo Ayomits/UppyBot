@@ -23,6 +23,7 @@ import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { BumpModel } from "#/models/bump.model.js";
+import { BumpBanModel } from "#/models/bump-ban.model.js";
 import {
   type RemindDocument,
   RemindModel,
@@ -101,10 +102,14 @@ export class StaffService {
         },
       },
     ]);
+    const bumpBan = await BumpBanModel.findOne({
+      guildId: interaction.guildId,
+      userId: interaction.user.id,
+    });
 
     const embed = new EmbedBuilder()
       .setTitle(HelperBotMessages.staff.info.embed.title)
-      .setFields(HelperBotMessages.staff.info.embed.fields(entries[0]))
+      .setFields(HelperBotMessages.staff.info.embed.fields(entries[0], bumpBan))
       .setDefaults(user);
 
     return interaction.editReply({ embeds: [embed] });
@@ -461,7 +466,7 @@ export class StaffService {
       type: { $in: types },
       guildId: interaction.guildId,
     })
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: -1, createdAt: -1 })
       .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
