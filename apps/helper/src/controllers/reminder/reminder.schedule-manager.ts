@@ -67,6 +67,7 @@ export class ReminderScheduleManager {
     this.scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
       this.handleDiff(client),
     );
+    console.log(this.scheduleManager.getAll());
   }
 
   public async initBumpBan(client: Client) {
@@ -190,11 +191,11 @@ export class ReminderScheduleManager {
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
         return this.sendWarning(...remindArgs);
       }
-      console.log("here3");
       return this.sendRemind(...remindArgs);
     }
 
     const existedCommon = this.scheduleManager.getJob(commonId);
+    const existedForce = this.scheduleManager.getJob(forceId);
 
     const createCommonRemind = () =>
       this.scheduleManager.updateJob(commonId, timestampTime, async () => {
@@ -203,26 +204,27 @@ export class ReminderScheduleManager {
         await this.updateRemindDb(remind.id);
       });
 
-    if (!existedCommon) {
+    if (!existedCommon || shouldReveal) {
       createCommonRemind();
     }
 
-    if (shouldReveal) {
-      createCommonRemind();
-    }
+    const isValidForce =
+      settings.force > 0 && settings.force < MonitoringCooldownHours * 3_600;
 
-    if (
-      settings.force > 0 &&
-      settings.force < MonitoringCooldownHours * 3_600
-    ) {
+    if (isValidForce && !existedForce) {
       const forceTime = DateTime.fromJSDate(timestampTime)
         .minus({ seconds: settings.force })
+        .setZone(DefaultTimezone)
         .toJSDate();
       this.scheduleManager.updateJob(forceId, forceTime, async () => {
         this.sendForce(settings.force, ...remindArgs);
         this.deleteRemindCache(remind.id);
         await this.updateRemindDb(remind.id);
       });
+    }
+
+    if (existedForce && !isValidForce) {
+      this.scheduleManager.stopJob(forceId);
     }
 
     this.activeReminds.set(...addActiveRemindArgs);
@@ -270,7 +272,10 @@ export class ReminderScheduleManager {
 
     const [settings, reminds] = await Promise.all([
       await SettingsModel.find({ guildId: { $in: guildIds } }),
-      await RemindModel.find({ guildId: { $in: guildIds }, isSended: false }),
+      await RemindModel.find({
+        guildId: { $in: guildIds },
+        isSended: { $ne: true },
+      }),
     ]);
 
     const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
