@@ -183,12 +183,14 @@ export class ReminderScheduleManager {
 
     if (currentTimeMilis > timestampTimeMilis) {
       const diff = (currentTimeMilis - timestampTimeMilis) / 1_000;
-      this.scheduleManager.stopJob(remind.id);
+      this.scheduleManager.stopJob(commonId);
+      this.scheduleManager.stopJob(forceId);
       this.deleteRemindCache(remind.id);
       await this.updateRemindDb(remind.id);
       if (Math.floor(diff / 3_600) >= MonitoringCooldownHours) {
         return this.sendWarning(...remindArgs);
       }
+      console.log("here3");
       return this.sendRemind(...remindArgs);
     }
 
@@ -201,11 +203,11 @@ export class ReminderScheduleManager {
         await this.updateRemindDb(remind.id);
       });
 
-    if (shouldReveal) {
+    if (!existedCommon) {
       createCommonRemind();
     }
 
-    if (!existedCommon) {
+    if (shouldReveal) {
       createCommonRemind();
     }
 
@@ -216,8 +218,10 @@ export class ReminderScheduleManager {
       const forceTime = DateTime.fromJSDate(timestampTime)
         .minus({ seconds: settings.force })
         .toJSDate();
-      this.scheduleManager.updateJob(forceId, forceTime, () => {
+      this.scheduleManager.updateJob(forceId, forceTime, async () => {
         this.sendForce(settings.force, ...remindArgs);
+        this.deleteRemindCache(remind.id);
+        await this.updateRemindDb(remind.id);
       });
     }
 
