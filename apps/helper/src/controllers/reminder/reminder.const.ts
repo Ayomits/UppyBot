@@ -70,7 +70,7 @@ export function getRemindTypeText(type: RemindType) {
   }
 }
 
-export function getCommandByRemindType(type: RemindType) {
+export function getCommandByRemindType(type: RemindType | number) {
   switch (type) {
     case RemindType.DiscordMonitoring:
       return MonitoringCommand.DiscordMonitoring;
