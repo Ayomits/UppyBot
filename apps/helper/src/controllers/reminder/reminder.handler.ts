@@ -1,3 +1,4 @@
+import { Env } from "@fear/config";
 import {
   type Guild,
   type GuildMember,
@@ -101,7 +102,14 @@ export class ReminderHandler {
         settings,
       });
 
-      return await this.handleSuccess(message, payload, settings);
+      if (Env.AppEnv == "dev") {
+        return await this.handleSuccess(message, payload, settings);
+      }
+
+      return (
+        payload.success &&
+        (await this.handleSuccess(message, payload, settings))
+      );
     } catch (err) {
       console.error(err);
     }
