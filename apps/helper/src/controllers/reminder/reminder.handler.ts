@@ -27,7 +27,6 @@ import {
   RemindType,
 } from "./reminder.const.js";
 import { type ParserValue, ReminderParser } from "./reminder.parser.js";
-import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
 
 @injectable()
 /**
@@ -35,11 +34,7 @@ import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
  * Умеет обрабатывать случаи, когда какие-то шаловливые ручки полезли в базу
  */
 export class ReminderHandler {
-  constructor(
-    @inject(ReminderParser) private commandParser: ReminderParser,
-    @inject(ReminderScheduleManager)
-    private remindScheduleManager: ReminderScheduleManager,
-  ) {}
+  constructor(@inject(ReminderParser) private commandParser: ReminderParser) {}
 
   public async handleCommand(message: Message) {
     try {
@@ -95,12 +90,6 @@ export class ReminderHandler {
       if (isAnomaly) {
         remind = await this.updateAnomaly(remind._id, payload.timestamp);
       }
-
-      await this.remindScheduleManager.createRemind({
-        remind,
-        settings,
-        guild: message.guild,
-      });
 
       if (Env.AppEnv == "dev") {
         return await this.handleSuccess(message, payload, settings);
