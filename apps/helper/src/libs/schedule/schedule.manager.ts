@@ -14,6 +14,10 @@ export class ScheduleManager {
     date: Date,
     callback: () => Promise<void> | void,
   ) {
+    const existed = this.cache.get(name);
+    if (existed) {
+      clearTimeout(existed);
+    }
     const delay = date.getTime() - Date.now();
     this.cache.set(name, setTimeout(callback, delay), delay);
   }
@@ -45,5 +49,9 @@ export class ScheduleManager {
       console.error(err);
     }
     this.cache.delete(name);
+  }
+
+  public getAll() {
+    return this.cache.keys();
   }
 }
