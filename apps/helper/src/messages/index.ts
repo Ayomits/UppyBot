@@ -62,10 +62,11 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
 
   const timestamp = DateTime.fromJSDate(monitoring.timestamp)
     .setZone(DefaultTimezone)
-    .toJSDate()
-    .getTime();
+    .toMillis();
 
-  return codeBlock(timestamp.toString());
+  const curr = DateTime.now().setZone(DefaultTimezone).toMillis();
+
+  return curr > timestamp ? codeBlock("Можно использовать") : codeBlock(timestamp.toString());
 };
 
 export const HelperBotMessages = {
