@@ -1,10 +1,5 @@
 import { Env } from "@fear/config";
-import {
-  type Guild,
-  type GuildMember,
-  type Message,
-  userMention,
-} from "discord.js";
+import { type Guild, type GuildMember, type Message } from "discord.js";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
