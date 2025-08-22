@@ -168,12 +168,15 @@ export class ReminderScheduleManager {
       return;
     }
 
-    this.scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
-      this.sendCommonRemind(remind, guild),
-    );
-    logger.success(
-      `Напоминие для бота ${getCommandByRemindType(type)} создано`,
-    );
+    if (!settings.useForceOnly) {
+      this.scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
+        this.sendCommonRemind(remind, guild),
+      );
+      logger.success(
+        `Напоминие для бота ${getCommandByRemindType(type)} создано`,
+      );
+    }
+
     if (settings.force > 0 && GMTTimestamp.toMillis() > GMTCurrent.toMillis()) {
       this.scheduleManager.startOnceJob(
         forceId,

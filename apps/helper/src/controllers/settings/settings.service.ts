@@ -59,6 +59,8 @@ export class SettingsService {
           this.openRoleManagement.bind(this),
         [SettingsCustomIds.buttons.actions.setForceTime]:
           this.openSetForceModal.bind(this),
+        [SettingsCustomIds.buttons.actions.toggleUseForce]:
+          this.toggleUseForceOnly.bind(this),
       };
 
       actionHandlers[interaction.customId]?.(interaction);
@@ -81,6 +83,7 @@ export class SettingsService {
       this.createRoleManagementButton(),
       this.createRefreshButton(),
       this.createForceRemindButton(),
+      this.createUseForceButton(),
     );
 
     return { embeds: [embed], components: [controls] };
@@ -116,7 +119,38 @@ export class SettingsService {
       .setStyle(ButtonStyle.Secondary);
   }
 
+  private createUseForceButton() {
+    return new ButtonBuilder()
+      .setLabel(
+        HelperBotMessages.settings.panel.components.actions.toggleUseForce,
+      )
+      .setCustomId(SettingsCustomIds.buttons.actions.toggleUseForce)
+      .setStyle(ButtonStyle.Secondary);
+  }
+
   //===============Преждевременный пинг
+
+  private async toggleUseForceOnly(interaction: ButtonInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+    const existed = await SettingsModel.findOneAndUpdate(
+      { guildId: interaction.guildId },
+      {},
+      { upsert: true },
+    );
+
+    await SettingsModel.updateOne(
+      { _id: existed.id },
+      { useForceOnly: !existed.useForceOnly },
+    );
+
+    return interaction.editReply({
+      content:
+        HelperBotMessages.settings.managers.force.buttons.actions.useForceOnly.content(
+          !existed.useForceOnly,
+        ),
+    });
+  }
+
   private openSetForceModal(interaction: ButtonInteraction) {
     const modal = new ModalBuilder()
       .setTitle(
@@ -138,7 +172,7 @@ export class SettingsService {
 
   public async handleSetForceModal(interaction: ModalSubmitInteraction) {
     const fieldSeconds = Number(interaction.fields.getTextInputValue("time"));
-    let seconds = 0;
+    let seconds: number;
     if (Number.isNaN(fieldSeconds)) {
       seconds = 0;
     } else {
