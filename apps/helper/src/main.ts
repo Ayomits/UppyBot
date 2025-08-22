@@ -7,6 +7,8 @@ import { GatewayIntentBits, type Interaction, type Message } from "discord.js";
 import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
+import { logger } from "./libs/logger/logger.js";
+
 export async function helper() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
   const client = new Client({
@@ -17,6 +19,7 @@ export async function helper() {
       GatewayIntentBits.GuildMessages,
     ],
     silent: Env.AppEnv !== "dev",
+    logger,
     simpleCommand: {
       prefix: "!",
     },
@@ -30,7 +33,7 @@ export async function helper() {
         } catch (err) {
           await client.clearApplicationCommands();
           await initCommands(__retries + 1);
-          console.error(err);
+          logger.error(err);
         }
       }
     }
@@ -41,7 +44,7 @@ export async function helper() {
     try {
       void client.executeInteraction(interaction);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   });
 
@@ -49,7 +52,7 @@ export async function helper() {
     try {
       void client.executeCommand(message);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   });
 
@@ -59,11 +62,11 @@ export async function helper() {
     .connect(Env.MongoUrl, {
       autoCreate: true,
     })
-    .catch(console.error)
-    .then(() => console.log("succesfully connected to mongodb"));
+    .catch(logger.error)
+    .then(() => logger.success("succesfully connected to mongodb"));
 
   await client.login(Env.HelperToken).then(() => {
-    console.log("Successfully logged in");
+    logger.success("Successfully logged in");
   });
 }
 helper();

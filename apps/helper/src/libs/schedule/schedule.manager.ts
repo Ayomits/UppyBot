@@ -4,6 +4,8 @@ import { injectable } from "tsyringe";
 
 import { DefaultTimezone } from "#/controllers/reminder/reminder.const.js";
 
+import { logger } from "../logger/logger.js";
+
 type ScheduleCache = { date: Date; timer: NodeJS.Timeout };
 
 @injectable()
@@ -65,7 +67,7 @@ export class ScheduleManager {
         clearTimeout(timeout.timer);
         clearInterval(timeout.timer);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
       }
       this.cache.delete(name);
     }

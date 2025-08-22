@@ -3,6 +3,7 @@ import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
+import { logger } from "#/libs/logger/logger.js";
 import { ScheduleManager } from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
@@ -76,6 +77,7 @@ export class ReminderScheduleManager {
         const GMTDate = DateTime.fromJSDate(commonSchedule.date)
           .setZone(DefaultTimezone)
           .toMillis();
+
         if (GMTTImestamp === GMTDate) {
           return;
         }
@@ -90,6 +92,9 @@ export class ReminderScheduleManager {
         }
       }
 
+      logger.success(
+        `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
+      );
       return this.remind(...remindArgs);
     });
 
@@ -130,6 +135,9 @@ export class ReminderScheduleManager {
   }: Omit<ParserValue, "authorId" | "success"> & {
     settings: SettingsDocument;
   }) {
+    logger.info(
+      `Идёт проверка для создания напоминания для бота ${getCommandByRemindType(type)}`,
+    );
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
     const remind = await RemindModel.findOneAndUpdate(
@@ -144,6 +152,9 @@ export class ReminderScheduleManager {
     const GMTCurrent = DateTime.now().setZone(DefaultTimezone);
 
     if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
+      logger.error(
+        `Просроченное напоминие у бота ${getCommandByRemindType(type)}`,
+      );
       return;
     }
 
@@ -151,18 +162,27 @@ export class ReminderScheduleManager {
     const forceSchedule = this.scheduleManager.getJob(forceId);
 
     if (commonSchedule || forceSchedule) {
+      logger.warn(
+        `Напоминие у бота ${getCommandByRemindType(type)} уже существует`,
+      );
       return;
     }
 
     this.scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
       this.sendCommonRemind(remind, guild),
     );
-
+    logger.success(
+      `Напоминие для бота ${getCommandByRemindType(type)} создано`,
+    );
     if (settings.force > 0 && GMTTimestamp.toMillis() > GMTCurrent.toMillis()) {
       this.scheduleManager.startOnceJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
         () => this.sendForceRemind(remind, guild),
+      );
+
+      logger.success(
+        `Преждевременное напоминие для бота ${getCommandByRemindType(type)} создано`,
       );
     }
   }
@@ -190,7 +210,7 @@ export class ReminderScheduleManager {
           ),
         });
       } catch (err) {
-        console.error(err);
+        logger.error(err);
       }
     }
   }
@@ -219,35 +239,7 @@ export class ReminderScheduleManager {
           ),
         });
       } catch (err) {
-        console.error(err);
-      }
-    }
-  }
-
-  private async sendWarn(remind: RemindDocument, guild: Guild) {
-    const settings = await SettingsModel.findOneAndUpdate(
-      { guildId: guild.id },
-      {},
-      { upsert: true },
-    );
-    const channel = await guild.channels
-      .fetch(settings.pingChannelId)
-      .catch(null);
-
-    if (!channel) {
-      return;
-    }
-
-    if (channel.isSendable()) {
-      try {
-        channel?.send({
-          content: HelperBotMessages.remind.warning.content(
-            settings.bumpRoleIds,
-            getCommandByRemindType(remind.type),
-          ),
-        });
-      } catch (err) {
-        console.error(err);
+        logger.error(err);
       }
     }
   }

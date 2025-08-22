@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { logger } from "#/libs/logger/logger.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
@@ -72,7 +73,7 @@ export class ReminderHandler {
         (await this.handleSuccess(message, payload, settings))
       );
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 
@@ -93,13 +94,13 @@ export class ReminderHandler {
     );
 
     if (bumpBan?.removeIn <= 0 && bumpBanRole) {
-      await member.roles.add(bumpBanRole).catch(console.error);
+      await member.roles.add(bumpBanRole).catch(logger.error);
     }
 
     if (bumpBan?.removeIn + 1 >= BumpBanLimit) {
       await BumpBanModel.deleteOne({ _id: bumpBan._id });
       if (bumpBanRole) {
-        await member.roles.remove(bumpBanRole).catch(console.error);
+        await member.roles.remove(bumpBanRole).catch(logger.error);
       }
     }
 
