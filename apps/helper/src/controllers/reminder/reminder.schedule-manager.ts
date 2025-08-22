@@ -5,7 +5,7 @@ import { inject, injectable } from "tsyringe";
 
 import { logger } from "#/libs/logger/logger.js";
 import {
-  ScheduleCache,
+  type ScheduleCache,
   ScheduleManager,
 } from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
@@ -75,6 +75,17 @@ export class ReminderScheduleManager {
           type: remind.type as RemindType,
         },
       ];
+
+      if (
+        (initCommonSchedule === null ||
+          typeof initCommonSchedule === "undefined") &&
+        !settings.useForceOnly
+      ) {
+        logger.info(
+          `Нет напоминания для бота ${getCommandByRemindType(remind.type)}, создаю`,
+        );
+        return this.remind(...remindArgs);
+      }
 
       if (initCommonSchedule && settings.useForceOnly) {
         logger.info(
@@ -203,7 +214,7 @@ export class ReminderScheduleManager {
     const commonSchedule = this.scheduleManager.getJob(commonId);
     const forceSchedule = this.scheduleManager.getJob(forceId);
 
-    if (commonSchedule || forceSchedule) {
+    if (commonSchedule && forceSchedule) {
       logger.warn(
         `Напоминие у бота ${getCommandByRemindType(type)} уже существует`,
       );
@@ -211,7 +222,7 @@ export class ReminderScheduleManager {
     }
 
     if (!settings.useForceOnly) {
-      this.scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
+      this.scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild),
       );
       logger.success(
@@ -220,7 +231,7 @@ export class ReminderScheduleManager {
     }
 
     if (settings.force > 0 && GMTTimestamp.toMillis() > GMTCurrent.toMillis()) {
-      this.scheduleManager.startOnceJob(
+      this.scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
         () => this.sendForceRemind(remind, guild),
