@@ -4,7 +4,10 @@ import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
 import { logger } from "#/libs/logger/logger.js";
-import { ScheduleManager } from "#/libs/schedule/schedule.manager.js";
+import {
+  ScheduleCache,
+  ScheduleManager,
+} from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import {
@@ -52,15 +55,15 @@ export class ReminderScheduleManager {
       const commonId = this.generateCommonId(remind.guildId, remind.type);
       const forceId = this.generateForceId(remind.guildId, remind.type);
 
-      const commonSchedule = this.scheduleManager.getJob(commonId);
-      const forceSchedule = this.scheduleManager.getJob(forceId);
+      const initCommonSchedule = this.scheduleManager.getJob(commonId);
+      const initForceSchedule = this.scheduleManager.getJob(forceId);
 
       const GMTCurrent = DateTime.now().setZone(DefaultTimezone).toMillis();
-      const GMTTImestamp = DateTime.fromJSDate(remind.timestamp)
-        .setZone(DefaultTimezone)
-        .toMillis();
+      const GMTTImestamp = DateTime.fromJSDate(remind.timestamp).setZone(
+        DefaultTimezone,
+      );
 
-      if (GMTCurrent >= GMTTImestamp) {
+      if (GMTCurrent >= GMTTImestamp.toMillis()) {
         return;
       }
 
@@ -73,32 +76,71 @@ export class ReminderScheduleManager {
         },
       ];
 
-      if (commonSchedule || forceSchedule) {
-        const GMTDate = DateTime.fromJSDate(commonSchedule.date)
-          .setZone(DefaultTimezone)
-          .toMillis();
-
-        if (GMTTImestamp === GMTDate) {
-          return;
-        }
-
-        if (settings.force <= 0) {
-          this.scheduleManager.stopJob(forceId);
-        }
-
-        if (GMTTImestamp !== GMTDate) {
-          this.scheduleManager.stopJob(commonId);
-          this.scheduleManager.stopJob(forceId);
-        }
+      if (initCommonSchedule && settings.useForceOnly) {
+        logger.info(
+          `Отменено напоминание для бота ${getCommandByRemindType(remind.type)}`,
+        );
+        this.scheduleManager.stopJob(commonId);
       }
 
-      logger.success(
-        `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
-      );
-      return this.remind(...remindArgs);
+      if (initForceSchedule && settings.force <= 0) {
+        logger.info(
+          `Отменено преждевременное напоминание для бота ${getCommandByRemindType(remind.type)}`,
+        );
+        this.scheduleManager.stopJob(forceId);
+      }
+
+      const commonSchedule = this.scheduleManager.getJob(commonId);
+      const forceSchedule = this.scheduleManager.getJob(forceId);
+
+      const isValidForceDiff =
+        forceSchedule &&
+        this.validateSchedule(
+          forceSchedule,
+          GMTTImestamp.minus({ seconds: settings.force }).toMillis(),
+          forceId,
+          commonId,
+        );
+      const isValidCommonDiff =
+        commonSchedule &&
+        this.validateSchedule(
+          commonSchedule,
+          GMTTImestamp.toMillis(),
+          forceId,
+          commonId,
+        );
+
+      if (isValidForceDiff || isValidCommonDiff) {
+        logger.success(
+          `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
+        );
+        return this.remind(...remindArgs);
+      }
     });
 
     await Promise.all(promises);
+  }
+
+  private validateSchedule(
+    schedule: ScheduleCache,
+    timestamp: number,
+    forceId: string,
+    commonId: string,
+  ) {
+    const GMTDate = DateTime.fromJSDate(schedule?.date)
+      .setZone(DefaultTimezone)
+      .toMillis();
+
+    if (timestamp === GMTDate) {
+      return false;
+    }
+
+    if (timestamp !== GMTDate) {
+      this.scheduleManager.stopJob(commonId);
+      this.scheduleManager.stopJob(forceId);
+    }
+
+    return true;
   }
 
   private async fetchRemindData(client: Client) {

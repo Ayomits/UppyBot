@@ -6,7 +6,7 @@ import { DefaultTimezone } from "#/controllers/reminder/reminder.const.js";
 
 import { logger } from "../logger/logger.js";
 
-type ScheduleCache = { date: Date; timer: NodeJS.Timeout };
+export type ScheduleCache = { date: Date; timer: NodeJS.Timeout };
 
 @injectable()
 export class ScheduleManager {
