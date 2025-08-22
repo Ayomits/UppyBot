@@ -188,16 +188,20 @@ export class ReminderScheduleManager {
   }
 
   private async sendCommonRemind(remind: RemindDocument, guild: Guild) {
+    logger.info("Начинаю высылать напоминание");
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
       { upsert: true },
     );
     const channel = await guild.channels
-      .fetch(settings.pingChannelId)
+      .fetch(settings?.pingChannelId)
       .catch(null);
 
     if (!channel) {
+      logger.error(
+        `Указанный канал не был найден для сервера ${remind.guildId}`,
+      );
       return;
     }
 
@@ -223,16 +227,20 @@ export class ReminderScheduleManager {
   }
 
   private async sendForceRemind(remind: RemindDocument, guild: Guild) {
+    logger.info("Начинаю высылать преждевременное напоминание");
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
       { upsert: true },
     );
     const channel = await guild.channels
-      .fetch(settings.pingChannelId)
+      .fetch(settings?.pingChannelId)
       .catch(null);
 
     if (!channel) {
+      logger.error(
+        `Указанный канал не был найден для сервера ${remind.guildId}`,
+      );
       return;
     }
 
