@@ -68,7 +68,7 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
 
   return curr > timestamp
     ? codeBlock("Можно использовать")
-    : time(timestamp / 1_000, TimestampStyles.RelativeTime);
+    : time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime);
 };
 
 const getToggledValue = (value: boolean) => {
