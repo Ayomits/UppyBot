@@ -65,9 +65,7 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
     .toJSDate()
     .getTime();
 
-  return !monitoring.isSended
-    ? time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime)
-    : codeBlock("Пора использовать");
+  return codeBlock(timestamp.toString());
 };
 
 export const HelperBotMessages = {
