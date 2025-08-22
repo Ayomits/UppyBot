@@ -196,7 +196,7 @@ export class ReminderScheduleManager {
     );
     const channel = await guild.channels
       .fetch(settings?.pingChannelId)
-      .catch(null);
+      .catch(() => null);
 
     if (!channel) {
       logger.error(
@@ -205,7 +205,7 @@ export class ReminderScheduleManager {
       return;
     }
 
-    if (channel.isSendable()) {
+    if (channel?.isSendable()) {
       try {
         channel?.send({
           content: HelperBotMessages.remind.ping.content(
@@ -244,7 +244,7 @@ export class ReminderScheduleManager {
       return;
     }
 
-    if (channel.isSendable()) {
+    if (channel?.isSendable()) {
       try {
         channel?.send({
           content: HelperBotMessages.remind.force.content(
