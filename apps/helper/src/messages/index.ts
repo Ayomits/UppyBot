@@ -66,7 +66,13 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
 
   const curr = DateTime.now().setZone(DefaultTimezone).toMillis();
 
-  return curr > timestamp ? codeBlock("Можно использовать") : codeBlock(timestamp.toString());
+  return curr > timestamp
+    ? codeBlock("Можно использовать")
+    : codeBlock(timestamp.toString());
+};
+
+const getToggledValue = (value: boolean) => {
+  return value ? "вкл" : "выкл";
 };
 
 export const HelperBotMessages = {
@@ -94,6 +100,10 @@ export const HelperBotMessages = {
           "Преждевременный пинг (секунды)",
           settings.force ?? 0,
         ),
+        createPropertyField(
+          "Использовать только преждевременный пинг",
+          getToggledValue(settings?.useForceOnly),
+        ),
       ],
       components: {
         managers: {
@@ -102,6 +112,7 @@ export const HelperBotMessages = {
         },
         actions: {
           setForceTime: "Преждевременный пинг",
+          toggleUseForce: "Только преждевременные пинги",
         },
         updaters: {
           panel: "Обновить панель",
@@ -132,6 +143,14 @@ export const HelperBotMessages = {
         },
       },
       force: {
+        buttons: {
+          actions: {
+            useForceOnly: {
+              content: (status: boolean) =>
+                `Вы успешно переключили состояние на ${inlineCode(getToggledValue(status))}`,
+            },
+          },
+        },
         modal: {
           actions: {
             setForceTime: {

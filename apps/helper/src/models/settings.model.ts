@@ -21,6 +21,9 @@ export class Settings extends TimeStamps {
   @prop({ alias: "log_channel_id", default: null })
   logChannelId?: string;
 
+  @prop({ default: false })
+  useForceOnly: boolean;
+
   @prop({ min: 0, default: 0 })
   force: number;
 }

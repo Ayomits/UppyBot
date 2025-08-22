@@ -10,6 +10,7 @@ export const SettingsCustomIds = {
     },
     actions: {
       setForceTime: "settings-set-force-time",
+      toggleUseForce: "settings-use-force-only",
     },
     updaters: {
       panel: "settings-update-panel",
