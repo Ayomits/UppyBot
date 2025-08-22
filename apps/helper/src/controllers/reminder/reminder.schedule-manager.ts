@@ -209,8 +209,15 @@ export class ReminderScheduleManager {
             getCommandByRemindType(remind.type),
           ),
         });
+        logger.success(
+          `Напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+        );
       } catch (err) {
-        logger.error(err);
+        logger.error(
+          `Напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          "Причина:",
+          err,
+        );
       }
     }
   }
@@ -238,8 +245,15 @@ export class ReminderScheduleManager {
             settings.force,
           ),
         });
+        logger.success(
+          `Преждевременное напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+        );
       } catch (err) {
-        logger.error(err);
+        logger.error(
+          `Преждевременное напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          "Причина:",
+          err,
+        );
       }
     }
   }
