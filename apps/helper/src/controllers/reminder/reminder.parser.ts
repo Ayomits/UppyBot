@@ -1,4 +1,4 @@
-import type { Message, Snowflake } from "discord.js";
+import type { Guild, Message, Snowflake } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
@@ -11,7 +11,7 @@ import {
 } from "./reminder.const.js";
 
 export interface ParserValue {
-  guild: Snowflake;
+  guild: Guild;
   authorId: Snowflake;
   success: boolean;
   timestamp: Date | null;
@@ -48,7 +48,6 @@ export class ReminderParser {
       return;
     }
 
-    const guildId = message.guildId;
     const authorId = message.interactionMetadata?.user?.id ?? message.author.id;
 
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
@@ -67,7 +66,7 @@ export class ReminderParser {
 
       return this.handleSuccess(
         timestamp,
-        guildId,
+        message.guild,
         authorId,
         RemindType.SdcMonitoring,
       );
@@ -75,7 +74,7 @@ export class ReminderParser {
 
     return this.handleFailure(
       discordMessageTimestampDate.toJSDate(),
-      guildId,
+      message.guild,
       authorId,
       RemindType.SdcMonitoring,
     );
@@ -87,7 +86,6 @@ export class ReminderParser {
 
     const embed = message.embeds[0];
 
-    const guildId = message.guildId;
     const authorId =
       message?.interactionMetadata?.user?.id ?? message.author.id;
 
@@ -100,7 +98,7 @@ export class ReminderParser {
         .toJSDate();
       return this.handleSuccess(
         timestamp,
-        guildId,
+        message.guild,
         authorId,
         RemindType.ServerMonitoring,
       );
@@ -122,7 +120,7 @@ export class ReminderParser {
 
     return this.handleFailure(
       timestamp,
-      guildId,
+      message.guild,
       authorId,
       RemindType.ServerMonitoring,
     );
@@ -134,7 +132,6 @@ export class ReminderParser {
 
     const embed = message.embeds[0];
 
-    const guildId = message.guildId;
     const authorId = message.interactionMetadata?.user?.id ?? message.author.id;
 
     const timestamp = DateTime.fromJSDate(new Date(embed.timestamp))
@@ -148,7 +145,7 @@ export class ReminderParser {
     ) {
       return this.handleSuccess(
         timestamp,
-        guildId,
+        message.guild,
         authorId,
         RemindType.DiscordMonitoring,
       );
@@ -156,7 +153,7 @@ export class ReminderParser {
 
     return this.handleFailure(
       timestamp,
-      guildId,
+      message.guild,
       authorId,
       RemindType.DiscordMonitoring,
     );
@@ -166,7 +163,7 @@ export class ReminderParser {
     if (!message.embeds.length) {
       return this.handleFailure(
         null,
-        message.guildId,
+        message.guild,
         message.interactionMetadata?.user?.id ?? message.author.id,
         RemindType.DiscordMonitoring,
       );
@@ -175,30 +172,30 @@ export class ReminderParser {
 
   public handleSuccess(
     timestamp: Date | null,
-    guildId: string,
+    guild: Guild,
     authorId: string,
     type: RemindType,
   ): ParserValue {
     return {
-      timestamp: timestamp,
+      timestamp,
       success: true,
-      guild: guildId,
-      authorId: authorId,
-      type: type,
+      guild,
+      authorId,
+      type,
     };
   }
 
   public handleFailure(
     timestamp: Date | null,
-    guildId: string,
+    guild: Guild,
     authorId: string,
     type: RemindType,
   ): ParserValue {
     return {
-      timestamp: timestamp,
+      timestamp,
       success: false,
-      guild: guildId,
-      authorId: authorId,
+      guild,
+      authorId,
       type,
     };
   }

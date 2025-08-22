@@ -1,6 +1,6 @@
 FROM node:24.4.1-alpine3.21
 
-RUN apk add --no-cache supervisor
+RUN apk add --no-cache runit
 
 WORKDIR /app
 
@@ -8,21 +8,21 @@ ARG APP_ENV=dev
 
 COPY ./ /app
 
-COPY ./docker/supervisord/dev/supervisord.conf /tmp/supervisord-dev.conf
-COPY ./docker/supervisord/prod/supervisord.conf /tmp/supervisord-prod.conf
+COPY ./docker/runit/dev/dev.run /tmp/runit-dev.run
+COPY ./docker/runit/prod/prod.run /tmp/runit-prod.run
 
-RUN mkdir -p /etc/supervisor
-RUN touch /etc/supervisor/supervisord.conf
+RUN mkdir -p /etc/service/app /runit
 
 RUN if [ "$APP_ENV" = "prod" ]; then \
-  cp /tmp/supervisord-prod.conf /etc/supervisor/supervisord.conf; \
+  cp /tmp/runit-prod.run /etc/service/app/run; \
   else \
-  cp /tmp/supervisord-dev.conf /etc/supervisor/supervisord.conf; \
+  cp /tmp/runit-dev.run /etc/service/app/run; \
   fi && \
-  rm /tmp/supervisord-*.conf
+  rm /tmp/runit-*.run
+
+
+RUN chmod +x /etc/service/app/run
 
 RUN npm install pnpm -g
 
-RUN mkdir -p /var/log/supervisor/
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["runsvdir", "/etc/service"]

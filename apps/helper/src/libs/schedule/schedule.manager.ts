@@ -1,9 +1,14 @@
 import { LocalCache } from "@ts-fetcher/cache";
+import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
+
+import { DefaultTimezone } from "#/controllers/reminder/reminder.const.js";
+
+type ScheduleCache = { date: Date; timer: NodeJS.Timeout };
 
 @injectable()
 export class ScheduleManager {
-  private cache: LocalCache<string, NodeJS.Timeout>;
+  private cache: LocalCache<string, ScheduleCache>;
 
   constructor() {
     this.cache = new LocalCache();
@@ -18,8 +23,14 @@ export class ScheduleManager {
     if (existed) {
       clearTimeout(existed);
     }
-    const delay = date.getTime() - Date.now();
-    this.cache.set(name, setTimeout(callback, delay), delay);
+    const now = DateTime.now().setZone(DefaultTimezone);
+    const GMTdate = DateTime.fromJSDate(date).setZone(DefaultTimezone);
+    const delay = GMTdate.toMillis() - now.toMillis();
+    this.cache.set(
+      name,
+      { date: GMTdate.toJSDate(), timer: setTimeout(callback, delay) },
+      delay,
+    );
   }
 
   public startPeriodJob(
@@ -27,11 +38,18 @@ export class ScheduleManager {
     interval: number,
     callback: () => Promise<void> | void,
   ) {
-    this.cache.set(name, setInterval(callback, interval), Infinity);
+    this.cache.set(
+      name,
+      {
+        date: DateTime.now().setZone(DefaultTimezone).toJSDate(),
+        timer: setInterval(callback, interval),
+      },
+      Infinity,
+    );
   }
 
   public getJob(name: string) {
-    return this.cache.get<NodeJS.Timeout>(name);
+    return this.cache.get<ScheduleCache>(name);
   }
 
   public updateJob(...args: Parameters<typeof this.startOnceJob>) {
@@ -42,13 +60,15 @@ export class ScheduleManager {
 
   public stopJob(name: string) {
     const timeout = this.cache.get(name);
-    try {
-      clearTimeout(timeout);
-      clearInterval(timeout);
-    } catch (err) {
-      console.error(err);
+    if (timeout) {
+      try {
+        clearTimeout(timeout.timer);
+        clearInterval(timeout.timer);
+      } catch (err) {
+        console.error(err);
+      }
+      this.cache.delete(name);
     }
-    this.cache.delete(name);
   }
 
   public getAll() {
