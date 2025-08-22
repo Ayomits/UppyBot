@@ -161,7 +161,6 @@ export class ReminderHandler {
       );
 
     return message.reply({
-      content: userMention(user.id),
       embeds: [embed],
     });
   }
