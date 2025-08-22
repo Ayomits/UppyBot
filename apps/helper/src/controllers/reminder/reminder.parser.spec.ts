@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
 
-import type { Message } from "discord.js";
+import type { Guild, Message } from "discord.js";
 import { DateTime } from "luxon";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -18,10 +18,15 @@ now.setMilliseconds(0);
 const guildId = "123";
 const userId = "1234";
 
+const mockGuild = {
+  id: guildId,
+} as Partial<Guild>;
+
 function createMockMessage(partial: Partial<Message>): Message {
   return {
     author: { id: userId } as any,
     guildId: guildId,
+    guild: mockGuild,
     embeds: [],
     interactionMetadata: { user: { id: userId } } as any,
     ...partial,
@@ -86,7 +91,12 @@ describe("ReminderParser", () => {
         }) as any,
       ),
     ).toStrictEqual(
-      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring),
+      parser.handleSuccess(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.DiscordMonitoring,
+      ),
     );
   });
 
@@ -105,7 +115,12 @@ describe("ReminderParser", () => {
         }) as any,
       ),
     ).toStrictEqual(
-      parser.handleSuccess(now, guildId, userId, RemindType.DiscordMonitoring),
+      parser.handleSuccess(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.DiscordMonitoring,
+      ),
     );
   });
 
@@ -124,7 +139,12 @@ describe("ReminderParser", () => {
         }) as any,
       ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
+      parser.handleFailure(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.DiscordMonitoring,
+      ),
     );
   });
 
@@ -143,7 +163,12 @@ describe("ReminderParser", () => {
         }) as any,
       ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
+      parser.handleFailure(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.DiscordMonitoring,
+      ),
     );
   });
 
@@ -159,7 +184,12 @@ describe("ReminderParser", () => {
         }) as any,
       ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.DiscordMonitoring),
+      parser.handleFailure(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.DiscordMonitoring,
+      ),
     );
   });
 
@@ -181,7 +211,7 @@ describe("ReminderParser", () => {
     ).toStrictEqual(
       parser.handleSuccess(
         DateTime.now().plus({ hours: 4 }).toJSDate(),
-        guildId,
+        mockGuild as Guild,
         userId,
         RemindType.SdcMonitoring,
       ),
@@ -203,7 +233,12 @@ describe("ReminderParser", () => {
         }),
       ),
     ).toStrictEqual(
-      parser.handleFailure(now, guildId, userId, RemindType.SdcMonitoring),
+      parser.handleFailure(
+        now,
+        mockGuild as Guild,
+        userId,
+        RemindType.SdcMonitoring,
+      ),
     );
   });
 
@@ -222,7 +257,7 @@ describe("ReminderParser", () => {
     ).toStrictEqual(
       parser.handleSuccess(
         timestamp,
-        guildId,
+        mockGuild as Guild,
         userId,
         RemindType.ServerMonitoring,
       ),
@@ -241,7 +276,7 @@ describe("ReminderParser", () => {
     ).toStrictEqual(
       parser.handleFailure(
         timestamp,
-        guildId,
+        mockGuild as Guild,
         userId,
         RemindType.ServerMonitoring,
       ),
