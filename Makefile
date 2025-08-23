@@ -16,6 +16,9 @@ init_prod:
 build_bot:
 	docker exec -it fear-bot pnpm run build
 
+logs_bot:
+	docker compose logs fear-bot -f
+
 down:
 	docker compose down --remove-orphans
 
