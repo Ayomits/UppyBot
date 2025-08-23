@@ -123,7 +123,7 @@ export class ReminderScheduleManager {
           forceId,
           commonId,
         );
-
+      console.log(isValidForceDiff, isValidCommonDiff);
       if (isValidForceDiff || isValidCommonDiff) {
         logger.success(
           `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
