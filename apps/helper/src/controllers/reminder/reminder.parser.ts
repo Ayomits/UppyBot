@@ -90,10 +90,10 @@ export class ReminderParser {
       message?.interactionMetadata?.user?.id ?? message.author.id;
 
     const includesSuccess = embed.description?.includes(
-        MonitoringBotMessage.serverMonitoring.success,
+      MonitoringBotMessage.serverMonitoring.success,
     );
     const includesFailure = embed.description.includes(
-        MonitoringBotMessage.serverMonitoring.failure,
+      MonitoringBotMessage.serverMonitoring.failure,
     );
 
     if (!includesFailure && !includesSuccess) {

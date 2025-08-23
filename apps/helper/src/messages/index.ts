@@ -224,49 +224,7 @@ export const HelperBotMessages = {
   },
 
   staff: {
-    top: {
-      command: {
-        name: "helper-top",
-        description: "Статистика хелпера",
-        args: {
-          user: {
-            name: "user",
-            description: "Пользователь",
-          },
-          from: {
-            name: "from",
-            description: "От какой даты",
-          },
-          to: {
-            name: "to",
-            description: "До какой даты",
-          },
-        },
-      },
-    },
     info: {
-      context: {
-        name: "Статистика сотрудника",
-        description: "Просмотреть статистику",
-      },
-      command: {
-        name: "helper-info",
-        description: "Статистика хелпера",
-        args: {
-          user: {
-            name: "user",
-            description: "Пользователь",
-          },
-          from: {
-            name: "from",
-            description: "От какой даты",
-          },
-          to: {
-            name: "to",
-            description: "До какой даты",
-          },
-        },
-      },
       embed: {
         title: "Информация о сотруднике",
         fields: (
@@ -301,16 +259,6 @@ export const HelperBotMessages = {
       },
     },
     status: {
-      command: {
-        name: "remaining",
-        description: "Время до команд",
-        args: {
-          type: {
-            name: "type",
-            description: "Какой именно мониторинг",
-          },
-        },
-      },
       buttons: {
         update: "Обновить информацию",
       },

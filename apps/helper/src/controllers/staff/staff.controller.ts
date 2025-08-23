@@ -5,22 +5,30 @@ import {
   type User,
   type UserContextMenuCommandInteraction,
 } from "discord.js";
-import { ContextMenu, Discord, Guard, Slash, SlashOption } from "discordx";
+import {
+  ContextMenu,
+  Discord,
+  Guard,
+  Slash,
+  SlashGroup,
+  SlashOption,
+} from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { IsHelper } from "#/guards/is-helper.guard.js";
-import { HelperBotMessages } from "#/messages/index.js";
 
 import { StaffService } from "./staff.service.js";
 
 @Discord()
 @singleton()
+@SlashGroup({ name: "helper", description: "Команды хелперов" })
+@SlashGroup("helper")
 export class StaffController {
   constructor(@inject(StaffService) private staffService: StaffService) {}
 
   @Slash({
-    name: HelperBotMessages.staff.status.command.name,
-    description: HelperBotMessages.staff.status.command.description,
+    name: "remaining",
+    description: "Время до команд",
   })
   @Guard(IsHelper)
   reminderStatus(interaction: ChatInputCommandInteraction) {
@@ -28,30 +36,30 @@ export class StaffController {
   }
 
   @Slash({
-    name: HelperBotMessages.staff.info.command.name,
-    description: HelperBotMessages.staff.info.command.description,
+    name: "info",
+    description: "Бамп статистика пользователя",
   })
   @Guard(IsHelper)
   staffInfoSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
-      name: HelperBotMessages.staff.info.command.args.user.name,
-      description: HelperBotMessages.staff.info.command.args.user.description,
+      name: "user",
+      description: "Пользователь",
       required: false,
     })
     user: User,
     @SlashOption({
       type: ApplicationCommandOptionType.String,
-      name: HelperBotMessages.staff.info.command.args.from.name,
-      description: HelperBotMessages.staff.info.command.args.from.description,
+      name: "from",
+      description: "От какой даты",
       autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
       required: false,
     })
     from: string,
     @SlashOption({
       type: ApplicationCommandOptionType.String,
-      name: HelperBotMessages.staff.info.command.args.to.name,
-      description: HelperBotMessages.staff.info.command.args.to.description,
+      name: "to",
+      description: "До какой даты",
       autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
       required: false,
     })
@@ -62,23 +70,23 @@ export class StaffController {
   }
 
   @Slash({
-    name: HelperBotMessages.staff.top.command.name,
-    description: HelperBotMessages.staff.top.command.description,
+    name: "top",
+    description: "Топ сотрудников",
   })
   @Guard(IsHelper)
   staffTopSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.String,
-      name: HelperBotMessages.staff.top.command.args.from.name,
-      description: HelperBotMessages.staff.top.command.args.from.description,
+      name: "from",
+      description: "От какой даты",
       autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
       required: false,
     })
     from: string,
     @SlashOption({
       type: ApplicationCommandOptionType.String,
-      name: HelperBotMessages.staff.top.command.args.to.name,
-      description: HelperBotMessages.staff.top.command.args.to.description,
+      name: "to",
+      description: "До какой даты",
       autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
       required: false,
     })
@@ -89,7 +97,7 @@ export class StaffController {
   }
 
   @ContextMenu({
-    name: HelperBotMessages.staff.info.context.name,
+    name: "Статистика пользователя",
     type: ApplicationCommandType.User,
   })
   @Guard(IsHelper)
