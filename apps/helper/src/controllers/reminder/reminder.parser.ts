@@ -52,6 +52,17 @@ export class ReminderParser {
 
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
 
+    const includesSuccess = embed.description?.includes(
+      MonitoringBotMessage.sdcMonitoring.success,
+    );
+    const includesFailure = embed.description.includes(
+      MonitoringBotMessage.serverMonitoring.failure,
+    );
+
+    if (!includesFailure && !includesSuccess) {
+      return;
+    }
+
     const discordMessageTimestampDate = DateTime.fromJSDate(
       new Date(Number(match[1]) * 1_000),
     ).setZone(DefaultTimezone);
@@ -95,6 +106,7 @@ export class ReminderParser {
       const timestamp = DateTime.now()
         .setZone(DefaultTimezone)
         .plus({ hours: MonitoringCooldownHours })
+        .set({ millisecond: 0 })
         .toJSDate();
       return this.handleSuccess(
         timestamp,
@@ -116,6 +128,7 @@ export class ReminderParser {
         minutes: splited[1] ?? 0,
         seconds: splited[2] ?? 0,
       })
+      .set({ millisecond: 0 })
       .toJSDate();
 
     return this.handleFailure(

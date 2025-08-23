@@ -1,7 +1,7 @@
 import type { LiteralEnum } from "@fear/utils";
 
 export const BumpBanCheckerInterval = 15_000;
-export const DiffCheckerInterval = 15_000;
+export const DiffCheckerInterval = 3_000;
 
 export const DefaultTimezone = "Europe/Moscow";
 export const MonitoringCooldownHours = 4;
@@ -58,17 +58,6 @@ export const PointsRate = {
   [RemindType.ServerMonitoring]: 2,
   night: 2,
 } as const;
-
-export function getRemindTypeText(type: RemindType) {
-  switch (type) {
-    case RemindType.DiscordMonitoring:
-      return "Discord monitoring (/like)";
-    case RemindType.SdcMonitoring:
-      return "SDC Monitoring (/up)";
-    case RemindType.ServerMonitoring:
-      return "Server Monitoring(/bump)";
-  }
-}
 
 export function getCommandByRemindType(type: RemindType | number) {
   switch (type) {
