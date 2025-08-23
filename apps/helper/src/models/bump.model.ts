@@ -14,6 +14,9 @@ export class Bump extends TimeStamps {
   @prop({ required: true, index: true, alias: "author_id" })
   executorId: Snowflake;
 
+  @prop({ required: true, unique: true, index: true })
+  messageId: string;
+
   @prop({ required: true, default: 0, min: 0 })
   points: number;
 }

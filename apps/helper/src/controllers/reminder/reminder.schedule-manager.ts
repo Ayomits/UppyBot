@@ -9,6 +9,7 @@ import {
   ScheduleManager,
 } from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
+import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import {
   type SettingsDocument,
@@ -16,6 +17,8 @@ import {
 } from "#/models/settings.model.js";
 
 import {
+  BumpBanCheckerInterval,
+  BumpBanLimit,
   DefaultTimezone,
   DiffCheckerInterval,
   getCommandByRemindType,
@@ -132,6 +135,64 @@ export class ReminderScheduleManager {
     await Promise.all(promises);
   }
 
+  public async initBumpBan(client: Client) {
+    logger.info("Начата первая проверка бамп бана");
+    await this.handleBumpBan(client);
+    logger.info("Закончена первая проверка бамп бана");
+    this.scheduleManager.startPeriodJob(
+      "bump-ban",
+      BumpBanCheckerInterval,
+      () => {
+        this.handleBumpBan(client);
+      },
+    );
+    logger.info("Запущена задача проверки бамп бана");
+  }
+
+  private async handleBumpBan(client: Client) {
+    const guilds = client.guilds.cache;
+    const ids = guilds.map((guild) => guild.id);
+
+    const bumpModelFilter = {
+      guildId: { $in: ids },
+      removeIn: { $gte: BumpBanLimit },
+    };
+
+    const [bans, settings] = await Promise.all([
+      BumpBanModel.find(bumpModelFilter),
+      SettingsModel.find({
+        guildId: { $in: ids },
+      }),
+    ]);
+
+    const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
+
+    const entriesMap = Object.fromEntries(
+      bans.map((ban) => [
+        `remind.guildId-${Math.random()}`,
+        { ban, settings: settingsMap[ban.guildId] },
+      ]),
+    );
+
+    for (const [, entry] of Object.entries(entriesMap)) {
+      const { ban, settings } = entry;
+      const guild = guilds.get(entry.ban.guildId);
+
+      const [member, role] = await Promise.all([
+        guild.members.fetch(ban.userId).catch(() => null),
+        guild.roles
+          .fetch(settings.bumpBanRoleId, { cache: true })
+          .catch(() => null),
+      ]);
+
+      if (role && member) {
+        member.roles.remove(role).catch(logger.error);
+      }
+    }
+
+    await BumpBanModel.deleteMany(bumpModelFilter);
+  }
+
   private validateSchedule(
     schedule: ScheduleCache,
     timestamp: number,
@@ -214,14 +275,7 @@ export class ReminderScheduleManager {
     const commonSchedule = this.scheduleManager.getJob(commonId);
     const forceSchedule = this.scheduleManager.getJob(forceId);
 
-    if (commonSchedule && forceSchedule) {
-      logger.warn(
-        `Напоминие у бота ${getCommandByRemindType(type)} уже существует`,
-      );
-      return;
-    }
-
-    if (!settings.useForceOnly) {
+    if (!settings.useForceOnly && !commonSchedule) {
       this.scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild),
       );
@@ -230,7 +284,11 @@ export class ReminderScheduleManager {
       );
     }
 
-    if (settings.force > 0 && GMTTimestamp.toMillis() > GMTCurrent.toMillis()) {
+    if (
+      settings.force > 0 &&
+      GMTTimestamp.toMillis() > GMTCurrent.toMillis() &&
+      !forceSchedule
+    ) {
       this.scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
