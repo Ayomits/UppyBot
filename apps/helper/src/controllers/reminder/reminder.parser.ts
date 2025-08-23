@@ -52,17 +52,6 @@ export class ReminderParser {
 
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
 
-    const includesSuccess = embed.description?.includes(
-      MonitoringBotMessage.sdcMonitoring.success,
-    );
-    const includesFailure = embed.description.includes(
-      MonitoringBotMessage.serverMonitoring.failure,
-    );
-
-    if (!includesFailure && !includesSuccess) {
-      return;
-    }
-
     const discordMessageTimestampDate = DateTime.fromJSDate(
       new Date(Number(match[1]) * 1_000),
     ).setZone(DefaultTimezone);
@@ -99,6 +88,17 @@ export class ReminderParser {
 
     const authorId =
       message?.interactionMetadata?.user?.id ?? message.author.id;
+
+    const includesSuccess = embed.description?.includes(
+        MonitoringBotMessage.serverMonitoring.success,
+    );
+    const includesFailure = embed.description.includes(
+        MonitoringBotMessage.serverMonitoring.failure,
+    );
+
+    if (!includesFailure && !includesSuccess) {
+      return;
+    }
 
     if (
       embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
