@@ -144,7 +144,7 @@ export class ReminderHandler {
       { upsert: true },
     );
 
-    if (bumpBan?.removeIn <= 0 && bumpBanRole) {
+    if (bumpBanRole) {
       await member.roles.add(bumpBanRole).catch(logger.error);
     }
 
