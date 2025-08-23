@@ -77,6 +77,57 @@ export class ReminderHandler {
     }
   }
 
+  private async handleSuccess(
+    message: Message,
+    payload: ParserValue,
+    settings: SettingsDocument,
+  ) {
+    const existed = await BumpModel.findOne({ messageId: message.id });
+
+    if (existed) {
+      return;
+    }
+
+    const { type } = payload;
+    let points: number = PointsRate[type];
+    const guild = message.guild;
+    const user = message.interactionMetadata.user;
+
+    if (type === RemindType.ServerMonitoring) {
+      const member = await guild.members.fetch(user.id).catch(() => null);
+      await this.handleBumpBan(member, guild, payload.type, settings);
+    }
+
+    const GMTNow = DateTime.now().setZone(DefaultTimezone);
+    const nowHours = GMTNow.hour;
+
+    if (nowHours >= 0 && nowHours <= 8) {
+      points += PointsRate.night;
+    }
+
+    await BumpModel.create({
+      guildId: guild.id,
+      executorId: user.id,
+      messageId: message.id,
+      points: points,
+      type,
+    });
+
+    const embed = new EmbedBuilder()
+      .setDefaults(user)
+      .setTitle(HelperBotMessages.monitoring.embed.title)
+      .setDescription(
+        HelperBotMessages.monitoring.embed.description(
+          points,
+          getCommandByRemindType(type),
+        ),
+      );
+
+    return message.reply({
+      embeds: [embed],
+    });
+  }
+
   private async handleBumpBan(
     member: GuildMember,
     guild: Guild,
@@ -115,49 +166,5 @@ export class ReminderHandler {
         },
       },
     );
-  }
-
-  private async handleSuccess(
-    message: Message,
-    payload: ParserValue,
-    settings: SettingsDocument,
-  ) {
-    const { type } = payload;
-    let points: number = PointsRate[type];
-    const guild = message.guild;
-    const user = message.interactionMetadata.user;
-
-    if (type === RemindType.ServerMonitoring) {
-      const member = await guild.members.fetch(user.id).catch(() => null);
-      await this.handleBumpBan(member, guild, payload.type, settings);
-    }
-
-    const GMTNow = DateTime.now().setZone(DefaultTimezone);
-    const nowHours = GMTNow.hour;
-
-    if (nowHours >= 0 && nowHours <= 8) {
-      points += PointsRate.night;
-    }
-
-    await BumpModel.create({
-      guildId: guild.id,
-      executorId: user.id,
-      points: points,
-      type,
-    });
-
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle(HelperBotMessages.monitoring.embed.title)
-      .setDescription(
-        HelperBotMessages.monitoring.embed.description(
-          points,
-          getCommandByRemindType(type),
-        ),
-      );
-
-    return message.reply({
-      embeds: [embed],
-    });
   }
 }

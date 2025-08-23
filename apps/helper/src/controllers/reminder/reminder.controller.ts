@@ -17,7 +17,7 @@ export class BumpReminderController {
   @On({ event: "ready" })
   onReady([client]: ArgsOf<"ready">) {
     this.remindSchedule.initReminds(client as Client);
-    // this.remindSchedule.initBumpBan(client as Client);
+    this.remindSchedule.initBumpBan(client as Client);
   }
 
   @On({ event: "messageCreate" })
