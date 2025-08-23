@@ -155,7 +155,6 @@ export class ReminderScheduleManager {
 
     const bumpModelFilter = {
       guildId: { $in: ids },
-      removeIn: { $gte: BumpBanLimit },
     };
 
     const [bans, settings] = await Promise.all([
@@ -186,11 +185,18 @@ export class ReminderScheduleManager {
       ]);
 
       if (role && member) {
-        member.roles.remove(role).catch(logger.error);
+        if (member.roles.cache.has(role.id) && ban.removeIn >= BumpBanLimit) {
+          await member.roles.remove(role).catch(logger.error);
+          continue;
+        }
+        await member.roles.add(role).catch(logger.error);
       }
     }
 
-    await BumpBanModel.deleteMany(bumpModelFilter);
+    await BumpBanModel.deleteMany({
+      ...bumpModelFilter,
+      removeIn: { $gte: BumpBanLimit },
+    });
   }
 
   private validateSchedule(

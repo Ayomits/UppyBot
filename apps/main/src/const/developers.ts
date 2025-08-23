@@ -1,1 +1,0 @@
-export const Developers = ["1129162686194790572", "935048996722978896"] as const
