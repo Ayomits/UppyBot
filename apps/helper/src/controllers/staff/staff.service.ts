@@ -1,5 +1,6 @@
 import { Pagination, PaginationResolver } from "@discordx/pagination";
 import { createSafeCollector } from "@fear/utils";
+import type { mongoose } from "@typegoose/typegoose";
 import {
   ActionRowBuilder,
   type AutocompleteInteraction,
@@ -12,6 +13,8 @@ import {
   type GuildMember,
   type Interaction,
   type InteractionEditReplyOptions,
+  time,
+  TimestampStyles,
   type User,
   type UserContextMenuCommandInteraction,
   userMention,
@@ -22,6 +25,7 @@ import { injectable } from "tsyringe";
 import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { HelperBotMessages } from "#/messages/index.js";
+import type { BumpDocument } from "#/models/bump.model.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import {
@@ -41,6 +45,7 @@ import { StaffCustomIds } from "./staff.const.js";
 
 const startDateValue = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 const endDateValue = { hour: 23, minute: 59, second: 59, millisecond: 59 };
+const limit = 10;
 
 @injectable()
 export class StaffService {
@@ -115,7 +120,100 @@ export class StaffService {
     return interaction.editReply({ embeds: [embed] });
   }
 
-  public async handleStaffTop(
+  // ======Команда helper stats=====
+
+  public async handleStatsCommand(
+    interaction: ChatInputCommandInteraction,
+    user: User,
+    field: number,
+  ) {
+    await interaction.deferReply({ ephemeral: true });
+    user = typeof user !== "undefined" ? user : interaction.user;
+    const filter: mongoose.FilterQuery<BumpDocument> = {
+      guildId: interaction.guildId,
+      executorId: user.id,
+    };
+
+    if (typeof field !== "undefined") {
+      filter.type = field;
+    }
+
+    const count = await BumpModel.countDocuments(filter);
+
+    const maxPages = this.calculateMaxPages(count);
+
+    function createEmbed(
+      data: Awaited<ReturnType<typeof fetchMore>>,
+      page: number,
+    ) {
+      const embed = new EmbedBuilder().setDefaults(interaction.user);
+
+      const description =
+        data.length === 0
+          ? "Нет данных для отображения"
+          : data
+              .map(({ executorId, createdAt, type, points }, index) => {
+                const position = page * limit + index + 1;
+                return [
+                  `${bold(position.toString())} ${userMention(executorId)}`,
+                  `• ${bold("Команда:")} ${getCommandByRemindType(type)}`,
+                  `• ${bold("Поинты:")} ${points}`,
+                  `• ${bold("Дата выполнения:")} ${time(Math.floor(createdAt.getTime() / 1_000), TimestampStyles.LongDateTime)}`,
+                  "",
+                ].join("\n");
+              })
+              .join("\n");
+
+      return embed
+        .setTitle(`История выполнения команд`)
+        .setDescription(description)
+        .setFooter({
+          text: `Страница ${page + 1}/${maxPages} | Всего команд: ${count}`,
+        });
+    }
+
+    async function fetchMore(page: number) {
+      return BumpModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(page * limit)
+        .limit(limit);
+    }
+
+    const resolver = new PaginationResolver(async (page) => {
+      const data = await fetchMore(page);
+      return { embeds: [createEmbed(data, page)] };
+    }, maxPages);
+
+    const pagination = new Pagination(interaction, resolver, {
+      selectMenu: {
+        labels: {
+          start: "Первая страница",
+          end: "Последняя страница",
+        },
+        rangePlaceholderFormat: `Выберите страницу`,
+        pageText: "Страница {page}",
+      },
+      buttons: {
+        forward: {
+          enabled: false,
+        },
+        backward: {
+          enabled: false,
+        },
+        next: {
+          label: "",
+        },
+        previous: {
+          label: "",
+        },
+      },
+    });
+
+    return pagination.send();
+  }
+
+  // ======Команда helper top======
+  public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
     to?: string,
@@ -166,9 +264,8 @@ export class StaffService {
       { $count: "totalCount" },
     ]);
 
-    const limit = 10;
     const totalCount = count[0]?.totalCount || 0;
-    const maxPages = Math.max(1, Math.ceil(totalCount / limit));
+    const maxPages = this.calculateMaxPages(totalCount);
 
     async function fetchPage(page: number) {
       const skip = page * limit;
@@ -270,6 +367,14 @@ export class StaffService {
       return { embeds: [createEmbed(data, page)] };
     }, maxPages);
     const pagination = new Pagination(interaction, resolver, {
+      selectMenu: {
+        labels: {
+          start: "Первая страница",
+          end: "Последняя страница",
+        },
+        rangePlaceholderFormat: `Выберите страницу`,
+        pageText: "Страница {page}",
+      },
       buttons: {
         forward: {
           enabled: false,
@@ -284,12 +389,13 @@ export class StaffService {
           label: "",
         },
       },
-      selectMenu: {
-        disabled: true,
-      },
     });
 
     return pagination.send();
+  }
+
+  private calculateMaxPages(count: number, limit = 10) {
+    return Math.max(1, Math.ceil(count / limit));
   }
 
   private parseOptionsDateString(from?: string, to?: string) {
