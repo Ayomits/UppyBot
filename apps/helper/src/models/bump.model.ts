@@ -1,4 +1,8 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import {
+  type DocumentType,
+  getModelForClass,
+  prop,
+} from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
@@ -26,3 +30,5 @@ export const BumpModel = getModelForClass(Bump, {
     customName: "bumps",
   },
 });
+
+export type BumpDocument = DocumentType<Bump>;
