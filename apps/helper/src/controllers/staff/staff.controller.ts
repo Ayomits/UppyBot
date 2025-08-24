@@ -104,7 +104,7 @@ export class StaffController {
   })
   @Guard(IsHelper)
   staffInfoContext(interaction: UserContextMenuCommandInteraction) {
-    return this.staffService.handleInfoCommand(interaction);
+    return this.staffService.handleInfoCommand(interaction, interaction.targetUser);
   }
 
   @Slash({
