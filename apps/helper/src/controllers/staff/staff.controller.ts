@@ -111,6 +111,7 @@ export class StaffController {
     description: "История выполненных команд",
     name: "history",
   })
+  @Guard(IsHelper)
   staffStats(
     @SlashChoice(
       ...[
