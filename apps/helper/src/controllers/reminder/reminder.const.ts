@@ -27,8 +27,9 @@ export const MonitoringBotMessage = {
     success: [
       "Вы успешно лайкнули сервер",
       "You successfully liked the server",
+      "Ви успішно лайкнули сервер",
     ],
-    failure: ["You are so hot", "Не так быстро"],
+    failure: ["You are so hot", "Не так быстро", "Не так швидко"],
   },
   sdcMonitoring: {
     success: "Время фиксации",
