@@ -79,7 +79,7 @@ export class ReminderHandler {
 
   private async handleSuccess(
     message: Message,
-    payload: ParserValue,
+    {type}: ParserValue,
     settings: SettingsDocument,
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
@@ -88,20 +88,13 @@ export class ReminderHandler {
       return;
     }
 
-    const { type } = payload;
+    const GMTNow = DateTime.now().setZone(DefaultTimezone);
+    const nowHours = GMTNow.hour;
     let points: number = PointsRate[type];
     const guild = message.guild;
     const user = message.interactionMetadata.user;
 
-    if (type === RemindType.ServerMonitoring) {
-      const member = await guild.members.fetch(user.id).catch(() => null);
-      await this.handleBumpBan(member, guild, payload.type, settings);
-    }
-
-    const GMTNow = DateTime.now().setZone(DefaultTimezone);
-    const nowHours = GMTNow.hour;
-
-    if (nowHours >= 0 && nowHours <= 8) {
+    if (nowHours >= 0 && nowHours <= 7) {
       points += PointsRate.night;
     }
 
@@ -112,6 +105,15 @@ export class ReminderHandler {
       points: points,
       type,
     });
+
+    if (type === RemindType.ServerMonitoring) {
+      const member = await guild.members.fetch(user.id).catch(() => null);
+      try{
+        await this.handleBumpBan(member, guild, type, settings);
+      }catch (err) {
+        logger.error("Ошибка выдачи бамп бана", err);
+      }
+    }
 
     const embed = new EmbedBuilder()
       .setDefaults(user)
