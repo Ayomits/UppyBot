@@ -77,3 +77,5 @@ export class ScheduleManager {
     return this.cache.keys();
   }
 }
+
+export const scheduleManager = new ScheduleManager();
