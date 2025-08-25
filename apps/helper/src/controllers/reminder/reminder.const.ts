@@ -21,7 +21,7 @@ export type MonitoringBot = LiteralEnum<typeof MonitoringBot>;
 export const MonitoringBotMessage = {
   serverMonitoring: {
     success: "Server bumped by",
-    failure: "The next bump for this server will be available",
+    failure: "The next Bump for this server will be available",
   },
   discordMonitoring: {
     success: [

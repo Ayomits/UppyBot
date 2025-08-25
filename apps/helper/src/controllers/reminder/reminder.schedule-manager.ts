@@ -1,12 +1,12 @@
 import type { Guild } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
-import { inject, injectable } from "tsyringe";
+import { injectable } from "tsyringe";
 
 import { logger } from "#/libs/logger/logger.js";
 import {
   type ScheduleCache,
-  ScheduleManager,
+  scheduleManager,
 } from "#/libs/schedule/schedule.manager.js";
 import { HelperBotMessages } from "#/messages/index.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
@@ -28,10 +28,6 @@ import type { ParserValue } from "./reminder.parser.js";
 
 @injectable()
 export class ReminderScheduleManager {
-  constructor(
-    @inject(ScheduleManager) private scheduleManager: ScheduleManager,
-  ) {}
-
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
@@ -45,7 +41,7 @@ export class ReminderScheduleManager {
 
     await Promise.all(promises);
 
-    this.scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
+    scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
       this.handleDiff(client),
     );
   }
@@ -58,8 +54,8 @@ export class ReminderScheduleManager {
       const commonId = this.generateCommonId(remind.guildId, remind.type);
       const forceId = this.generateForceId(remind.guildId, remind.type);
 
-      const initCommonSchedule = this.scheduleManager.getJob(commonId);
-      const initForceSchedule = this.scheduleManager.getJob(forceId);
+      const initCommonSchedule = scheduleManager.getJob(commonId);
+      const initForceSchedule = scheduleManager.getJob(forceId);
 
       const GMTCurrent = DateTime.now().setZone(DefaultTimezone).toMillis();
       const GMTTImestamp = DateTime.fromJSDate(remind.timestamp).setZone(
@@ -94,18 +90,18 @@ export class ReminderScheduleManager {
         logger.info(
           `Отменено напоминание для бота ${getCommandByRemindType(remind.type)}`,
         );
-        this.scheduleManager.stopJob(commonId);
+        scheduleManager.stopJob(commonId);
       }
 
       if (initForceSchedule && settings.force <= 0) {
         logger.info(
           `Отменено преждевременное напоминание для бота ${getCommandByRemindType(remind.type)}`,
         );
-        this.scheduleManager.stopJob(forceId);
+        scheduleManager.stopJob(forceId);
       }
 
-      const commonSchedule = this.scheduleManager.getJob(commonId);
-      const forceSchedule = this.scheduleManager.getJob(forceId);
+      const commonSchedule = scheduleManager.getJob(commonId);
+      const forceSchedule = scheduleManager.getJob(forceId);
 
       const isValidForceDiff =
         forceSchedule &&
@@ -139,13 +135,9 @@ export class ReminderScheduleManager {
     logger.info("Начата первая проверка бамп бана");
     await this.handleBumpBan(client);
     logger.info("Закончена первая проверка бамп бана");
-    this.scheduleManager.startPeriodJob(
-      "bump-ban",
-      BumpBanCheckerInterval,
-      () => {
-        this.handleBumpBan(client);
-      },
-    );
+    scheduleManager.startPeriodJob("bump-ban", BumpBanCheckerInterval, () => {
+      this.handleBumpBan(client);
+    });
     logger.info("Запущена задача проверки бамп бана");
   }
 
@@ -214,8 +206,8 @@ export class ReminderScheduleManager {
     }
 
     if (timestamp !== GMTDate) {
-      this.scheduleManager.stopJob(commonId);
-      this.scheduleManager.stopJob(forceId);
+      scheduleManager.stopJob(commonId);
+      scheduleManager.stopJob(forceId);
     }
 
     return true;
@@ -278,11 +270,11 @@ export class ReminderScheduleManager {
       return;
     }
 
-    const commonSchedule = this.scheduleManager.getJob(commonId);
-    const forceSchedule = this.scheduleManager.getJob(forceId);
+    const commonSchedule = scheduleManager.getJob(commonId);
+    const forceSchedule = scheduleManager.getJob(forceId);
 
     if (!settings.useForceOnly && !commonSchedule) {
-      this.scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
+      scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild),
       );
       logger.success(
@@ -295,7 +287,7 @@ export class ReminderScheduleManager {
       GMTTimestamp.toMillis() > GMTCurrent.toMillis() &&
       !forceSchedule
     ) {
-      this.scheduleManager.updateJob(
+      scheduleManager.startOnceJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
         () => this.sendForceRemind(remind, guild),

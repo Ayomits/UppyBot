@@ -47,7 +47,6 @@ export class ReminderHandler {
       }
 
       const payload = this.commandParser.handleMonitoring(message);
-
       const guildId = message.guildId;
 
       if (!payload) {

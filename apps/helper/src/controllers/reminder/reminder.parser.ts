@@ -85,9 +85,10 @@ export class ReminderParser {
     if (emptyPayload) return emptyPayload;
 
     const embed = message.embeds[0];
-
     const authorId =
       message?.interactionMetadata?.user?.id ?? message.author.id;
+
+    const messageCreatedAt = new Date(message.createdTimestamp);
 
     const includesSuccess = embed.description?.includes(
       MonitoringBotMessage.serverMonitoring.success,
@@ -100,13 +101,13 @@ export class ReminderParser {
       return;
     }
 
-    if (
-      embed.description.includes(MonitoringBotMessage.serverMonitoring.success)
-    ) {
-      const timestamp = DateTime.now()
+    if (includesSuccess) {
+      const timestamp = DateTime.fromJSDate(messageCreatedAt)
         .setZone(DefaultTimezone)
         .plus({ hours: MonitoringCooldownHours })
+        .set({ millisecond: 0 })
         .toJSDate();
+
       return this.handleSuccess(
         timestamp,
         message.guild,
@@ -115,18 +116,20 @@ export class ReminderParser {
       );
     }
 
-    const timestampRegex = /\d{1,2}:\d{1,2}:\d{1,2}/;
-    const splited = embed.description
-      .match(timestampRegex)[0]
-      .split(":")
-      .map((i) => Number(i));
+    const timestampRegex = /(\d{1,2}):(\d{1,2}):(\d{1,2})/;
+    const timeMatch = embed.description.match(timestampRegex);
+
+    if (!timeMatch) {
+      return;
+    }
+
+    const hours = parseInt(timeMatch[1]) || 0;
+    const minutes = parseInt(timeMatch[2]) || 0;
+    const seconds = parseInt(timeMatch[3]) || 0;
 
     const timestamp = DateTime.now()
-      .plus({
-        hours: splited[0] ?? 0,
-        minutes: splited[1] ?? 0,
-        seconds: splited[2] ?? 0,
-      })
+      .plus({ hours, minutes, seconds })
+      .set({ millisecond: 0 })
       .toJSDate();
 
     return this.handleFailure(
