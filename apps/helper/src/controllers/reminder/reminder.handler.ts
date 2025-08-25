@@ -79,7 +79,7 @@ export class ReminderHandler {
 
   private async handleSuccess(
     message: Message,
-    {type}: ParserValue,
+    { type }: ParserValue,
     settings: SettingsDocument,
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
@@ -108,9 +108,9 @@ export class ReminderHandler {
 
     if (type === RemindType.ServerMonitoring) {
       const member = await guild.members.fetch(user.id).catch(() => null);
-      try{
+      try {
         await this.handleBumpBan(member, guild, type, settings);
-      }catch (err) {
+      } catch (err) {
         logger.error("Ошибка выдачи бамп бана", err);
       }
     }

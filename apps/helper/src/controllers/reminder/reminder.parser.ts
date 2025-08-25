@@ -106,7 +106,6 @@ export class ReminderParser {
       const timestamp = DateTime.now()
         .setZone(DefaultTimezone)
         .plus({ hours: MonitoringCooldownHours })
-        .set({ millisecond: 0 })
         .toJSDate();
       return this.handleSuccess(
         timestamp,
@@ -128,7 +127,6 @@ export class ReminderParser {
         minutes: splited[1] ?? 0,
         seconds: splited[2] ?? 0,
       })
-      .set({ millisecond: 0 })
       .toJSDate();
 
     return this.handleFailure(
