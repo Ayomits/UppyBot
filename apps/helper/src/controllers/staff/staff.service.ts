@@ -55,7 +55,7 @@ export class StaffService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string
+    to?: string,
   ) {
     await interaction.deferReply({ ephemeral: true });
     user = typeof user === "undefined" ? interaction.user : user;
@@ -125,7 +125,7 @@ export class StaffService {
   public async handleStatsCommand(
     interaction: ChatInputCommandInteraction,
     user: User,
-    field: number
+    field: number,
   ) {
     await interaction.deferReply({ ephemeral: true });
     user = typeof user !== "undefined" ? user : interaction.user;
@@ -144,7 +144,7 @@ export class StaffService {
 
     function createEmbed(
       data: Awaited<ReturnType<typeof fetchMore>>,
-      page: number
+      page: number,
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -216,13 +216,13 @@ export class StaffService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string
+    to?: string,
   ) {
     await interaction.deferReply({ ephemeral: true });
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     const member = (await interaction.guild.members
@@ -239,7 +239,7 @@ export class StaffService {
 
     const hasStaffRolesIds = interaction.guild.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id))
+        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id)),
       )
       .map((m) => m.id);
 
@@ -334,7 +334,7 @@ export class StaffService {
 
     function createEmbed(
       data: Awaited<ReturnType<typeof fetchPage>>,
-      page: number
+      page: number,
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -425,7 +425,7 @@ export class StaffService {
   }
 
   public static async handleInfoAutocomplete(
-    interaction: AutocompleteInteraction
+    interaction: AutocompleteInteraction,
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -481,7 +481,7 @@ export class StaffService {
           .setZone(DefaultTimezone)
           .toFormat("dd.MM.y"),
         value: entry.createdAt,
-      }))
+      })),
     );
   }
 
@@ -511,7 +511,7 @@ export class StaffService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     const repl = await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction)
+      await this.buildReminderStatusMessage(interaction),
     );
 
     const collector = createSafeCollector(repl);
@@ -531,26 +531,26 @@ export class StaffService {
   private async handleUpdateReminderStatus(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction)
+      await this.buildReminderStatusMessage(interaction),
     );
   }
 
   private async buildReminderStatusMessage(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const [discordMonitoring, sdcMonitoring, serverMonitoring] =
       await Promise.all([
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.DiscordMonitoring
+          MonitoringBot.DiscordMonitoring,
         ),
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.SdcMonitoring
+          MonitoringBot.SdcMonitoring,
         ),
         this.fetchMonitoringBot(
           interaction.guild!,
-          MonitoringBot.ServerMonitoring
+          MonitoringBot.ServerMonitoring,
         ),
       ]);
 
@@ -579,14 +579,14 @@ export class StaffService {
       monitorings.map((m) => [
         getCommandByRemindType(m.type as RemindType),
         m as RemindDocument,
-      ])
+      ]),
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel(HelperBotMessages.staff.status.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
-        .setStyle(ButtonStyle.Secondary)
+        .setStyle(ButtonStyle.Secondary),
     );
 
     const embed = new EmbedBuilder()
@@ -594,7 +594,7 @@ export class StaffService {
       .setTitle(HelperBotMessages.staff.status.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        HelperBotMessages.staff.status.embed.fields(monitoringsMap as any)
+        HelperBotMessages.staff.status.embed.fields(monitoringsMap as any),
       );
 
     return {
@@ -605,7 +605,7 @@ export class StaffService {
 
   private async fetchMonitoringBot(
     guild: Guild,
-    id: MonitoringBot
+    id: MonitoringBot,
   ): Promise<GuildMember | null> {
     return await guild.members.fetch(id).catch(() => null);
   }
