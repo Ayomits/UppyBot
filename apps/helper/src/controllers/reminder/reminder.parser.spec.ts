@@ -29,6 +29,7 @@ function createMockMessage(partial: Partial<Message>): Message {
     guild: mockGuild,
     embeds: [],
     interactionMetadata: { user: { id: userId } } as any,
+    createdTimestamp: now.getTime(),
     ...partial,
   } as Message;
 }
@@ -61,18 +62,18 @@ describe("ReminderParser", () => {
   describe("getHandler", () => {
     test("returns correct handler for DiscordMonitoring", () => {
       const handler = parser.getHandler(MonitoringBot.DiscordMonitoring);
-      expect(handler.name).toBe("bound handleDiscordMonitoring");
+      expect(handler?.name).toBe("bound handleDiscordMonitoring");
       expect(typeof handler).toBe("function");
     });
 
     test("returns correct handler for ServerMonitoring", () => {
       const handler = parser.getHandler(MonitoringBot.ServerMonitoring);
-      expect(handler.name).toBe("bound handleServerMonitoring");
+      expect(handler?.name).toBe("bound handleServerMonitoring");
     });
 
     test("returns correct handler for SdcMonitoring", () => {
       const handler = parser.getHandler(MonitoringBot.SdcMonitoring);
-      expect(handler.name).toBe("bound handleSdcMonitoring");
+      expect(handler?.name).toBe("bound handleSdcMonitoring");
     });
   });
 
@@ -85,18 +86,18 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.success[0],
-              now,
+              now
             ),
           ],
-        }) as any,
-      ),
+        }) as any
+      )
     ).toStrictEqual(
       parser.handleSuccess(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
-      ),
+        RemindType.DiscordMonitoring
+      )
     );
   });
 
@@ -109,18 +110,18 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.success[1],
-              now,
+              now
             ),
           ],
-        }) as any,
-      ),
+        }) as any
+      )
     ).toStrictEqual(
       parser.handleSuccess(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
-      ),
+        RemindType.DiscordMonitoring
+      )
     );
   });
 
@@ -133,18 +134,18 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.failure[1],
-              now,
+              now
             ),
           ],
-        }) as any,
-      ),
+        }) as any
+      )
     ).toStrictEqual(
       parser.handleFailure(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
-      ),
+        RemindType.DiscordMonitoring
+      )
     );
   });
 
@@ -157,18 +158,18 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed(
               MonitoringBotMessage.discordMonitoring.failure[1],
-              now,
+              now
             ),
           ],
-        }) as any,
-      ),
+        }) as any
+      )
     ).toStrictEqual(
       parser.handleFailure(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
-      ),
+        RemindType.DiscordMonitoring
+      )
     );
   });
 
@@ -181,15 +182,15 @@ describe("ReminderParser", () => {
             // @ts-expect-error its test
             createMockEmbed("92482340", now),
           ],
-        }) as any,
-      ),
+        }) as any
+      )
     ).toStrictEqual(
       parser.handleFailure(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
-      ),
+        RemindType.DiscordMonitoring
+      )
     );
   });
 
@@ -203,18 +204,18 @@ describe("ReminderParser", () => {
             createMockEmbed(
               MonitoringBotMessage.sdcMonitoring.success +
                 " " +
-                `<t:${Math.floor(timestamp / 1_000)}:R>`,
+                `<t:${Math.floor(timestamp / 1_000)}:R>`
             ),
           ],
-        }),
-      ),
+        })
+      )
     ).toStrictEqual(
       parser.handleSuccess(
         DateTime.now().plus({ hours: 4 }).toJSDate(),
         mockGuild as Guild,
         userId,
-        RemindType.SdcMonitoring,
-      ),
+        RemindType.SdcMonitoring
+      )
     );
   });
 
@@ -227,18 +228,18 @@ describe("ReminderParser", () => {
             createMockEmbed(
               MonitoringBotMessage.sdcMonitoring.failure +
                 " " +
-                `<t:${Math.floor(now.getTime() / 1_000)}:R>`,
+                `<t:${Math.floor(now.getTime() / 1_000)}:R>`
             ),
           ],
-        }),
-      ),
+        })
+      )
     ).toStrictEqual(
       parser.handleFailure(
         now,
         mockGuild as Guild,
         userId,
-        RemindType.SdcMonitoring,
-      ),
+        RemindType.SdcMonitoring
+      )
     );
   });
 
@@ -252,15 +253,15 @@ describe("ReminderParser", () => {
             // @ts-expect-error its tests
             createMockEmbed(MonitoringBotMessage.serverMonitoring.success),
           ],
-        }),
-      ),
+        })
+      )
     ).toStrictEqual(
       parser.handleSuccess(
         timestamp,
         mockGuild as Guild,
         userId,
-        RemindType.ServerMonitoring,
-      ),
+        RemindType.ServerMonitoring
+      )
     );
     expect(
       parser.handleServerMonitoring(
@@ -268,18 +269,18 @@ describe("ReminderParser", () => {
           embeds: [
             // @ts-expect-error its tests
             createMockEmbed(
-              MonitoringBotMessage.serverMonitoring.failure + " " + "04:00:00",
+              MonitoringBotMessage.serverMonitoring.failure + " " + "04:00:00"
             ),
           ],
-        }),
-      ),
+        })
+      )
     ).toStrictEqual(
       parser.handleFailure(
         timestamp,
         mockGuild as Guild,
         userId,
-        RemindType.ServerMonitoring,
-      ),
+        RemindType.ServerMonitoring
+      )
     );
   });
 });
