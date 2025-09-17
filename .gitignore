@@ -9,3 +9,4 @@
 **/generated/**
 supervisord.log
 supervisord.pid
+vendor
