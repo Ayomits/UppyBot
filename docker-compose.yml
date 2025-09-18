@@ -15,7 +15,25 @@ services:
     env_file: .env
     restart: always
     depends_on:
+      - fear-backend
+
+  fear-backend:
+    container_name: fear-backend
+    build:
+      args:
+        - APP_ENV=$APP_ENV
+      dockerfile: ./backend/Dockerfile
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8088:8088"
+    environment:
+      - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
+    env_file: .env
+    restart: always
+    depends_on:
       - fear-mongo
+
 
   fear-mongo:
     image: mongo:7.0.9-jammy

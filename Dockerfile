@@ -8,8 +8,8 @@ ARG APP_ENV=dev
 
 COPY ./ /app
 
-COPY ./docker/runit/dev/dev.run /tmp/runit-dev.run
-COPY ./docker/runit/prod/prod.run /tmp/runit-prod.run
+COPY docker/runit/bot/dev/dev.run /tmp/runit-dev.run
+COPY docker/runit/bot/prod/prod.run /tmp/runit-prod.run
 
 RUN mkdir -p /etc/service/app /runit
 
