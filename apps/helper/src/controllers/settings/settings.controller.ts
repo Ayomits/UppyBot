@@ -5,8 +5,6 @@ import type {
 import { Discord, ModalComponent, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { HelperBotMessages } from "#/messages/index.js";
-
 import { SettingsCustomIds } from "./settings.const.js";
 import { SettingsService } from "./settings.service.js";
 
@@ -18,8 +16,8 @@ export class SettingsController {
   ) {}
 
   @Slash({
-    name: HelperBotMessages.settings.command.name,
-    description: HelperBotMessages.settings.command.description,
+    name: "settings",
+    description: "Настроить бота",
     defaultMemberPermissions: ["Administrator"],
   })
   handleSettings(interaction: ChatInputCommandInteraction) {
@@ -29,5 +27,10 @@ export class SettingsController {
   @ModalComponent({ id: SettingsCustomIds.modal.setForceTime })
   setForceTime(interaction: ModalSubmitInteraction) {
     return this.settingsService.handleSetForceModal(interaction);
+  }
+
+  @ModalComponent({ id: SettingsCustomIds.modal.manageAward })
+  handleAwardManageModal(interaction: ModalSubmitInteraction) {
+    return this.settingsService.handleAwardManagmentModal(interaction);
   }
 }

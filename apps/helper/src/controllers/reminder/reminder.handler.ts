@@ -5,9 +5,10 @@ import { inject, injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { logger } from "#/libs/logger/logger.js";
-import { HelperBotMessages } from "#/messages/index.js";
+import { RemindSystemMessage } from "#/messages/index.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
+import { safePointConfig } from "#/models/points-settings.model.js";
 import {
   type SettingsDocument,
   SettingsModel,
@@ -18,7 +19,6 @@ import {
   DefaultTimezone,
   getCommandByRemindType,
   MonitoringBot,
-  PointsRate,
   RemindType,
 } from "./reminder.const.js";
 import { type ParserValue, ReminderParser } from "./reminder.parser.js";
@@ -89,12 +89,15 @@ export class ReminderHandler {
 
     const GMTNow = DateTime.now().setZone(DefaultTimezone);
     const nowHours = GMTNow.hour;
-    let points: number = PointsRate[type];
     const guild = message.guild;
     const user = message.interactionMetadata.user;
 
+    const pointConfig = await safePointConfig(message.guildId, type);
+
+    let points = pointConfig.default;
+
     if (nowHours >= 0 && nowHours <= 7) {
-      points += PointsRate.night;
+      points += pointConfig.bonus;
     }
 
     await BumpModel.create({
@@ -116,9 +119,9 @@ export class ReminderHandler {
 
     const embed = new EmbedBuilder()
       .setDefaults(user)
-      .setTitle(HelperBotMessages.monitoring.embed.title)
+      .setTitle(RemindSystemMessage.monitoring.embed.title)
       .setDescription(
-        HelperBotMessages.monitoring.embed.description(
+        RemindSystemMessage.monitoring.embed.description(
           points,
           getCommandByRemindType(type),
         ),

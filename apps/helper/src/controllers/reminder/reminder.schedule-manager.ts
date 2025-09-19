@@ -8,7 +8,7 @@ import {
   type ScheduleCache,
   scheduleManager,
 } from "#/libs/schedule/schedule.manager.js";
-import { HelperBotMessages } from "#/messages/index.js";
+import { RemindSystemMessage } from "#/messages/index.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import {
@@ -321,7 +321,7 @@ export class ReminderScheduleManager {
     if (channel?.isSendable()) {
       try {
         channel?.send({
-          content: HelperBotMessages.remind.ping.content(
+          content: RemindSystemMessage.remind.ping.content(
             settings.bumpRoleIds,
             getCommandByRemindType(remind.type),
           ),
@@ -360,7 +360,7 @@ export class ReminderScheduleManager {
     if (channel?.isSendable()) {
       try {
         channel?.send({
-          content: HelperBotMessages.remind.force.content(
+          content: RemindSystemMessage.remind.force.content(
             settings.bumpRoleIds,
             getCommandByRemindType(remind.type),
             settings.force,

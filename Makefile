@@ -2,7 +2,7 @@ init:
 	make down
 	make build
 	make up
-	make update_bot
+	make update_app
 	make restart_bot
 
 init_prod:
@@ -28,6 +28,10 @@ build:
 up:
 	docker compose up -d
 
+update_app:
+	make update_bot
+	make update_backend
+
 update_bot:
 	docker exec -it fear-bot pnpm install
 
@@ -46,7 +50,6 @@ restart_bot:
 
 restart_backend:
 	docker compose restart fear-backend
-
 
 restart:
 	docker compose restart
