@@ -25,7 +25,10 @@ import { injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { HelperSettingsMessage } from "#/messages/index.js";
-import { PointSettingsModel } from "#/models/points-settings.model.js";
+import {
+  PointSettingsModel,
+  safePointConfig,
+} from "#/models/points-settings.model.js";
 import { type Settings, SettingsModel } from "#/models/settings.model.js";
 
 import {
@@ -528,19 +531,7 @@ export class SettingsService {
     interaction: StringSelectMenuInteraction,
   ) {
     const type_ = Number(interaction.values[0]);
-    let entry = await PointSettingsModel.findOne({
-      guildId: interaction.guildId,
-      type: type_,
-    });
-
-    if (!entry) {
-      entry = await PointSettingsModel.create({
-        guildId: interaction.guildId,
-        type: type_,
-        default: PointsRate[type_],
-        bonus: PointsRate.night,
-      });
-    }
+    const entry = await safePointConfig(interaction.guildId, type_);
 
     const modal = new ModalBuilder()
       .setTitle("Управление наградами")
