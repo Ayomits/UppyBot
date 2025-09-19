@@ -7,6 +7,7 @@ export const SettingsCustomIds = {
     managers: {
       roles: "settings-manage-roles",
       channels: "settings-manage-channels",
+      award: "settings-manage-awards",
     },
     actions: {
       setForceTime: "settings-set-force-time",
@@ -30,10 +31,15 @@ export const SettingsCustomIds = {
         action: "settings-manager-channels-action",
         backward: "settings-manager-channels-backward",
       },
+      award: {
+        action: "settings-manager-award-action",
+        backward: "settings-manager-award-backward",
+      },
     },
   },
   modal: {
     setForceTime: "settings-set-force-modal",
+    manageAward: "settings-manage-award-modal",
   },
 } as const;
 

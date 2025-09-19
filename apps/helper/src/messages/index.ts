@@ -75,121 +75,7 @@ const getToggledValue = (value: boolean) => {
   return value ? "вкл" : "выкл";
 };
 
-export const HelperBotMessages = {
-  guards: {
-    isHelper: {
-      invalidSettings:
-        "В настройках ботах нужно выставить роли для сотрудников!",
-      notHelper: "Вы не имеете роли сотрудников",
-    },
-  },
-
-  settings: {
-    command: {
-      name: "settings",
-      description: "Команда позволяет настроить бота",
-    },
-
-    panel: {
-      title: "Настройки бота",
-      fields: (settings: Settings): EmbedField[] => [
-        createChannelField("Канал для пингов", settings?.pingChannelId ?? null),
-        createRoleField("Роли хелпера", settings?.bumpRoleIds ?? null),
-        createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
-        createPropertyField(
-          "Преждевременный пинг (секунды)",
-          settings.force ?? 0,
-        ),
-        createPropertyField(
-          "Использовать только преждевременный пинг",
-          getToggledValue(settings?.useForceOnly),
-        ),
-      ],
-      components: {
-        managers: {
-          roles: "Управление ролями",
-          channels: "Управление каналами",
-        },
-        actions: {
-          setForceTime: "Преждевременный пинг",
-          toggleUseForce: "Только преждевременные пинги",
-        },
-        updaters: {
-          panel: "Обновить панель",
-        },
-      },
-    },
-
-    managers: {
-      channels: {
-        embed: {
-          title: "Управление каналами",
-          fields: (settings: Settings): EmbedField[] => [
-            createChannelField(
-              "Канал для пингов",
-              settings.pingChannelId ?? null,
-            ),
-          ],
-        },
-        buttons: { backward: { label: "Назад" } },
-        select: {
-          actions: { channel: "Выберите канал" },
-          placeholder: "Выберите опцию настройки",
-          options: [
-            new StringSelectMenuOptionBuilder()
-              .setLabel("Канал для пингов")
-              .setValue("pingChannelId"),
-          ],
-        },
-      },
-      force: {
-        buttons: {
-          actions: {
-            useForceOnly: {
-              content: (status: boolean) =>
-                `Вы успешно переключили состояние на ${inlineCode(getToggledValue(status))}`,
-            },
-          },
-        },
-        modal: {
-          actions: {
-            setForceTime: {
-              content: "Вы успешно установить время преждевременного пинга",
-            },
-          },
-        },
-      },
-      roles: {
-        embed: {
-          title: blockQuote("Управление ролями"),
-          fields: (settings: Settings): EmbedField[] => [
-            createRoleField(
-              "Возможные роли сотрудника",
-              settings?.bumpRoleIds ?? null,
-            ),
-            createRoleField(
-              "Роль для бамп бана",
-              settings?.bumpBanRoleId ?? null,
-            ),
-          ],
-        },
-        buttons: { backward: { label: "Назад" } },
-        select: {
-          actions: { role: "Выберите роль" },
-          placeholder: "Выберите опцию настройки",
-          options: [
-            new StringSelectMenuOptionBuilder()
-              .setLabel("Роли сотрудников")
-              .setValue("bumpRoleIds"),
-            new StringSelectMenuOptionBuilder()
-              .setLabel("Роль бамп бана")
-              .setValue("bumpBanRoleId"),
-          ],
-        },
-      },
-    },
-  },
-
+export const RemindSystemMessage = {
   remind: {
     warning: {
       content: (roles: Snowflake[], command: string) =>
@@ -222,71 +108,176 @@ export const HelperBotMessages = {
         ].join("\n"),
     },
   },
+};
 
-  staff: {
-    info: {
+export const GuardMessage = {
+  isHelper: {
+    invalidSettings: "В настройках ботах нужно выставить роли для сотрудников!",
+    notHelper: "Вы не имеете роли сотрудников",
+  },
+};
+
+export const HelperSettingsMessage = {
+  panel: {
+    title: "Настройки бота",
+    fields: (settings: Settings): EmbedField[] => [
+      createChannelField("Канал для пингов", settings?.pingChannelId ?? null),
+      createRoleField("Роли хелпера", settings?.bumpRoleIds ?? null),
+      createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
+      createPropertyField(
+        "Преждевременный пинг (секунды)",
+        settings.force ?? 0,
+      ),
+      createPropertyField(
+        "Использовать только преждевременный пинг",
+        getToggledValue(settings?.useForceOnly),
+      ),
+    ],
+    components: {
+      managers: {
+        roles: "Управление ролями",
+        channels: "Управление каналами",
+        award: "Управление поинтами",
+      },
+      actions: {
+        setForceTime: "Преждевременный пинг",
+        toggleUseForce: "Только преждевременные пинги",
+      },
+      updaters: {
+        panel: "Обновить панель",
+      },
+    },
+  },
+
+  managers: {
+    channels: {
       embed: {
-        title: "Информация о сотруднике",
-        fields: (
-          data: StaffInfoAgregation,
-          bubmBan?: BumpBan,
-        ): EmbedField[] => {
-          return [
-            createPropertyField(
-              MonitoringCommand.DiscordMonitoring,
-              codeBlock(data?.like ? data?.like?.toString() : "0"),
-            ),
-            createPropertyField(
-              MonitoringCommand.SdcMonitoring,
-              codeBlock(data?.up ? data?.up?.toString() : "0"),
-            ),
-            createPropertyField(
-              MonitoringCommand.ServerMonitoring,
-              codeBlock(data?.bump ? data?.bump?.toString() : "0"),
-            ),
-            createPropertyField(
-              "Бамп бан",
-              !bubmBan
-                ? codeBlock("Не активен")
-                : codeBlock(`${BumpBanLimit - bubmBan?.removeIn} до снятия`),
-            ),
-            createPropertyField(
-              "Поинты за период",
-              codeBlock(data?.points ? data?.points?.toString() : "0"),
-            ),
-          ];
+        title: "Управление каналами",
+        fields: (settings: Settings): EmbedField[] => [
+          createChannelField(
+            "Канал для пингов",
+            settings.pingChannelId ?? null,
+          ),
+        ],
+      },
+      buttons: { backward: { label: "Назад" } },
+      select: {
+        actions: { channel: "Выберите канал" },
+        placeholder: "Выберите опцию настройки",
+        options: [
+          new StringSelectMenuOptionBuilder()
+            .setLabel("Канал для пингов")
+            .setValue("pingChannelId"),
+        ],
+      },
+    },
+    force: {
+      buttons: {
+        actions: {
+          useForceOnly: {
+            content: (status: boolean) =>
+              `Вы успешно переключили состояние на ${inlineCode(getToggledValue(status))}`,
+          },
+        },
+      },
+      modal: {
+        actions: {
+          setForceTime: {
+            content: "Вы успешно установить время преждевременного пинга",
+          },
         },
       },
     },
-    status: {
-      buttons: {
-        update: "Обновить информацию",
-      },
+    roles: {
       embed: {
-        title: "Статус мониторингов",
-        fields: (
-          monitorings: Record<
-            ReturnType<typeof getCommandByRemindType>,
-            RemindDocument
-          >,
-        ): EmbedField[] => [
-          {
-            name: blockQuote(MonitoringCommand.DiscordMonitoring),
-            value: canUseMonitoring(monitorings.like),
-            inline: true,
-          },
-          {
-            name: blockQuote(MonitoringCommand.SdcMonitoring),
-            value: canUseMonitoring(monitorings.up),
-            inline: true,
-          },
-          {
-            name: blockQuote(MonitoringCommand.ServerMonitoring),
-            value: canUseMonitoring(monitorings.bump),
-            inline: true,
-          },
+        title: blockQuote("Управление ролями"),
+        fields: (settings: Settings): EmbedField[] => [
+          createRoleField(
+            "Возможные роли сотрудника",
+            settings?.bumpRoleIds ?? null,
+          ),
+          createRoleField(
+            "Роль для бамп бана",
+            settings?.bumpBanRoleId ?? null,
+          ),
+        ],
+      },
+      buttons: { backward: { label: "Назад" } },
+      select: {
+        actions: { role: "Выберите роль" },
+        placeholder: "Выберите опцию настройки",
+        options: [
+          new StringSelectMenuOptionBuilder()
+            .setLabel("Роли сотрудников")
+            .setValue("bumpRoleIds"),
+          new StringSelectMenuOptionBuilder()
+            .setLabel("Роль бамп бана")
+            .setValue("bumpBanRoleId"),
         ],
       },
     },
   },
-} as const;
+};
+
+export const HelperInfoMessage = {
+  embed: {
+    title: "Информация о сотруднике",
+    fields: (data: StaffInfoAgregation, bubmBan?: BumpBan): EmbedField[] => {
+      return [
+        createPropertyField(
+          MonitoringCommand.DiscordMonitoring,
+          codeBlock(data?.like ? data?.like?.toString() : "0"),
+        ),
+        createPropertyField(
+          MonitoringCommand.SdcMonitoring,
+          codeBlock(data?.up ? data?.up?.toString() : "0"),
+        ),
+        createPropertyField(
+          MonitoringCommand.ServerMonitoring,
+          codeBlock(data?.bump ? data?.bump?.toString() : "0"),
+        ),
+        createPropertyField(
+          "Бамп бан",
+          !bubmBan
+            ? codeBlock("Не активен")
+            : codeBlock(`${BumpBanLimit - bubmBan?.removeIn} до снятия`),
+        ),
+        createPropertyField(
+          "Поинты за период",
+          codeBlock(data?.points ? data?.points?.toString() : "0"),
+        ),
+      ];
+    },
+  },
+};
+
+export const HelperRemainingMessage = {
+  buttons: {
+    update: "Обновить информацию",
+  },
+  embed: {
+    title: "Статус мониторингов",
+    fields: (
+      monitorings: Record<
+        ReturnType<typeof getCommandByRemindType>,
+        RemindDocument
+      >,
+    ): EmbedField[] => [
+      {
+        name: blockQuote(MonitoringCommand.DiscordMonitoring),
+        value: canUseMonitoring(monitorings.like),
+        inline: true,
+      },
+      {
+        name: blockQuote(MonitoringCommand.SdcMonitoring),
+        value: canUseMonitoring(monitorings.up),
+        inline: true,
+      },
+      {
+        name: blockQuote(MonitoringCommand.ServerMonitoring),
+        value: canUseMonitoring(monitorings.bump),
+        inline: true,
+      },
+    ],
+  },
+};

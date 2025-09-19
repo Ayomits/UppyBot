@@ -107,7 +107,7 @@ export class ReminderParser {
         .plus({ hours: MonitoringCooldownHours })
         .set({ millisecond: 0 })
         .toJSDate();
-        
+
       return this.handleSuccess(
         timestamp,
         message.guild,

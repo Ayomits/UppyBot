@@ -24,7 +24,7 @@ import { injectable } from "tsyringe";
 
 import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
-import { HelperBotMessages } from "#/messages/index.js";
+import { HelperInfoMessage, HelperRemainingMessage } from "#/messages/index.js";
 import type { BumpDocument } from "#/models/bump.model.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
@@ -113,8 +113,8 @@ export class StaffService {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(HelperBotMessages.staff.info.embed.title)
-      .setFields(HelperBotMessages.staff.info.embed.fields(entries[0], bumpBan))
+      .setTitle(HelperInfoMessage.embed.title)
+      .setFields(HelperInfoMessage.embed.fields(entries[0], bumpBan))
       .setDefaults(user);
 
     return interaction.editReply({ embeds: [embed] });
@@ -584,17 +584,17 @@ export class StaffService {
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel(HelperBotMessages.staff.status.buttons.update)
+        .setLabel(HelperRemainingMessage.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
         .setStyle(ButtonStyle.Secondary),
     );
 
     const embed = new EmbedBuilder()
       .setDefaults(interaction.user)
-      .setTitle(HelperBotMessages.staff.status.embed.title)
+      .setTitle(HelperRemainingMessage.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        HelperBotMessages.staff.status.embed.fields(monitoringsMap as any),
+        HelperRemainingMessage.embed.fields(monitoringsMap as any),
       );
 
     return {
