@@ -30,7 +30,7 @@ export const PointSettingsModel = getModelForClass(PointSettings, {
 
 export type PointSettingsDocument = DocumentType<PointSettings>;
 
-export async function safePointConfig(guildId: string, type: RemindType) {
+export async function safePointConfig(guildId: string, type: number) {
   let entry = await PointSettingsModel.findOne({ guildId, type });
 
   if (!entry) {
