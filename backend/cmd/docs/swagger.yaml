@@ -1,0 +1,13 @@
+info:
+  contact: {}
+  description: Helper bot API
+  title: Helper API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  ApiKeyAuth:
+    description: API Key authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,18 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Helper bot API",
+        "title": "Helper API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {},
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "API Key authentication",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
