@@ -6,7 +6,328 @@
         "contact": {},
         "version": "1.0"
     },
-    "paths": {},
+    "paths": {
+        "/api/settings": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings if not existed",
+                "parameters": [
+                    {
+                        "description": "Settings data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.CreateSettingsDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SettingsModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.BadRequestError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.InternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/settings/{guildId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Finds or create settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild ID",
+                        "name": "guildId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SettingsModel"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.NotFoundError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.InternalError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings if not existed",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild ID",
+                        "name": "guildId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Settings data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.UpdateSettingsDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SettingsModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.NotFoundError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.InternalError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dtos.CreateSettingsDto": {
+            "type": "object",
+            "properties": {
+                "bumpBanRoleId": {
+                    "type": "string"
+                },
+                "bumpRoleIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "force": {
+                    "type": "integer"
+                },
+                "guildId": {
+                    "type": "string"
+                },
+                "logChannelId": {
+                    "type": "string"
+                },
+                "pingChannelId": {
+                    "type": "string"
+                },
+                "useForceOnly": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dtos.UpdateSettingsDto": {
+            "type": "object",
+            "required": [
+                "bumpRoleIds"
+            ],
+            "properties": {
+                "bumpBanRoleId": {
+                    "type": "string"
+                },
+                "bumpRoleIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "force": {
+                    "type": "integer",
+                    "maximum": 7200,
+                    "minimum": 0
+                },
+                "logChannelId": {
+                    "type": "string"
+                },
+                "pingChannelId": {
+                    "type": "string"
+                },
+                "useForceOnly": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.SettingsModel": {
+            "type": "object",
+            "properties": {
+                "bumpBanRoleId": {
+                    "type": "string"
+                },
+                "bumpRoleIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "force": {
+                    "type": "integer"
+                },
+                "guildId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logChannelId": {
+                    "type": "string"
+                },
+                "pingChannelId": {
+                    "type": "string"
+                },
+                "useForceOnly": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "responses.BadRequestError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.InternalError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.NotFoundError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ValidationError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "violations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.Violation"
+                    }
+                }
+            }
+        },
+        "responses.Violation": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "propertyPath": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "ApiKeyAuth": {
             "description": "API Key authentication",

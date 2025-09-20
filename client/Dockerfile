@@ -6,7 +6,7 @@ WORKDIR /app
 
 ARG APP_ENV=dev
 
-COPY ./ /app
+COPY --chown=appuser:appuser ./client /app
 
 COPY docker/runit/bot/dev/dev.run /tmp/runit-dev.run
 COPY docker/runit/bot/prod/prod.run /tmp/runit-prod.run
@@ -20,9 +20,7 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
   fi && \
   rm /tmp/runit-*.run
 
-
 RUN chmod +x /etc/service/app/run
-
 RUN npm install pnpm -g
 
 CMD ["runsvdir", "/etc/service"]
