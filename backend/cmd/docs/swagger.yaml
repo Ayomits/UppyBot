@@ -1,9 +1,214 @@
+definitions:
+  dtos.CreateSettingsDto:
+    properties:
+      bumpBanRoleId:
+        type: string
+      bumpRoleIds:
+        items:
+          type: string
+        type: array
+      force:
+        type: integer
+      guildId:
+        type: string
+      logChannelId:
+        type: string
+      pingChannelId:
+        type: string
+      useForceOnly:
+        type: boolean
+    type: object
+  dtos.UpdateSettingsDto:
+    properties:
+      bumpBanRoleId:
+        type: string
+      bumpRoleIds:
+        items:
+          type: string
+        type: array
+      force:
+        maximum: 7200
+        minimum: 0
+        type: integer
+      logChannelId:
+        type: string
+      pingChannelId:
+        type: string
+      useForceOnly:
+        type: boolean
+    required:
+    - bumpRoleIds
+    type: object
+  models.SettingsModel:
+    properties:
+      bumpBanRoleId:
+        type: string
+      bumpRoleIds:
+        items:
+          type: string
+        type: array
+      force:
+        type: integer
+      guildId:
+        type: string
+      id:
+        type: string
+      logChannelId:
+        type: string
+      pingChannelId:
+        type: string
+      useForceOnly:
+        type: boolean
+    type: object
+  responses.BadRequestError:
+    properties:
+      message:
+        type: string
+    type: object
+  responses.InternalError:
+    properties:
+      message:
+        type: string
+    type: object
+  responses.NotFoundError:
+    properties:
+      message:
+        type: string
+    type: object
+  responses.ValidationError:
+    properties:
+      message:
+        type: string
+      violations:
+        items:
+          $ref: '#/definitions/responses.Violation'
+        type: array
+    type: object
+  responses.Violation:
+    properties:
+      message:
+        type: string
+      propertyPath:
+        type: string
+    type: object
 info:
   contact: {}
   description: Helper bot API
   title: Helper API
   version: "1.0"
-paths: {}
+paths:
+  /api/settings:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Settings data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateSettingsDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SettingsModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.BadRequestError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.InternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create settings if not existed
+      tags:
+      - settings
+  /api/settings/{guildId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Guild ID
+        in: path
+        name: guildId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SettingsModel'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.NotFoundError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.InternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Finds or create settings
+      tags:
+      - settings
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Guild ID
+        in: path
+        name: guildId
+        required: true
+        type: string
+      - description: Settings data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateSettingsDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SettingsModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.NotFoundError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.InternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create settings if not existed
+      tags:
+      - settings
 securityDefinitions:
   ApiKeyAuth:
     description: API Key authentication

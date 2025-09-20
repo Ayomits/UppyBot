@@ -19,6 +19,9 @@ build_bot:
 logs_bot:
 	docker compose logs fear-bot -f
 
+logs_backend:
+	docker compose logs fear-backend -f
+
 down:
 	docker compose down --remove-orphans
 

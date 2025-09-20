@@ -5,9 +5,9 @@ services:
     build:
       args:
         - APP_ENV=$APP_ENV
-      dockerfile: ./Dockerfile
+      dockerfile: ./client/Dockerfile
     volumes:
-      - ./:/app
+      - ./client:/app
     ports:
       - "0.0.0.0:9001:9001"
     environment:

@@ -2,9 +2,10 @@ package validators
 
 import (
 	"api/internal/responses"
-	"github.com/go-playground/validator/v10"
 	"reflect"
 	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type AppValidator interface {
