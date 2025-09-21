@@ -6,6 +6,13 @@ export const StaffCustomIds = {
       },
     },
   },
+  info: {
+    buttons: {
+      actions: {
+        removeBumpBan: "info-remove-bump-ban",
+      },
+    },
+  },
   top: {
     pagination: {
       prev: "top-prev",

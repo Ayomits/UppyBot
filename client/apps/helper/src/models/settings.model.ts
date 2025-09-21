@@ -12,6 +12,9 @@ export class Settings extends TimeStamps {
   @prop({ alias: "bump_role_ids", default: [] })
   bumpRoleIds?: string[];
 
+  @prop({ default: [] })
+  managerRoles: string[];
+
   @prop({ alias: "bump_ban_role_id", default: null })
   bumpBanRoleId?: string;
 

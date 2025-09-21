@@ -389,8 +389,12 @@ export class SettingsService {
     if (MULTIPLE_ROLE_SELECT_FIELDS.includes(field)) {
       roleSelector.setMaxValues(25);
       const currentRoles = settings[field] as string[];
-      if (currentRoles.length > 0) {
-        roleSelector.setDefaultRoles(currentRoles.slice(0, 25));
+      if (currentRoles && currentRoles?.length > 0) {
+        roleSelector.setDefaultRoles(
+          currentRoles
+            .filter((r) => interaction.guild.roles.cache.get(r))
+            .slice(0, 25),
+        );
       }
     }
 
