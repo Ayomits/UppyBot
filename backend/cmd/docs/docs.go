@@ -15,6 +15,84 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/bumps/{guildId}/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves bump statistics for a user within date range",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bumps"
+                ],
+                "summary": "Get user bumps statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild ID",
+                        "name": "guildId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Start date",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "date",
+                        "description": "End date",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repositories.UserBumps"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.NotFoundError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.InternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/settings": {
             "post": {
                 "security": [
@@ -159,8 +237,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.SettingsModel"
                         }
@@ -226,7 +304,11 @@ const docTemplate = `{
         "dtos.UpdateSettingsDto": {
             "type": "object",
             "required": [
-                "bumpRoleIds"
+                "bumpBanRoleId",
+                "bumpRoleIds",
+                "logChannelId",
+                "pingChannelId",
+                "useForceOnly"
             ],
             "properties": {
                 "bumpBanRoleId": {
@@ -240,8 +322,7 @@ const docTemplate = `{
                 },
                 "force": {
                     "type": "integer",
-                    "maximum": 7200,
-                    "minimum": 0
+                    "maximum": 7200
                 },
                 "logChannelId": {
                     "type": "string"
@@ -266,6 +347,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "force": {
                     "type": "integer"
                 },
@@ -281,8 +365,28 @@ const docTemplate = `{
                 "pingChannelId": {
                     "type": "string"
                 },
+                "updatedAt": {
+                    "type": "string"
+                },
                 "useForceOnly": {
                     "type": "boolean"
+                }
+            }
+        },
+        "repositories.UserBumps": {
+            "type": "object",
+            "properties": {
+                "bump": {
+                    "type": "integer"
+                },
+                "like": {
+                    "type": "integer"
+                },
+                "points": {
+                    "type": "integer"
+                },
+                "up": {
+                    "type": "integer"
                 }
             }
         },

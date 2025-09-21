@@ -30,4 +30,5 @@ var ConfigServiceInstance = NewConfigService()
 
 var (
 	MongoUrl = ConfigServiceInstance.Get("MONGO_URL")
+	AppEnv   = ConfigServiceInstance.Get("APP_ENV")
 )

@@ -27,5 +27,14 @@ func Run() {
 	settingsController := controllers.NewSettingsController(*settingsService)
 	settingsController.SetupRoutes(settings)
 
-	app.Listen(":8088")
+	bumps := api.Group("/bumps")
+	bumpsRepository := repositories.NewBumpRepository(database)
+	bumpsService := services.NewBumpService(*bumpsRepository)
+	bumpsController := controllers.NewBumpController(*bumpsService)
+	bumpsController.SetupRoutes(bumps)
+
+	// TODO: Remove when everything will be implemented
+	if config.AppEnv == "dev" {
+		app.Listen(":8088")
+	}
 }
