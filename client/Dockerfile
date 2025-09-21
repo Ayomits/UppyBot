@@ -21,6 +21,6 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
   rm /tmp/runit-*.run
 
 RUN chmod +x /etc/service/app/run
-RUN npm install pnpm -g
+RUN npm install pnpm@10.13.1 -g
 
 CMD ["runsvdir", "/etc/service"]
