@@ -45,4 +45,5 @@ export const SettingsCustomIds = {
 
 export const MULTIPLE_ROLE_SELECT_FIELDS: ObjectKeys<Settings>[] = [
   "bumpRoleIds",
+  "managerRoles",
 ];

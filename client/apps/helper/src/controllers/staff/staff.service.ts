@@ -36,6 +36,7 @@ import {
 import { SettingsModel } from "#/models/settings.model.js";
 
 import {
+  BumpBanLimit,
   DefaultTimezone,
   getCommandByRemindType,
   MonitoringBot,
@@ -62,62 +63,147 @@ export class StaffService {
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
-    const entries = await BumpModel.aggregate<StaffInfoAgregation>([
-      {
-        $match: {
-          guildId: interaction.guildId,
-          executorId: user.id,
-          createdAt: {
-            $gte: fromDate,
-            $lte: toDate,
-          },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          points: { $sum: "$points" },
-          up: {
-            $sum: {
-              $cond: {
-                if: { $eq: ["$type", RemindType.SdcMonitoring] },
-                then: 1,
-                else: 0,
-              },
-            },
-          },
-          like: {
-            $sum: {
-              $cond: {
-                if: { $eq: ["$type", RemindType.DiscordMonitoring] },
-                then: 1,
-                else: 0,
-              },
-            },
-          },
-          bump: {
-            $sum: {
-              $cond: {
-                if: { $eq: ["$type", RemindType.ServerMonitoring] },
-                then: 1,
-                else: 0,
-              },
+    const [entries, bumpBan, settings] = await Promise.all([
+      BumpModel.aggregate<StaffInfoAgregation>([
+        {
+          $match: {
+            guildId: interaction.guildId,
+            executorId: user.id,
+            createdAt: {
+              $gte: fromDate,
+              $lte: toDate,
             },
           },
         },
-      },
+        {
+          $group: {
+            _id: null,
+            points: { $sum: "$points" },
+            up: {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$type", RemindType.SdcMonitoring] },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            like: {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$type", RemindType.DiscordMonitoring] },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            bump: {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$type", RemindType.ServerMonitoring] },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      ]),
+      BumpBanModel.findOne({
+        guildId: interaction.guildId,
+        userId: interaction.user.id,
+      }),
+      SettingsModel.findOne({ guildId: interaction.guildId }),
     ]);
-    const bumpBan = await BumpBanModel.findOne({
-      guildId: interaction.guildId,
-      userId: interaction.user.id,
-    });
+
+    const [authorMember, targetMember] = await Promise.all([
+      interaction.guild.members.fetch(interaction.user.id),
+      interaction.guild.members.fetch(user.id),
+    ]);
+
+    const canManage = authorMember.roles.cache.some(
+      (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+    );
+    const canRemove =
+      bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
+
+    const removeBumpBan = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setLabel("Снять бамп бан")
+        .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
+        .setStyle(ButtonStyle.Danger)
+        .setDisabled(!canRemove),
+    );
 
     const embed = new EmbedBuilder()
       .setTitle(HelperInfoMessage.embed.title)
       .setFields(HelperInfoMessage.embed.fields(entries[0], bumpBan))
       .setDefaults(user);
 
-    return interaction.editReply({ embeds: [embed] });
+    const repl = await interaction.editReply({
+      embeds: [embed],
+      components: [removeBumpBan],
+    });
+
+    const collector = createSafeCollector(repl);
+
+    collector.on("collect", (interaction) => {
+      const customId = interaction.customId;
+
+      const handlers = {
+        [StaffCustomIds.info.buttons.actions.removeBumpBan]:
+          this.handleBumpBanRemoval.bind(this),
+      };
+
+      return handlers[customId](interaction, targetMember);
+    });
+  }
+
+  private async handleBumpBanRemoval(
+    interaction: ButtonInteraction,
+    member: GuildMember,
+  ) {
+    await interaction.deferReply({ ephemeral: true });
+    const [settings, bumpBan] = await Promise.all([
+      SettingsModel.findOne({ guildId: interaction.guildId }),
+      BumpBanModel.findOne({ guildId: interaction.guildId, userId: member.id }),
+    ]);
+
+    if (!bumpBan) {
+      return interaction.editReply({
+        content: "У пользователя нет бамп бана",
+      });
+    }
+
+    const authorMember = interaction.member as GuildMember;
+
+    if (!settings.bumpBanRoleId) {
+      return interaction.editReply({
+        content: "Роль бамп бана не настроена",
+      });
+    }
+
+    if (
+      !authorMember.roles.cache.some(
+        (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+      )
+    ) {
+      return interaction.editReply({
+        content: "У вас нет права снимать бамп бан",
+      });
+    }
+
+    await Promise.allSettled([
+      member.roles.remove(settings.bumpBanRoleId),
+      BumpBanModel.deleteOne({
+        guildId: interaction.guildId,
+        userId: member.id,
+      }),
+    ]);
+
+    return interaction.editReply({
+      content: "Бамп бан успешно снят",
+    });
   }
 
   // ======Команда helper stats=====

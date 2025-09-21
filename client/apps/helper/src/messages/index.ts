@@ -200,6 +200,7 @@ export const HelperSettingsMessage = {
             "Роль для бамп бана",
             settings?.bumpBanRoleId ?? null,
           ),
+          createRoleField("Роли менеджеров", settings?.managerRoles ?? null),
         ],
       },
       buttons: { backward: { label: "Назад" } },
@@ -210,6 +211,9 @@ export const HelperSettingsMessage = {
           new StringSelectMenuOptionBuilder()
             .setLabel("Роли сотрудников")
             .setValue("bumpRoleIds"),
+          new StringSelectMenuOptionBuilder()
+            .setLabel("Роли управляющих")
+            .setValue("managerRoles"),
           new StringSelectMenuOptionBuilder()
             .setLabel("Роль бамп бана")
             .setValue("bumpBanRoleId"),
