@@ -19,6 +19,7 @@ export class SettingsController {
     name: "settings",
     description: "Настроить бота",
     defaultMemberPermissions: ["Administrator"],
+    dmPermission: false
   })
   handleSettings(interaction: ChatInputCommandInteraction) {
     return this.settingsService.handleSettingsCommand(interaction);
