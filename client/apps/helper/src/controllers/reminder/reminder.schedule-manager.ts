@@ -178,10 +178,10 @@ export class ReminderScheduleManager {
 
       if (role && member) {
         if (member.roles.cache.has(role.id) && ban.removeIn >= BumpBanLimit) {
-          await member.roles.remove(role).catch(logger.error);
+          await member.roles.remove(role).catch(() => null);
           continue;
         }
-        await member.roles.add(role).catch(logger.error);
+        await member.roles.add(role).catch(() => null);
       }
     }
 
@@ -218,8 +218,8 @@ export class ReminderScheduleManager {
     const guildIds = guilds.map((guild) => guild.id);
 
     const [settings, reminds] = await Promise.all([
-      await SettingsModel.find({ guildId: { $in: guildIds } }),
-      await RemindModel.find({
+      SettingsModel.find({ guildId: { $in: guildIds } }),
+      RemindModel.find({
         guildId: { $in: guildIds },
       }),
     ]);
