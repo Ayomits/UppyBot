@@ -2,7 +2,7 @@ import dt from "dotenv";
 import * as glob from "glob";
 import path from "path";
 
-const rootPath = path.resolve(path.dirname("./"), "../../..");
+const rootPath = path.resolve(path.dirname("./"), "../../../..");
 
 export class ConfigService {
   constructor() {
