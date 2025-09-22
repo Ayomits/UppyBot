@@ -23,7 +23,11 @@ import { StaffService } from "./staff.service.js";
 
 @Discord()
 @singleton()
-@SlashGroup({ name: "helper", description: "Команды хелперов" })
+@SlashGroup({
+  name: "helper",
+  description: "Команды хелперов",
+  dmPermission: false,
+})
 @SlashGroup("helper")
 export class StaffController {
   constructor(@inject(StaffService) private staffService: StaffService) {}
@@ -66,7 +70,7 @@ export class StaffController {
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.staffService.handleInfoCommand(interaction, user, from, to);
   }
@@ -93,7 +97,7 @@ export class StaffController {
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.staffService.handleTopCommand(interaction, from, to);
   }
@@ -106,7 +110,7 @@ export class StaffController {
   staffInfoContext(interaction: UserContextMenuCommandInteraction) {
     return this.staffService.handleInfoCommand(
       interaction,
-      interaction.targetUser,
+      interaction.targetUser
     );
   }
 
@@ -130,7 +134,7 @@ export class StaffController {
           name: "По команде like",
           value: RemindType.DiscordMonitoring,
         },
-      ],
+      ]
     )
     @SlashOption({
       name: "field",
@@ -146,7 +150,7 @@ export class StaffController {
       required: false,
     })
     user: User,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.staffService.handleStatsCommand(interaction, user, field);
   }
