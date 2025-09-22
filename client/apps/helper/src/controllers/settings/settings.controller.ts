@@ -1,9 +1,12 @@
+import { IsGuildUser } from "@discordx/utilities";
 import type {
   ChatInputCommandInteraction,
   ModalSubmitInteraction,
 } from "discord.js";
-import { Discord, ModalComponent, Slash } from "discordx";
+import { Discord, Guard, ModalComponent, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
+
+import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { SettingsCustomIds } from "./settings.const.js";
 import { SettingsService } from "./settings.service.js";
@@ -19,18 +22,21 @@ export class SettingsController {
     name: "settings",
     description: "Настроить бота",
     defaultMemberPermissions: ["Administrator"],
-    dmPermission: false
+    dmPermission: false,
   })
+  @Guard(IsGuildUser(GuildOnly))
   handleSettings(interaction: ChatInputCommandInteraction) {
     return this.settingsService.handleSettingsCommand(interaction);
   }
 
   @ModalComponent({ id: SettingsCustomIds.modal.setForceTime })
+  @Guard(IsGuildUser(GuildOnly))
   setForceTime(interaction: ModalSubmitInteraction) {
     return this.settingsService.handleSetForceModal(interaction);
   }
 
   @ModalComponent({ id: SettingsCustomIds.modal.manageAward })
+  @Guard(IsGuildUser(GuildOnly))
   handleAwardManageModal(interaction: ModalSubmitInteraction) {
     return this.settingsService.handleAwardManagmentModal(interaction);
   }

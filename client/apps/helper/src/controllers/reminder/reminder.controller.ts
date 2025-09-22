@@ -1,5 +1,8 @@
-import { type ArgsOf, type Client, Discord, On } from "discordx";
+import { IsGuildUser } from "@discordx/utilities";
+import { type ArgsOf, type Client, Discord, Guard, On } from "discordx";
 import { inject, singleton } from "tsyringe";
+
+import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
 import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
@@ -21,11 +24,13 @@ export class BumpReminderController {
   }
 
   @On({ event: "messageCreate" })
+  @Guard(IsGuildUser(GuildOnly))
   onMessageCreate([message]: ArgsOf<"messageCreate">) {
     return this.reminderHandler.handleCommand(message);
   }
 
   @On({ event: "messageUpdate" })
+  @Guard(IsGuildUser(GuildOnly))
   onMessageUpdate([, message]: ArgsOf<"messageUpdate">) {
     return this.reminderHandler.handleCommand(message);
   }

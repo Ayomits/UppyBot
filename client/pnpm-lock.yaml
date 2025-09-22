@@ -32,6 +32,9 @@ importers:
       '@discordx/pagination':
         specifier: 4.3.0
         version: 4.3.0(discord.js@14.21.0)
+      '@discordx/utilities':
+        specifier: ^8.0.0
+        version: 8.0.0(discord.js@14.21.0)(discordx@11.12.5(discord.js@14.21.0))
       '@fear/config':
         specifier: workspace:^
         version: link:../../packages/config
@@ -298,6 +301,13 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
       discord.js: '>=14 || ^14.0.0-dev'
+
+  '@discordx/utilities@8.0.0':
+    resolution: {integrity: sha512-rWqwwmSphvzgXmi4ehLgIpZXYfPvbSZLFF7zg/v6VG1UQyGXWjOeb1nf5hCTZmWZl/rJNasuQsHs5zFa9B3B5A==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    peerDependencies:
+      discord.js: '>=14 || ^14.0.0-dev'
+      discordx: '*'
 
   '@esbuild/aix-ppc64@0.25.9':
     resolution: {integrity: sha512-OaGtL73Jck6pBKjNIe24BnFE6agGl+6KxDtTfHhy1HmhthfKouEcOhqpSL64K4/0WCtbKFLOdzD/44cJ4k9opA==}
@@ -952,6 +962,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  dayjs@1.11.18:
+    resolution: {integrity: sha512-zFBQ7WFRvVRhKcWoUh+ZA1g2HVgUbsZm9sbddh8EC5iv93sui8DVVz1Npvz+r6meo9VKfa8NyLWBsQK1VvIKPA==}
 
   debug@4.4.1:
     resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
@@ -2022,6 +2035,12 @@ snapshots:
       discord.js: 14.21.0
       lodash: 4.17.21
 
+  '@discordx/utilities@8.0.0(discord.js@14.21.0)(discordx@11.12.5(discord.js@14.21.0))':
+    dependencies:
+      dayjs: 1.11.18
+      discord.js: 14.21.0
+      discordx: 11.12.5(discord.js@14.21.0)
+
   '@esbuild/aix-ppc64@0.25.9':
     optional: true
 
@@ -2615,6 +2634,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  dayjs@1.11.18: {}
 
   debug@4.4.1(supports-color@5.5.0):
     dependencies:
