@@ -1,0 +1,9 @@
+---
+- name: Deploy Bot with Docker
+  hosts: all
+  become: true
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Install necessary dependencies
+      ansible.builtin.include_tasks: deploy-010-dependencies.yml

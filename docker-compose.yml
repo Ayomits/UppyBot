@@ -1,35 +1,39 @@
 services:
   fear-bot:
+    image: fear-bot:latest
     container_name: fear-bot
     network_mode: host
     build:
       args:
-        - APP_ENV=$APP_ENV
+        - APP_ENV=dev
       dockerfile: ./client/Dockerfile
     volumes:
       - ./client:/app
     ports:
       - "0.0.0.0:9001:9001"
+    secrets:
+      - mongo_url
     environment:
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
-    env_file: .env
     restart: always
     depends_on:
       - fear-backend
 
   fear-backend:
+    image: fear-backend:latest
     container_name: fear-backend
     build:
       args:
-        - APP_ENV=$APP_ENV
+        - APP_ENV=dev
       dockerfile: ./backend/Dockerfile
     volumes:
       - ./backend:/app
     ports:
       - "8088:8088"
+    secrets:
+      - mongo_url
     environment:
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
-    env_file: .env
     restart: always
     depends_on:
       - fear-mongo
@@ -54,3 +58,9 @@ services:
 volumes:
   mongo_data:
     driver: local
+
+secrets:
+  mongo_url:
+    external: true
+  bot_token:
+    external: true

@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -21,7 +22,7 @@ func NewConfigService() ConfigService {
 func (c *ConfigService) Get(key string) string {
 	value, exists := os.LookupEnv(key)
 	if !exists {
-		panic(errors.New("config key does not exist"))
+		panic(errors.New(fmt.Sprintf("Environment variable %s not found", key)))
 	}
 	return value
 }
