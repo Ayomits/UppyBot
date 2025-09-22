@@ -1,3 +1,4 @@
+import { IsGuildUser } from "@discordx/utilities";
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
@@ -17,6 +18,7 @@ import {
 import { inject, singleton } from "tsyringe";
 
 import { RemindType } from "#/controllers/reminder/reminder.const.js";
+import { GuildOnly } from "#/guards/is-guild-only.js";
 import { IsHelper } from "#/guards/is-helper.guard.js";
 
 import { StaffService } from "./staff.service.js";
@@ -36,7 +38,7 @@ export class StaffController {
     name: "remaining",
     description: "Время до команд",
   })
-  @Guard(IsHelper)
+  @Guard(IsHelper, IsGuildUser(GuildOnly))
   reminderStatus(interaction: ChatInputCommandInteraction) {
     return this.staffService.handleRemainingCommand(interaction);
   }
@@ -45,7 +47,7 @@ export class StaffController {
     name: "info",
     description: "Бамп статистика пользователя",
   })
-  @Guard(IsHelper)
+  @Guard(IsHelper, IsGuildUser(GuildOnly))
   staffInfoSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
@@ -70,7 +72,7 @@ export class StaffController {
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.staffService.handleInfoCommand(interaction, user, from, to);
   }
@@ -79,7 +81,7 @@ export class StaffController {
     name: "top",
     description: "Топ сотрудников",
   })
-  @Guard(IsHelper)
+  @Guard(IsHelper, IsGuildUser(GuildOnly))
   staffTopSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.String,
@@ -97,7 +99,7 @@ export class StaffController {
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.staffService.handleTopCommand(interaction, from, to);
   }
@@ -106,11 +108,11 @@ export class StaffController {
     name: "Статистика пользователя",
     type: ApplicationCommandType.User,
   })
-  @Guard(IsHelper)
+  @Guard(IsHelper, IsGuildUser(GuildOnly))
   staffInfoContext(interaction: UserContextMenuCommandInteraction) {
     return this.staffService.handleInfoCommand(
       interaction,
-      interaction.targetUser
+      interaction.targetUser,
     );
   }
 
@@ -118,7 +120,7 @@ export class StaffController {
     description: "История выполненных команд",
     name: "history",
   })
-  @Guard(IsHelper)
+  @Guard(IsHelper, IsGuildUser(GuildOnly))
   staffStats(
     @SlashChoice(
       ...[
@@ -134,7 +136,7 @@ export class StaffController {
           name: "По команде like",
           value: RemindType.DiscordMonitoring,
         },
-      ]
+      ],
     )
     @SlashOption({
       name: "field",
@@ -150,7 +152,7 @@ export class StaffController {
       required: false,
     })
     user: User,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.staffService.handleStatsCommand(interaction, user, field);
   }
