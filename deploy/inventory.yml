@@ -3,6 +3,3 @@ all:
     fear_host:
       ansible_host: 31.13.208.85
       ansible_user: root
-      ansible_password: "kwLKFe7EQAARcSurKKEl7J0kPvzvdo7l"
-      ansible_connection: ssh
-      ansible_ssh_common_args: -o StrictHostKeyChecking=no
