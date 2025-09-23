@@ -1,0 +1,2 @@
+app_path: ~/Fear
+repo_url: "https://{{ github_token }}@github.com/ayomi-s-code/Fear-Helper.git"

@@ -1,6 +1,0 @@
-myhosts:
-  hosts:
-    fear_host:
-      ansible_host: 31.13.208.85
-  vars:
-    ansible_user: root

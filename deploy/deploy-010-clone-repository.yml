@@ -1,0 +1,7 @@
+---
+- name: Clone/Update repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ app_path }}"
+    version: "main"
+    force: true

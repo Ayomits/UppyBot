@@ -1,0 +1,13 @@
+---
+- name: Deploy application
+  vars_files:
+    - shared.yml
+    - secrets.yml
+  hosts: all
+  tasks:
+    - name: Clone repository
+      ansible.builtin.include_tasks: deploy-010-clone-repository.yml
+    - name: Prepare docker compose
+      ansible.builtin.include_tasks: deploy-015-prepare-stack.yml
+    - name: Run containers
+      ansible.builtin.include_tasks: deploy-020-run-containers.yml
