@@ -17,6 +17,6 @@ jobs:
         with:
           playbook: deploy.yml
           directory: ./deploy
-          inventory: inventory.yml
+          inventory: inventory.ini
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           vault_password: ${{secrets.ANSIBLE_PASSWORD}}
