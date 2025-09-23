@@ -15,6 +15,13 @@ jobs:
       - name: Install Ansible
         run: pip install ansible
       
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 31.13.208.85 >> ~/.ssh/known_hosts
+      
       - name: Run Ansible Playbook
         run: |
           echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
@@ -22,6 +29,5 @@ jobs:
             deploy/deploy.yml \
             --vault-password-file /dev/stdin \
             -e "github_token=${{ secrets.GITHUB_TOKEN }}"
-            --private-key="${{ secrets.SSH_PRIVATE_KEY }}"
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
