@@ -29,5 +29,6 @@ jobs:
             deploy/deploy.yml \
             --vault-password-file /dev/stdin \
             -e "github_token=${{ secrets.GITHUB_TOKEN }}"
+            -vv
         env:
           ANSIBLE_HOST_KEY_CHECKING: False

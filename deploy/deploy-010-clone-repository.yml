@@ -1,9 +1,26 @@
----
-- name: Clone/Update repository
+- name: Check if repository exists
+  ansible.builtin.stat:
+    path: "{{ app_path }}/.git"
+  register: repo_exists
+
+- name: Clone repository
   ansible.builtin.git:
     repo: "https://github.com/ayomi-s-code/Fear-Helper.git"
     dest: "{{ app_path }}"
     version: "main"
-    force: yes
+    force: true
+    depth: 1
   environment:
     GITHUB_TOKEN: "{{ github_token }}"
+  when: not repo_exists.stat.exists
+
+- name: Pull latest changes
+  ansible.builtin.git:
+    repo: "https://github.com/ayomi-s-code/Fear-Helper.git"
+    dest: "{{ app_path }}"
+    version: "main"
+    force: true
+    depth: 1
+  environment:
+    GITHUB_TOKEN: "{{ github_token }}"
+  when: repo_exists.stat.exists
