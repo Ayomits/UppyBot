@@ -36,8 +36,8 @@ jobs:
           file: ./client/Dockerfile
           push: true
           tags: |
-            registry.gitlab.com/ayomits/fear-helper:latest
-            registry.gitlab.com/ayomits/fear-helper:${{ github.sha }}
+            registry.gitlab.com/ayomits/fear-helper:bot_latest
+            registry.gitlab.com/ayomits/fear-helper:bot
 
       - name: Run Ansible Playbook
         run: |
