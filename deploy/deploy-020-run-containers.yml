@@ -1,5 +1,0 @@
----
-- name: "Run make init"
-  community.general.make:
-    chdir: "{{ app_path }}"
-    target: init

@@ -1,0 +1,15 @@
+---
+- name: Deploy app
+  community.docker.docker_container:
+    name: "uppy-bot"
+    state: started
+    image: "{{ app_image }}:{{ app_version }}"
+    mounts: "{{ mounts }}"
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ docker_network_name }}"
+    env:
+     - APP_ENV: prod
+     - MONGO_URL: {{ mongo_url }}
+     - DISCORD_TOKEN: {{ discord_token }}
+  register: _app_deployment

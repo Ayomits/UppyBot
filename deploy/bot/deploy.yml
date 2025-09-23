@@ -1,0 +1,11 @@
+---
+- name: Deploy application
+  vars_files:
+    - shared.yml
+    - secrets.yml
+  hosts: all
+  tasks:
+    - name: Auth Dockerhub
+      ansible.builtin.include_tasks: deploy-auth.yml
+    - name: Run Deploy
+      ansible.builtin.include_tasks: deploy-run-deploy.yml
