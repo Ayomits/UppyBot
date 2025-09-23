@@ -7,5 +7,10 @@
   tasks:
     - name: Auth Dockerhub
       ansible.builtin.include_tasks: deploy-auth.yml
+
     - name: Run Deploy
-      ansible.builtin.include_tasks: deploy-run-deploy.yml
+      ansible.builtin.include_tasks: deploy-stop-prev.yml
+    
+    - name: Run Deploy
+      ansible.builtin.include_tasks: deploy-run-new.yml
+

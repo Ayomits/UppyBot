@@ -1,10 +1,15 @@
----
-- name: Auth for pull
-  ansible.builtin.command:
-    cmd: docker login -u '{{ registry_username | trim }}' -p '{{ registry_token | trim }}' {{ registry_url }}
-  changed_when: false
+- name: Login to GitLab Container Registry
+  docker_login:
+    registry: "{{ registry_url }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_token }}"
+  register: login_result
+
+- name: Debug login result
+  debug:
+    var: login_result
 
 - name: Pull image
-  ansible.builtin.command:
-    cmd: docker pull "{{ app_image }}:{{ app_version }}"
-  changed_when: false
+  docker_image:
+    name: "{{ app_image }}:{{ app_version }}"
+    source: pull

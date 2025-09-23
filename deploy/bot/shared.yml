@@ -1,3 +1,4 @@
-app_image: bot
-app_version: latest_bot
-registry_url: registry.gitlab.com/ayomits/fear-helper
+app_image: registry.gitlab.com/ayomits/fear-helper
+app_name: uppy-bot
+app_version: bot_latest
+registry_url: https://registry.gitlab.com

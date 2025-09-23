@@ -1,0 +1,23 @@
+---
+- name: Stop container gracefully
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: stopped
+  ignore_errors: yes
+  changed_when: false
+  register: stop_result
+
+- name: Remove container
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: absent
+  ignore_errors: yes
+  changed_when: false
+  register: remove_result
+
+- name: Debug cleanup results
+  debug:
+    msg: |
+      Stop result: {{ stop_result.msg | default('No container to stop') }}
+      Remove result: {{ remove_result.msg | default('No container to remove') }}
+  changed_when: false
