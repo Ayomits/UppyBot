@@ -24,11 +24,12 @@ jobs:
       
       - name: Run Ansible Playbook
         run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
           echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
             -i deploy/inventory.ini \
             deploy/deploy.yml \
             --vault-password-file /dev/stdin \
-            -e "github_token=${{ secrets.GITHUB_TOKEN }}"
+            -e "github_token=${{ secrets.GITHUB_TOKEN }}" \
+            --private-key=/tmp/ssh_key \
             -vv
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: False
