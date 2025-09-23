@@ -1,10 +1,8 @@
 name: Deploy to prod
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,11 +10,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Install Ansible
+        run: pip install ansible
+      
       - name: Deploy with Ansible
-        uses: dawidd6/action-ansible-playbook@v4
-        with:
-          playbook: deploy/deploy.yml
-          inventory: deploy/inventory.ini
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          vault_password: ${{secrets.ANSIBLE_PASSWORD}}
-        
+        run: |
+          echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
+            -i deploy/inventory.ini \
+            deploy/deploy.yml \
+            --vault-password-file /dev/stdin \
+            --private-key="${{ secrets.SSH_PRIVATE_KEY }}"
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
