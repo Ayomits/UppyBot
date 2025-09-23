@@ -13,7 +13,7 @@ COPY docker/runit/bot/prod/prod.run /tmp/runit-prod.run
 
 RUN mkdir -p /etc/service/app /runit
 
-RUN if [ "$APP_ENV" = "prod" ]; then \
+RUN if [ "$APP_ENV" != "dev" ]; then \
   cp /tmp/runit-prod.run /etc/service/app/run; \
   else \
   cp /tmp/runit-dev.run /etc/service/app/run; \
