@@ -1,7 +1,9 @@
 ---
 - name: Clone/Update repository
   ansible.builtin.git:
-    repo: "https://{{ github_token }}@github.com/ayomi-s-code/Fear-Helper.git"
+    repo: "https://github.com/ayomi-s-code/Fear-Helper.git"
     dest: "{{ app_path }}"
     version: "main"
-    force: true
+    force: yes
+  environment:
+    GITHUB_TOKEN: "{{ github_token }}"
