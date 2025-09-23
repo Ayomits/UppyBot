@@ -15,8 +15,7 @@ jobs:
       - name: Deploy with Ansible
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: deploy.yml
-          directory: ./deploy
-          inventory: inventory.ini
+          playbook: ./deploy/deploy.yml
+          inventory: ./deploy/inventory.ini
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           vault_password: ${{secrets.ANSIBLE_PASSWORD}}
