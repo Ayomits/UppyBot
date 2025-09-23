@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 import { dirname, importx } from "@discordx/importer";
-import { Env } from "@fear/config";
 import { mongoose } from "@typegoose/typegoose";
 import { GatewayIntentBits, type Interaction, type Message } from "discord.js";
 import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
@@ -18,7 +17,7 @@ export async function helper() {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
     ],
-    silent: Env.AppEnv !== "dev",
+    silent: process.env.APP_ENV !== "dev",
     logger,
     simpleCommand: {
       prefix: "!",
@@ -59,13 +58,13 @@ export async function helper() {
   await importx(`${dirname(import.meta.url)}/**/*.js`);
 
   await mongoose
-    .connect(Env.MongoUrl, {
+    .connect(process.env.MONGO_URL, {
       autoCreate: true,
     })
     .catch(logger.error)
     .then(() => logger.success("succesfully connected to mongodb"));
 
-  await client.login(Env.HelperToken).then(() => {
+  await client.login(process.env.DISCORD_TOKEN).then(() => {
     logger.success("Successfully logged in");
   });
 }

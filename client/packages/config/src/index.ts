@@ -27,11 +27,3 @@ export class ConfigService {
     return existed;
   }
 }
-
-export const configService = new ConfigService();
-
-export const Env = {
-  AppEnv: configService.get("APP_ENV"),
-  HelperToken: configService.get("DISCORD_TOKEN"),
-  MongoUrl: configService.get("MONGO_URL"),
-} as const;

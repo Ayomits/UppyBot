@@ -1,4 +1,3 @@
-import { Env } from "@fear/config";
 import { type Guild, type GuildMember, type Message } from "discord.js";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
@@ -63,7 +62,7 @@ export class ReminderHandler {
 
       await this.scheduleManager.remind({ settings, ...payload });
 
-      if (Env.AppEnv == "dev") {
+      if (process.env.APP_ENV == "dev") {
         return await this.handleSuccess(message, payload, settings);
       }
 
