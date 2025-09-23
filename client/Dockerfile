@@ -5,6 +5,7 @@ RUN apk add --no-cache runit
 WORKDIR /app
 
 ARG APP_ENV=dev
+ENV APP_ENV=${APP_ENV}
 
 COPY --chown=appuser:appuser ./client /app
 
