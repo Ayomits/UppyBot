@@ -12,15 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Install Ansible
-        run: pip install ansible
+      - name: Deploy with Ansible
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy/deploy.yml
+          inventory: deploy/inventory.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
       
-      - name: Run Ansible Playbook
-        run: |
-          echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
-            -i deploy/inventory.yml \
-            deploy/deploy.yml \
-            --vault-password-file /dev/stdin \
-            -e "github_token=${{ secrets.GITHUB_TOKEN }}"
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: False
