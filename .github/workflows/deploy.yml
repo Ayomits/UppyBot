@@ -21,15 +21,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 31.13.208.85 >> ~/.ssh/known_hosts
-      
-      - name: Debug SSH connection
-        run: |
-          echo "SSH key content start:"
-          cat ~/.ssh/id_rsa | head -n 1
-          echo "SSH key permissions:"
-          ls -la ~/.ssh/id_rsa
-          echo "Testing connection:"
-          ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@31.13.208.85 "echo Connected!" || echo "Failed"
 
       - name: Run Ansible Playbook
         run: |
