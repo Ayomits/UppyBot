@@ -38,7 +38,7 @@ jobs:
           tags: |
             registry.gitlab.com/ayomits/fear-helper:bot_latest
             registry.gitlab.com/ayomits/fear-helper:bot
-          build-args: |
+          build-args:
             APP_ENV=prod
 
       - name: Run Ansible Playbook
