@@ -32,7 +32,8 @@ jobs:
       - name: Build and push bot image
         uses: docker/build-push-action@v6
         with:
-          context: ./client
+          context: .
+          file: ./client/Dockerfile
           push: true
           tags: |
             ayomits/fear-helper:latest
