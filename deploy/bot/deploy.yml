@@ -1,9 +1,9 @@
 ---
 - name: Deploy application
+  hosts: all
   vars_files:
     - shared.yml
     - secrets.yml
-  hosts: all
   tasks:
     - name: Auth Dockerhub
       ansible.builtin.include_tasks: deploy-auth.yml

@@ -44,7 +44,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
           echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
-            -i deploy/inventory.ini \
+            -i deploy/bot/inventory.ini \
             deploy/bot/deploy.yml \
             --vault-password-file /dev/stdin \
             -e "github_token=${{ secrets.GITHUB_TOKEN }}" \
