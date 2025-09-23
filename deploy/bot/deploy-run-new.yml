@@ -4,7 +4,8 @@
     state: started
     image: "{{ app_image }}:{{ app_version }}"
     restart_policy: unless-stopped
-    env:
+    args:
       APP_ENV: prod
+    env:
       MONGO_URL: "{{ mongo_url }}"
       DISCORD_TOKEN: "{{ discord_token }}"
