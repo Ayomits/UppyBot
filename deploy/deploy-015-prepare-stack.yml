@@ -1,0 +1,5 @@
+---
+- name: Template docker-compose with secrets
+  ansible.builtin.template:
+    src: docker-compose.override.yml.j2
+    dest: "{{ app_path }}/docker-compose.override.yml"
