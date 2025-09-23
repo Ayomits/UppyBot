@@ -1,5 +1,0 @@
-all:
-  hosts:
-    fear_host:
-      ansible_host: 31.13.208.85
-      ansible_user: root
