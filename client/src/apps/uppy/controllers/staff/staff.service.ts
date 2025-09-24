@@ -625,7 +625,7 @@ export class StaffService {
   private async buildReminderStatusMessage(
     interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
-    const [discordMonitoring, sdcMonitoring, serverMonitoring] =
+    const [discordMonitoring, sdcMonitoring, serverMonitoring, disboardMonitoring] =
       await Promise.all([
         this.fetchMonitoringBot(
           interaction.guild!,
@@ -639,6 +639,10 @@ export class StaffService {
           interaction.guild!,
           MonitoringBot.ServerMonitoring,
         ),
+        this.fetchMonitoringBot(
+          interaction.guild!,
+          MonitoringBot.DisboardMonitoring
+        )
       ]);
 
     const types: RemindType[] = [];
@@ -653,6 +657,10 @@ export class StaffService {
 
     if (serverMonitoring) {
       types.push(RemindType.ServerMonitoring);
+    }
+
+    if (disboardMonitoring) {
+      types.push(RemindType.DisboardMonitoring);
     }
 
     const monitorings = await RemindModel.find({

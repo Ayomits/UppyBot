@@ -14,6 +14,7 @@ export const MonitoringBot = {
   SdcMonitoring: "464272403766444044",
   ServerMonitoring: "315926021457051650",
   DiscordMonitoring: "575776004233232386",
+  DisboardMonitoring: "302050872383242240",
 } as const;
 
 export type MonitoringBot = LiteralEnum<typeof MonitoringBot>;
@@ -35,19 +36,25 @@ export const MonitoringBotMessage = {
     success: "Время фиксации",
     failure: "Up",
   },
+  disboardMonitoring: {
+    success: "Bump done!",
+    failure: "",
+  }
 } as const;
 
 export const RemindType = {
   DiscordMonitoring: 0,
   ServerMonitoring: 1,
   SdcMonitoring: 2,
+  DisboardMonitoring: 3
 } as const;
 
 export type RemindType = LiteralEnum<typeof RemindType>;
 
 export const MonitoringCommand = {
   DiscordMonitoring: "like",
-  ServerMonitoring: "bump",
+  ServerMonitoring: "server_bump",
+  DisboardMonitoring: "disboard_bump",
   SdcMonitoring: "up",
 } as const;
 
@@ -68,6 +75,8 @@ export function getCommandByRemindType(type: RemindType | number) {
       return MonitoringCommand.SdcMonitoring;
     case RemindType.ServerMonitoring:
       return MonitoringCommand.ServerMonitoring;
+    case RemindType.DisboardMonitoring:
+      return MonitoringCommand.DisboardMonitoring;
   }
 }
 

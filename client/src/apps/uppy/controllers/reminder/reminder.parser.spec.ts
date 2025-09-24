@@ -283,4 +283,26 @@ describe("ReminderParser", () => {
       ),
     );
   });
+
+  test("handleDisboard (success)", () => {
+    const timestamp = new Date(now.getTime() + 3_600 * 2 * 1_000);
+
+    expect(
+      parser.handleServerMonitoring(
+        createMockMessage({
+          embeds: [
+            // @ts-expect-error its tests
+            createMockEmbed(MonitoringBotMessage.disboardMonitoring.success),
+          ],
+        }),
+      ),
+    ).toStrictEqual(
+      parser.handleSuccess(
+        timestamp,
+        mockGuild as Guild,
+        userId,
+        RemindType.DisboardMonitoring,
+      ),
+    );
+  });
 });

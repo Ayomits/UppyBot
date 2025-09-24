@@ -13,6 +13,12 @@ import {
 } from "discord.js";
 import { DateTime } from "luxon";
 
+import {
+  BumpBanLimit,
+  DefaultTimezone,
+  type getCommandByRemindType,
+  MonitoringCommand,
+} from "#/apps/uppy/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
 import type { BumpBan } from "#/models/bump-ban.model.js";
 import type {
@@ -20,17 +26,11 @@ import type {
   StaffInfoAgregation,
 } from "#/models/remind.model.js";
 import type { Settings } from "#/models/settings.model.js";
-import {
-  BumpBanLimit,
-  DefaultTimezone,
-  type getCommandByRemindType,
-  MonitoringCommand,
-} from "#/apps/uppy/controllers/reminder/reminder.const.js";
 
 const createChannelField = (name: string, channelId: Snowflake | null) => ({
   name: blockQuote(name),
   value: TextFormattingUtility.snowflakeMention(
-    channelId ? channelMention(channelId) : null,
+    channelId ? channelMention(channelId) : null
   ),
   inline: true,
 });
@@ -44,7 +44,7 @@ const createPropertyField = (name: string, property: any) => ({
 
 const createRoleField = (
   name: string,
-  roleIds: Snowflake | Snowflake[] | null,
+  roleIds: Snowflake | Snowflake[] | null
 ) => ({
   name: blockQuote(name),
   value: TextFormattingUtility.snowflakeMention(
@@ -52,7 +52,7 @@ const createRoleField = (
       ? roleIds.map(roleMention)
       : roleIds
         ? roleMention(roleIds)
-        : null,
+        : null
   ),
   inline: !Array.isArray(roleIds),
 });
@@ -126,11 +126,11 @@ export const HelperSettingsMessage = {
       createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
       createPropertyField(
         "Преждевременный пинг (секунды)",
-        settings.force ?? 0,
+        settings.force ?? 0
       ),
       createPropertyField(
         "Использовать только преждевременный пинг",
-        getToggledValue(settings?.useForceOnly),
+        getToggledValue(settings?.useForceOnly)
       ),
     ],
     components: {
@@ -156,7 +156,7 @@ export const HelperSettingsMessage = {
         fields: (settings: Settings): EmbedField[] => [
           createChannelField(
             "Канал для пингов",
-            settings.pingChannelId ?? null,
+            settings.pingChannelId ?? null
           ),
           createChannelField("Канал для логов", settings.logChannelId ?? null),
         ],
@@ -198,11 +198,11 @@ export const HelperSettingsMessage = {
         fields: (settings: Settings): EmbedField[] => [
           createRoleField(
             "Возможные роли сотрудника",
-            settings?.bumpRoleIds ?? null,
+            settings?.bumpRoleIds ?? null
           ),
           createRoleField(
             "Роль для бамп бана",
-            settings?.bumpBanRoleId ?? null,
+            settings?.bumpBanRoleId ?? null
           ),
           createRoleField("Роли менеджеров", settings?.managerRoles ?? null),
         ],
@@ -234,25 +234,25 @@ export const HelperInfoMessage = {
       return [
         createPropertyField(
           MonitoringCommand.DiscordMonitoring,
-          codeBlock(data?.like ? data?.like?.toString() : "0"),
+          codeBlock(data?.like ? data?.like?.toString() : "0")
         ),
         createPropertyField(
           MonitoringCommand.SdcMonitoring,
-          codeBlock(data?.up ? data?.up?.toString() : "0"),
+          codeBlock(data?.up ? data?.up?.toString() : "0")
         ),
         createPropertyField(
           MonitoringCommand.ServerMonitoring,
-          codeBlock(data?.bump ? data?.bump?.toString() : "0"),
+          codeBlock(data?.bump ? data?.bump?.toString() : "0")
         ),
         createPropertyField(
           "Бамп бан",
           !bubmBan
             ? codeBlock("Не активен")
-            : codeBlock(`${BumpBanLimit - bubmBan?.removeIn} до снятия`),
+            : codeBlock(`${BumpBanLimit - bubmBan?.removeIn} до снятия`)
         ),
         createPropertyField(
           "Поинты за период",
-          codeBlock(data?.points ? data?.points?.toString() : "0"),
+          codeBlock(data?.points ? data?.points?.toString() : "0")
         ),
       ];
     },
@@ -269,7 +269,7 @@ export const HelperRemainingMessage = {
       monitorings: Record<
         ReturnType<typeof getCommandByRemindType>,
         RemindDocument
-      >,
+      >
     ): EmbedField[] => [
       {
         name: blockQuote(MonitoringCommand.DiscordMonitoring),
@@ -282,8 +282,13 @@ export const HelperRemainingMessage = {
         inline: true,
       },
       {
-        name: blockQuote(MonitoringCommand.ServerMonitoring),
-        value: canUseMonitoring(monitorings.bump),
+        name: blockQuote(`bump (server monitoring)`),
+        value: canUseMonitoring(monitorings.server_bump),
+        inline: true,
+      },
+      {
+        name: blockQuote(`bump (disboard)`),
+        value: canUseMonitoring(monitorings.disboard_bump),
         inline: true,
       },
     ],
