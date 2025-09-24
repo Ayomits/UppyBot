@@ -5,14 +5,12 @@ services:
     network_mode: host
     build:
       args:
-        - APP_ENV=dev
+        - APP_ENV=prod
       dockerfile: ./client/Dockerfile
     volumes:
       - ./client:/app
     ports:
       - "0.0.0.0:9001:9001"
-    secrets:
-      - mongo_url
     environment:
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
     restart: always
@@ -30,8 +28,6 @@ services:
       - ./backend:/app
     ports:
       - "8088:8088"
-    secrets:
-      - mongo_url
     environment:
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
     restart: always
@@ -58,9 +54,3 @@ services:
 volumes:
   mongo_data:
     driver: local
-
-secrets:
-  mongo_url:
-    external: true
-  bot_token:
-    external: true
