@@ -4,16 +4,13 @@ import { dirname, importx } from "@discordx/importer";
 import { mongoose } from "@typegoose/typegoose";
 import { GatewayIntentBits, type Interaction, type Message } from "discord.js";
 import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
-import { config } from "dotenv";
 import { container } from "tsyringe";
 
+import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
-
-config();
 
 async function bootstrap() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
-  console.log(process.env);
   const client = new Client({
     intents: [
       GatewayIntentBits.MessageContent,
@@ -21,7 +18,7 @@ async function bootstrap() {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
     ],
-    silent: process.env.APP_ENV !== "dev",
+    silent: Env.AppEnv !== "dev",
     logger,
     simpleCommand: {
       prefix: "!",
@@ -62,13 +59,13 @@ async function bootstrap() {
   await importx(`${dirname(import.meta.url)}/**/*.js`);
 
   await mongoose
-    .connect(process.env.MONGO_URL, {
+    .connect(Env.MongoUrl, {
       autoCreate: true,
     })
     .catch(logger.error)
     .then(() => logger.success("succesfully connected to mongodb"));
 
-  await client.login(process.env.DISCORD_TOKEN).then(() => {
+  await client.login(Env.DiscordToken).then(() => {
     logger.success("Successfully logged in");
   });
 }

@@ -5,7 +5,7 @@ services:
     network_mode: host
     build:
       args:
-        - APP_ENV=prod
+        - APP_ENV=dev
       dockerfile: ./client/Dockerfile
     volumes:
       - ./client:/app
@@ -13,8 +13,6 @@ services:
       - "0.0.0.0:9001:9001"
     environment:
       - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
-      - APP_ENV=prod
-      - DISCORD_TOKEN=1234
     restart: always
     depends_on:
       - fear-backend
