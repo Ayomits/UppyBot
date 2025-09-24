@@ -53,7 +53,7 @@ export class ReminderParser {
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
 
     const discordMessageTimestampDate = DateTime.fromJSDate(
-      new Date(Number(match[1]) * 1_000),
+      new Date(Number(match[1]) * 1_000)
     ).setZone(DefaultTimezone);
 
     if (
@@ -68,7 +68,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.SdcMonitoring,
+        RemindType.SdcMonitoring
       );
     }
 
@@ -76,7 +76,7 @@ export class ReminderParser {
       discordMessageTimestampDate.toJSDate(),
       message.guild,
       authorId,
-      RemindType.SdcMonitoring,
+      RemindType.SdcMonitoring
     );
   }
 
@@ -91,10 +91,10 @@ export class ReminderParser {
     const messageCreatedAt = new Date(message.createdTimestamp);
 
     const includesSuccess = embed.description?.includes(
-      MonitoringBotMessage.serverMonitoring.success,
+      MonitoringBotMessage.serverMonitoring.success
     );
     const includesFailure = embed.description.includes(
-      MonitoringBotMessage.serverMonitoring.failure,
+      MonitoringBotMessage.serverMonitoring.failure
     );
 
     if (!includesFailure && !includesSuccess) {
@@ -112,7 +112,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.ServerMonitoring,
+        RemindType.ServerMonitoring
       );
     }
 
@@ -136,8 +136,43 @@ export class ReminderParser {
       timestamp,
       message.guild,
       authorId,
-      RemindType.ServerMonitoring,
+      RemindType.ServerMonitoring
     );
+  }
+
+  public handleDisboardMonitoring(message: Message): ParserValue {
+    const emptyPayload = this.handleEmptyEmbeds(message);
+    if (emptyPayload) return emptyPayload;
+
+    const embed = message.embeds[0];
+    const authorId =
+      message?.interactionMetadata?.user?.id ?? message.author.id;
+
+    const includesSuccess = embed.description?.includes(
+      MonitoringBotMessage.disboardMonitoring.success
+    );
+    const includesFailure = embed.description.includes(
+      MonitoringBotMessage.disboardMonitoring.failure
+    );
+
+    if (!includesFailure && !includesSuccess) {
+      return;
+    }
+
+    if (includesSuccess) {
+      const timestamp = DateTime.now()
+        .plus({ hours: 2 })
+        .set({ millisecond: 0 })
+        .toJSDate();
+      return this.handleSuccess(
+        timestamp,
+        message.guild,
+        authorId,
+        RemindType.DisboardMonitoring
+      );
+    }
+
+    return;
   }
 
   public handleDiscordMonitoring(message: Message): ParserValue {
@@ -154,14 +189,14 @@ export class ReminderParser {
 
     if (
       MonitoringBotMessage.discordMonitoring.success.find((m) =>
-        embed.description.includes(m),
+        embed.description.includes(m)
       )
     ) {
       return this.handleSuccess(
         timestamp,
         message.guild,
         authorId,
-        RemindType.DiscordMonitoring,
+        RemindType.DiscordMonitoring
       );
     }
 
@@ -169,7 +204,7 @@ export class ReminderParser {
       timestamp,
       message.guild,
       authorId,
-      RemindType.DiscordMonitoring,
+      RemindType.DiscordMonitoring
     );
   }
 
@@ -179,7 +214,7 @@ export class ReminderParser {
         null,
         message.guild,
         message.interactionMetadata?.user?.id ?? message.author.id,
-        RemindType.DiscordMonitoring,
+        RemindType.DiscordMonitoring
       );
     }
   }
@@ -188,7 +223,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guild: Guild,
     authorId: string,
-    type: RemindType,
+    type: RemindType
   ): ParserValue {
     return {
       timestamp,
@@ -203,7 +238,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guild: Guild,
     authorId: string,
-    type: RemindType,
+    type: RemindType
   ): ParserValue {
     return {
       timestamp,

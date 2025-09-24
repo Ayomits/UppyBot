@@ -18,19 +18,19 @@ import {
 import { inject, singleton } from "tsyringe";
 
 import { RemindType } from "#/apps/uppy/controllers/reminder/reminder.const.js";
-import { GuildOnly } from "#/guards/is-guild-only.js";
 import { IsHelper } from "#/apps/uppy/guards/is-helper.guard.js";
+import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { StaffService } from "./staff.service.js";
 
 @Discord()
 @singleton()
 @SlashGroup({
-  name: "helper",
+  name: "uppy",
   description: "Команды хелперов",
   dmPermission: false,
 })
-@SlashGroup("helper")
+@SlashGroup("uppy")
 export class StaffController {
   constructor(@inject(StaffService) private staffService: StaffService) {}
 
