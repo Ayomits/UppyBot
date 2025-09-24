@@ -17,7 +17,7 @@ import {
 } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { RemindType } from "#/controllers/reminder/reminder.const.js";
+import { RemindType } from "#/modules/reminder/reminder.const.js";
 import { GuildOnly } from "#/guards/is-guild-only.js";
 import { IsHelper } from "#/guards/is-helper.guard.js";
 

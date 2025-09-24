@@ -13,12 +13,6 @@ import {
 } from "discord.js";
 import { DateTime } from "luxon";
 
-import {
-  BumpBanLimit,
-  DefaultTimezone,
-  type getCommandByRemindType,
-  MonitoringCommand,
-} from "#/controllers/reminder/reminder.const.js";
 import { TextFormattingUtility } from "#/libs/embed/text.utility.js";
 import type { BumpBan } from "#/models/bump-ban.model.js";
 import type {
@@ -26,6 +20,12 @@ import type {
   StaffInfoAgregation,
 } from "#/models/remind.model.js";
 import type { Settings } from "#/models/settings.model.js";
+import {
+  BumpBanLimit,
+  DefaultTimezone,
+  type getCommandByRemindType,
+  MonitoringCommand,
+} from "#/modules/reminder/reminder.const.js";
 
 const createChannelField = (name: string, channelId: Snowflake | null) => ({
   name: blockQuote(name),
@@ -157,6 +157,10 @@ export const HelperSettingsMessage = {
           createChannelField(
             "Канал для пингов",
             settings.pingChannelId ?? null
+          ),
+          createChannelField(
+            "Канал для логов",
+            settings.logChannelId ?? null
           ),
         ],
       },

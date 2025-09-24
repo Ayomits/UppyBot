@@ -69,4 +69,5 @@ async function bootstrap() {
     logger.success("Successfully logged in");
   });
 }
+
 bootstrap();

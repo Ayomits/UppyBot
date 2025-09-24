@@ -1,7 +1,7 @@
 import type { Guild } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import { logger } from "#/libs/logger/logger.js";
 import {
@@ -16,6 +16,7 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
+import { LogService } from "../logging/log.service.js";
 import {
   BumpBanCheckerInterval,
   BumpBanLimit,
@@ -28,6 +29,8 @@ import type { ParserValue } from "./reminder.parser.js";
 
 @injectable()
 export class ReminderScheduleManager {
+  constructor(@inject(LogService) private logService: LogService) {}
+
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
@@ -36,13 +39,13 @@ export class ReminderScheduleManager {
         timestamp: entry.remind.timestamp,
         settings: entry.settings,
         type: entry.remind.type as RemindType,
-      }),
+      })
     );
 
     await Promise.all(promises);
 
     scheduleManager.startPeriodJob("diff", DiffCheckerInterval, () =>
-      this.handleDiff(client),
+      this.handleDiff(client)
     );
   }
 
@@ -59,7 +62,7 @@ export class ReminderScheduleManager {
 
       const GMTCurrent = DateTime.now().setZone(DefaultTimezone).toMillis();
       const GMTTImestamp = DateTime.fromJSDate(remind.timestamp).setZone(
-        DefaultTimezone,
+        DefaultTimezone
       );
 
       if (GMTCurrent >= GMTTImestamp.toMillis()) {
@@ -81,21 +84,21 @@ export class ReminderScheduleManager {
         !settings.useForceOnly
       ) {
         logger.info(
-          `Нет напоминания для бота ${getCommandByRemindType(remind.type)}, создаю`,
+          `Нет напоминания для бота ${getCommandByRemindType(remind.type)}, создаю`
         );
         return this.remind(...remindArgs);
       }
 
       if (initCommonSchedule && settings.useForceOnly) {
         logger.info(
-          `Отменено напоминание для бота ${getCommandByRemindType(remind.type)}`,
+          `Отменено напоминание для бота ${getCommandByRemindType(remind.type)}`
         );
         scheduleManager.stopJob(commonId);
       }
 
       if (initForceSchedule && settings.force <= 0) {
         logger.info(
-          `Отменено преждевременное напоминание для бота ${getCommandByRemindType(remind.type)}`,
+          `Отменено преждевременное напоминание для бота ${getCommandByRemindType(remind.type)}`
         );
         scheduleManager.stopJob(forceId);
       }
@@ -109,7 +112,7 @@ export class ReminderScheduleManager {
           forceSchedule,
           GMTTImestamp.minus({ seconds: settings.force }).toMillis(),
           forceId,
-          commonId,
+          commonId
         );
       const isValidCommonDiff =
         commonSchedule &&
@@ -117,12 +120,12 @@ export class ReminderScheduleManager {
           commonSchedule,
           GMTTImestamp.toMillis(),
           forceId,
-          commonId,
+          commonId
         );
 
       if (isValidForceDiff || isValidCommonDiff) {
         logger.success(
-          `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
+          `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`
         );
         return this.remind(...remindArgs);
       }
@@ -162,7 +165,7 @@ export class ReminderScheduleManager {
       bans.map((ban) => [
         `remind.guildId-${Math.random()}`,
         { ban, settings: settingsMap[ban.guildId] },
-      ]),
+      ])
     );
 
     for (const [, entry] of Object.entries(entriesMap)) {
@@ -177,11 +180,21 @@ export class ReminderScheduleManager {
       ]);
 
       if (role && member) {
-        if (member.roles.cache.has(role.id) && ban.removeIn >= BumpBanLimit) {
-          await member.roles.remove(role).catch(() => null);
+        const hasRole = member.roles.cache.has(role.id);
+        if (ban.removeIn >= BumpBanLimit) {
+          await this.logService.logBumpBanRemoval(guild, member);
+          if (hasRole) {
+            member.roles.remove(role).catch(() => null);
+          }
           continue;
         }
-        await member.roles.add(role).catch(() => null);
+
+        if (ban.removeIn < BumpBanLimit) {
+          if (!hasRole) {
+            member.roles.add(role).catch(() => null);
+            await this.logService.logBumpBanRoleAdding(guild, member);
+          }
+        }
       }
     }
 
@@ -195,7 +208,7 @@ export class ReminderScheduleManager {
     schedule: ScheduleCache,
     timestamp: number,
     forceId: string,
-    commonId: string,
+    commonId: string
   ) {
     const GMTDate = DateTime.fromJSDate(schedule?.date)
       .setZone(DefaultTimezone)
@@ -230,7 +243,7 @@ export class ReminderScheduleManager {
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ]),
+      ])
     );
 
     return {
@@ -248,24 +261,24 @@ export class ReminderScheduleManager {
     settings: SettingsDocument;
   }) {
     logger.info(
-      `Идёт проверка для создания напоминания для бота ${getCommandByRemindType(type)}`,
+      `Идёт проверка для создания напоминания для бота ${getCommandByRemindType(type)}`
     );
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
     const remind = await RemindModel.findOneAndUpdate(
       { guildId: guild.id, type },
       { timestamp },
-      { upsert: true, new: true },
+      { upsert: true, new: true }
     );
 
     const GMTTimestamp = DateTime.fromJSDate(remind.timestamp).setZone(
-      DefaultTimezone,
+      DefaultTimezone
     );
     const GMTCurrent = DateTime.now().setZone(DefaultTimezone);
 
     if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
       logger.error(
-        `Просроченное напоминие у бота ${getCommandByRemindType(type)}`,
+        `Просроченное напоминие у бота ${getCommandByRemindType(type)}`
       );
       return;
     }
@@ -275,10 +288,10 @@ export class ReminderScheduleManager {
 
     if (!settings.useForceOnly && !commonSchedule) {
       scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
-        this.sendCommonRemind(remind, guild),
+        this.sendCommonRemind(remind, guild)
       );
       logger.success(
-        `Напоминие для бота ${getCommandByRemindType(type)} создано`,
+        `Напоминие для бота ${getCommandByRemindType(type)} создано`
       );
     }
 
@@ -291,11 +304,11 @@ export class ReminderScheduleManager {
       scheduleManager.startOnceJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
-        () => this.sendForceRemind(remind, guild),
+        () => this.sendForceRemind(remind, guild)
       );
 
       logger.success(
-        `Преждевременное напоминие для бота ${getCommandByRemindType(type)} создано`,
+        `Преждевременное напоминие для бота ${getCommandByRemindType(type)} создано`
       );
     }
   }
@@ -305,7 +318,7 @@ export class ReminderScheduleManager {
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
-      { upsert: true },
+      { upsert: true }
     );
     const channel = await guild.channels
       .fetch(settings?.pingChannelId)
@@ -313,7 +326,7 @@ export class ReminderScheduleManager {
 
     if (!channel) {
       logger.error(
-        `Указанный канал не был найден для сервера ${remind.guildId}`,
+        `Указанный канал не был найден для сервера ${remind.guildId}`
       );
       return;
     }
@@ -323,17 +336,17 @@ export class ReminderScheduleManager {
         channel?.send({
           content: RemindSystemMessage.remind.ping.content(
             settings.bumpRoleIds,
-            getCommandByRemindType(remind.type),
+            getCommandByRemindType(remind.type)
           ),
         });
         logger.success(
-          `Напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          `Напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`
         );
       } catch (err) {
         logger.error(
           `Напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
           "Причина:",
-          err,
+          err
         );
       }
     }
@@ -344,7 +357,7 @@ export class ReminderScheduleManager {
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
-      { upsert: true },
+      { upsert: true }
     );
     const channel = await guild.channels
       .fetch(settings?.pingChannelId)
@@ -352,7 +365,7 @@ export class ReminderScheduleManager {
 
     if (!channel) {
       logger.error(
-        `Указанный канал не был найден для сервера ${remind.guildId}`,
+        `Указанный канал не был найден для сервера ${remind.guildId}`
       );
       return;
     }
@@ -363,17 +376,17 @@ export class ReminderScheduleManager {
           content: RemindSystemMessage.remind.force.content(
             settings.bumpRoleIds,
             getCommandByRemindType(remind.type),
-            settings.force,
+            settings.force
           ),
         });
         logger.success(
-          `Преждевременное напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          `Преждевременное напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`
         );
       } catch (err) {
         logger.error(
           `Преждевременное напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
           "Причина:",
-          err,
+          err
         );
       }
     }

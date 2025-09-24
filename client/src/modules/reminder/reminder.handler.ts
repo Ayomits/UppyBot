@@ -1,6 +1,6 @@
 import { type Guild, type GuildMember, type Message } from "discord.js";
 import { DateTime } from "luxon";
-import { inject, injectable } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { logger } from "#/libs/logger/logger.js";
@@ -13,6 +13,7 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
+import { LogService } from "../logging/log.service.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
@@ -23,7 +24,7 @@ import {
 import { type ParserValue, ReminderParser } from "./reminder.parser.js";
 import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
 
-@injectable()
+@singleton()
 /**
  * Класс для реагирования на команды от мониторингов
  * Умеет обрабатывать случаи, когда какие-то шаловливые ручки полезли в базу
@@ -33,13 +34,14 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
+    @inject(LogService) private logService: LogService
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -57,19 +59,16 @@ export class ReminderHandler {
           guildId,
         },
         {},
-        { upsert: true },
+        { upsert: true }
       );
 
-      await this.scheduleManager.remind({ settings, ...payload });
+      const promises = [this.scheduleManager.remind({ settings, ...payload })];
 
-      if (process.env.APP_ENV == "dev") {
-        return await this.handleSuccess(message, payload, settings);
+      if (process.env.APP_ENV == "dev" || payload.success) {
+        promises.push(this.handleSuccess(message, payload, settings));
       }
 
-      return (
-        payload.success &&
-        (await this.handleSuccess(message, payload, settings))
-      );
+      return await Promise.allSettled(promises);
     } catch (err) {
       logger.error(err);
     }
@@ -78,7 +77,7 @@ export class ReminderHandler {
   private async handleSuccess(
     message: Message,
     { type }: ParserValue,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
 
@@ -99,13 +98,31 @@ export class ReminderHandler {
       points += pointConfig.bonus;
     }
 
-    await BumpModel.create({
-      guildId: guild.id,
-      executorId: user.id,
-      messageId: message.id,
-      points: points,
-      type,
-    });
+    const embed = new EmbedBuilder()
+      .setDefaults(user)
+      .setTitle(RemindSystemMessage.monitoring.embed.title)
+      .setDescription(
+        RemindSystemMessage.monitoring.embed.description(
+          points,
+          getCommandByRemindType(type)
+        )
+      );
+
+    await Promise.allSettled([
+      message
+        .reply({
+          embeds: [embed],
+        })
+        .catch(null),
+      this.logService.logCommandExecution(guild, user, type),
+      BumpModel.create({
+        guildId: guild.id,
+        executorId: user.id,
+        messageId: message.id,
+        points: points,
+        type,
+      }),
+    ]);
 
     if (type === RemindType.ServerMonitoring) {
       const member = await guild.members.fetch(user.id).catch(() => null);
@@ -115,27 +132,13 @@ export class ReminderHandler {
         logger.error("Ошибка выдачи бамп бана", err);
       }
     }
-
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle(RemindSystemMessage.monitoring.embed.title)
-      .setDescription(
-        RemindSystemMessage.monitoring.embed.description(
-          points,
-          getCommandByRemindType(type),
-        ),
-      );
-
-    return message.reply({
-      embeds: [embed],
-    });
   }
 
   private async handleBumpBan(
     member: GuildMember,
     guild: Guild,
     type: RemindType,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     const bumpBanRole = await guild.roles
       .fetch(settings.bumpBanRoleId)
@@ -144,17 +147,20 @@ export class ReminderHandler {
     const bumpBan = await BumpBanModel.findOneAndUpdate(
       { guildId: guild.id, userId: member.id, type },
       {},
-      { upsert: true },
+      { upsert: true }
     );
 
     if (bumpBanRole) {
-      await member.roles.add(bumpBanRole).catch(logger.error);
+      await Promise.allSettled([
+        member.roles.add(bumpBanRole).catch(null),
+        this.logService.logBumpBanRoleAdding(guild, member.user),
+      ]);
     }
 
     if (bumpBan?.removeIn + 1 >= BumpBanLimit) {
       await BumpBanModel.deleteOne({ _id: bumpBan._id });
       if (bumpBanRole) {
-        await member.roles.remove(bumpBanRole).catch(logger.error);
+        member.roles.remove(bumpBanRole).catch(null);
       }
     }
 
@@ -167,7 +173,7 @@ export class ReminderHandler {
         $inc: {
           removeIn: 1,
         },
-      },
+      }
     );
   }
 }
