@@ -114,7 +114,7 @@ export class ReminderHandler {
           embeds: [embed],
         })
         .catch(null),
-      this.logService.logCommandExecution(guild, user, type),
+      this.logService.logCommandExecution(guild, user, type, points),
       BumpModel.create({
         guildId: guild.id,
         executorId: user.id,

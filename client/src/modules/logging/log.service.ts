@@ -1,5 +1,6 @@
 import { LocalCache } from "@ts-fetcher/cache";
 import {
+  codeBlock,
   type EmbedBuilder as DjsBuilder,
   type Guild,
   inlineCode,
@@ -33,7 +34,8 @@ export class LogService {
   public async logCommandExecution(
     guild: Guild,
     author: User,
-    type: RemindType
+    type: RemindType,
+    points: number
   ) {
     const commandName = getCommandByRemindType(type);
 
@@ -42,7 +44,11 @@ export class LogService {
       .setDefaults(author)
       .setDescription(
         `Пользователь ${author} выполнил команду ${inlineCode(commandName)}`
-      );
+      )
+      .setFields({
+        name: "Количество поинтов",
+        value: codeBlock(points.toString()),
+      });
     return await this.push(guild, embed);
   }
 
