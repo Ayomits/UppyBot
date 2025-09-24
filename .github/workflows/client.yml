@@ -30,17 +30,17 @@ jobs:
       - name: Check prettier
         run: |
           cd client
-          pnpm run format:check --affected
+          pnpm run format:check
 
       - name: Check lint
         run: |
           cd client
-          pnpm run lint:check --affected
+          pnpm run lint:check
 
       - name: Run build
         run: |
           cd client
-          pnpm run build --affected
+          pnpm run build
 
       - name: Run tests
         run: |
