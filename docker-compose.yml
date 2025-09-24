@@ -11,8 +11,6 @@ services:
       - ./client:/app
     ports:
       - "0.0.0.0:9001:9001"
-    environment:
-      - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
     restart: always
     depends_on:
       - fear-backend

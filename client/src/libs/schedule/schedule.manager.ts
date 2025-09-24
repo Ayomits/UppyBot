@@ -2,7 +2,7 @@ import { LocalCache } from "@ts-fetcher/cache";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { DefaultTimezone } from "#/controllers/reminder/reminder.const.js";
+import { DefaultTimezone } from "#/modules/reminder/reminder.const.js";
 
 import { logger } from "../logger/logger.js";
 

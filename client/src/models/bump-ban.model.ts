@@ -8,7 +8,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import {
   BumpBanLimit,
   type RemindType,
-} from "#/controllers/reminder/reminder.const.js";
+} from "#/modules/reminder/reminder.const.js";
 
 export class BumpBan extends TimeStamps {
   @prop({ required: true })
