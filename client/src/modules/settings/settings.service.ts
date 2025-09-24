@@ -1,24 +1,24 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
-  ChannelSelectMenuBuilder,
-  type ChannelSelectMenuInteraction,
-  ChannelType,
-  type ChatInputCommandInteraction,
-  type GuildMember,
-  type Interaction,
-  type InteractionEditReplyOptions,
-  type Message,
-  ModalBuilder,
-  type ModalSubmitInteraction,
-  RoleSelectMenuBuilder,
-  type RoleSelectMenuInteraction,
-  StringSelectMenuBuilder,
-  type StringSelectMenuInteraction,
-  TextInputBuilder,
-  TextInputStyle,
+    ActionRowBuilder,
+    ButtonBuilder,
+    type ButtonInteraction,
+    ButtonStyle,
+    ChannelSelectMenuBuilder,
+    type ChannelSelectMenuInteraction,
+    ChannelType,
+    type ChatInputCommandInteraction,
+    type GuildMember,
+    type Interaction,
+    type InteractionEditReplyOptions,
+    type Message, MessageFlags,
+    ModalBuilder,
+    type ModalSubmitInteraction,
+    RoleSelectMenuBuilder,
+    type RoleSelectMenuInteraction,
+    StringSelectMenuBuilder,
+    type StringSelectMenuInteraction,
+    TextInputBuilder,
+    TextInputStyle,
 } from "discord.js";
 import { injectable } from "tsyringe";
 
@@ -44,7 +44,7 @@ import {
 @injectable()
 export class SettingsService {
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const message = await this.buildMainSettingsPanel(interaction);
     const reply = await interaction.editReply(message);
@@ -149,7 +149,7 @@ export class SettingsService {
   //===============Преждевременный пинг
 
   private async toggleUseForceOnly(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const existed = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
@@ -212,13 +212,13 @@ export class SettingsService {
     return interaction.reply({
       content:
         HelperSettingsMessage.managers.force.modal.actions.setForceTime.content,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
   //==============Управление каналами=============
   private async openChannelManagement(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const message = await this.buildChannelManagementPanel(interaction);
     const reply = await interaction.editReply(message);
 
@@ -319,7 +319,7 @@ export class SettingsService {
 
   // ==============Управление ролями====================
   private async openRoleManagement(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const message = await this.buildRoleManagementPanel(interaction);
     const reply = await interaction.editReply(message);
 
@@ -439,7 +439,7 @@ export class SettingsService {
   // ============Управлять наградами========
 
   private async openAwardManagement(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const repl = await interaction.editReply(
       await this.buildAwardManagementMessage(interaction),
     );
@@ -573,7 +573,7 @@ export class SettingsService {
   }
 
   async handleAwardManagmentModal(interaction: ModalSubmitInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     let [default_, bonus] = [
       Number(interaction.fields.getTextInputValue("default")),
       Number(interaction.fields.getTextInputValue("bonus")),

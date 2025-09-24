@@ -1,22 +1,23 @@
 import { Pagination, PaginationResolver } from "@discordx/pagination";
 import type { mongoose } from "@typegoose/typegoose";
 import {
-  ActionRowBuilder,
-  type AutocompleteInteraction,
-  bold,
-  ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
-  type ChatInputCommandInteraction,
-  type Guild,
-  type GuildMember,
-  type Interaction,
-  type InteractionEditReplyOptions,
-  time,
-  TimestampStyles,
-  type User,
-  type UserContextMenuCommandInteraction,
-  userMention,
+    ActionRowBuilder,
+    type AutocompleteInteraction,
+    bold,
+    ButtonBuilder,
+    type ButtonInteraction,
+    ButtonStyle,
+    type ChatInputCommandInteraction,
+    type Guild,
+    type GuildMember,
+    type Interaction,
+    type InteractionEditReplyOptions,
+    MessageFlags,
+    time,
+    TimestampStyles,
+    type User,
+    type UserContextMenuCommandInteraction,
+    userMention,
 } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
@@ -58,7 +59,7 @@ export class StaffService {
     from?: string,
     to?: string,
   ) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     user = typeof user === "undefined" ? interaction.user : user;
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
@@ -163,7 +164,7 @@ export class StaffService {
     interaction: ButtonInteraction,
     member: GuildMember,
   ) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
       SettingsModel.findOne({ guildId: interaction.guildId }),
       BumpBanModel.findOne({ guildId: interaction.guildId, userId: member.id }),
@@ -213,7 +214,7 @@ export class StaffService {
     user: User,
     field: number,
   ) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     user = typeof user !== "undefined" ? user : interaction.user;
     const filter: mongoose.FilterQuery<BumpDocument> = {
       guildId: interaction.guildId,
@@ -304,7 +305,7 @@ export class StaffService {
     from?: string,
     to?: string,
   ) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
@@ -595,7 +596,7 @@ export class StaffService {
 
   // ======Команда Remaining======
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const repl = await interaction.editReply(
       await this.buildReminderStatusMessage(interaction),
     );
