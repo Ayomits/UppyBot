@@ -34,14 +34,14 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-    @inject(LogService) private logService: LogService
+    @inject(LogService) private logService: LogService,
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot
+          message.author.id as MonitoringBot,
         )
       ) {
         return;
@@ -59,7 +59,7 @@ export class ReminderHandler {
           guildId,
         },
         {},
-        { upsert: true }
+        { upsert: true },
       );
 
       const promises = [this.scheduleManager.remind({ settings, ...payload })];
@@ -77,7 +77,7 @@ export class ReminderHandler {
   private async handleSuccess(
     message: Message,
     { type }: ParserValue,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
 
@@ -104,8 +104,8 @@ export class ReminderHandler {
       .setDescription(
         RemindSystemMessage.monitoring.embed.description(
           points,
-          getCommandByRemindType(type)
-        )
+          getCommandByRemindType(type),
+        ),
       );
 
     await Promise.allSettled([
@@ -138,7 +138,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: RemindType,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     const bumpBanRole = await guild.roles
       .fetch(settings.bumpBanRoleId)
@@ -147,7 +147,7 @@ export class ReminderHandler {
     const bumpBan = await BumpBanModel.findOneAndUpdate(
       { guildId: guild.id, userId: member.id, type },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     if (bumpBanRole) {
@@ -173,7 +173,7 @@ export class ReminderHandler {
         $inc: {
           removeIn: 1,
         },
-      }
+      },
     );
   }
 }
