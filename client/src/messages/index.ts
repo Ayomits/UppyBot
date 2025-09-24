@@ -25,7 +25,7 @@ import {
   DefaultTimezone,
   type getCommandByRemindType,
   MonitoringCommand,
-} from "#/modules/reminder/reminder.const.js";
+} from "#/apps/uppy/reminder/reminder.const.js";
 
 const createChannelField = (name: string, channelId: Snowflake | null) => ({
   name: blockQuote(name),
