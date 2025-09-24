@@ -1,4 +1,4 @@
-import { bold } from "discord.js";
+import {bold, MessageFlags} from "discord.js";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 
@@ -13,7 +13,7 @@ export const ChannelDoesNotExistsError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`Указанный канал ${bold("не существует")}`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const ChannelTypeError = createError((interaction) => ({
@@ -23,7 +23,7 @@ export const ChannelTypeError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`Указанный канал ${bold("не")} является текстовым`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const ModuleDisabledError = createError((interaction) => ({
@@ -42,7 +42,7 @@ export const ForbiddenError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`У Вас недостаточно прав!`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const SomethingWentWrongError = createError((interaction) => ({
@@ -52,7 +52,7 @@ export const SomethingWentWrongError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`Что-то пошло не так`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const NotHelperError = createError((interaction) => ({
@@ -62,7 +62,7 @@ export const NotHelperError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`Указанный пользователь ${bold("не")} хелпер`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const UserNotFoundError = createError((interaction) => ({
@@ -72,7 +72,7 @@ export const UserNotFoundError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`Указанный пользователь ${bold("не")} найден`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
 
 export const EmptyStaffRoleError = createError((interaction) => ({
@@ -82,5 +82,5 @@ export const EmptyStaffRoleError = createError((interaction) => ({
       .setTitle(ErrorTitle)
       .setDescription(`На сервере не настроены роли сотрудников`),
   ],
-  ephemeral: true,
+  flags: MessageFlags.Ephemeral,
 }));
