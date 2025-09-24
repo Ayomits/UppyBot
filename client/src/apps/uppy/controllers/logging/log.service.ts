@@ -35,7 +35,7 @@ export class LogService {
     guild: Guild,
     author: User,
     type: RemindType,
-    points: number
+    points: number,
   ) {
     const commandName = getCommandByRemindType(type);
 
@@ -43,7 +43,7 @@ export class LogService {
       .setTitle(`Выполнена команда ${commandName}`)
       .setDefaults(author)
       .setDescription(
-        `Пользователь ${author} выполнил команду ${inlineCode(commandName)}`
+        `Пользователь ${author} выполнил команду ${inlineCode(commandName)}`,
       )
       .setFields({
         name: "Количество поинтов",
@@ -80,7 +80,7 @@ export class LogService {
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     const logChannel = guild.channels.cache.get(settings?.logChannelId);
@@ -118,7 +118,7 @@ export class LogService {
           });
           // eslint-disable-next-line no-empty
         } catch {}
-      }
+      },
     );
   }
 }

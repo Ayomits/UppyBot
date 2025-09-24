@@ -1,4 +1,4 @@
-import {bold, MessageFlags} from "discord.js";
+import { bold, MessageFlags } from "discord.js";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 

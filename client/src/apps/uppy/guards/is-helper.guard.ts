@@ -1,5 +1,5 @@
-import type {ChatInputCommandInteraction, GuildMember} from "discord.js";
-import { MessageFlags} from "discord.js";
+import type { ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
 import { GuardMessage } from "#/messages/index.js";
