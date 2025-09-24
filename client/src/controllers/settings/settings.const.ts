@@ -1,5 +1,4 @@
-import type { ObjectKeys } from "@fear/utils";
-
+import { type ObjectKeys } from "#/libs/utils/index.js";
 import type { Settings } from "#/models/settings.model.js";
 
 export const SettingsCustomIds = {

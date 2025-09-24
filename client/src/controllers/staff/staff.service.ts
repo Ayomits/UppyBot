@@ -1,5 +1,4 @@
 import { Pagination, PaginationResolver } from "@discordx/pagination";
-import { createSafeCollector } from "@fear/utils";
 import type { mongoose } from "@typegoose/typegoose";
 import {
   ActionRowBuilder,
@@ -24,6 +23,7 @@ import { injectable } from "tsyringe";
 
 import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { createSafeCollector } from "#/libs/utils/collector.js";
 import { HelperInfoMessage, HelperRemainingMessage } from "#/messages/index.js";
 import type { BumpDocument } from "#/models/bump.model.js";
 import { BumpModel } from "#/models/bump.model.js";

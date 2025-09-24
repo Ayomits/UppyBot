@@ -1,4 +1,4 @@
-import type { LiteralEnum } from "@fear/utils";
+import type { LiteralEnum } from "#/libs/utils/index.js";
 
 export const BumpBanCheckerInterval = 15_000;
 export const DiffCheckerInterval = 3_000;

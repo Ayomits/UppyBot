@@ -11,7 +11,7 @@ import { logger } from "./libs/logger/logger.js";
 
 config();
 
-export async function helper() {
+async function bootstrap() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
   console.log(process.env);
   const client = new Client({
@@ -72,4 +72,4 @@ export async function helper() {
     logger.success("Successfully logged in");
   });
 }
-helper();
+bootstrap();

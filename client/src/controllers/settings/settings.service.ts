@@ -1,4 +1,3 @@
-import { createSafeCollector, type ObjectKeys } from "@fear/utils";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -24,6 +23,7 @@ import {
 import { injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { createSafeCollector, type ObjectKeys } from "#/libs/utils/index.js";
 import { HelperSettingsMessage } from "#/messages/index.js";
 import {
   PointSettingsModel,

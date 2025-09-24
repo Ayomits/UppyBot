@@ -23,4 +23,9 @@ RUN if [ "$APP_ENV" != "dev" ]; then \
 RUN chmod +x /etc/service/app/run
 RUN npm install pnpm@10.13.1 -g
 
+RUN if [ "$APP_ENV" == "prod" ]; then \
+  pnpm run build; \
+  fi
+
+
 CMD ["runsvdir", "/etc/service"]
