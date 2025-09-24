@@ -4,9 +4,12 @@ import { dirname, importx } from "@discordx/importer";
 import { mongoose } from "@typegoose/typegoose";
 import { GatewayIntentBits, type Interaction, type Message } from "discord.js";
 import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
+import { config } from "dotenv";
 import { container } from "tsyringe";
 
 import { logger } from "./libs/logger/logger.js";
+
+config();
 
 export async function helper() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
