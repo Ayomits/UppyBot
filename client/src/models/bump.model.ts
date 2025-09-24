@@ -6,7 +6,7 @@ import {
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
-import type { RemindType } from "#/modules/reminder/reminder.const.js";
+import type { RemindType } from "#/apps/uppy/reminder/reminder.const.js";
 
 export class Bump extends TimeStamps {
   @prop({ required: true, index: true, alias: "guild_id" })
