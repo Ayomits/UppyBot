@@ -6,6 +6,7 @@ const rootPath = path.resolve(path.dirname("./"), "../../../..");
 
 export class ConfigService {
   constructor() {
+    dt.config();
     const envFiles = glob.sync(`${rootPath}/**/*.env`, {
       ignore: ["node_modules/**"],
     });

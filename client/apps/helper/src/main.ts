@@ -10,6 +10,7 @@ import { logger } from "./libs/logger/logger.js";
 
 export async function helper() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
+  console.log(process.env);
   const client = new Client({
     intents: [
       GatewayIntentBits.MessageContent,
