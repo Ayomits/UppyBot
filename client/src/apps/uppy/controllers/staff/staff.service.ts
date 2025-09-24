@@ -625,25 +625,26 @@ export class StaffService {
   private async buildReminderStatusMessage(
     interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
-    const [discordMonitoring, sdcMonitoring, serverMonitoring, disboardMonitoring] =
-      await Promise.all([
-        this.fetchMonitoringBot(
-          interaction.guild!,
-          MonitoringBot.DiscordMonitoring,
-        ),
-        this.fetchMonitoringBot(
-          interaction.guild!,
-          MonitoringBot.SdcMonitoring,
-        ),
-        this.fetchMonitoringBot(
-          interaction.guild!,
-          MonitoringBot.ServerMonitoring,
-        ),
-        this.fetchMonitoringBot(
-          interaction.guild!,
-          MonitoringBot.DisboardMonitoring
-        )
-      ]);
+    const [
+      discordMonitoring,
+      sdcMonitoring,
+      serverMonitoring,
+      disboardMonitoring,
+    ] = await Promise.all([
+      this.fetchMonitoringBot(
+        interaction.guild!,
+        MonitoringBot.DiscordMonitoring,
+      ),
+      this.fetchMonitoringBot(interaction.guild!, MonitoringBot.SdcMonitoring),
+      this.fetchMonitoringBot(
+        interaction.guild!,
+        MonitoringBot.ServerMonitoring,
+      ),
+      this.fetchMonitoringBot(
+        interaction.guild!,
+        MonitoringBot.DisboardMonitoring,
+      ),
+    ]);
 
     const types: RemindType[] = [];
 
