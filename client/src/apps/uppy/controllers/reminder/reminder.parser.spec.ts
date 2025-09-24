@@ -288,7 +288,7 @@ describe("ReminderParser", () => {
     const timestamp = new Date(now.getTime() + 3_600 * 2 * 1_000);
 
     expect(
-      parser.handleServerMonitoring(
+      parser.handleDisboardMonitoring(
         createMockMessage({
           embeds: [
             // @ts-expect-error its tests
