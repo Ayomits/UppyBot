@@ -39,14 +39,14 @@ export const MonitoringBotMessage = {
   disboardMonitoring: {
     success: "Bump done!",
     failure: "",
-  }
+  },
 } as const;
 
 export const RemindType = {
   DiscordMonitoring: 0,
   ServerMonitoring: 1,
   SdcMonitoring: 2,
-  DisboardMonitoring: 3
+  DisboardMonitoring: 3,
 } as const;
 
 export type RemindType = LiteralEnum<typeof RemindType>;
