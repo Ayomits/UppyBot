@@ -8,11 +8,18 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   type ChatInputCommandInteraction,
+  ContainerBuilder,
   type Guild,
   type GuildMember,
+  heading,
+  HeadingLevel,
   type Interaction,
   type InteractionEditReplyOptions,
   MessageFlags,
+  SectionBuilder,
+  SeparatorBuilder,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
   time,
   TimestampStyles,
   type User,
@@ -24,18 +31,16 @@ import { injectable } from "tsyringe";
 
 import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
-import { HelperInfoMessage, HelperRemainingMessage } from "#/messages/index.js";
-import type { BumpDocument } from "#/models/bump.model.js";
+import type { BumpDocument, StaffInfoAgregation } from "#/models/bump.model.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
-import {
-  type RemindDocument,
-  RemindModel,
-  type StaffInfoAgregation,
-} from "#/models/remind.model.js";
+import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
+import { UppyInfoMessage } from "../../messages/uppy-info.message.js";
+import { UppyRemainingMessage } from "../../messages/uppy-remaining.message.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
@@ -59,7 +64,7 @@ export class StaffService {
     from?: string,
     to?: string,
   ) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
@@ -130,20 +135,36 @@ export class StaffService {
 
     const removeBumpBan = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel("Снять бамп бан")
+        .setLabel(UppyInfoMessage.buttons.actions.removeBumpBan.label)
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
         .setDisabled(!canRemove),
     );
 
-    const embed = new EmbedBuilder()
-      .setTitle(HelperInfoMessage.embed.title)
-      .setFields(HelperInfoMessage.embed.fields(entries[0], bumpBan))
-      .setDefaults(user);
+    const container = new ContainerBuilder()
+      .addSectionComponents(
+        new SectionBuilder()
+          .setThumbnailAccessory(
+            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+          )
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              [
+                heading(
+                  UppyInfoMessage.embed.title(UsersUtility.getUsername(user)),
+                  HeadingLevel.Two,
+                ),
+                UppyInfoMessage.embed.fields(entries[0], bumpBan),
+              ].join("\n"),
+            ),
+          ),
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+      .addActionRowComponents(removeBumpBan);
 
     const repl = await interaction.editReply({
-      embeds: [embed],
-      components: [removeBumpBan],
+      components: [container],
+      flags: MessageFlags.IsComponentsV2,
     });
 
     const collector = createSafeCollector(repl);
@@ -172,7 +193,7 @@ export class StaffService {
 
     if (!bumpBan) {
       return interaction.editReply({
-        content: "У пользователя нет бамп бана",
+        content: UppyInfoMessage.errors.noBumpBan,
       });
     }
 
@@ -180,7 +201,7 @@ export class StaffService {
 
     if (!settings.bumpBanRoleId) {
       return interaction.editReply({
-        content: "Роль бамп бана не настроена",
+        content: UppyInfoMessage.errors.notSetUpped,
       });
     }
 
@@ -190,7 +211,7 @@ export class StaffService {
       )
     ) {
       return interaction.editReply({
-        content: "У вас нет права снимать бамп бан",
+        content: UppyInfoMessage.errors.forbidden,
       });
     }
 
@@ -203,7 +224,7 @@ export class StaffService {
     ]);
 
     return interaction.editReply({
-      content: "Бамп бан успешно снят",
+      content: UppyInfoMessage.buttons.actions.removeBumpBan.success,
     });
   }
 
@@ -332,104 +353,64 @@ export class StaffService {
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
-    const count = await BumpModel.aggregate<{ totalCount: number }>([
-      {
-        $match: {
-          guildId: interaction.guildId,
-          executorId: { $in: hasStaffRolesIds },
-          createdAt: {
-            $gte: fromDate,
-            $lte: toDate,
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "$executorId",
-        },
-      },
-      { $count: "totalCount" },
-    ]);
+    const initial = await fetchPage(0);
 
-    const totalCount = count[0]?.totalCount || 0;
+    const totalCount = initial?.metadata?.totalCount ?? 0;
     const maxPages = this.calculateMaxPages(totalCount);
 
     async function fetchPage(page: number) {
       const skip = page * limit;
 
-      return await BumpModel.aggregate<
-        Pick<StaffInfoAgregation, "points" | "up" | "like" | "bump"> & {
-          _id: string;
-          executorId: string;
-        }
-      >([
+      const data = await BumpModel.aggregate<{
+        data: (StaffInfoAgregation & { _id: string })[];
+        metadata: { totalCount: number };
+      }>([
         {
           $match: {
             guildId: interaction.guildId,
             executorId: { $in: hasStaffRolesIds },
-            createdAt: {
-              $gte: fromDate,
-              $lte: toDate,
-            },
+            createdAt: { $gte: fromDate, $lte: toDate },
           },
         },
         {
-          $group: {
-            _id: "$executorId",
-            executorId: { $first: "$executorId" },
-            points: { $sum: "$points" },
-            up: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.SdcMonitoring] },
-                  then: 1,
-                  else: 0,
+          $facet: {
+            metadata: [{ $group: { _id: null, totalCount: { $sum: 1 } } }],
+            data: [
+              {
+                $group: {
+                  _id: "$executorId",
+                  points: { $sum: "$points" },
+                  up: { $sum: { $eq: ["$type", RemindType.SdcMonitoring] } },
+                  like: {
+                    $sum: { $eq: ["$type", RemindType.DiscordMonitoring] },
+                  },
+                  bump: {
+                    $sum: { $eq: ["$type", RemindType.ServerMonitoring] },
+                  },
                 },
               },
-            },
-            like: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.DiscordMonitoring] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-            bump: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.ServerMonitoring] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
+              { $sort: { points: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+            ],
           },
-        },
-        {
-          $sort: { points: -1 },
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limit,
         },
       ]);
+
+      return data[0];
     }
 
     function createEmbed(
-      data: Awaited<ReturnType<typeof fetchPage>>,
+      payload: Awaited<ReturnType<typeof fetchPage>>,
       page: number,
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
       const description =
-        data.length === 0
+        payload.data.length === 0
           ? "Нет данных для отображения"
-          : data
-              .map(({ executorId, points, up, like, bump }, index) => {
+          : payload.data
+              .map(({ _id: executorId, points, up, like, bump }, index) => {
                 const position = page * limit + index + 1;
                 return [
                   `${bold(position.toString())} ${userMention(executorId)}`,
@@ -449,10 +430,11 @@ export class StaffService {
     }
 
     const resolver = new PaginationResolver(async (page) => {
-      const data = await fetchPage(page);
+      const data = page === 0 ? initial : await fetchPage(page);
 
       return { embeds: [createEmbed(data, page)] };
     }, maxPages);
+
     const pagination = new Pagination(interaction, resolver, {
       selectMenu: {
         labels: {
@@ -680,17 +662,17 @@ export class StaffService {
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel(HelperRemainingMessage.buttons.update)
+        .setLabel(UppyRemainingMessage.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
         .setStyle(ButtonStyle.Secondary),
     );
 
     const embed = new EmbedBuilder()
       .setDefaults(interaction.user)
-      .setTitle(HelperRemainingMessage.embed.title)
+      .setTitle(UppyRemainingMessage.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        HelperRemainingMessage.embed.fields(monitoringsMap as any),
+        UppyRemainingMessage.embed.fields(monitoringsMap as any),
       );
 
     return {

@@ -4,7 +4,6 @@ import { inject, singleton } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { logger } from "#/libs/logger/logger.js";
-import { RemindSystemMessage } from "#/messages/index.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { safePointConfig } from "#/models/points-settings.model.js";
@@ -13,6 +12,7 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
+import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
 import { LogService } from "../logging/log.service.js";
 import {
   BumpBanLimit,
@@ -100,9 +100,9 @@ export class ReminderHandler {
 
     const embed = new EmbedBuilder()
       .setDefaults(user)
-      .setTitle(RemindSystemMessage.monitoring.embed.title)
+      .setTitle(UppyRemindSystemMessage.monitoring.embed.title)
       .setDescription(
-        RemindSystemMessage.monitoring.embed.description(
+        UppyRemindSystemMessage.monitoring.embed.description(
           points,
           getCommandByRemindType(type),
         ),

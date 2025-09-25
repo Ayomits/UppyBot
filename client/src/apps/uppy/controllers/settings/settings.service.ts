@@ -25,13 +25,13 @@ import { injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { createSafeCollector, type ObjectKeys } from "#/libs/utils/index.js";
-import { HelperSettingsMessage } from "#/messages/index.js";
 import {
   PointSettingsModel,
   safePointConfig,
 } from "#/models/points-settings.model.js";
 import { type Settings, SettingsModel } from "#/models/settings.model.js";
 
+import { UppySettingsMessage } from "../../messages/settings.message.js";
 import {
   MonitoringCooldownHours,
   PointsRate,
@@ -85,8 +85,8 @@ export class SettingsService {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
-      .setTitle(HelperSettingsMessage.panel.title)
-      .setFields(HelperSettingsMessage.panel.fields(settings))
+      .setTitle(UppySettingsMessage.panel.title)
+      .setFields(UppySettingsMessage.panel.fields(settings))
       .setDefaults(interaction.user);
 
     const controls = [
@@ -107,42 +107,42 @@ export class SettingsService {
 
   private createChannelManagementButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.managers.channels)
+      .setLabel(UppySettingsMessage.panel.components.managers.channels)
       .setCustomId(SettingsCustomIds.buttons.managers.channels)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createRoleManagementButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.managers.roles)
+      .setLabel(UppySettingsMessage.panel.components.managers.roles)
       .setCustomId(SettingsCustomIds.buttons.managers.roles)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createForceRemindButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.actions.setForceTime)
+      .setLabel(UppySettingsMessage.panel.components.actions.setForceTime)
       .setCustomId(SettingsCustomIds.buttons.actions.setForceTime)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createRefreshButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.updaters.panel)
+      .setLabel(UppySettingsMessage.panel.components.updaters.panel)
       .setCustomId(SettingsCustomIds.buttons.updaters.panel)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createUseForceButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.actions.toggleUseForce)
+      .setLabel(UppySettingsMessage.panel.components.actions.toggleUseForce)
       .setCustomId(SettingsCustomIds.buttons.actions.toggleUseForce)
       .setStyle(ButtonStyle.Secondary);
   }
 
   private createAwardManageButton() {
     return new ButtonBuilder()
-      .setLabel(HelperSettingsMessage.panel.components.managers.award)
+      .setLabel(UppySettingsMessage.panel.components.managers.award)
       .setCustomId(SettingsCustomIds.buttons.managers.award)
       .setStyle(ButtonStyle.Secondary);
   }
@@ -164,7 +164,7 @@ export class SettingsService {
 
     return interaction.editReply({
       content:
-        HelperSettingsMessage.managers.force.buttons.actions.useForceOnly.content(
+        UppySettingsMessage.managers.force.buttons.actions.useForceOnly.content(
           !existed.useForceOnly,
         ),
     });
@@ -172,7 +172,7 @@ export class SettingsService {
 
   private openSetForceModal(interaction: ButtonInteraction) {
     const modal = new ModalBuilder()
-      .setTitle(HelperSettingsMessage.panel.components.actions.setForceTime)
+      .setTitle(UppySettingsMessage.panel.components.actions.setForceTime)
       .setCustomId(SettingsCustomIds.modal.setForceTime);
 
     const time = new ActionRowBuilder<TextInputBuilder>().addComponents(
@@ -212,7 +212,7 @@ export class SettingsService {
 
     return interaction.reply({
       content:
-        HelperSettingsMessage.managers.force.modal.actions.setForceTime.content,
+        UppySettingsMessage.managers.force.modal.actions.setForceTime.content,
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -251,17 +251,17 @@ export class SettingsService {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
-      .setTitle(HelperSettingsMessage.managers.channels.embed.title)
-      .setFields(HelperSettingsMessage.managers.channels.embed.fields(settings))
+      .setTitle(UppySettingsMessage.managers.channels.embed.title)
+      .setFields(UppySettingsMessage.managers.channels.embed.fields(settings))
       .setDefaults(interaction.user);
 
     const channelFieldSelector =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.channels)
-          .setOptions(...HelperSettingsMessage.managers.channels.select.options)
+          .setOptions(...UppySettingsMessage.managers.channels.select.options)
           .setPlaceholder(
-            HelperSettingsMessage.managers.channels.select.placeholder,
+            UppySettingsMessage.managers.channels.select.placeholder,
           ),
       );
 
@@ -279,16 +279,14 @@ export class SettingsService {
           .setCustomId(SettingsCustomIds.selects.actions.channel.action)
           .setChannelTypes(ChannelType.GuildText)
           .setPlaceholder(
-            HelperSettingsMessage.managers.channels.select.actions.channel,
+            UppySettingsMessage.managers.channels.select.actions.channel,
           ),
       );
 
     const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.channel.backward)
-        .setLabel(
-          HelperSettingsMessage.managers.channels.buttons.backward.label,
-        )
+        .setLabel(UppySettingsMessage.managers.channels.buttons.backward.label)
         .setStyle(ButtonStyle.Danger),
     );
 
@@ -352,17 +350,17 @@ export class SettingsService {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
     const embed = new EmbedBuilder()
-      .setTitle(HelperSettingsMessage.managers.roles.embed.title)
-      .setFields(HelperSettingsMessage.managers.roles.embed.fields(settings))
+      .setTitle(UppySettingsMessage.managers.roles.embed.title)
+      .setFields(UppySettingsMessage.managers.roles.embed.fields(settings))
       .setDefaults(interaction.user);
 
     const roleFieldSelector =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.roles)
-          .setOptions(...HelperSettingsMessage.managers.roles.select.options)
+          .setOptions(...UppySettingsMessage.managers.roles.select.options)
           .setPlaceholder(
-            HelperSettingsMessage.managers.roles.select.placeholder,
+            UppySettingsMessage.managers.roles.select.placeholder,
           ),
       );
 
@@ -378,12 +376,12 @@ export class SettingsService {
 
     const roleSelector = new RoleSelectMenuBuilder()
       .setCustomId(SettingsCustomIds.selects.actions.role.action)
-      .setPlaceholder(HelperSettingsMessage.managers.roles.select.actions.role);
+      .setPlaceholder(UppySettingsMessage.managers.roles.select.actions.role);
 
     const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.role.backward)
-        .setLabel(HelperSettingsMessage.managers.roles.buttons.backward.label)
+        .setLabel(UppySettingsMessage.managers.roles.buttons.backward.label)
         .setStyle(ButtonStyle.Danger),
     );
 
