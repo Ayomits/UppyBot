@@ -1,11 +1,11 @@
 import { type CommandInteraction, MessageFlags } from "discord.js";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
-import type { LatencyService } from "#/shared/services/latency.service.js";
+import { LatencyService } from "#/shared/services/latency.service.js";
 
 @injectable()
 export class CoreService {
-  constructor(private latencyService: LatencyService) {}
+  constructor(@inject(LatencyService) private latencyService: LatencyService) {}
 
   handleReady() {}
 
