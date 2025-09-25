@@ -2,8 +2,9 @@ import type { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
-import { GuardMessage } from "#/messages/index.js";
 import { SettingsModel } from "#/models/settings.model.js";
+
+import { UppyGuardMessage } from "../messages/guard.message.js";
 
 const developers = ["1129162686194790572", "935048996722978896"];
 
@@ -28,7 +29,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
 
   if (!settings || (settings && settings.bumpRoleIds.length === 0)) {
     return interaction.reply({
-      content: GuardMessage.isHelper.invalidSettings,
+      content: UppyGuardMessage.isHelper.invalidSettings,
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -38,7 +39,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   }
 
   return interaction.reply({
-    content: GuardMessage.isHelper.notHelper,
+    content: UppyGuardMessage.isHelper.notHelper,
     flags: MessageFlags.Ephemeral,
   });
 };

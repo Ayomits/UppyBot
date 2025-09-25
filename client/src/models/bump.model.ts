@@ -18,7 +18,7 @@ export class Bump extends TimeStamps {
   @prop({ required: true, index: true, alias: "author_id" })
   executorId: Snowflake;
 
-  @prop({ required: true, unique: true, index: true })
+  @prop({ required: true, unique: true })
   messageId: string;
 
   @prop({ required: true, default: 0, min: 0 })
@@ -32,3 +32,10 @@ export const BumpModel = getModelForClass(Bump, {
 });
 
 export type BumpDocument = DocumentType<Bump>;
+
+export interface StaffInfoAgregation {
+  points: number;
+  bump: number;
+  like: number;
+  up: number;
+}

@@ -8,7 +8,6 @@ import {
   type ScheduleCache,
   scheduleManager,
 } from "#/libs/schedule/schedule.manager.js";
-import { RemindSystemMessage } from "#/messages/index.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import {
@@ -16,6 +15,7 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
+import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
 import { LogService } from "../logging/log.service.js";
 import {
   BumpBanCheckerInterval,
@@ -334,7 +334,7 @@ export class ReminderScheduleManager {
     if (channel?.isSendable()) {
       try {
         channel?.send({
-          content: RemindSystemMessage.remind.ping.content(
+          content: UppyRemindSystemMessage.remind.ping.content(
             settings.bumpRoleIds,
             getCommandByRemindType(remind.type),
           ),
@@ -373,7 +373,7 @@ export class ReminderScheduleManager {
     if (channel?.isSendable()) {
       try {
         channel?.send({
-          content: RemindSystemMessage.remind.force.content(
+          content: UppyRemindSystemMessage.remind.force.content(
             settings.bumpRoleIds,
             getCommandByRemindType(remind.type),
             settings.force,

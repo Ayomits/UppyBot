@@ -1,5 +1,5 @@
-import { Events } from "discord.js";
-import { Discord, On, Slash, SlashGroup } from "discordx";
+import { type ChatInputCommandInteraction } from "discord.js";
+import { Discord, Slash, SlashGroup } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { CoreService } from "./core.service.js";
@@ -11,13 +11,10 @@ import { CoreService } from "./core.service.js";
 export class CoreController {
   constructor(@inject(CoreService) private coreService: CoreService) {}
 
-  @On({ event: Events.ClientReady })
-  onReady() {
-    return this.coreService.handleReady();
-  }
-
   @Slash({ name: "latency", description: "Задержка бота" })
-  handleLatency() {}
+  handleLatency(interaction: ChatInputCommandInteraction) {
+    return this.coreService.handleLatency(interaction);
+  }
 
   @Slash({ name: "info", description: "Информация о боте" })
   handleInfo() {}
