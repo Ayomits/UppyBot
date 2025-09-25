@@ -62,7 +62,7 @@ export class StaffService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
@@ -128,7 +128,7 @@ export class StaffService {
     ]);
 
     const canManage = authorMember.roles.cache.some(
-      (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+      (r) => settings.managerRoles && settings.managerRoles.includes(r.id)
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -138,26 +138,26 @@ export class StaffService {
         .setLabel(UppyInfoMessage.buttons.actions.removeBumpBan.label)
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove),
+        .setDisabled(!canRemove)
     );
 
     const container = new ContainerBuilder()
       .addSectionComponents(
         new SectionBuilder()
           .setThumbnailAccessory(
-            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
           )
           .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
               [
                 heading(
                   UppyInfoMessage.embed.title(UsersUtility.getUsername(user)),
-                  HeadingLevel.Two,
+                  HeadingLevel.Two
                 ),
                 UppyInfoMessage.embed.fields(entries[0], bumpBan),
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -167,7 +167,9 @@ export class StaffService {
       flags: MessageFlags.IsComponentsV2,
     });
 
-    const collector = createSafeCollector(repl);
+    const collector = createSafeCollector(repl, {
+      filter: (i) => i.user.id === interaction.user.id,
+    });
 
     collector.on("collect", (interaction) => {
       const customId = interaction.customId;
@@ -183,7 +185,7 @@ export class StaffService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember,
+    member: GuildMember
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
@@ -207,7 +209,7 @@ export class StaffService {
 
     if (
       !authorMember.roles.cache.some(
-        (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+        (r) => settings.managerRoles && settings.managerRoles.includes(r.id)
       )
     ) {
       return interaction.editReply({
@@ -233,7 +235,7 @@ export class StaffService {
   public async handleStatsCommand(
     interaction: ChatInputCommandInteraction,
     user: User,
-    field: number,
+    field: number
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     user = typeof user !== "undefined" ? user : interaction.user;
@@ -252,7 +254,7 @@ export class StaffService {
 
     function createEmbed(
       data: Awaited<ReturnType<typeof fetchMore>>,
-      page: number,
+      page: number
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -324,13 +326,13 @@ export class StaffService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
-      { upsert: true },
+      { upsert: true }
     );
 
     const member = (await interaction.guild.members
@@ -347,7 +349,7 @@ export class StaffService {
 
     const hasStaffRolesIds = interaction.guild.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id)),
+        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id))
       )
       .map((m) => m.id);
 
@@ -402,7 +404,7 @@ export class StaffService {
 
     function createEmbed(
       payload: Awaited<ReturnType<typeof fetchPage>>,
-      page: number,
+      page: number
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -494,7 +496,7 @@ export class StaffService {
   }
 
   public static async handleInfoAutocomplete(
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -550,7 +552,7 @@ export class StaffService {
           .setZone(DefaultTimezone)
           .toFormat("dd.MM.y"),
         value: entry.createdAt,
-      })),
+      }))
     );
   }
 
@@ -580,7 +582,7 @@ export class StaffService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const repl = await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction),
+      await this.buildReminderStatusMessage(interaction)
     );
 
     const collector = createSafeCollector(repl);
@@ -600,12 +602,12 @@ export class StaffService {
   private async handleUpdateReminderStatus(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction),
+      await this.buildReminderStatusMessage(interaction)
     );
   }
 
   private async buildReminderStatusMessage(
-    interaction: Interaction,
+    interaction: Interaction
   ): Promise<InteractionEditReplyOptions> {
     const [
       discordMonitoring,
@@ -615,16 +617,16 @@ export class StaffService {
     ] = await Promise.all([
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DiscordMonitoring,
+        MonitoringBot.DiscordMonitoring
       ),
       this.fetchMonitoringBot(interaction.guild!, MonitoringBot.SdcMonitoring),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.ServerMonitoring,
+        MonitoringBot.ServerMonitoring
       ),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DisboardMonitoring,
+        MonitoringBot.DisboardMonitoring
       ),
     ]);
 
@@ -657,14 +659,14 @@ export class StaffService {
       monitorings.map((m) => [
         getCommandByRemindType(m.type as RemindType),
         m as RemindDocument,
-      ]),
+      ])
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel(UppyRemainingMessage.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
-        .setStyle(ButtonStyle.Secondary),
+        .setStyle(ButtonStyle.Secondary)
     );
 
     const embed = new EmbedBuilder()
@@ -672,7 +674,7 @@ export class StaffService {
       .setTitle(UppyRemainingMessage.embed.title)
       .setFields(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        UppyRemainingMessage.embed.fields(monitoringsMap as any),
+        UppyRemainingMessage.embed.fields(monitoringsMap as any)
       );
 
     return {
@@ -683,7 +685,7 @@ export class StaffService {
 
   private async fetchMonitoringBot(
     guild: Guild,
-    id: MonitoringBot,
+    id: MonitoringBot
   ): Promise<GuildMember | null> {
     return await guild.members.fetch(id).catch(() => null);
   }
