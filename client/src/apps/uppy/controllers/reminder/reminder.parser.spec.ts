@@ -10,8 +10,8 @@ import {
   MonitoringBot,
   MonitoringBotMessage,
   RemindType,
-} from "./reminder.const";
-import { ReminderParser } from "./reminder.parser";
+} from "./reminder.const.js";
+import { ReminderParser } from "./reminder.parser.js";
 
 const now = DateTime.now().setZone(DefaultTimezone).toJSDate();
 now.setMilliseconds(0);

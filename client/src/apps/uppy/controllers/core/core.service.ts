@@ -1,25 +1,15 @@
-import { ActivityType } from "discord.js";
-import type { Client } from "discordx";
+import { type CommandInteraction, MessageFlags } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
+import type { LatencyService } from "#/shared/services/latency.service.js";
 
 @injectable()
 export class CoreService {
-  handleReady(client: Client) {
-    this.changeStatus(client);
-    scheduleManager.startPeriodJob("change_status", 60_000, () =>
-      this.changeStatus(client),
-    );
-  }
+  constructor(private latencyService: LatencyService) {}
 
-  async changeStatus(client: Client) {
-    const guilds = await client.guilds.fetch().catch(() => ({
-      size: 0,
-    }));
+  handleReady() {}
 
-    client.user.setActivity(`Работает на ${guilds.size} серверах`, {
-      type: ActivityType.Custom,
-    });
+  async handleLatency(interaction: CommandInteraction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   }
 }

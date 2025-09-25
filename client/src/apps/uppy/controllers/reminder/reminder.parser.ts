@@ -37,6 +37,8 @@ export class ReminderParser {
       return this.handleSdcMonitoring.bind(this);
     } else if (monitoring === MonitoringBot.ServerMonitoring) {
       return this.handleServerMonitoring.bind(this);
+    } else if (monitoring === MonitoringBot.DisboardMonitoring) {
+      return this.handleDisboardMonitoring.bind(this);
     }
     return null;
   }
