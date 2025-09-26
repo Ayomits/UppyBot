@@ -9,6 +9,7 @@ export function createSafeCollector<
 >(repl: Message, options?: MessageCollectorOptionsParams<C, boolean>) {
   return repl.createMessageComponentCollector({
     ...options,
+    time: options.time ?? 600_000,
     filter: (i, c) =>
       i.message.id === repl.id &&
       (options?.filter ? options?.filter?.(i, c) : true),

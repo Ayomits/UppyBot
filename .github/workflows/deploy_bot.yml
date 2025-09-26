@@ -55,5 +55,4 @@ jobs:
             deploy/bot/deploy.yml \
             --vault-password-file /dev/stdin \
             -e "github_token=${{ secrets.GITHUB_TOKEN }}" \
-            --private-key=/tmp/ssh_key \
-            -vv
+            --private-key=/tmp/ssh_key

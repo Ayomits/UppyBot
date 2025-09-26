@@ -52,7 +52,7 @@ export class CoreService {
   }
 
   private async handleRefresh(interaction: ButtonInteraction) {
-    await interaction.deferReply();
+    await interaction.deferUpdate();
     interaction.editReply(await this.buildMessage(interaction));
   }
 
