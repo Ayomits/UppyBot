@@ -1,26 +1,35 @@
 import { LocalCache } from "@ts-fetcher/cache";
 import {
-  codeBlock,
-  type EmbedBuilder as DjsBuilder,
+  chatInputApplicationCommandMention,
+  ContainerBuilder,
   type Guild,
-  inlineCode,
+  heading,
+  HeadingLevel,
+  MessageFlags,
+  SectionBuilder,
   type Snowflake,
   type TextChannel,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+  unorderedList,
   type User,
 } from "discord.js";
 import { singleton } from "tsyringe";
 
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
 import type { RemindType } from "../reminder/reminder.const.js";
-import { getCommandByRemindType } from "../reminder/reminder.const.js";
+import {
+  getCommandIdByRemindType,
+  getCommandNameByRemindType,
+} from "../reminder/reminder.const.js";
 
 const LOGS_TIMEOUT = 5_000;
 
 type LogValue = {
   channel: TextChannel;
-  embeds: DjsBuilder[];
+  components: ContainerBuilder[];
 };
 
 @singleton()
@@ -37,46 +46,91 @@ export class LogService {
     type: RemindType,
     points: number,
   ) {
-    const commandName = getCommandByRemindType(type);
+    const commandName = getCommandNameByRemindType(type);
+    const commandId = getCommandIdByRemindType(type);
 
-    const embed = new EmbedBuilder()
-      .setTitle(`Выполнена команда ${commandName}`)
-      .setDefaults(author)
-      .setDescription(
-        `Пользователь ${author} выполнил команду ${inlineCode(commandName)}`,
-      )
-      .setFields({
-        name: "Количество поинтов",
-        value: codeBlock(points.toString()),
-      });
-    return await this.push(guild, embed);
+    const commandMention = chatInputApplicationCommandMention(
+      commandName,
+      commandId,
+    );
+
+    const container = new ContainerBuilder().addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              heading(`Выполнена команда ${commandName}`, HeadingLevel.Two),
+              unorderedList([
+                `Команда: ${commandMention}`,
+                `Поинты: ${points}`,
+                `Исполнитель: ${author}`,
+              ]),
+            ].join("\n"),
+          ),
+        )
+        .setThumbnailAccessory(
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author)),
+        ),
+    );
+
+    return await this.push(guild, container);
   }
 
   public async logBumpBanCreation(guild: Guild, user: User) {
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle("Выдан бамп бан")
-      .setDescription(`Пользователю ${user} выдан бамп бан`);
-    return await this.push(guild, embed);
+    const container = new ContainerBuilder().addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              heading("Выдача бамп бана", HeadingLevel.Two),
+              unorderedList([`Пользователь: ${user}`]),
+            ].join("\n"),
+          ),
+        )
+        .setThumbnailAccessory(
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
+    );
+    return await this.push(guild, container);
   }
 
   public async logBumpBanRoleAdding(guild: Guild, user: User) {
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle("Выдана бамп бан роль")
-      .setDescription(`Пользователю ${user} выдана бамп бан роль`);
-    return await this.push(guild, embed);
+    const container = new ContainerBuilder().addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              heading("Выдана бамп роль", HeadingLevel.Two),
+              unorderedList([`Пользователь: ${user}`]),
+            ].join("\n"),
+          ),
+        )
+        .setThumbnailAccessory(
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
+    );
+    return await this.push(guild, container);
   }
 
   public async logBumpBanRemoval(guild: Guild, user: User) {
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle("Снят бамп бан")
-      .setDescription(`Пользователю ${user} снят бамп бан`);
-    return await this.push(guild, embed);
+    const container = new ContainerBuilder().addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              heading("Снят бамп бан", HeadingLevel.Two),
+              unorderedList([`Пользователь: ${user}`]),
+            ].join("\n"),
+          ),
+        )
+        .setThumbnailAccessory(
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
+    );
+    return await this.push(guild, container);
   }
 
-  private async push(guild: Guild, embed: DjsBuilder) {
+  private async push(guild: Guild, embed: ContainerBuilder) {
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
@@ -94,26 +148,29 @@ export class LogService {
       settings.guildId,
       {
         channel: logChannel as TextChannel,
-        embeds: [embed, ...(existed?.embeds ?? [])],
+        components: [embed, ...(existed?.components ?? [])],
       },
       LOGS_TIMEOUT,
       (_, value) => {
         try {
-          const batch: DjsBuilder[][] = [];
-          if (value.embeds.length > 25) {
-            const iterations = value.embeds.length % 25;
+          const batch: ContainerBuilder[][] = [];
+          const maxComponentsSize = 5;
+          if (value.components.length > maxComponentsSize) {
+            const iterations = value.components.length % maxComponentsSize;
             for (let n = 0; n < iterations; n++) {
-              const start = (n - 1) * 25;
-              const end = n * 25;
-              batch.push(value.embeds.slice(start, end));
+              const start = (n - 1) * maxComponentsSize;
+              const end = n * maxComponentsSize;
+              batch.push(value.components.slice(start, end));
             }
           } else {
-            batch.push(value.embeds);
+            batch.push(value.components);
           }
 
-          batch.forEach((embeds) => {
+          batch.forEach((components) => {
             setTimeout(() => {
-              value.channel.send({ embeds }).catch(null);
+              value.channel
+                .send({ components, flags: MessageFlags.IsComponentsV2 })
+                .catch(null);
             }, 500);
           });
           // eslint-disable-next-line no-empty

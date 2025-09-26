@@ -22,7 +22,8 @@ import {
   BumpBanLimit,
   DefaultTimezone,
   DiffCheckerInterval,
-  getCommandByRemindType,
+  getCommandIdByRemindType,
+  getCommandNameByRemindType,
   type RemindType,
 } from "./reminder.const.js";
 import type { ParserValue } from "./reminder.parser.js";
@@ -83,23 +84,14 @@ export class ReminderScheduleManager {
           typeof initCommonSchedule === "undefined") &&
         !settings.useForceOnly
       ) {
-        logger.info(
-          `Нет напоминания для бота ${getCommandByRemindType(remind.type)}, создаю`,
-        );
         return this.remind(...remindArgs);
       }
 
       if (initCommonSchedule && settings.useForceOnly) {
-        logger.info(
-          `Отменено напоминание для бота ${getCommandByRemindType(remind.type)}`,
-        );
         scheduleManager.stopJob(commonId);
       }
 
       if (initForceSchedule && settings.force <= 0) {
-        logger.info(
-          `Отменено преждевременное напоминание для бота ${getCommandByRemindType(remind.type)}`,
-        );
         scheduleManager.stopJob(forceId);
       }
 
@@ -124,9 +116,6 @@ export class ReminderScheduleManager {
         );
 
       if (isValidForceDiff || isValidCommonDiff) {
-        logger.success(
-          `Успешно применены новые изменения в базе данных для напоминания ${getCommandByRemindType(remind.type)}`,
-        );
         return this.remind(...remindArgs);
       }
     });
@@ -135,13 +124,10 @@ export class ReminderScheduleManager {
   }
 
   public async initBumpBan(client: Client) {
-    logger.info("Начата первая проверка бамп бана");
     await this.handleBumpBan(client);
-    logger.info("Закончена первая проверка бамп бана");
     scheduleManager.startPeriodJob("bump-ban", BumpBanCheckerInterval, () => {
       this.handleBumpBan(client);
     });
-    logger.info("Запущена задача проверки бамп бана");
   }
 
   private async handleBumpBan(client: Client) {
@@ -260,9 +246,6 @@ export class ReminderScheduleManager {
   }: Omit<ParserValue, "authorId" | "success"> & {
     settings: SettingsDocument;
   }) {
-    logger.info(
-      `Идёт проверка для создания напоминания для бота ${getCommandByRemindType(type)}`,
-    );
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
     const remind = await RemindModel.findOneAndUpdate(
@@ -277,9 +260,6 @@ export class ReminderScheduleManager {
     const GMTCurrent = DateTime.now().setZone(DefaultTimezone);
 
     if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
-      logger.error(
-        `Просроченное напоминие у бота ${getCommandByRemindType(type)}`,
-      );
       return;
     }
 
@@ -289,9 +269,6 @@ export class ReminderScheduleManager {
     if (!settings.useForceOnly && !commonSchedule) {
       scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild),
-      );
-      logger.success(
-        `Напоминие для бота ${getCommandByRemindType(type)} создано`,
       );
     }
 
@@ -306,10 +283,6 @@ export class ReminderScheduleManager {
         GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
         () => this.sendForceRemind(remind, guild),
       );
-
-      logger.success(
-        `Преждевременное напоминие для бота ${getCommandByRemindType(type)} создано`,
-      );
     }
   }
 
@@ -320,35 +293,22 @@ export class ReminderScheduleManager {
       {},
       { upsert: true },
     );
-    const channel = await guild.channels
-      .fetch(settings?.pingChannelId)
-      .catch(() => null);
+    const channel = guild.channels.cache.get(settings.pingChannelId);
 
     if (!channel) {
-      logger.error(
-        `Указанный канал не был найден для сервера ${remind.guildId}`,
-      );
       return;
     }
 
-    if (channel?.isSendable()) {
-      try {
-        channel?.send({
+    if (channel && channel?.isSendable()) {
+      channel
+        ?.send({
           content: UppyRemindSystemMessage.remind.ping.content(
             settings.bumpRoleIds,
-            getCommandByRemindType(remind.type),
+            getCommandNameByRemindType(remind.type),
+            getCommandIdByRemindType(remind.type),
           ),
-        });
-        logger.success(
-          `Напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
-        );
-      } catch (err) {
-        logger.error(
-          `Напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
-          "Причина:",
-          err,
-        );
-      }
+        })
+        .catch(null);
     }
   }
 
@@ -375,16 +335,17 @@ export class ReminderScheduleManager {
         channel?.send({
           content: UppyRemindSystemMessage.remind.force.content(
             settings.bumpRoleIds,
-            getCommandByRemindType(remind.type),
+            getCommandNameByRemindType(remind.type),
+            getCommandIdByRemindType(remind.type),
             settings.force,
           ),
         });
         logger.success(
-          `Преждевременное напоминание успешно выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          `Преждевременное напоминание успешно выслано для бота ${getCommandIdByRemindType(remind.type)} в канал ${channel.name}`,
         );
       } catch (err) {
         logger.error(
-          `Преждевременное напоминание не было выслано для бота ${getCommandByRemindType(remind.type)} в канал ${channel.name}`,
+          `Преждевременное напоминание не было выслано для бота ${getCommandIdByRemindType(remind.type)} в канал ${channel.name}`,
           "Причина:",
           err,
         );
