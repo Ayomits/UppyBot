@@ -44,7 +44,7 @@ import { UppyRemainingMessage } from "../../messages/uppy-remaining.message.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
-  getCommandByRemindType,
+  getCommandIdByRemindType,
   MonitoringBot,
   RemindType,
 } from "../reminder/reminder.const.js";
@@ -266,7 +266,7 @@ export class StaffService {
                 const position = page * limit + index + 1;
                 return [
                   `${bold(position.toString())} ${userMention(executorId)}`,
-                  `• ${bold("Команда:")} ${getCommandByRemindType(type)}`,
+                  `• ${bold("Команда:")} ${getCommandIdByRemindType(type)}`,
                   `• ${bold("Поинты:")} ${points}`,
                   `• ${bold("Дата выполнения:")} ${time(Math.floor(createdAt.getTime() / 1_000), TimestampStyles.LongDateTime)}`,
                   "",
@@ -656,10 +656,7 @@ export class StaffService {
       .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
-      monitorings.map((m) => [
-        getCommandByRemindType(m.type as RemindType),
-        m as RemindDocument,
-      ]),
+      monitorings.map((m) => [m.type, m as RemindDocument]),
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -669,17 +666,30 @@ export class StaffService {
         .setStyle(ButtonStyle.Secondary),
     );
 
-    const embed = new EmbedBuilder()
-      .setDefaults(interaction.user)
-      .setTitle(UppyRemainingMessage.embed.title)
-      .setFields(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        UppyRemainingMessage.embed.fields(monitoringsMap as any),
-      );
+    const container = new ContainerBuilder()
+      .addSectionComponents(
+        new SectionBuilder()
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              [
+                heading(UppyRemainingMessage.embed.title, HeadingLevel.Two),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                UppyRemainingMessage.embed.fields(monitoringsMap as any),
+              ].join("\n"),
+            ),
+          )
+          .setThumbnailAccessory(
+            new ThumbnailBuilder().setURL(
+              UsersUtility.getAvatar(interaction.user),
+            ),
+          ),
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+      .addActionRowComponents(updateButton);
 
     return {
-      embeds: [embed],
-      components: [updateButton],
+      components: [container],
+      flags: MessageFlags.IsComponentsV2,
     };
   }
 

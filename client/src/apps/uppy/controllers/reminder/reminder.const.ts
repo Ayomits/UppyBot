@@ -51,32 +51,66 @@ export const RemindType = {
 
 export type RemindType = LiteralEnum<typeof RemindType>;
 
-export const MonitoringCommand = {
+export const MonitoringCommandIds = {
+  DiscordMonitoring: "788801838828879933",
+  ServerMonitoring: "956435492398841858",
+  DisboardMonitoring: "947088344167366698",
+  SdcMonitoring: "891377101494681660",
+} as const;
+
+export const MonitoringCommandNames = {
   DiscordMonitoring: "like",
-  ServerMonitoring: "server_bump",
-  DisboardMonitoring: "disboard_bump",
+  ServerMonitoring: "bump",
+  DisboardMonitoring: "bump",
   SdcMonitoring: "up",
 } as const;
 
-export type MonitoringCommand = LiteralEnum<typeof MonitoringCommand>;
+export type MonitoringCommandIds = LiteralEnum<typeof MonitoringCommandIds>;
 
 export const PointsRate = {
   [RemindType.DiscordMonitoring]: 1,
   [RemindType.SdcMonitoring]: 1,
   [RemindType.ServerMonitoring]: 2,
+  [RemindType.DisboardMonitoring]: 2,
   night: 2,
 } as const;
 
-export function getCommandByRemindType(type: RemindType | number) {
+export function getCommandIdByRemindType(type: RemindType | number) {
   switch (type) {
     case RemindType.DiscordMonitoring:
-      return MonitoringCommand.DiscordMonitoring;
+      return MonitoringCommandIds.DiscordMonitoring;
     case RemindType.SdcMonitoring:
-      return MonitoringCommand.SdcMonitoring;
+      return MonitoringCommandIds.SdcMonitoring;
     case RemindType.ServerMonitoring:
-      return MonitoringCommand.ServerMonitoring;
+      return MonitoringCommandIds.ServerMonitoring;
     case RemindType.DisboardMonitoring:
-      return MonitoringCommand.DisboardMonitoring;
+      return MonitoringCommandIds.DisboardMonitoring;
+  }
+}
+
+export function getCommandNameByRemindType(type: RemindType | number) {
+  switch (type) {
+    case RemindType.DiscordMonitoring:
+      return MonitoringCommandNames.DiscordMonitoring;
+    case RemindType.SdcMonitoring:
+      return MonitoringCommandNames.SdcMonitoring;
+    case RemindType.ServerMonitoring:
+      return MonitoringCommandNames.ServerMonitoring;
+    case RemindType.DisboardMonitoring:
+      return MonitoringCommandNames.DisboardMonitoring;
+  }
+}
+
+export function getCommandNameByCommandId(id: MonitoringCommandIds | string) {
+  switch (id) {
+    case MonitoringCommandIds.DiscordMonitoring:
+      return MonitoringCommandNames.DiscordMonitoring;
+    case MonitoringCommandIds.SdcMonitoring:
+      return MonitoringCommandNames.SdcMonitoring;
+    case MonitoringCommandIds.ServerMonitoring:
+      return MonitoringCommandNames.ServerMonitoring;
+    case MonitoringCommandIds.DisboardMonitoring:
+      return MonitoringCommandNames.DisboardMonitoring;
   }
 }
 
@@ -88,8 +122,24 @@ export function getBotByRemindType(type: RemindType) {
       return MonitoringBot.SdcMonitoring;
     case RemindType.ServerMonitoring:
       return MonitoringBot.ServerMonitoring;
+    case RemindType.DisboardMonitoring:
+      return MonitoringBot.DisboardMonitoring;
   }
 }
+
+export function getBotByCommand(cmd: MonitoringCommandIds) {
+  switch (cmd) {
+    case MonitoringCommandIds.DiscordMonitoring:
+      return MonitoringBot.DiscordMonitoring;
+    case MonitoringCommandIds.SdcMonitoring:
+      return MonitoringBot.SdcMonitoring;
+    case MonitoringCommandIds.ServerMonitoring:
+      return MonitoringBot.ServerMonitoring;
+    case MonitoringCommandIds.DisboardMonitoring:
+      return MonitoringBot.DisboardMonitoring;
+  }
+}
+
 export function getRemindTypeByBot(type: MonitoringBot) {
   switch (type) {
     case MonitoringBot.DiscordMonitoring:
@@ -98,5 +148,7 @@ export function getRemindTypeByBot(type: MonitoringBot) {
       return RemindType.SdcMonitoring;
     case MonitoringBot.ServerMonitoring:
       return RemindType.ServerMonitoring;
+    case MonitoringBot.DisboardMonitoring:
+      return RemindType.DisboardMonitoring;
   }
 }

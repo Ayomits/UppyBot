@@ -1,12 +1,25 @@
-import { type Guild, type GuildMember, type Message } from "discord.js";
+import {
+  ContainerBuilder,
+  type Guild,
+  type GuildMember,
+  heading,
+  HeadingLevel,
+  type Message,
+  MessageFlags,
+  SectionBuilder,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+} from "discord.js";
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
 
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { safePointConfig } from "#/models/points-settings.model.js";
+import type { RemindDocument } from "#/models/remind.model.js";
+import { RemindModel } from "#/models/remind.model.js";
 import {
   type SettingsDocument,
   SettingsModel,
@@ -17,7 +30,7 @@ import { LogService } from "../logging/log.service.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
-  getCommandByRemindType,
+  getCommandIdByRemindType,
   MonitoringBot,
   RemindType,
 } from "./reminder.const.js";
@@ -65,7 +78,13 @@ export class ReminderHandler {
       const promises = [this.scheduleManager.remind({ settings, ...payload })];
 
       if (process.env.APP_ENV == "dev" || payload.success) {
-        promises.push(this.handleSuccess(message, payload, settings));
+        const lastRemind = await RemindModel.findOne({
+          guildId,
+          type: payload.type,
+        });
+        promises.push(
+          this.handleSuccess(message, payload, settings, lastRemind),
+        );
       }
 
       return await Promise.allSettled(promises);
@@ -78,6 +97,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
+    lastRemind: RemindDocument,
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
 
@@ -98,20 +118,34 @@ export class ReminderHandler {
       points += pointConfig.bonus;
     }
 
-    const embed = new EmbedBuilder()
-      .setDefaults(user)
-      .setTitle(UppyRemindSystemMessage.monitoring.embed.title)
-      .setDescription(
-        UppyRemindSystemMessage.monitoring.embed.description(
-          points,
-          getCommandByRemindType(type),
+    const container = new ContainerBuilder().addSectionComponents(
+      new SectionBuilder()
+        .setThumbnailAccessory(
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              heading(
+                UppyRemindSystemMessage.monitoring.embed.title,
+                HeadingLevel.Two,
+              ),
+              UppyRemindSystemMessage.monitoring.embed.description(
+                user,
+                points,
+                getCommandIdByRemindType(type),
+                lastRemind,
+              ),
+            ].join("\n"),
+          ),
         ),
-      );
+    );
 
     await Promise.allSettled([
       message
         .reply({
-          embeds: [embed],
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
         })
         .catch(null),
       this.logService.logCommandExecution(guild, user, type, points),
