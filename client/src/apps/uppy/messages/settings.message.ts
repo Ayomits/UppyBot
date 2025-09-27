@@ -92,10 +92,7 @@ export const UppySettingsMessage = {
       embed: {
         title: blockQuote("Управление ролями"),
         fields: (settings: Settings): EmbedField[] => [
-          createRoleField(
-            "Возможные роли сотрудника",
-            settings?.bumpRoleIds ?? null,
-          ),
+          createRoleField("Роли сотрудника", settings?.bumpRoleIds ?? null),
           createRoleField(
             "Роль для бамп бана",
             settings?.bumpBanRoleId ?? null,

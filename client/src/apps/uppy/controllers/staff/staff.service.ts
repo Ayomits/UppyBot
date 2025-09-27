@@ -39,7 +39,7 @@ import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
-import { UppyInfoMessage } from "../../messages/uppy-info.message.js";
+import { UppyInfoMessage } from "../../messages/core-info.message.js";
 import { UppyRemainingMessage } from "../../messages/uppy-remaining.message.js";
 import {
   BumpBanLimit,
@@ -230,7 +230,7 @@ export class StaffService {
     });
   }
 
-  // ======Команда helper stats=====
+  // ======Команда uppy stats=====
 
   public async handleStatsCommand(
     interaction: ChatInputCommandInteraction,
@@ -322,7 +322,7 @@ export class StaffService {
     return pagination.send();
   }
 
-  // ======Команда helper top======
+  // ======Команда uppy top======
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
@@ -580,12 +580,14 @@ export class StaffService {
 
   // ======Команда Remaining======
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
     const repl = await interaction.editReply(
       await this.buildReminderStatusMessage(interaction),
     );
 
-    const collector = createSafeCollector(repl);
+    const collector = createSafeCollector(repl, {
+      filter: (i) => i.user.id === interaction.user.id,
+    });
 
     collector.on("collect", (interaction) => {
       const customId = interaction.customId;
@@ -661,7 +663,7 @@ export class StaffService {
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel(UppyRemainingMessage.buttons.update)
+        .setLabel(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
         .setStyle(ButtonStyle.Secondary),
     );

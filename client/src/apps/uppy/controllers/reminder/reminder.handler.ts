@@ -47,14 +47,14 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-    @inject(LogService) private logService: LogService
+    @inject(LogService) private logService: LogService,
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot
+          message.author.id as MonitoringBot,
         )
       ) {
         return;
@@ -73,7 +73,7 @@ export class ReminderHandler {
             guildId,
           },
           {},
-          { upsert: true }
+          { upsert: true },
         ),
         RemindModel.findOne({
           guildId,
@@ -95,7 +95,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument
+    lastRemind: RemindDocument,
   ) {
     const existed = await BumpModel.findOne({ messageId: message.id });
 
@@ -119,24 +119,24 @@ export class ReminderHandler {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
               heading(
                 UppyRemindSystemMessage.monitoring.embed.title,
-                HeadingLevel.Two
+                HeadingLevel.Two,
               ),
               UppyRemindSystemMessage.monitoring.embed.description(
                 user,
                 points,
                 getCommandIdByRemindType(type),
-                lastRemind
+                lastRemind,
               ),
-            ].join("\n")
-          )
-        )
+            ].join("\n"),
+          ),
+        ),
     );
 
     await Promise.allSettled([
@@ -170,7 +170,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: RemindType,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     const bumpBanRole = await guild.roles
       .fetch(settings.bumpBanRoleId)
@@ -179,7 +179,7 @@ export class ReminderHandler {
     const bumpBan = await BumpBanModel.findOneAndUpdate(
       { guildId: guild.id, userId: member.id, type },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     if (bumpBanRole) {
@@ -205,7 +205,7 @@ export class ReminderHandler {
         $inc: {
           removeIn: 1,
         },
-      }
+      },
     );
   }
 }
