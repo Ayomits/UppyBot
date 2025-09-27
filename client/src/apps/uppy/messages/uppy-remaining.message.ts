@@ -55,4 +55,4 @@ export const UppyRemainingMessage = {
       return values.join("\n");
     },
   },
-};
+} as const;
