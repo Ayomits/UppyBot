@@ -200,7 +200,7 @@ export const StatsViewer = createDocumentation("Статистика", [
       addition: [
         unorderedList([
           `Если указать ${inlineCode("from")} больше ${inlineCode("to")}, аргументы переставятся`,
-          `У этой команды есть версия пкм версия`,
+          `У этой команды есть пкм версия`,
         ]),
       ].join("\n"),
     },

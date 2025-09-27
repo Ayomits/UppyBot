@@ -663,7 +663,7 @@ export class StaffService {
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
+        .setLabel(UppyRemainingMessage.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
         .setStyle(ButtonStyle.Secondary),
     );
