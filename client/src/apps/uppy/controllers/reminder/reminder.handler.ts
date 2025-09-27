@@ -67,21 +67,21 @@ export class ReminderHandler {
         return;
       }
 
-      const settings = await SettingsModel.findOne(
-        {
-          guildId,
-        },
-        {},
-        { upsert: true }
-      );
-
-      const [lastRemind] = await Promise.all([
+      const [settings, lastRemind] = await Promise.all([
+        SettingsModel.findOne(
+          {
+            guildId,
+          },
+          {},
+          { upsert: true }
+        ),
         RemindModel.findOne({
           guildId,
           type: payload.type,
         }),
-        this.scheduleManager.remind({ settings, ...payload }),
       ]);
+
+      await this.scheduleManager.remind({ settings, ...payload });
 
       if (process.env.APP_ENV == "dev" || payload.success) {
         return this.handleSuccess(message, payload, settings, lastRemind);
