@@ -1,7 +1,6 @@
 services:
-  fear-bot:
-    image: fear-bot:latest
-    container_name: fear-bot
+  uppy-bot:
+    container_name: uppy-bot
     network_mode: host
     build:
       args:
@@ -13,11 +12,10 @@ services:
       - "0.0.0.0:9001:9001"
     restart: always
     depends_on:
-      - fear-backend
+      - uppy-backend
 
-  fear-backend:
-    image: fear-backend:latest
-    container_name: fear-backend
+  uppy-backend:
+    container_name: uppy-backend
     build:
       args:
         - APP_ENV=dev
@@ -27,15 +25,22 @@ services:
     ports:
       - "8088:8088"
     environment:
-      - MONGO_URL=mongodb://fear-mongo:27017/test?authSource=admin
+      - MONGO_URL=mongodb://uppy-mongo:27017/test?authSource=admin
     restart: always
     depends_on:
-      - fear-mongo
+      - uppy-mongo
 
 
-  fear-mongo:
+  uppy-rabbitmq:
+    container_name: uppy-rabbitmq
+    image: rabbitmq:4.1.4-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  uppy-mongo:
     image: mongo:7.0.9-jammy
-    container_name: fear-mongo
+    container_name: uppy-mongo
     restart: always
     ports:
       - "27018:27017"

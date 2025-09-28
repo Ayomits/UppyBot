@@ -14,19 +14,19 @@ init_prod:
 	make restart_bot
 
 build_bot:
-	docker exec -it fear-bot pnpm run build
+	docker exec -it uppy-bot pnpm run build
 
 logs_bot:
-	docker compose logs fear-bot -f
+	docker compose logs uppy-bot -f
 
 logs_backend:
-	docker compose logs fear-backend -f
+	docker compose logs uppy-backend -f
 
 down:
 	docker compose down --remove-orphans
 
 build:
-	docker compose build
+	docker compose build --no-cache
 
 up:
 	docker compose up -d
@@ -36,27 +36,27 @@ update_app:
 	make update_backend
 
 update_bot:
-	docker exec -it fear-bot pnpm install
+	docker exec -it uppy-bot pnpm install
 
 update_backend:
-	docker exec -it fear-backend go install github.com/swaggo/swag/cmd/swag@latest
-	docker exec -it fear-backend go mod vendor
+	docker exec -it uppy-backend go install github.com/swaggo/swag/cmd/swag@latest
+	docker exec -it uppy-backend go mod vendor
 
 console_bot:
-	docker exec -it fear-bot sh
+	docker exec -it uppy-bot sh
 
 console_backend:
-	docker exec -it fear-backend sh
+	docker exec -it uppy-backend sh
 
 restart_bot:
-	docker compose restart fear-bot
+	docker compose restart uppy-bot
 
 restart_backend:
-	docker compose restart fear-backend
+	docker compose restart uppy-backend
 
 restart:
 	docker compose restart
 
 lint_fix:
-	docker exec -it fear-bot pnpm run lint:fix
-	docker exec -it fear-bot pnpm run format:fix
+	docker exec -it uppy-bot pnpm run lint:fix
+	docker exec -it uppy-bot pnpm run format:fix
