@@ -144,6 +144,12 @@ export class ReminderHandler {
         .reply({
           components: [container],
           flags: MessageFlags.IsComponentsV2,
+          allowedMentions: {
+            roles: [],
+            users: [],
+            repliedUser: null,
+            parse: [],
+          },
         })
         .catch(null),
       this.logService.logCommandExecution(guild, user, type, points),

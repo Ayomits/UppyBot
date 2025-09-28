@@ -82,7 +82,7 @@ export class ReminderScheduleManager {
       if (
         (initCommonSchedule === null ||
           typeof initCommonSchedule === "undefined") &&
-        !settings.useForceOnly
+        !settings?.useForceOnly
       ) {
         logger.info(
           `Нет напоминания для бота ${getCommandNameByRemindType(remind.type)}, создаю`,
@@ -90,14 +90,14 @@ export class ReminderScheduleManager {
         return this.remind(...remindArgs);
       }
 
-      if (initCommonSchedule && settings.useForceOnly) {
+      if (initCommonSchedule && settings?.useForceOnly) {
         logger.info(
           `Отменено напоминание для бота ${getCommandNameByRemindType(remind.type)}`,
         );
         scheduleManager.stopJob(commonId);
       }
 
-      if (initForceSchedule && settings.force <= 0) {
+      if (initForceSchedule && settings?.force <= 0) {
         logger.info(
           `Отменено преждевременное напоминание для бота ${getCommandNameByRemindType(remind.type)}`,
         );
@@ -287,7 +287,7 @@ export class ReminderScheduleManager {
     const commonSchedule = scheduleManager.getJob(commonId);
     const forceSchedule = scheduleManager.getJob(forceId);
 
-    if (!settings.useForceOnly && !commonSchedule) {
+    if (!settings?.useForceOnly && !commonSchedule) {
       scheduleManager.startOnceJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild),
       );
@@ -297,14 +297,14 @@ export class ReminderScheduleManager {
     }
 
     if (
-      settings.force > 0 &&
-      GMTTimestamp.minus({ second: settings.force }).toMillis() >
+      settings?.force > 0 &&
+      GMTTimestamp.minus({ second: settings?.force }).toMillis() >
         GMTCurrent.toMillis() &&
       !forceSchedule
     ) {
       scheduleManager.startOnceJob(
         forceId,
-        GMTTimestamp.minus({ seconds: settings.force }).toJSDate(),
+        GMTTimestamp.minus({ seconds: settings?.force }).toJSDate(),
         () => this.sendForceRemind(remind, guild),
       );
 

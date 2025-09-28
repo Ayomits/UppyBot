@@ -39,8 +39,7 @@ update_bot:
 	docker exec -it uppy-bot pnpm install
 
 update_backend:
-	docker exec -it uppy-backend go install github.com/swaggo/swag/cmd/swag@latest
-	docker exec -it uppy-backend go mod vendor
+	docker exec -it uppy-backend pnpm install
 
 console_bot:
 	docker exec -it uppy-bot sh
