@@ -100,7 +100,7 @@ export class LogService {
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
-              heading("Выдана бамп роль", HeadingLevel.Two),
+              heading("Выдана бамп бан роль", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
             ].join("\n"),
           ),
@@ -169,7 +169,18 @@ export class LogService {
           batch.forEach((components) => {
             setTimeout(() => {
               value.channel
-                .send({ components, flags: MessageFlags.IsComponentsV2 })
+                .send({
+                  components,
+                  flags: MessageFlags.IsComponentsV2,
+                  options: {
+                    allowedMentions: {
+                      roles: [],
+                      users: [],
+                      repliedUser: null,
+                      parse: [],
+                    },
+                  },
+                })
                 .catch(null);
             }, 500);
           });
