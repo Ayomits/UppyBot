@@ -40,7 +40,7 @@ export class LogService {
     this.cache = new LocalCache();
   }
 
-  public async logCommandExecution(
+  public async sendCommandExecutionLog(
     guild: Guild,
     author: User,
     type: RemindType,
@@ -76,7 +76,7 @@ export class LogService {
     return await this.push(guild, container);
   }
 
-  public async logBumpBanCreation(guild: Guild, user: User) {
+  public async sendBumpBanCreationLog(guild: Guild, user: User) {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .addTextDisplayComponents(
@@ -94,7 +94,7 @@ export class LogService {
     return await this.push(guild, container);
   }
 
-  public async logBumpBanRoleAdding(guild: Guild, user: User) {
+  public async sendBumpBanRoleAddingLog(guild: Guild, user: User) {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .addTextDisplayComponents(
@@ -112,7 +112,7 @@ export class LogService {
     return await this.push(guild, container);
   }
 
-  public async logBumpBanRemoval(guild: Guild, user: User) {
+  public async sendBumpBanRemovalLog(guild: Guild, user: User) {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .addTextDisplayComponents(
@@ -143,9 +143,9 @@ export class LogService {
       return;
     }
 
-    const existed = this.cache.get<LogValue>(settings.guildId);
+    const existed = this.cache.get<LogValue>(settings?.guildId);
     this.cache.set(
-      settings.guildId,
+      settings?.guildId,
       {
         channel: logChannel as TextChannel,
         components: [embed, ...(existed?.components ?? [])],

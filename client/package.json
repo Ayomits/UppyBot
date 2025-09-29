@@ -14,7 +14,7 @@
     "migrate:down": "pnpm migrate down",
     "build": "tsc -b && tsc-alias",
     "dev": "nodemon",
-    "prod": "node dist/main.js",
+    "prod": "node dist/src/main.js",
     "test:ci": "vitest --no-watch"
   },
   "imports": {

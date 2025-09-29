@@ -22,7 +22,7 @@ export const UppySettingsMessage = {
       createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
       createPropertyField(
         "Преждевременный пинг (секунды)",
-        settings.force ?? 0,
+        settings?.force ?? 0,
       ),
       createPropertyField(
         "Использовать только преждевременный пинг",
@@ -52,9 +52,9 @@ export const UppySettingsMessage = {
         fields: (settings: Settings): EmbedField[] => [
           createChannelField(
             "Канал для пингов",
-            settings.pingChannelId ?? null,
+            settings?.pingChannelId ?? null,
           ),
-          createChannelField("Канал для логов", settings.logChannelId ?? null),
+          createChannelField("Канал для логов", settings?.logChannelId ?? null),
         ],
       },
       buttons: { backward: { label: "Назад" } },

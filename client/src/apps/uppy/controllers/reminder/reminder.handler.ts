@@ -15,8 +15,11 @@ import { inject, singleton } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
-import { BumpLogModel } from "#/models/bump-log.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
+import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
+import { BumpLogModel } from "#/models/bump-log.model.js";
+import { BumpUserModel } from "#/models/bump-user.model.js";
+import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
 import { safePointConfig } from "#/models/points-settings.model.js";
 import type { RemindDocument } from "#/models/remind.model.js";
 import { RemindModel } from "#/models/remind.model.js";
@@ -27,10 +30,12 @@ import {
 
 import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
 import { LogService } from "../logging/log.service.js";
+import { endDateValue, startDateValue } from "../staff/staff.const.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
   getCommandIdByRemindType,
+  getFieldByRemindType,
   MonitoringBot,
   RemindType,
 } from "./reminder.const.js";
@@ -152,8 +157,8 @@ export class ReminderHandler {
           },
         })
         .catch(null),
-      this.logService.logCommandExecution(guild, user, type, points),
-      BumpLogModel.create({
+      this.logService.sendCommandExecutionLog(guild, user, type, points),
+      this.createBump({
         guildId: guild.id,
         executorId: user.id,
         messageId: message.id,
@@ -179,7 +184,7 @@ export class ReminderHandler {
     settings: SettingsDocument,
   ) {
     const bumpBanRole = await guild.roles
-      .fetch(settings.bumpBanRoleId)
+      .fetch(settings?.bumpBanRoleId)
       .catch(() => null);
 
     const bumpBan = await BumpBanModel.findOneAndUpdate(
@@ -191,7 +196,7 @@ export class ReminderHandler {
     if (bumpBanRole) {
       await Promise.allSettled([
         member.roles.add(bumpBanRole).catch(null),
-        this.logService.logBumpBanRoleAdding(guild, member.user),
+        this.logService.sendBumpBanRoleAddingLog(guild, member.user),
       ]);
     }
 
@@ -213,5 +218,92 @@ export class ReminderHandler {
         },
       },
     );
+  }
+
+  private async createBump({
+    guildId,
+    executorId,
+    messageId,
+    points,
+    type,
+  }: {
+    guildId: string;
+    executorId: string;
+    messageId: string;
+    points: number;
+    type: number | RemindType;
+  }) {
+    const start = DateTime.now().set(startDateValue);
+    const timestampFilter = {
+      $gte: start.toJSDate(),
+      $lte: DateTime.now().set(endDateValue).toJSDate(),
+    };
+
+    await Promise.all([
+      BumpLogModel.create({
+        guildId,
+        executorId,
+        messageId,
+        points,
+        type,
+      }),
+      BumpGuildCalendarModel.findOneAndUpdate(
+        {
+          guildId,
+          timestamp: timestampFilter,
+        },
+        {
+          $setOnInsert: {
+            timestamp: start.toJSDate(),
+            formatted: start.toFormat("D.MM.YY"),
+            guildId,
+          },
+        },
+        {
+          upsert: true,
+        },
+      ),
+      BumpUserCalendarModel.findOneAndUpdate(
+        {
+          guildId,
+          userId: executorId,
+          timestamp: timestampFilter,
+        },
+        {
+          $setOnInsert: {
+            timestamp: start.toJSDate(),
+            formatted: start.toFormat("D.MM.YY"),
+            guildId,
+            userId: executorId,
+          },
+        },
+        {
+          upsert: true,
+        },
+      ),
+      BumpUserModel.bulkWrite([
+        {
+          updateOne: {
+            filter: {
+              guildId,
+              userId: executorId,
+              timestamp: timestampFilter,
+            },
+            update: {
+              $inc: {
+                points: points,
+                [getFieldByRemindType(type)]: 1,
+              },
+              $setOnInsert: {
+                timestamp: start.toJSDate(),
+                userId: executorId,
+                guildId: guildId,
+              },
+            },
+            upsert: true,
+          },
+        },
+      ]),
+    ]);
   }
 }

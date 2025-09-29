@@ -37,10 +37,3 @@ export const BumpLogModel = getModelForClass(BumpLog, {
 });
 
 export type BumpLogDocument = DocumentType<BumpLog>;
-
-export interface StaffInfoAgregation {
-  points: number;
-  bump: number;
-  like: number;
-  up: number;
-}

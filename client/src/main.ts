@@ -7,9 +7,11 @@ import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
 
 async function bootstrap() {
+  console.log(Env.MongoUrl);
   await mongoose
     .connect(Env.MongoUrl, {
       autoCreate: true,
+      dbName: "test",
     })
     .catch(logger.error)
     .then(() => logger.success("succesfully connected to mongodb"));

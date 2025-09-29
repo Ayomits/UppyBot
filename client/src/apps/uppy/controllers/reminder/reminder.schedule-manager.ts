@@ -111,7 +111,7 @@ export class ReminderScheduleManager {
         forceSchedule &&
         this.validateSchedule(
           forceSchedule,
-          GMTTImestamp.minus({ seconds: settings.force }).toMillis(),
+          GMTTImestamp.minus({ seconds: settings?.force }).toMillis(),
           forceId,
           commonId,
         );
@@ -160,7 +160,9 @@ export class ReminderScheduleManager {
       }),
     ]);
 
-    const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
+    const settingsMap = Object.fromEntries(
+      settings?.map((s) => [s.guildId, s]),
+    );
 
     const entriesMap = Object.fromEntries(
       bans.map((ban) => [
@@ -176,14 +178,14 @@ export class ReminderScheduleManager {
       const [member, role] = await Promise.all([
         guild.members.fetch(ban.userId).catch(() => null),
         guild.roles
-          .fetch(settings.bumpBanRoleId, { cache: true })
+          .fetch(settings?.bumpBanRoleId, { cache: true })
           .catch(() => null),
       ]);
 
       if (role && member) {
         const hasRole = member.roles.cache.has(role.id);
         if (ban.removeIn >= BumpBanLimit) {
-          await this.logService.logBumpBanRemoval(guild, member);
+          await this.logService.sendBumpBanRemovalLog(guild, member);
           if (hasRole) {
             member.roles.remove(role).catch(() => null);
           }
@@ -193,7 +195,7 @@ export class ReminderScheduleManager {
         if (ban.removeIn < BumpBanLimit) {
           if (!hasRole) {
             member.roles.add(role).catch(() => null);
-            await this.logService.logBumpBanRoleAdding(guild, member);
+            await this.logService.sendBumpBanRoleAddingLog(guild, member);
           }
         }
       }
@@ -238,7 +240,9 @@ export class ReminderScheduleManager {
       }),
     ]);
 
-    const settingsMap = Object.fromEntries(settings.map((s) => [s.guildId, s]));
+    const settingsMap = Object.fromEntries(
+      settings?.map((s) => [s.guildId, s]),
+    );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
@@ -336,7 +340,7 @@ export class ReminderScheduleManager {
       try {
         channel?.send({
           content: UppyRemindSystemMessage.remind.ping.content(
-            settings.bumpRoleIds,
+            settings?.bumpRoleIds,
             getCommandNameByRemindType(remind.type),
             getCommandIdByRemindType(remind.type),
           ),
@@ -376,10 +380,10 @@ export class ReminderScheduleManager {
       try {
         channel?.send({
           content: UppyRemindSystemMessage.remind.force.content(
-            settings.bumpRoleIds,
+            settings?.bumpRoleIds,
             getCommandNameByRemindType(remind.type),
             getCommandIdByRemindType(remind.type),
-            settings.force,
+            settings?.force,
           ),
         });
         logger.success(

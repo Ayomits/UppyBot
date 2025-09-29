@@ -7,6 +7,7 @@ import {
   TimestampStyles,
   unorderedList,
 } from "discord.js";
+import { DateTime } from "luxon";
 
 import type { RemindDocument } from "#/models/remind.model.js";
 
@@ -50,14 +51,59 @@ export const UppyRemindSystemMessage = {
         points: number,
         command: MonitoringCommandIds,
         lastRemind: RemindDocument,
-      ) =>
-        unorderedList([
+      ) => {
+        const { years, months, weeks, days, hours, minutes, seconds } =
+          DateTime.now().diff(DateTime.fromJSDate(lastRemind.timestamp), [
+            "years",
+            "months",
+            "weeks",
+            "days",
+            "hours",
+            "minutes",
+            "seconds",
+          ]);
+
+        function format() {
+          const toFormat = [];
+
+          if (years > 0) {
+            toFormat.push(`${Math.floor(years)} лет`);
+          }
+
+          if (months > 0) {
+            toFormat.push(`${Math.floor(months)} месяцев`);
+          }
+
+          if (weeks > 0) {
+            toFormat.push(`${Math.floor(weeks)} недель`);
+          }
+
+          if (days > 0) {
+            toFormat.push(`${Math.floor(days)} дней`);
+          }
+
+          if (hours > 0) {
+            toFormat.push(`${Math.floor(hours)} часов`);
+          }
+
+          if (minutes > 0) {
+            toFormat.push(`${Math.floor(minutes)} минут`);
+          }
+
+          if (seconds > 0) {
+            toFormat.push(`${Math.floor(seconds)} секунд`);
+          }
+
+          return toFormat.join(" ");
+        }
+
+        return unorderedList([
           `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command), command)}`,
           `Поинты: ${bold(`${points} поинтов`)}`,
           `Исполнитель: ${user}`,
-          `Время напоминания: ${time(Math.floor((lastRemind?.timestamp ?? new Date()).getTime() / 1_000), TimestampStyles.LongDateTime)}`,
-          `Время исполнения: ${time(Math.floor(Date.now() / 1_000), TimestampStyles.LongDateTime)}`,
-        ]),
+          `Время реакции: ${format()}`,
+        ]);
+      },
     },
   },
 };

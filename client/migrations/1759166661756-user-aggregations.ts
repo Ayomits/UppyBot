@@ -18,14 +18,6 @@ export async function up(): Promise<void> {
 
   const docs = await BumpLogModel.aggregate([
     {
-      $match: {
-        createdAt: {
-          $gte: new Date("2024-01-01"),
-          $lte: Date.now(),
-        },
-      },
-    },
-    {
       $group: {
         _id: {
           date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -63,7 +55,6 @@ export async function up(): Promise<void> {
   ]);
 
   const userBumps = [];
-
   for (const doc of docs) {
     userBumps.push({
       guildId: doc._id.guildId,
@@ -78,6 +69,9 @@ export async function up(): Promise<void> {
   }
 
   await BumpUserModel.insertMany(userBumps);
+
+  connection.deleteModel(BumpUserModel.modelName);
+  connection.deleteModel(BumpLogModel.modelName);
 }
 
 export async function down(): Promise<void> {
@@ -87,4 +81,6 @@ export async function down(): Promise<void> {
     BumpUserSchema
   );
   await BumpUserModel.deleteMany({});
+
+  connection.deleteModel(BumpUserModel.modelName);
 }
