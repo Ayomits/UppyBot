@@ -55,7 +55,7 @@ export const UppyRemindSystemMessage = {
           `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command), command)}`,
           `Поинты: ${bold(`${points} поинтов`)}`,
           `Исполнитель: ${user}`,
-          `Время напоминания: ${time(Math.floor(lastRemind.timestamp.getTime() / 1_000), TimestampStyles.LongDateTime)}`,
+          `Время напоминания: ${time(Math.floor((lastRemind?.timestamp ?? new Date()).getTime() / 1_000), TimestampStyles.LongDateTime)}`,
           `Время исполнения: ${time(Math.floor(Date.now() / 1_000), TimestampStyles.LongDateTime)}`,
         ]),
     },

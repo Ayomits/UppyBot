@@ -1,7 +1,7 @@
 import { bold, unorderedList } from "discord.js";
 
-import type { StaffInfoAgregation } from "#/models/bump.model.js";
 import type { BumpBan } from "#/models/bump-ban.model.js";
+import type { BumpUser } from "#/models/bump-user.model.js";
 
 import { BumpBanLimit } from "../controllers/reminder/reminder.const.js";
 
@@ -19,11 +19,11 @@ function bumpBanNormalize(data?: BumpBan) {
 export const UppyInfoMessage = {
   embed: {
     title: (username: string) => `Информация о сотруднике - ${username}`,
-    fields: (data: StaffInfoAgregation, bumpBan?: BumpBan): string => {
+    fields: (data: BumpUser, bumpBan?: BumpBan): string => {
       return unorderedList([
-        normalize("UP:", data?.up),
-        normalize("Like:", data?.like),
-        normalize("Bump:", data?.bump),
+        normalize("UP:", data?.sdcMonitoring),
+        normalize("Like:", data?.dsMonitoring),
+        normalize("Bump:", data?.serverMonitoring),
         normalize("Поинты:", data?.points),
         `${bold("Бамп бан:")} ${bumpBanNormalize(bumpBan)}`,
       ]);

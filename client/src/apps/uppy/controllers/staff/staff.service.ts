@@ -33,9 +33,15 @@ import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
-import type { BumpDocument, StaffInfoAgregation } from "#/models/bump.model.js";
-import { BumpModel } from "#/models/bump.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
+import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
+import type {
+  BumpLogDocument,
+  StaffInfoAgregation,
+} from "#/models/bump-log.model.js";
+import { BumpLogModel } from "#/models/bump-log.model.js";
+import { BumpUserModel } from "#/models/bump-user.model.js";
+import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
@@ -62,59 +68,22 @@ export class StaffService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
-    const [entries, bumpBan, settings] = await Promise.all([
-      BumpModel.aggregate<StaffInfoAgregation>([
-        {
-          $match: {
-            guildId: interaction.guildId,
-            executorId: user.id,
-            createdAt: {
-              $gte: fromDate,
-              $lte: toDate,
-            },
-          },
+    const [entry, bumpBan, settings] = await Promise.all([
+      BumpUserModel.findOne({
+        guildId: interaction.guildId,
+        executorId: user.id,
+        timestamp: {
+          $gte: fromDate,
+          $lte: toDate,
         },
-        {
-          $group: {
-            _id: null,
-            points: { $sum: "$points" },
-            up: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.SdcMonitoring] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-            like: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.DiscordMonitoring] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-            bump: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$type", RemindType.ServerMonitoring] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-          },
-        },
-      ]),
+      }),
       BumpBanModel.findOne({
         guildId: interaction.guildId,
         userId: interaction.user.id,
@@ -128,7 +97,7 @@ export class StaffService {
     ]);
 
     const canManage = authorMember.roles.cache.some(
-      (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+      (r) => settings.managerRoles && settings.managerRoles.includes(r.id)
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -138,26 +107,26 @@ export class StaffService {
         .setLabel(UppyInfoMessage.buttons.actions.removeBumpBan.label)
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove),
+        .setDisabled(!canRemove)
     );
 
     const container = new ContainerBuilder()
       .addSectionComponents(
         new SectionBuilder()
           .setThumbnailAccessory(
-            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
           )
           .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
               [
                 heading(
                   UppyInfoMessage.embed.title(UsersUtility.getUsername(user)),
-                  HeadingLevel.Two,
+                  HeadingLevel.Two
                 ),
-                UppyInfoMessage.embed.fields(entries[0], bumpBan),
-              ].join("\n"),
-            ),
-          ),
+                UppyInfoMessage.embed.fields(entry, bumpBan),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -185,7 +154,7 @@ export class StaffService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember,
+    member: GuildMember
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
@@ -209,7 +178,7 @@ export class StaffService {
 
     if (
       !authorMember.roles.cache.some(
-        (r) => settings.managerRoles && settings.managerRoles.includes(r.id),
+        (r) => settings.managerRoles && settings.managerRoles.includes(r.id)
       )
     ) {
       return interaction.editReply({
@@ -235,11 +204,11 @@ export class StaffService {
   public async handleStatsCommand(
     interaction: ChatInputCommandInteraction,
     user: User,
-    field: number,
+    field: number
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     user = typeof user !== "undefined" ? user : interaction.user;
-    const filter: mongoose.FilterQuery<BumpDocument> = {
+    const filter: mongoose.FilterQuery<BumpLogDocument> = {
       guildId: interaction.guildId,
       executorId: user.id,
     };
@@ -248,13 +217,13 @@ export class StaffService {
       filter.type = field;
     }
 
-    const count = await BumpModel.countDocuments(filter);
+    const count = await BumpLogModel.countDocuments(filter);
 
     const maxPages = this.calculateMaxPages(count);
 
     function createEmbed(
       data: Awaited<ReturnType<typeof fetchMore>>,
-      page: number,
+      page: number
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -283,7 +252,7 @@ export class StaffService {
     }
 
     async function fetchMore(page: number) {
-      return BumpModel.find(filter)
+      return BumpLogModel.find(filter)
         .sort({ createdAt: -1 })
         .skip(page * limit)
         .limit(limit);
@@ -326,13 +295,13 @@ export class StaffService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
-      { upsert: true },
+      { upsert: true }
     );
 
     const member = (await interaction.guild.members
@@ -349,7 +318,7 @@ export class StaffService {
 
     const hasStaffRolesIds = interaction.guild.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id)),
+        m.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id))
       )
       .map((m) => m.id);
 
@@ -363,7 +332,7 @@ export class StaffService {
     async function fetchPage(page: number) {
       const skip = page * limit;
 
-      const data = await BumpModel.aggregate<{
+      const data = await BumpLogModel.aggregate<{
         data: (StaffInfoAgregation & { _id: string })[];
         metadata: { totalCount: number };
       }>([
@@ -404,7 +373,7 @@ export class StaffService {
 
     function createEmbed(
       payload: Awaited<ReturnType<typeof fetchPage>>,
-      page: number,
+      page: number
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
 
@@ -496,7 +465,7 @@ export class StaffService {
   }
 
   public static async handleInfoAutocomplete(
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -511,48 +480,47 @@ export class StaffService {
       }
     }
 
-    const entries = await BumpModel.aggregate([
-      {
-        $match: {
-          guildId: interaction.guildId,
-          createdAt: {
-            $exists: true,
-            $ne: null,
-            ...createdAtFilter,
-          },
-        },
-      },
-      {
-        $sort: { createdAt: 1 },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%d.%m.%Y",
-              date: "$createdAt",
-              timezone: "Europe/Moscow",
-            },
-          },
-          createdAt: { $first: "$createdAt" },
-          document: { $first: "$$ROOT" },
-        },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
-      {
-        $limit: 25,
-      },
-    ]);
+    const entries = await BumpUserCalendarModel.find({
+      guildId: interaction.guildId,
+      userId: interaction.user.id,
+      createdAt: createdAtFilter,
+    });
 
     await interaction.respond(
       entries.map((entry) => ({
-        name: DateTime.fromJSDate(entry.createdAt)
-          .setZone(DefaultTimezone)
-          .toFormat("dd.MM.y"),
-        value: entry.createdAt,
-      })),
+        name: entry.formatted,
+        value: entry.formatted,
+      }))
+    );
+  }
+
+  public static async handleTopAutocomplete(
+    interaction: AutocompleteInteraction
+  ) {
+    const value = interaction.options.getFocused();
+    const { inputDate, startDate, endDate } = this.parseDateString(value);
+
+    let createdAtFilter = {};
+
+    if (value) {
+      if (!inputDate) {
+        return interaction.respond([]);
+      } else {
+        createdAtFilter = { $lte: endDate, $gte: startDate };
+      }
+    }
+
+    const entries = await BumpGuildCalendarModel.find({
+      guildId: interaction.guildId,
+      userId: interaction.user.id,
+      createdAt: createdAtFilter,
+    });
+
+    await interaction.respond(
+      entries.map((entry) => ({
+        name: entry.formatted,
+        value: entry.formatted,
+      }))
     );
   }
 
@@ -582,7 +550,7 @@ export class StaffService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const repl = await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction),
+      await this.buildReminderStatusMessage(interaction)
     );
 
     const collector = createSafeCollector(repl, {
@@ -604,12 +572,12 @@ export class StaffService {
   private async handleUpdateReminderStatus(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildReminderStatusMessage(interaction),
+      await this.buildReminderStatusMessage(interaction)
     );
   }
 
   private async buildReminderStatusMessage(
-    interaction: Interaction,
+    interaction: Interaction
   ): Promise<InteractionEditReplyOptions> {
     const [
       discordMonitoring,
@@ -619,16 +587,16 @@ export class StaffService {
     ] = await Promise.all([
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DiscordMonitoring,
+        MonitoringBot.DiscordMonitoring
       ),
       this.fetchMonitoringBot(interaction.guild!, MonitoringBot.SdcMonitoring),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.ServerMonitoring,
+        MonitoringBot.ServerMonitoring
       ),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DisboardMonitoring,
+        MonitoringBot.DisboardMonitoring
       ),
     ]);
 
@@ -658,14 +626,14 @@ export class StaffService {
       .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
-      monitorings.map((m) => [m.type, m as RemindDocument]),
+      monitorings.map((m) => [m.type, m as RemindDocument])
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel(UppyRemainingMessage.buttons.update)
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
-        .setStyle(ButtonStyle.Secondary),
+        .setStyle(ButtonStyle.Secondary)
     );
 
     const container = new ContainerBuilder()
@@ -677,14 +645,14 @@ export class StaffService {
                 heading(UppyRemainingMessage.embed.title, HeadingLevel.Two),
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 UppyRemainingMessage.embed.fields(monitoringsMap as any),
-              ].join("\n"),
-            ),
+              ].join("\n")
+            )
           )
           .setThumbnailAccessory(
             new ThumbnailBuilder().setURL(
-              UsersUtility.getAvatar(interaction.user),
-            ),
-          ),
+              UsersUtility.getAvatar(interaction.user)
+            )
+          )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(updateButton);
@@ -697,7 +665,7 @@ export class StaffService {
 
   private async fetchMonitoringBot(
     guild: Guild,
-    id: MonitoringBot,
+    id: MonitoringBot
   ): Promise<GuildMember | null> {
     return await guild.members
       .fetch({ user: id, cache: true })
