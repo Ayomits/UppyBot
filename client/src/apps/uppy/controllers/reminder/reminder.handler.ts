@@ -15,7 +15,7 @@ import { inject, singleton } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
-import { BumpModel } from "#/models/bump.model.js";
+import { BumpLogModel } from "#/models/bump-log.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { safePointConfig } from "#/models/points-settings.model.js";
 import type { RemindDocument } from "#/models/remind.model.js";
@@ -97,7 +97,7 @@ export class ReminderHandler {
     settings: SettingsDocument,
     lastRemind: RemindDocument,
   ) {
-    const existed = await BumpModel.findOne({ messageId: message.id });
+    const existed = await BumpLogModel.findOne({ messageId: message.id });
 
     if (existed) {
       return;
@@ -153,7 +153,7 @@ export class ReminderHandler {
         })
         .catch(null),
       this.logService.logCommandExecution(guild, user, type, points),
-      BumpModel.create({
+      BumpLogModel.create({
         guildId: guild.id,
         executorId: user.id,
         messageId: message.id,

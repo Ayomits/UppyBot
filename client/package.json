@@ -9,6 +9,9 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "lint:check": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
+    "migrate:create": "pnpm migrate create",
+    "migrate:up": "pnpm migrate up",
+    "migrate:down": "pnpm migrate down",
     "build": "tsc -b && tsc-alias",
     "dev": "nodemon",
     "prod": "node dist/main.js",
@@ -49,6 +52,7 @@
     "globals": "^16.3.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
+    "ts-migrate-mongoose": "^3.8.7",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"

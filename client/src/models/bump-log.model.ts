@@ -1,4 +1,5 @@
 import {
+  buildSchema,
   type DocumentType,
   getModelForClass,
   prop,
@@ -8,7 +9,7 @@ import type { Snowflake } from "discord.js";
 
 import type { RemindType } from "#/apps/uppy/controllers/reminder/reminder.const.js";
 
-export class Bump extends TimeStamps {
+export class BumpLog extends TimeStamps {
   @prop({ required: true, index: true, alias: "guild_id" })
   guildId: Snowflake;
 
@@ -25,13 +26,17 @@ export class Bump extends TimeStamps {
   points: number;
 }
 
-export const BumpModel = getModelForClass(Bump, {
+export const BumpLogCollectionName = "bumps";
+
+export const BumpLogSchema = buildSchema(BumpLog);
+
+export const BumpLogModel = getModelForClass(BumpLog, {
   options: {
-    customName: "bumps",
+    customName: BumpLogCollectionName,
   },
 });
 
-export type BumpDocument = DocumentType<Bump>;
+export type BumpLogDocument = DocumentType<BumpLog>;
 
 export interface StaffInfoAgregation {
   points: number;
