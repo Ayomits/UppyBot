@@ -27,14 +27,14 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
     { upsert: true },
   );
 
-  if (!settings || (settings && settings.bumpRoleIds.length === 0)) {
+  if (!settings || (settings && settings?.bumpRoleIds.length === 0)) {
     return interaction.reply({
       content: UppyGuardMessage.isHelper.invalidSettings,
       flags: MessageFlags.Ephemeral,
     });
   }
 
-  if (member.roles.cache.some((r) => settings.bumpRoleIds.includes(r.id))) {
+  if (member.roles.cache.some((r) => settings?.bumpRoleIds.includes(r.id))) {
     return next();
   }
 

@@ -1,4 +1,5 @@
 import type { LiteralEnum } from "#/libs/utils/index.js";
+import type { BumpUser } from "#/models/bump-user.model.js";
 
 export const BumpBanCheckerInterval = 15_000;
 export const DiffCheckerInterval = 3_000;
@@ -150,5 +151,20 @@ export function getRemindTypeByBot(type: MonitoringBot) {
       return RemindType.ServerMonitoring;
     case MonitoringBot.DisboardMonitoring:
       return RemindType.DisboardMonitoring;
+  }
+}
+
+export function getFieldByRemindType(
+  type: RemindType | number,
+): keyof BumpUser {
+  switch (type) {
+    case RemindType.DiscordMonitoring:
+      return "dsMonitoring";
+    case RemindType.SdcMonitoring:
+      return "sdcMonitoring";
+    case RemindType.ServerMonitoring:
+      return "serverMonitoring";
+    case RemindType.DisboardMonitoring:
+      return "disboardMonitoring";
   }
 }
