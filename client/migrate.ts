@@ -8,4 +8,5 @@ export default {
   templatePath: "./migrations/template.ts",
   autoIndex: true,
   autoCreate: true,
+  autosync: false,
 };

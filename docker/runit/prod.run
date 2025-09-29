@@ -5,4 +5,4 @@ export APP_ENV
 export DISCORD_TOKEN
 export MONGO_URL
 
-pnpm install && pnpm run build && pnpm migrate up -a && DISCORD_TOKEN=$DISCORD_TOKEN APP_ENV=$APP_ENV MONGO_URL=$MONGO_URL pnpm run prod
+pnpm install && pnpm run build && pnpm migrate up && DISCORD_TOKEN=$DISCORD_TOKEN APP_ENV=$APP_ENV MONGO_URL=$MONGO_URL pnpm run prod
