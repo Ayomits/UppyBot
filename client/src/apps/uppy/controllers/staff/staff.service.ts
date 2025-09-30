@@ -7,6 +7,7 @@ import {
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
+  chatInputApplicationCommandMention,
   type ChatInputCommandInteraction,
   ContainerBuilder,
   type Guild,
@@ -38,7 +39,7 @@ import type { BumpGuildCalendarDocument } from "#/models/bump-guild-calendar.mod
 import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
 import type { BumpLogDocument } from "#/models/bump-log.model.js";
 import { BumpLogModel } from "#/models/bump-log.model.js";
-import type { BumpUser } from "#/models/bump-user.model.js";
+import type { BumpUser, BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
 import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
@@ -50,6 +51,7 @@ import {
   BumpBanLimit,
   DefaultTimezone,
   getCommandIdByRemindType,
+  getCommandNameByRemindType,
   MonitoringBot,
   RemindType,
 } from "../reminder/reminder.const.js";
@@ -73,14 +75,30 @@ export class StaffService {
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
     const [entry, bumpBan, settings] = await Promise.all([
-      BumpUserModel.findOne({
-        guildId: interaction.guildId,
-        executorId: user.id,
-        timestamp: {
-          $gte: fromDate,
-          $lte: toDate,
+      BumpUserModel.aggregate<Partial<BumpUserDocument>>([
+        {
+          $match: {
+            guildId: interaction.guildId,
+            userId: user.id,
+            timestamp: {
+              $gte: fromDate,
+              $lte: toDate,
+            },
+          },
         },
-      }),
+        {
+          $group: {
+            _id: null,
+            disboardMonitoring: { $sum: "$disboardMonitoring" },
+            dsMonitoring: { $sum: "$dsMonitoring" },
+            sdcMonitoring: { $sum: "$sdcMonitoring" },
+            serverMonitoring: { $sum: "$serverMonitoring" },
+            points: { $sum: "$points" },
+            userId: { $first: "$userId" },
+          },
+        },
+        { $limit: 1 },
+      ]),
       BumpBanModel.findOne({
         guildId: interaction.guildId,
         userId: interaction.user.id,
@@ -120,7 +138,7 @@ export class StaffService {
                   UppyInfoMessage.embed.title(UsersUtility.getUsername(user)),
                   HeadingLevel.Two,
                 ),
-                UppyInfoMessage.embed.fields(entry, bumpBan),
+                UppyInfoMessage.embed.fields(entry[0], bumpBan),
               ].join("\n"),
             ),
           ),
@@ -230,9 +248,13 @@ export class StaffService {
           : data
               .map(({ executorId, createdAt, type, points }, index) => {
                 const position = page * limit + index + 1;
+                const command = chatInputApplicationCommandMention(
+                  getCommandNameByRemindType(type),
+                  getCommandIdByRemindType(type),
+                );
                 return [
                   `${bold(position.toString())} ${userMention(executorId)}`,
-                  `• ${bold("Команда:")} ${getCommandIdByRemindType(type)}`,
+                  `• ${bold("Команда:")} ${command}`,
                   `• ${bold("Поинты:")} ${points}`,
                   `• ${bold("Дата выполнения:")} ${time(Math.floor(createdAt.getTime() / 1_000), TimestampStyles.LongDateTime)}`,
                   "",
@@ -323,7 +345,7 @@ export class StaffService {
 
     const initial = await fetchPage(0);
 
-    const totalCount = initial.count ?? 0;
+    const totalCount = initial?.meta?.count ?? 0;
     const maxPages = this.calculateMaxPages(totalCount);
 
     async function fetchPage(page: number) {
@@ -338,14 +360,38 @@ export class StaffService {
         },
       };
 
-      const [data, count] = await Promise.all([
-        BumpUserModel.find(filter).limit(limit).skip(skip),
-        BumpUserModel.countDocuments(filter),
-      ]);
+      const [data] = await BumpUserModel.aggregate<{
+        users: Partial<BumpUserDocument>[];
+        meta: { count: number };
+      }>([
+        {
+          $match: filter,
+        },
+        {
+          $facet: {
+            users: [
+              {
+                $group: {
+                  _id: null,
+                  disboardMonitoring: { $sum: "$disboardMonitoring" },
+                  dsMonitoring: { $sum: "$dsMonitoring" },
+                  sdcMonitoring: { $sum: "$sdcMonitoring" },
+                  serverMonitoring: { $sum: "$serverMonitoring" },
+                  points: { $sum: "$points" },
+                  userId: { $first: "$userId" },
+                },
+              },
+            ],
+            meta: [{ $group: { _id: null, count: { $sum: 1 } } }],
+          },
+        },
+      ])
+        .limit(limit)
+        .skip(skip);
 
       return {
-        data,
-        count,
+        users: data?.users ?? [],
+        meta: data?.meta[0],
       };
     }
 
@@ -354,11 +400,10 @@ export class StaffService {
       page: number,
     ) {
       const embed = new EmbedBuilder().setDefaults(interaction.user);
-
       const description =
-        payload.data.length === 0
+        payload.users.length === 0
           ? "Нет данных для отображения"
-          : payload.data
+          : payload.users
               .map(
                 (
                   {
@@ -385,7 +430,7 @@ export class StaffService {
         .setTitle("Топ сотрудников")
         .setDescription(description)
         .setFooter({
-          text: `Страница ${page + 1}/${maxPages} | Всего сотрудников: ${payload.count}`,
+          text: `Страница ${page + 1}/${maxPages} | Всего сотрудников: ${totalCount}`,
         });
     }
 
@@ -427,31 +472,7 @@ export class StaffService {
     return Math.max(1, Math.ceil(count / limit));
   }
 
-  private parseOptionsDateString(from?: string, to?: string) {
-    const parsedFromDate =
-      !from && !to
-        ? DateTime.now()
-            .setZone(DefaultTimezone)
-            .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-        : DateTime.fromJSDate(new Date(from ?? to)).setZone(DefaultTimezone);
-    const parsedToDate =
-      !from && !to
-        ? parsedFromDate
-        : DateTime.fromJSDate(new Date(to ?? from)).setZone(DefaultTimezone);
-
-    let toDate: DateTime = parsedToDate.set(endDateValue);
-    let fromDate: DateTime = parsedFromDate.set(startDateValue);
-
-    if (parsedToDate <= parsedFromDate) {
-      toDate = parsedFromDate.set(endDateValue);
-      fromDate = parsedToDate.set(startDateValue);
-    }
-
-    return {
-      toDate,
-      fromDate,
-    };
-  }
+  // ===============AUTOCOMPLETE============
 
   public static async handleInfoAutocomplete(
     interaction: AutocompleteInteraction,
@@ -533,6 +554,32 @@ export class StaffService {
       inputDate: inputDate.isValid ? inputDate : null,
       startDate: inputDate.isValid ? startDate : null,
       endDate: inputDate.isValid ? endDate : null,
+    };
+  }
+
+  private parseOptionsDateString(from?: string, to?: string) {
+    const parsedFromDate =
+      !from && !to
+        ? DateTime.now()
+            .setZone(DefaultTimezone)
+            .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        : DateTime.fromJSDate(new Date(from ?? to)).setZone(DefaultTimezone);
+    const parsedToDate =
+      !from && !to
+        ? parsedFromDate
+        : DateTime.fromJSDate(new Date(to ?? from)).setZone(DefaultTimezone);
+
+    let toDate: DateTime = parsedToDate.set(endDateValue);
+    let fromDate: DateTime = parsedFromDate.set(startDateValue);
+
+    if (parsedToDate <= parsedFromDate) {
+      toDate = parsedFromDate.set(endDateValue);
+      fromDate = parsedToDate.set(startDateValue);
+    }
+
+    return {
+      toDate,
+      fromDate,
     };
   }
 

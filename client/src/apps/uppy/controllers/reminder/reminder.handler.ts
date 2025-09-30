@@ -255,7 +255,7 @@ export class ReminderHandler {
         {
           $setOnInsert: {
             timestamp: start.toJSDate(),
-            formatted: start.toFormat("D.MM.YY"),
+            formatted: start.toFormat("dd.MM.yyyy"),
             guildId,
           },
         },
