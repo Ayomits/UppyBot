@@ -60,7 +60,7 @@ export class StaffController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
+      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
       required: false,
     })
     from: string,
@@ -68,7 +68,7 @@ export class StaffController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete: StaffService.handleInfoAutocomplete.bind(StaffService),
+      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
       required: false,
     })
     to: string,

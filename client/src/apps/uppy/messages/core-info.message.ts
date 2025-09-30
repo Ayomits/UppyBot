@@ -19,7 +19,7 @@ function bumpBanNormalize(data?: BumpBan) {
 export const UppyInfoMessage = {
   embed: {
     title: (username: string) => `Информация о сотруднике - ${username}`,
-    fields: (data: BumpUser, bumpBan?: BumpBan): string => {
+    fields: (data: Partial<BumpUser>, bumpBan?: BumpBan): string => {
       return unorderedList([
         normalize("UP:", data?.sdcMonitoring),
         normalize("Like:", data?.dsMonitoring),
