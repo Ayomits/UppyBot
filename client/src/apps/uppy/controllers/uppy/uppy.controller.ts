@@ -11,17 +11,20 @@ import {
   Discord,
   Guard,
   Slash,
-  SlashChoice,
   SlashGroup,
   SlashOption,
 } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { RemindType } from "#/apps/uppy/controllers/reminder/reminder.const.js";
 import { IsHelper } from "#/apps/uppy/guards/is-helper.guard.js";
 import { GuildOnly } from "#/guards/is-guild-only.js";
 
-import { StaffService } from "./staff.service.js";
+import { UppyAutocompleteService } from "./interactions/uppy-autocomplete.service.js";
+import { UppyInfoService } from "./interactions/uppy-info.service.js";
+import { UppyRemainingService } from "./interactions/uppy-remaining.service.js";
+import { UppyStatsService } from "./interactions/uppy-stats.service.js";
+import { UppyLeaderboardService } from "./interactions/uppy-top.service.js";
+import { BaseUppyService } from "./uppy.service.js";
 
 @Discord()
 @singleton()
@@ -31,16 +34,23 @@ import { StaffService } from "./staff.service.js";
   dmPermission: false,
 })
 @SlashGroup("uppy")
-export class StaffController {
-  constructor(@inject(StaffService) private staffService: StaffService) {}
+export class UppyController {
+  constructor(
+    @inject(UppyStatsService) private uppyStatsService: UppyStatsService,
+    @inject(UppyLeaderboardService)
+    private uppyTopService: UppyLeaderboardService,
+    @inject(UppyRemainingService)
+    private uppyRemainingService: UppyRemainingService,
+    @inject(UppyInfoService) private uppyInfoService: UppyInfoService,
+  ) {}
 
   @Slash({
     name: "remaining",
     description: "Время до команд",
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
-  reminderStatus(interaction: ChatInputCommandInteraction) {
-    return this.staffService.handleRemainingCommand(interaction);
+  remaining(interaction: ChatInputCommandInteraction) {
+    return this.uppyRemainingService.handleRemainingCommand(interaction);
   }
 
   @Slash({
@@ -48,11 +58,11 @@ export class StaffController {
     description: "Бамп статистика пользователя",
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
-  staffInfoSlash(
+  uppyInfoSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
       name: "user",
-      description: "Пользователь",
+      description: "Пользователь (по-умолчанию ВЫ)",
       required: false,
     })
     user: User,
@@ -60,7 +70,8 @@ export class StaffController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
+      autocomplete:
+        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
       required: false,
     })
     from: string,
@@ -68,13 +79,14 @@ export class StaffController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
+      autocomplete:
+        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
       required: false,
     })
     to: string,
     interaction: ChatInputCommandInteraction,
   ) {
-    return this.staffService.handleInfoCommand(interaction, user, from, to);
+    return this.uppyInfoService.handleInfoCommand(interaction, user, from, to);
   }
 
   @Slash({
@@ -82,12 +94,13 @@ export class StaffController {
     description: "Топ сотрудников",
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
-  staffTopSlash(
+  uppyTopSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
+      autocomplete:
+        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
       required: false,
     })
     from: string,
@@ -95,13 +108,14 @@ export class StaffController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete: StaffService.handleTopAutocomplete.bind(StaffService),
+      autocomplete:
+        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
       required: false,
     })
     to: string,
     interaction: ChatInputCommandInteraction,
   ) {
-    return this.staffService.handleTopCommand(interaction, from, to);
+    return this.uppyTopService.handleTopCommand(interaction, from, to);
   }
 
   @ContextMenu({
@@ -109,8 +123,8 @@ export class StaffController {
     type: ApplicationCommandType.User,
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
-  staffInfoContext(interaction: UserContextMenuCommandInteraction) {
-    return this.staffService.handleInfoCommand(
+  uppyInfoContext(interaction: UserContextMenuCommandInteraction) {
+    return this.uppyInfoService.handleInfoCommand(
       interaction,
       interaction.targetUser,
     );
@@ -121,30 +135,7 @@ export class StaffController {
     name: "history",
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
-  staffStats(
-    @SlashChoice(
-      ...[
-        {
-          name: "По команде up",
-          value: RemindType.SdcMonitoring,
-        },
-        {
-          name: "По команде bump",
-          value: RemindType.ServerMonitoring,
-        },
-        {
-          name: "По команде like",
-          value: RemindType.DiscordMonitoring,
-        },
-      ],
-    )
-    @SlashOption({
-      name: "field",
-      description: "Поле для просмотра",
-      required: false,
-      type: ApplicationCommandOptionType.Number,
-    })
-    field: number,
+  uppyHistory(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
       name: "user",
@@ -154,6 +145,6 @@ export class StaffController {
     user: User,
     interaction: ChatInputCommandInteraction,
   ) {
-    return this.staffService.handleStatsCommand(interaction, user, field);
+    return this.uppyStatsService.handleStatsCommand(interaction, user);
   }
 }

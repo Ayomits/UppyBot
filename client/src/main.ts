@@ -1,13 +1,15 @@
 import "reflect-metadata";
 
 import { mongoose } from "@typegoose/typegoose";
+import { DIService, tsyringeDependencyRegistryEngine } from "discordx";
+import { container } from "tsyringe";
 
 import { clientManager } from "./clients.js";
 import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
 
 async function bootstrap() {
-  console.log(Env.MongoUrl);
+  DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
   await mongoose
     .connect(Env.MongoUrl, {
       autoCreate: true,

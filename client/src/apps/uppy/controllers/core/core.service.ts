@@ -25,10 +25,10 @@ import { createSafeCollector } from "#/libs/utils/collector.js";
 import { LatencyService } from "#/shared/services/latency.service.js";
 
 import { CoreInviteMessage } from "../../messages/core-invite.message.js";
-import { CoreCustomIds } from "./core.const.js";
+import { UppyCoreCustomIds } from "./core.const.js";
 
 @injectable()
-export class CoreService {
+export class UppyCoreService {
   constructor(@inject(LatencyService) private latencyService: LatencyService) {}
 
   // =========core latency============
@@ -46,7 +46,7 @@ export class CoreService {
     collector.on("collect", (interaction) => {
       const customId = interaction.customId;
       const handlers = {
-        [CoreCustomIds.buttons.actions.refresh]:
+        [UppyCoreCustomIds.buttons.actions.refresh]:
           this.handleRefreshButton.bind(this),
       };
 
@@ -89,7 +89,7 @@ export class CoreService {
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
-            .setCustomId(CoreCustomIds.buttons.actions.refresh)
+            .setCustomId(UppyCoreCustomIds.buttons.actions.refresh)
             .setLabel("Обновить")
             .setStyle(ButtonStyle.Secondary),
         ),

@@ -28,3 +28,5 @@ export const endDateValue = {
   second: 59,
   millisecond: 59,
 };
+
+export const UppyPaginationLimit = 10;

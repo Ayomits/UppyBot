@@ -29,8 +29,8 @@ import {
 } from "#/models/settings.model.js";
 
 import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
-import { LogService } from "../logging/log.service.js";
-import { endDateValue, startDateValue } from "../staff/staff.const.js";
+import { UppyLogService } from "../logging/log.service.js";
+import { endDateValue, startDateValue } from "../uppy/uppy.const.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
@@ -52,7 +52,7 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-    @inject(LogService) private logService: LogService,
+    @inject(UppyLogService) private logService: UppyLogService,
   ) {}
 
   public async handleCommand(message: Message) {
