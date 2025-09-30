@@ -4,8 +4,7 @@ import { dirname, importx } from "@discordx/importer";
 import { LocalCache } from "@ts-fetcher/cache";
 import type { Snowflake } from "discord.js";
 import { GatewayIntentBits, type Interaction, type Message } from "discord.js";
-import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
-import { container } from "tsyringe";
+import { Client } from "discordx";
 
 import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
@@ -41,7 +40,6 @@ export class ClientManager {
   }
 
   private async createClient(name: ClientName) {
-    DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
     const client = new Client({
       intents: [
         GatewayIntentBits.MessageContent,
@@ -60,7 +58,7 @@ export class ClientManager {
       async function initCommands(__retries = 0) {
         if (__retries < 3) {
           try {
-            await client.initApplicationCommands();
+            await client.initApplicationCommands().catch(logger.error);
           } catch (err) {
             await client.clearApplicationCommands();
             await initCommands(__retries + 1);

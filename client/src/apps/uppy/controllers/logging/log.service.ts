@@ -33,7 +33,7 @@ type LogValue = {
 };
 
 @singleton()
-export class LogService {
+export class UppyLogService {
   private cache: LocalCache<Snowflake, LogValue>;
 
   constructor() {

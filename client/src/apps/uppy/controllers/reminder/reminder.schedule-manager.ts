@@ -16,7 +16,7 @@ import {
 } from "#/models/settings.model.js";
 
 import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
-import { LogService } from "../logging/log.service.js";
+import { UppyLogService } from "../logging/log.service.js";
 import {
   BumpBanCheckerInterval,
   BumpBanLimit,
@@ -30,7 +30,7 @@ import type { ParserValue } from "./reminder.parser.js";
 
 @injectable()
 export class ReminderScheduleManager {
-  constructor(@inject(LogService) private logService: LogService) {}
+  constructor(@inject(UppyLogService) private logService: UppyLogService) {}
 
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);

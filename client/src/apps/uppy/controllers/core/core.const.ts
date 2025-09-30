@@ -1,4 +1,4 @@
-export const CoreCustomIds = {
+export const UppyCoreCustomIds = {
   buttons: {
     actions: {
       refresh: "refresh-latency",

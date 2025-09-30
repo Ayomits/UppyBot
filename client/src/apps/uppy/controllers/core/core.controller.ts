@@ -7,14 +7,14 @@ import { inject, singleton } from "tsyringe";
 
 import { Documentation } from "#/const/documentation.js";
 
-import { CoreService } from "./core.service.js";
+import { UppyCoreService } from "./core.service.js";
 
 @Discord()
 @singleton()
 @SlashGroup({ name: "core", description: "Команды бота" })
 @SlashGroup("core")
-export class CoreController {
-  constructor(@inject(CoreService) private coreService: CoreService) {}
+export class UppyCoreController {
+  constructor(@inject(UppyCoreService) private coreService: UppyCoreService) {}
 
   @Slash({ name: "latency", description: "Задержка бота" })
   handleLatency(interaction: ChatInputCommandInteraction) {
