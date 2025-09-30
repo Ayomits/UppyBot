@@ -362,7 +362,7 @@ export class StaffService {
 
       const [data] = await BumpUserModel.aggregate<{
         users: Partial<BumpUserDocument>[];
-        meta: { count: number };
+        meta: { count: number }[];
       }>([
         {
           $match: filter,
@@ -380,13 +380,35 @@ export class StaffService {
                   points: { $sum: "$points" },
                 },
               },
+              { $sort: { points: -1 } },
+              { $skip: skip },
+              { $limit: limit },
             ],
-            meta: [{ $group: { _id: null, count: { $sum: 1 } } }],
+            totalCount: [
+              {
+                $group: {
+                  _id: "$userId",
+                },
+              },
+              {
+                $count: "count",
+              },
+            ],
           },
         },
-      ])
-        .limit(limit)
-        .skip(skip);
+        {
+          $project: {
+            users: 1,
+            meta: [
+              {
+                count: {
+                  $ifNull: [{ $arrayElemAt: ["$totalCount.count", 0] }, 0],
+                },
+              },
+            ],
+          },
+        },
+      ]);
 
       return {
         users: data?.users ?? [],
