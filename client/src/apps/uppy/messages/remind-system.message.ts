@@ -28,7 +28,7 @@ export const UppyRemindSystemMessage = {
         roles: Snowflake[],
         commandName: string,
         commandId: string,
-        force: number,
+        force: number
       ) =>
         `${roles.map(roleMention).join(" ")}, команда ${chatInputApplicationCommandMention(commandName, commandId)} будет доступа ${time(Math.floor((Date.now() + force * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
     },
@@ -50,18 +50,13 @@ export const UppyRemindSystemMessage = {
         user: User,
         points: number,
         command: MonitoringCommandIds,
-        lastRemind: RemindDocument,
+        lastRemind: RemindDocument
       ) => {
         const { years, months, weeks, days, hours, minutes, seconds } =
-          DateTime.now().diff(DateTime.fromJSDate(lastRemind.timestamp), [
-            "years",
-            "months",
-            "weeks",
-            "days",
-            "hours",
-            "minutes",
-            "seconds",
-          ]);
+          DateTime.now().diff(
+            DateTime.fromJSDate(lastRemind?.timestamp ?? new Date()),
+            ["years", "months", "weeks", "days", "hours", "minutes", "seconds"]
+          );
 
         function format() {
           const toFormat = [];
