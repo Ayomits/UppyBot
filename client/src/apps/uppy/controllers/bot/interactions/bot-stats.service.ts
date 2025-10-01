@@ -1,3 +1,4 @@
+import type { ChatInputCommandInteraction } from "discord.js";
 import { injectable } from "tsyringe";
 
 @injectable()
