@@ -5,7 +5,8 @@ import { inject, singleton } from "tsyringe";
 import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
-import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
+import { RemindBumpBanManager } from "./reminder-bump-ban.manager.js";
+import { ReminderScheduleManager } from "./reminder-schedule.manager.js";
 
 @Discord()
 @singleton()
@@ -15,12 +16,13 @@ export class BumpReminderController {
     private reminderHandler: ReminderHandler,
     @inject(ReminderScheduleManager)
     private remindSchedule: ReminderScheduleManager,
+    @inject(RemindBumpBanManager) private bumpBanManager: RemindBumpBanManager,
   ) {}
 
   @On({ event: "ready" })
   onReady([client]: ArgsOf<"ready">) {
     this.remindSchedule.initReminds(client as Client);
-    this.remindSchedule.initBumpBan(client as Client);
+    this.bumpBanManager.initBumpBan(client as Client);
   }
 
   @On({ event: "messageCreate" })

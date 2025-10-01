@@ -31,7 +31,7 @@ export class UppyBotPingService {
     await interaction.deferReply();
 
     const repl = await interaction.editReply(
-      await this.buildMessage(interaction)
+      await this.buildMessage(interaction),
     );
 
     const collector = createSafeCollector(repl, {
@@ -55,7 +55,7 @@ export class UppyBotPingService {
   }
 
   private async buildMessage(
-    interaction: ChatInputCommandInteraction | ButtonInteraction
+    interaction: ChatInputCommandInteraction | ButtonInteraction,
   ): Promise<InteractionEditReplyOptions> {
     const [ws, mongo] = [
       this.latencyService.wsLatency(interaction.client as Client),
@@ -66,19 +66,19 @@ export class UppyBotPingService {
       .addSectionComponents(
         new SectionBuilder()
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user))
+            builder.setURL(UsersUtility.getAvatar(interaction.user)),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
               [
                 heading("Задержка бота", HeadingLevel.Two),
                 unorderedList([
-                  `${bold("Mongo:")} ${mongo}ms`,
-                  `${bold("WS:")} ${ws}ms`,
+                  `${bold("Db:")} ${mongo}ms`,
+                  `${bold("Ws:")} ${ws}ms`,
                 ]),
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents((row) =>
@@ -86,8 +86,8 @@ export class UppyBotPingService {
           new ButtonBuilder()
             .setCustomId(UppyCoreCustomIds.buttons.actions.refresh)
             .setLabel("Обновить")
-            .setStyle(ButtonStyle.Secondary)
-        )
+            .setStyle(ButtonStyle.Secondary),
+        ),
       );
 
     return {

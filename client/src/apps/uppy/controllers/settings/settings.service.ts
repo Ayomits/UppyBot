@@ -37,7 +37,7 @@ import {
   PointsRate,
   RemindType,
 } from "../reminder/reminder.const.js";
-import { ReminderScheduleManager } from "../reminder/reminder.schedule-manager.js";
+import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";
 import {
   MULTIPLE_ROLE_SELECT_FIELDS,
   SettingsCustomIds,
@@ -47,7 +47,7 @@ import {
 export class SettingsService {
   constructor(
     @inject(ReminderScheduleManager)
-    private scheduleManager: ReminderScheduleManager
+    private scheduleManager: ReminderScheduleManager,
   ) {}
 
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
@@ -86,7 +86,7 @@ export class SettingsService {
 
   // =============Главная панель==============
   private async buildMainSettingsPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
@@ -101,10 +101,10 @@ export class SettingsService {
         this.createRoleManagementButton(),
         this.createRefreshButton(),
         this.createForceRemindButton(),
-        this.createUseForceButton()
+        this.createUseForceButton(),
       ),
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        this.createAwardManageButton()
+        this.createAwardManageButton(),
       ),
     ];
 
@@ -160,20 +160,26 @@ export class SettingsService {
     const existed = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     await SettingsModel.updateOne(
       { _id: existed.id },
-      { useForceOnly: !existed.useForceOnly }
+      { useForceOnly: !existed.useForceOnly },
     );
 
-    return interaction.editReply({
+    interaction.editReply({
       content:
         UppySettingsMessage.managers.force.buttons.actions.useForceOnly.content(
-          !existed.useForceOnly
+          !existed.useForceOnly,
         ),
     });
+
+    Object.values(RemindType).map((t) =>
+      !existed.useForceOnly
+        ? this.scheduleManager.commonRemindDeletion(interaction.guild.id, t)
+        : this.scheduleManager.commonRemindReplacement(interaction.guild, t),
+    );
   }
 
   private openSetForceModal(interaction: ButtonInteraction) {
@@ -187,13 +193,14 @@ export class SettingsService {
         .setPlaceholder("Введите количество секунд")
         .setCustomId("time")
         .setRequired(true)
-        .setStyle(TextInputStyle.Short)
+        .setStyle(TextInputStyle.Short),
     );
 
     return interaction.showModal(modal.addComponents(time));
   }
 
   public async handleSetForceModal(interaction: ModalSubmitInteraction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const fieldSeconds = Number(interaction.fields.getTextInputValue("time"));
     let seconds: number;
     if (Number.isNaN(fieldSeconds)) {
@@ -204,7 +211,7 @@ export class SettingsService {
 
     seconds = Math.min(
       Math.max(0, seconds),
-      3_600 * MonitoringCooldownHours - 2
+      3_600 * MonitoringCooldownHours - 2,
     );
 
     await SettingsModel.findOneAndUpdate(
@@ -213,14 +220,23 @@ export class SettingsService {
       },
       {
         force: seconds,
-      }
+      },
     );
 
-    return interaction.reply({
+    interaction.editReply({
       content:
         UppySettingsMessage.managers.force.modal.actions.setForceTime.content,
-      flags: MessageFlags.Ephemeral,
     });
+
+    Object.values(RemindType).map((t) =>
+      seconds > 0
+        ? this.scheduleManager.forceRemindReplacement(
+            interaction.guild,
+            t,
+            seconds,
+          )
+        : this.scheduleManager.forceRemindDeletion(interaction.guild.id, t),
+    );
   }
 
   //==============Управление каналами=============
@@ -252,7 +268,7 @@ export class SettingsService {
   }
 
   private async buildChannelManagementPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
@@ -267,15 +283,15 @@ export class SettingsService {
           .setCustomId(SettingsCustomIds.selects.managers.channels)
           .setOptions(...UppySettingsMessage.managers.channels.select.options)
           .setPlaceholder(
-            UppySettingsMessage.managers.channels.select.placeholder
-          )
+            UppySettingsMessage.managers.channels.select.placeholder,
+          ),
       );
 
     return { embeds: [embed], components: [channelFieldSelector] };
   }
 
   private async handleChannelFieldSelection(
-    interaction: StringSelectMenuInteraction
+    interaction: StringSelectMenuInteraction,
   ) {
     await interaction.deferUpdate();
 
@@ -285,15 +301,15 @@ export class SettingsService {
           .setCustomId(SettingsCustomIds.selects.actions.channel.action)
           .setChannelTypes(ChannelType.GuildText)
           .setPlaceholder(
-            UppySettingsMessage.managers.channels.select.actions.channel
-          )
+            UppySettingsMessage.managers.channels.select.actions.channel,
+          ),
       );
 
     const backward = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.channel.backward)
         .setLabel(UppySettingsMessage.managers.channels.buttons.backward.label)
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     await interaction.editReply({ components: [channelSelector, backward] });
@@ -301,24 +317,24 @@ export class SettingsService {
 
   private async handleChannelSelection(
     interaction: ChannelSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     await interaction.deferUpdate();
 
     await SettingsModel.updateOne(
       { guildId: interaction.guildId },
-      { [field]: interaction.values[0] }
+      { [field]: interaction.values[0] },
     );
 
     await interaction.editReply(
-      await this.buildChannelManagementPanel(interaction)
+      await this.buildChannelManagementPanel(interaction),
     );
   }
 
   private async handleChannelBackward(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildChannelManagementPanel(interaction)
+      await this.buildChannelManagementPanel(interaction),
     );
   }
 
@@ -351,7 +367,7 @@ export class SettingsService {
   }
 
   private async buildRoleManagementPanel(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const settings = await this.getOrCreateSettings(interaction.guildId);
 
@@ -365,7 +381,9 @@ export class SettingsService {
         new StringSelectMenuBuilder()
           .setCustomId(SettingsCustomIds.selects.managers.roles)
           .setOptions(...UppySettingsMessage.managers.roles.select.options)
-          .setPlaceholder(UppySettingsMessage.managers.roles.select.placeholder)
+          .setPlaceholder(
+            UppySettingsMessage.managers.roles.select.placeholder,
+          ),
       );
 
     return { embeds: [embed], components: [roleFieldSelector] };
@@ -373,7 +391,7 @@ export class SettingsService {
 
   private async handleRoleFieldSelection(
     interaction: StringSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     const settings = await this.getOrCreateSettings(interaction.guildId);
     await interaction.deferUpdate();
@@ -386,7 +404,7 @@ export class SettingsService {
       new ButtonBuilder()
         .setCustomId(SettingsCustomIds.selects.actions.role.backward)
         .setLabel(UppySettingsMessage.managers.roles.buttons.backward.label)
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     if (MULTIPLE_ROLE_SELECT_FIELDS.includes(field)) {
@@ -396,7 +414,7 @@ export class SettingsService {
         roleSelector.setDefaultRoles(
           currentRoles
             .filter((r) => interaction.guild.roles.cache.get(r))
-            .slice(0, 25)
+            .slice(0, 25),
         );
       }
     }
@@ -404,7 +422,7 @@ export class SettingsService {
     await interaction.editReply({
       components: [
         new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-          roleSelector
+          roleSelector,
         ),
         backward,
       ],
@@ -413,7 +431,7 @@ export class SettingsService {
 
   private async handleRoleSelection(
     interaction: RoleSelectMenuInteraction,
-    field: ObjectKeys<Settings>
+    field: ObjectKeys<Settings>,
   ) {
     await interaction.deferUpdate();
 
@@ -424,18 +442,18 @@ export class SettingsService {
 
     await SettingsModel.updateOne(
       { guildId: interaction.guildId },
-      { [field]: newValue }
+      { [field]: newValue },
     );
 
     await interaction.editReply(
-      await this.buildRoleManagementPanel(interaction)
+      await this.buildRoleManagementPanel(interaction),
     );
   }
 
   private async handleRoleBackward(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     await interaction.editReply(
-      await this.buildRoleManagementPanel(interaction)
+      await this.buildRoleManagementPanel(interaction),
     );
   }
 
@@ -444,7 +462,7 @@ export class SettingsService {
   private async openAwardManagement(interaction: ButtonInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const repl = await interaction.editReply(
-      await this.buildAwardManagementMessage(interaction)
+      await this.buildAwardManagementMessage(interaction),
     );
 
     const collector = createSafeCollector(repl);
@@ -504,7 +522,7 @@ export class SettingsService {
             `Стандартно: ${config.server?.default}`,
             `Бонус: ${config?.server?.bonus}`,
           ].join("\n"),
-        }
+        },
       )
       .setDefaults(interaction.user);
 
@@ -524,8 +542,8 @@ export class SettingsService {
             {
               label: "Server monitoring",
               value: `${RemindType.ServerMonitoring}`,
-            }
-          )
+            },
+          ),
       );
 
     return {
@@ -535,7 +553,7 @@ export class SettingsService {
   }
 
   private async openAwardManagmentModal(
-    interaction: StringSelectMenuInteraction
+    interaction: StringSelectMenuInteraction,
   ) {
     const type_ = Number(interaction.values[0]);
     const entry = await safePointConfig(interaction.guildId, type_);
@@ -551,7 +569,7 @@ export class SettingsService {
           .setLabel("Обычное кол-во")
           .setRequired(true)
           .setValue(entry.default.toString())
-          .setStyle(TextInputStyle.Short)
+          .setStyle(TextInputStyle.Short),
       );
     const bonusAmount = new ActionRowBuilder<TextInputBuilder>().addComponents(
       new TextInputBuilder()
@@ -559,7 +577,7 @@ export class SettingsService {
         .setLabel("Бонусное кол-во")
         .setRequired(true)
         .setValue(entry.bonus.toString())
-        .setStyle(TextInputStyle.Short)
+        .setStyle(TextInputStyle.Short),
     );
     const type = new ActionRowBuilder<TextInputBuilder>().addComponents(
       new TextInputBuilder()
@@ -567,7 +585,7 @@ export class SettingsService {
         .setLabel("Мониторинг")
         .setValue(type_.toString())
         .setRequired(true)
-        .setStyle(TextInputStyle.Short)
+        .setStyle(TextInputStyle.Short),
     );
 
     modal.addComponents(defaultAmount, bonusAmount, type);
@@ -605,7 +623,7 @@ export class SettingsService {
         default: default_,
         bonus,
       },
-      { upsert: true }
+      { upsert: true },
     );
 
     return interaction.editReply({
@@ -618,7 +636,7 @@ export class SettingsService {
     return await SettingsModel.findOneAndUpdate(
       { guildId },
       {},
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
   }
 

@@ -4,6 +4,7 @@ import { inject, singleton } from "tsyringe";
 
 import { UppyBotInviteService } from "./interactions/bot-invite.service.js";
 import { UppyBotPingService } from "./interactions/bot-ping.service.js";
+import { UppyBotStatsService } from "./interactions/bot-stats.service.js";
 
 @Discord()
 @singleton()
@@ -12,11 +13,17 @@ import { UppyBotPingService } from "./interactions/bot-ping.service.js";
 export class UppyCoreController {
   constructor(
     @inject(UppyBotPingService) private pingService: UppyBotPingService,
-    @inject(UppyBotInviteService) private inviteService: UppyBotInviteService
+    @inject(UppyBotInviteService) private inviteService: UppyBotInviteService,
+    @inject(UppyBotStatsService) private statService: UppyBotStatsService,
   ) {}
 
   @Slash({ name: "ping", description: "Задержка бота" })
   handlePing(interaction: ChatInputCommandInteraction) {
+    return this.pingService.handleLatencyCommand(interaction);
+  }
+
+  @Slash({ name: "latency", description: "Задержка бота" })
+  handleLatency(interaction: ChatInputCommandInteraction) {
     return this.pingService.handleLatencyCommand(interaction);
   }
 
@@ -26,5 +33,7 @@ export class UppyCoreController {
   }
 
   @Slash({ name: "stats", description: "Статистика бота" })
-  handleStats(interaction: ChatInputCommandInteraction) {}
+  handleStats(interaction: ChatInputCommandInteraction) {
+    return this.statService.handleStats(interaction);
+  }
 }

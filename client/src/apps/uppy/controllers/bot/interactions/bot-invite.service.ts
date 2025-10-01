@@ -27,12 +27,12 @@ export class UppyBotInviteService {
                 heading(CoreInviteMessage.embed.title, HeadingLevel.Two),
                 "",
                 CoreInviteMessage.embed.description,
-              ].join("\n")
-            )
+              ].join("\n"),
+            ),
           )
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user))
-          )
+            builder.setURL(UsersUtility.getAvatar(interaction.user)),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -43,7 +43,7 @@ export class UppyBotInviteService {
     });
   }
 
-  private buildResourcesLinks() {
+  protected buildResourcesLinks() {
     return [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
@@ -57,7 +57,7 @@ export class UppyBotInviteService {
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.news)
           .setStyle(ButtonStyle.Link)
-          .setURL(newsTgc)
+          .setURL(newsTgc),
       ),
     ];
   }

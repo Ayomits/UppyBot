@@ -40,7 +40,7 @@ import {
   RemindType,
 } from "./reminder.const.js";
 import { type ParserValue, ReminderParser } from "./reminder.parser.js";
-import { ReminderScheduleManager } from "./reminder.schedule-manager.js";
+import { ReminderScheduleManager } from "./reminder-schedule.manager.js";
 
 @singleton()
 /**
