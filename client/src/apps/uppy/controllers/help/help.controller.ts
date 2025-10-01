@@ -1,8 +1,5 @@
-import type {
-  ChatInputCommandInteraction} from "discord.js";
-import {
-  ApplicationCommandOptionType
-} from "discord.js";
+import type { ChatInputCommandInteraction } from "discord.js";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { inject, singleton } from "tsyringe";
 
@@ -25,7 +22,7 @@ export class UppyHelpController {
       autocomplete: (interaction) => {
         const focused = interaction.options.getFocused();
         const prepared = Documentation.filter((docs) =>
-          focused === "" ? true : docs.name.includes(focused)
+          focused === "" ? true : docs.name.includes(focused),
         )
           .map((docs, idx) => ({
             name: docs.name,
@@ -36,7 +33,7 @@ export class UppyHelpController {
       },
     })
     topic: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.helpService.handleHelpCommand(interaction, topic);
   }

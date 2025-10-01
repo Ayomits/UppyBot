@@ -2,11 +2,10 @@ import type { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
+import { developers } from "#/const/owners.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
 import { UppyGuardMessage } from "../messages/guard.message.js";
-
-const developers = ["1129162686194790572", "935048996722978896"];
 
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,

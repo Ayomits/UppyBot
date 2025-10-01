@@ -1,5 +1,15 @@
-import type { ChatInputCommandInteraction} from "discord.js";
-import { ActionRowBuilder, bold, ButtonBuilder, ButtonStyle, ContainerBuilder, heading, HeadingLevel, MessageFlags, unorderedList } from "discord.js";
+import type { ChatInputCommandInteraction } from "discord.js";
+import {
+  ActionRowBuilder,
+  bold,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  heading,
+  HeadingLevel,
+  MessageFlags,
+  unorderedList,
+} from "discord.js";
 
 import { Documentation } from "#/const/documentation.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
@@ -7,7 +17,7 @@ import { UsersUtility } from "#/libs/embed/users.utility.js";
 export class UppyHelpService {
   async handleHelpCommand(
     interaction: ChatInputCommandInteraction,
-    topic: string
+    topic: string,
   ) {
     await interaction.deferReply();
     const idx = Number(topic);
@@ -47,8 +57,8 @@ export class UppyHelpService {
             new ButtonBuilder()
               .setStyle(ButtonStyle.Link)
               .setLabel(link.name)
-              .setURL(link.url)
-          )
+              .setURL(link.url),
+          ),
         );
 
         rows.push(row);
@@ -60,7 +70,7 @@ export class UppyHelpService {
     const container = new ContainerBuilder().addSectionComponents((builder) =>
       builder
         .setThumbnailAccessory((builder) =>
-          builder.setURL(UsersUtility.getAvatar(interaction.user))
+          builder.setURL(UsersUtility.getAvatar(interaction.user)),
         )
         .addTextDisplayComponents((builder) =>
           builder.setContent(
@@ -76,9 +86,9 @@ export class UppyHelpService {
               normalizeDocs("Дополнительно", theme.meta?.addition),
             ]
               .filter(Boolean)
-              .join("\n")
-          )
-        )
+              .join("\n"),
+          ),
+        ),
     );
 
     if (theme.meta?.links && theme.meta.links.length) {
