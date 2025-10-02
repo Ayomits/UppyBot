@@ -7,7 +7,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import {
   BumpBanLimit,
-  type RemindType,
+  type MonitoringType,
 } from "#/apps/uppy/controllers/reminder/reminder.const.js";
 
 export class BumpBan extends TimeStamps {
@@ -15,7 +15,7 @@ export class BumpBan extends TimeStamps {
   guildId: string;
 
   @prop({ required: true })
-  type: RemindType;
+  type: MonitoringType;
 
   @prop({ required: true })
   userId: string;

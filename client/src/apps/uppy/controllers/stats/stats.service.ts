@@ -4,7 +4,7 @@ import { injectable } from "tsyringe";
 
 import type { MonitoringBot } from "../reminder/reminder.const.js";
 import { DefaultTimezone } from "../reminder/reminder.const.js";
-import { endDateValue, startDateValue } from "./uppy.const.js";
+import { endDateValue, startDateValue } from "./stats.const.js";
 
 @injectable()
 export class BaseUppyService {

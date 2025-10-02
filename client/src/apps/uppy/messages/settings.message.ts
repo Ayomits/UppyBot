@@ -54,7 +54,10 @@ export const UppySettingsMessage = {
             "Канал для пингов",
             settings?.pingChannelId ?? null,
           ),
-          createChannelField("Канал для логов", settings?.logChannelId ?? null),
+          createChannelField(
+            "Канал для логов",
+            settings?.actionLogChannelId ?? null,
+          ),
         ],
       },
       buttons: { backward: { label: "Назад" } },
@@ -67,7 +70,7 @@ export const UppySettingsMessage = {
             .setValue("pingChannelId"),
           new StringSelectMenuOptionBuilder()
             .setLabel("Канал для логгирования")
-            .setValue("logChannelId"),
+            .setValue("actionLogChannelId"),
         ],
       },
     },
@@ -109,7 +112,7 @@ export const UppySettingsMessage = {
             .setLabel("Роли сотрудников")
             .setValue("bumpRoleIds"),
           new StringSelectMenuOptionBuilder()
-            .setLabel("Роли управляющих")
+            .setLabel("Роли менеджеров")
             .setValue("managerRoles"),
           new StringSelectMenuOptionBuilder()
             .setLabel("Роль бамп бана")

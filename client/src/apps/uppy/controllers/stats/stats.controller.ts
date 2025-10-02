@@ -19,21 +19,20 @@ import { inject, singleton } from "tsyringe";
 import { IsHelper } from "#/apps/uppy/guards/is-helper.guard.js";
 import { GuildOnly } from "#/guards/is-guild-only.js";
 
-import { UppyAutocompleteService } from "./interactions/uppy-autocomplete.service.js";
-import { UppyInfoService } from "./interactions/uppy-info.service.js";
-import { UppyRemainingService } from "./interactions/uppy-remaining.service.js";
-import { UppyStatsService } from "./interactions/uppy-stats.service.js";
-import { UppyLeaderboardService } from "./interactions/uppy-top.service.js";
-import { BaseUppyService } from "./uppy.service.js";
+import { UppyRemainingService } from "./interactions/remaining.service.js";
+import { UppyAutocompleteService } from "./interactions/stats-autocomplete.service.js";
+import { UppyStatsService } from "./interactions/stats-history.service.js";
+import { UppyInfoService } from "./interactions/stats-info.service.js";
+import { UppyLeaderboardService } from "./interactions/stats-top.service.js";
+import { BaseUppyService } from "./stats.service.js";
 
 @Discord()
 @singleton()
 @SlashGroup({
-  name: "uppy",
-  description: "Команды хелперов",
+  name: "stats",
+  description: "Статистика",
   dmPermission: false,
 })
-@SlashGroup("uppy")
 export class UppyController {
   constructor(
     @inject(UppyStatsService) private uppyStatsService: UppyStatsService,
@@ -55,8 +54,9 @@ export class UppyController {
 
   @Slash({
     name: "info",
-    description: "Бамп статистика пользователя",
+    description: "Статистика сотрудника",
   })
+  @SlashGroup("stats")
   @Guard(IsHelper, IsGuildUser(GuildOnly))
   uppyInfoSlash(
     @SlashOption({
@@ -91,8 +91,9 @@ export class UppyController {
 
   @Slash({
     name: "top",
-    description: "Топ сотрудников",
+    description: "Таблица лидеров",
   })
+  @SlashGroup("stats")
   @Guard(IsHelper, IsGuildUser(GuildOnly))
   uppyTopSlash(
     @SlashOption({
@@ -131,9 +132,10 @@ export class UppyController {
   }
 
   @Slash({
-    description: "История выполненных команд",
     name: "history",
+    description: "История команд",
   })
+  @SlashGroup("stats")
   @Guard(IsHelper, IsGuildUser(GuildOnly))
   uppyHistory(
     @SlashOption({

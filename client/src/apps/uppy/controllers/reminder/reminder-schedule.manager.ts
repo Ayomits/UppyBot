@@ -1,12 +1,15 @@
-import type { Guild, MessageCreateOptions } from "discord.js";
+import type { Guild, MessageCreateOptions, Snowflake } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { logger } from "#/libs/logger/logger.js";
 import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 import { type RemindDocument, RemindModel } from "#/models/remind.model.js";
-import { RemindLogsModel } from "#/models/remind-logs.model.js";
+import {
+  RemindLogsModel,
+  RemindLogState,
+  RemindType,
+} from "#/models/remind-logs.model.js";
 import {
   type SettingsDocument,
   SettingsModel,
@@ -16,7 +19,7 @@ import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js
 import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,
-  type RemindType,
+  type MonitoringType,
 } from "./reminder.const.js";
 import type { ParserValue } from "./reminder.parser.js";
 
@@ -29,7 +32,7 @@ export class ReminderScheduleManager {
         guild: guilds.get(entry.remind.guildId),
         timestamp: entry.remind.timestamp,
         settings: entry.settings,
-        type: entry.remind.type as RemindType,
+        type: entry.remind.type as MonitoringType,
         isStartup: true,
       }),
     );
@@ -104,18 +107,11 @@ export class ReminderScheduleManager {
 
     const logs = [];
 
-    const createLogDoc = (isForce: boolean) => ({
-      guildId: guild.id,
-      timestamp,
-      type,
-      isForce,
-    });
-
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(lastRemind, guild),
       );
-      logs.push(createLogDoc(false));
+      logs.push(this.saveRemindCreationLog(guild.id, type, RemindType.Common));
     }
 
     if (shouldStartForce) {
@@ -125,15 +121,15 @@ export class ReminderScheduleManager {
         () => this.sendForceRemind(lastRemind, guild),
       );
 
-      logs.push(createLogDoc(true));
+      logs.push(this.saveRemindCreationLog(guild.id, type, RemindType.Force));
     }
 
     if (logs.length > 0 && !isStartup) {
-      await RemindLogsModel.insertMany(logs);
+      await Promise.all(logs);
     }
   }
 
-  private generateCommonId(guildId: string, type: RemindType | number) {
+  private generateCommonId(guildId: string, type: MonitoringType | number) {
     return `${guildId}-${type}-remind`;
   }
 
@@ -143,7 +139,7 @@ export class ReminderScheduleManager {
 
   public async forceRemindReplacement(
     guild: Guild,
-    type: RemindType | number,
+    type: MonitoringType | number,
     force: number,
   ) {
     const { id: guildId } = guild;
@@ -163,17 +159,12 @@ export class ReminderScheduleManager {
       this.sendForceRemind(remind, guild),
     );
 
-    await RemindLogsModel.create({
-      guildId: guild.id,
-      timestamp,
-      type,
-      isForce: true,
-    });
+    await this.saveRemindCreationLog(guildId, type, RemindType.Common);
   }
 
   public async commonRemindReplacement(
     guild: Guild,
-    type: RemindType | number,
+    type: MonitoringType | number,
   ) {
     const { id: guildId } = guild;
     const remind = await RemindModel.findOne({ guildId, type });
@@ -186,44 +177,57 @@ export class ReminderScheduleManager {
 
     this.commonRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, remind?.timestamp, () =>
-      this.sendForceRemind(remind, guild),
+      this.sendCommonRemind(remind, guild),
     );
 
-    await RemindLogsModel.create({
-      guildId: guild.id,
-      timestamp: remind.timestamp,
-      type,
-      isForce: false,
-    });
+    await this.saveRemindCreationLog(guildId, type, RemindType.Common);
   }
 
-  public commonRemindDeletion(guildId: string, type: RemindType | number) {
+  public commonRemindDeletion(guildId: string, type: MonitoringType | number) {
     scheduleManager.stopJob(this.generateCommonId(guildId, type));
+    this.saveRemindCancelationLog(guildId, type, RemindType.Common);
   }
 
-  public forceRemindDeletion(guildId: string, type: RemindType | number) {
+  public forceRemindDeletion(guildId: string, type: MonitoringType | number) {
     scheduleManager.stopJob(this.generateForceId(guildId, type));
+    this.saveRemindCancelationLog(guildId, type, RemindType.Force);
   }
 
   private async sendCommonRemind(remind: RemindDocument, guild: Guild) {
-    return this.sendRemind(remind, guild, (_, settings) => ({
+    this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.ping.content(
         settings?.bumpRoleIds,
         getCommandNameByRemindType(remind.type),
         getCommandIdByRemindType(remind.type),
       ),
-    }));
+    })).then(
+      (isSended) =>
+        isSended &&
+        this.saveRemindSendedLog(
+          remind.guildId,
+          remind.type,
+          RemindType.Common,
+        ),
+    );
   }
 
   private async sendForceRemind(remind: RemindDocument, guild: Guild) {
-    return this.sendRemind(remind, guild, (_, settings) => ({
+    this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.force.content(
         settings?.bumpRoleIds,
         getCommandNameByRemindType(remind.type),
         getCommandIdByRemindType(remind.type),
         settings?.force,
       ),
-    }));
+    })).then(
+      (isSended) =>
+        isSended &&
+        this.saveRemindCreationLog(
+          remind.guildId,
+          remind.type,
+          RemindType.Force,
+        ),
+    );
   }
 
   private async sendRemind(
@@ -234,7 +238,6 @@ export class ReminderScheduleManager {
       settings: SettingsDocument,
     ) => MessageCreateOptions,
   ) {
-    logger.info("Начинаю высылать преждевременное напоминание");
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
@@ -252,11 +255,52 @@ export class ReminderScheduleManager {
     if (channel?.isSendable()) {
       try {
         channel?.send(message(remind, settings));
-        logger.success(
-          `Уведомление успешно выслано для бота ${getCommandNameByRemindType(remind.type)} в канал ${channel.name}`,
-        );
-        // eslint-disable-next-line no-empty
-      } catch {}
+        return true;
+      } catch {
+        return false;
+      }
     }
+    return false;
+  }
+
+  public async saveRemindCreationLog(
+    guildId: Snowflake,
+    monitoring: MonitoringType | number,
+    type: RemindType,
+  ) {
+    return RemindLogsModel.create({
+      guildId: guildId,
+      timestamp: Date.now(),
+      monitoring: monitoring,
+      type: type,
+    });
+  }
+
+  public async saveRemindCancelationLog(
+    guildId: Snowflake,
+    monitoring: MonitoringType | number,
+    type: RemindType,
+  ) {
+    return RemindLogsModel.create({
+      guildId: guildId,
+      timestamp: Date.now(),
+      monitoring: monitoring,
+      type: type,
+      state: RemindLogState.Canceled,
+    });
+  }
+
+  public async saveRemindSendedLog(
+    guildId: Snowflake,
+    monitoring: MonitoringType | number,
+    type: RemindType,
+  ) {
+    return RemindLogsModel.create({
+      guildId: guildId,
+      timestamp: Date.now(),
+      monitoring: monitoring,
+      type: type,
+      state: RemindLogState.Sended,
+    });
   }
 }

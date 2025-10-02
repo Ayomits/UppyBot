@@ -7,7 +7,7 @@ import type { BumpGuildCalendarDocument } from "#/models/bump-guild-calendar.mod
 import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
 import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
 
-import { endDateValue, startDateValue } from "../uppy.const.js";
+import { endDateValue, startDateValue } from "../stats.const.js";
 
 @injectable()
 export class UppyAutocompleteService {

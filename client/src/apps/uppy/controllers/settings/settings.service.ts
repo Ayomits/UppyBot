@@ -34,8 +34,8 @@ import { type Settings, SettingsModel } from "#/models/settings.model.js";
 import { UppySettingsMessage } from "../../messages/settings.message.js";
 import {
   MonitoringCooldownHours,
+  MonitoringType,
   PointsRate,
-  RemindType,
 } from "../reminder/reminder.const.js";
 import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";
 import {
@@ -175,7 +175,7 @@ export class SettingsService {
         ),
     });
 
-    Object.values(RemindType).map((t) =>
+    Object.values(MonitoringType).map((t) =>
       !existed.useForceOnly
         ? this.scheduleManager.commonRemindDeletion(interaction.guild.id, t)
         : this.scheduleManager.commonRemindReplacement(interaction.guild, t),
@@ -228,7 +228,7 @@ export class SettingsService {
         UppySettingsMessage.managers.force.modal.actions.setForceTime.content,
     });
 
-    Object.values(RemindType).map((t) =>
+    Object.values(MonitoringType).map((t) =>
       seconds > 0
         ? this.scheduleManager.forceRemindReplacement(
             interaction.guild,
@@ -482,20 +482,22 @@ export class SettingsService {
   private async buildAwardManagementMessage(interaction: ButtonInteraction) {
     const entries = await PointSettingsModel.find({
       guildId: interaction.guildId,
-      type: { $in: Object.values(RemindType) },
+      type: { $in: Object.values(MonitoringType) },
     });
 
     const config = {
-      sdc: entries.find((e) => e.type === RemindType.SdcMonitoring) ?? {
-        default: PointsRate[RemindType.SdcMonitoring],
+      sdc: entries.find((e) => e.type === MonitoringType.SdcMonitoring) ?? {
+        default: PointsRate[MonitoringType.SdcMonitoring],
         bonus: PointsRate.night,
       },
-      server: entries.find((e) => e.type === RemindType.ServerMonitoring) ?? {
-        default: PointsRate[RemindType.ServerMonitoring],
+      server: entries.find(
+        (e) => e.type === MonitoringType.ServerMonitoring,
+      ) ?? {
+        default: PointsRate[MonitoringType.ServerMonitoring],
         bonus: PointsRate.night,
       },
-      ds: entries.find((e) => e.type === RemindType.DiscordMonitoring) ?? {
-        default: PointsRate[RemindType.DiscordMonitoring],
+      ds: entries.find((e) => e.type === MonitoringType.DiscordMonitoring) ?? {
+        default: PointsRate[MonitoringType.DiscordMonitoring],
         bonus: PointsRate.night,
       },
     };
@@ -533,15 +535,15 @@ export class SettingsService {
           .setOptions(
             {
               label: "Sdc monitoring",
-              value: `${RemindType.SdcMonitoring}`,
+              value: `${MonitoringType.SdcMonitoring}`,
             },
             {
               label: "Discord monitoring",
-              value: `${RemindType.DiscordMonitoring}`,
+              value: `${MonitoringType.DiscordMonitoring}`,
             },
             {
               label: "Server monitoring",
-              value: `${RemindType.ServerMonitoring}`,
+              value: `${MonitoringType.ServerMonitoring}`,
             },
           ),
       );
@@ -607,7 +609,7 @@ export class SettingsService {
 
     if (
       Number.isNaN(type) ||
-      !Object.values(RemindType).includes(type as RemindType)
+      !Object.values(MonitoringType).includes(type as MonitoringType)
     ) {
       return interaction.editReply({
         content: "Такого мониторинга не существует",

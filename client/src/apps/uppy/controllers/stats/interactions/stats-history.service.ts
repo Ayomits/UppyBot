@@ -19,8 +19,8 @@ import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,
 } from "../../reminder/reminder.const.js";
-import { UppyPaginationLimit } from "../uppy.const.js";
-import { BaseUppyService } from "../uppy.service.js";
+import { UppyPaginationLimit } from "../stats.const.js";
+import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyStatsService extends BaseUppyService {
@@ -88,7 +88,7 @@ export class UppyStatsService extends BaseUppyService {
     return await BumpLogModel.find(filter)
       .sort({ createdAt: -1 })
       .skip(page * UppyPaginationLimit)
-      .UppyPaginationLimit(UppyPaginationLimit);
+      .limit(UppyPaginationLimit);
   }
 
   private buildStatsCommandPaginationEmbed(
