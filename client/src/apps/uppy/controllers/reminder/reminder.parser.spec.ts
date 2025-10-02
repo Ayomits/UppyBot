@@ -9,7 +9,7 @@ import {
   DefaultTimezone,
   MonitoringBot,
   MonitoringBotMessage,
-  RemindType,
+  MonitoringType,
 } from "./reminder.const.js";
 import { ReminderParser } from "./reminder.parser.js";
 
@@ -17,7 +17,6 @@ const now = DateTime.now().setZone(DefaultTimezone).toJSDate();
 now.setMilliseconds(0);
 const guildId = "123";
 const userId = "1234";
-
 const mockGuild = {
   id: guildId,
 } as Partial<Guild>;
@@ -96,7 +95,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       ),
     );
   });
@@ -120,7 +119,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       ),
     );
   });
@@ -144,7 +143,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       ),
     );
   });
@@ -168,7 +167,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       ),
     );
   });
@@ -189,7 +188,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       ),
     );
   });
@@ -214,7 +213,7 @@ describe("ReminderParser", () => {
         DateTime.now().plus({ hours: 4 }).toJSDate(),
         mockGuild as Guild,
         userId,
-        RemindType.SdcMonitoring,
+        MonitoringType.SdcMonitoring,
       ),
     );
   });
@@ -238,7 +237,7 @@ describe("ReminderParser", () => {
         now,
         mockGuild as Guild,
         userId,
-        RemindType.SdcMonitoring,
+        MonitoringType.SdcMonitoring,
       ),
     );
   });
@@ -260,7 +259,7 @@ describe("ReminderParser", () => {
         timestamp,
         mockGuild as Guild,
         userId,
-        RemindType.ServerMonitoring,
+        MonitoringType.ServerMonitoring,
       ),
     );
     expect(
@@ -279,7 +278,7 @@ describe("ReminderParser", () => {
         timestamp,
         mockGuild as Guild,
         userId,
-        RemindType.ServerMonitoring,
+        MonitoringType.ServerMonitoring,
       ),
     );
   });
@@ -301,7 +300,7 @@ describe("ReminderParser", () => {
         timestamp,
         mockGuild as Guild,
         userId,
-        RemindType.DisboardMonitoring,
+        MonitoringType.DisboardMonitoring,
       ),
     );
   });
