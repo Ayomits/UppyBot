@@ -3,8 +3,8 @@ import { getModelForClass, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import {
+  type MonitoringType,
   PointsRate,
-  type RemindType,
 } from "#/apps/uppy/controllers/reminder/reminder.const.js";
 
 export class PointSettings extends TimeStamps {
@@ -12,7 +12,7 @@ export class PointSettings extends TimeStamps {
   guildId: string;
 
   @prop({ required: true })
-  type: RemindType;
+  type: MonitoringType;
 
   @prop({ default: 0, required: true })
   default: number;

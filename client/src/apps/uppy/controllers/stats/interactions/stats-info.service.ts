@@ -29,8 +29,8 @@ import { BumpUserModel } from "#/models/bump-user.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
 import { BumpBanLimit } from "../../reminder/reminder.const.js";
-import { StaffCustomIds } from "../uppy.const.js";
-import { BaseUppyService } from "../uppy.service.js";
+import { StaffCustomIds } from "../stats.const.js";
+import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyInfoService extends BaseUppyService {

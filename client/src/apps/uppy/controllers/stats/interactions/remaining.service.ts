@@ -25,9 +25,12 @@ import { createSafeCollector } from "#/libs/utils/collector.js";
 import type { RemindDocument } from "#/models/remind.model.js";
 import { RemindModel } from "#/models/remind.model.js";
 
-import { MonitoringBot, RemindType } from "../../reminder/reminder.const.js";
-import { StaffCustomIds } from "../uppy.const.js";
-import { BaseUppyService } from "../uppy.service.js";
+import {
+  MonitoringBot,
+  MonitoringType,
+} from "../../reminder/reminder.const.js";
+import { StaffCustomIds } from "../stats.const.js";
+import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyRemainingService extends BaseUppyService {
@@ -82,22 +85,22 @@ export class UppyRemainingService extends BaseUppyService {
       ),
     ]);
 
-    const types: RemindType[] = [];
+    const types: MonitoringType[] = [];
 
     if (discordMonitoring) {
-      types.push(RemindType.DiscordMonitoring);
+      types.push(MonitoringType.DiscordMonitoring);
     }
 
     if (sdcMonitoring) {
-      types.push(RemindType.SdcMonitoring);
+      types.push(MonitoringType.SdcMonitoring);
     }
 
     if (serverMonitoring) {
-      types.push(RemindType.ServerMonitoring);
+      types.push(MonitoringType.ServerMonitoring);
     }
 
     if (disboardMonitoring) {
-      types.push(RemindType.DisboardMonitoring);
+      types.push(MonitoringType.DisboardMonitoring);
     }
 
     const monitorings = await RemindModel.find({

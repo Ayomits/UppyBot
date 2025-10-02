@@ -6,6 +6,7 @@ import {
   time,
   TimestampStyles,
   unorderedList,
+  userMention,
 } from "discord.js";
 import { DateTime } from "luxon";
 
@@ -15,6 +16,55 @@ import {
   getCommandNameByCommandId,
   type MonitoringCommandIds,
 } from "../controllers/reminder/reminder.const.js";
+
+export function calculateReactionTime(curr: Date, diff: Date) {
+  const { years, months, weeks, days, hours, minutes, seconds } =
+    DateTime.fromJSDate(curr).diff(DateTime.fromJSDate(diff), [
+      "years",
+      "months",
+      "weeks",
+      "days",
+      "hours",
+      "minutes",
+      "seconds",
+    ]);
+
+  function format() {
+    const toFormat = [];
+
+    if (years > 0) {
+      toFormat.push(`${Math.floor(years)} лет`);
+    }
+
+    if (months > 0) {
+      toFormat.push(`${Math.floor(months)} месяцев`);
+    }
+
+    if (weeks > 0) {
+      toFormat.push(`${Math.floor(weeks)} недель`);
+    }
+
+    if (days > 0) {
+      toFormat.push(`${Math.floor(days)} дней`);
+    }
+
+    if (hours > 0) {
+      toFormat.push(`${Math.floor(hours)} часов`);
+    }
+
+    if (minutes > 0) {
+      toFormat.push(`${Math.floor(minutes)} минут`);
+    }
+
+    if (seconds > 0) {
+      toFormat.push(`${Math.floor(seconds)} секунд`);
+    }
+
+    return toFormat.join(" ");
+  }
+
+  return format();
+}
 
 export const UppyRemindSystemMessage = {
   remind: {
@@ -50,53 +100,14 @@ export const UppyRemindSystemMessage = {
         user: User,
         points: number,
         command: MonitoringCommandIds,
+        messageTimestamp: Date,
         lastRemind: RemindDocument,
       ) => {
-        const { years, months, weeks, days, hours, minutes, seconds } =
-          DateTime.now().diff(
-            DateTime.fromJSDate(lastRemind?.timestamp ?? new Date()),
-            ["years", "months", "weeks", "days", "hours", "minutes", "seconds"],
-          );
-
-        function format() {
-          const toFormat = [];
-
-          if (years > 0) {
-            toFormat.push(`${Math.floor(years)} лет`);
-          }
-
-          if (months > 0) {
-            toFormat.push(`${Math.floor(months)} месяцев`);
-          }
-
-          if (weeks > 0) {
-            toFormat.push(`${Math.floor(weeks)} недель`);
-          }
-
-          if (days > 0) {
-            toFormat.push(`${Math.floor(days)} дней`);
-          }
-
-          if (hours > 0) {
-            toFormat.push(`${Math.floor(hours)} часов`);
-          }
-
-          if (minutes > 0) {
-            toFormat.push(`${Math.floor(minutes)} минут`);
-          }
-
-          if (seconds > 0) {
-            toFormat.push(`${Math.floor(seconds)} секунд`);
-          }
-
-          return toFormat.join(" ");
-        }
-
         return unorderedList([
           `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command), command)}`,
           `Поинты: ${bold(`${points} поинтов`)}`,
-          `Исполнитель: ${user}`,
-          `Время реакции: ${format()}`,
+          `Исполнитель: ${userMention(user.id)}`,
+          `Время реакции: ${calculateReactionTime(messageTimestamp, lastRemind?.timestamp ?? new Date())}`,
         ]);
       },
     },

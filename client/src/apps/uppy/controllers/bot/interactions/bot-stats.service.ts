@@ -12,7 +12,7 @@ import { injectable } from "tsyringe";
 import { staff } from "#/const/owners.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { BumpLogModel } from "#/models/bump-log.model.js";
-import { RemindModel } from "#/models/remind.model.js";
+import { RemindLogsModel, RemindLogState } from "#/models/remind-logs.model.js";
 
 import { UppyBotInviteService } from "./bot-invite.service.js";
 
@@ -21,9 +21,8 @@ export class UppyBotStatsService extends UppyBotInviteService {
   async handleStats(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    const [guilds, remindCount, bumpsCount] = await Promise.all([
-      interaction.client.guilds.fetch().catch(() => ({ size: 0 })),
-      RemindModel.countDocuments(),
+    const [remindCount, bumpsCount] = await Promise.all([
+      RemindLogsModel.countDocuments({ state: RemindLogState.Sended }),
       BumpLogModel.countDocuments(),
     ]);
 
@@ -39,8 +38,8 @@ export class UppyBotStatsService extends UppyBotInviteService {
                 heading("Информация о боте"),
                 "",
                 unorderedList([
-                  `Количество серверов: ${guilds.size}`,
-                  `Количество напоминаний: ${remindCount}`,
+                  `Количество серверов: ${interaction.client.application.approximateGuildCount}`,
+                  `Количество высланных напоминаний: ${remindCount}`,
                   `Количество обработанных команд: ${bumpsCount}`,
                 ]),
               ].join("\n"),

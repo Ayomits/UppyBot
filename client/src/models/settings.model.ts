@@ -15,14 +15,14 @@ export class Settings extends TimeStamps {
   @prop({ default: [] })
   managerRoles: string[];
 
-  @prop({ alias: "bump_ban_role_id", default: null })
+  @prop({ default: null })
   bumpBanRoleId?: string;
 
-  @prop({ alias: "ping_channel_id", default: null })
+  @prop({ default: null })
   pingChannelId?: string;
 
-  @prop({ alias: "log_channel_id", default: null })
-  logChannelId?: string;
+  @prop({ default: null })
+  actionLogChannelId?: string;
 
   @prop({ default: false })
   useForceOnly: boolean;
@@ -30,6 +30,8 @@ export class Settings extends TimeStamps {
   @prop({ min: 0, default: 0 })
   force: number;
 }
+
+export const SettingsCollectionName = "helper_bot_settings";
 
 export const SettingsModel = getModelForClass(Settings, {
   options: {

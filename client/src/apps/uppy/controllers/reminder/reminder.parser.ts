@@ -7,7 +7,7 @@ import {
   MonitoringBot,
   MonitoringBotMessage,
   MonitoringCooldownHours,
-  RemindType,
+  MonitoringType,
 } from "./reminder.const.js";
 
 export interface ParserValue {
@@ -15,7 +15,7 @@ export interface ParserValue {
   authorId: Snowflake;
   success: boolean;
   timestamp: Date | null;
-  type: RemindType;
+  type: MonitoringType;
 }
 
 @injectable()
@@ -70,7 +70,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.SdcMonitoring,
+        MonitoringType.SdcMonitoring,
       );
     }
 
@@ -78,7 +78,7 @@ export class ReminderParser {
       discordMessageTimestampDate.toJSDate(),
       message.guild,
       authorId,
-      RemindType.SdcMonitoring,
+      MonitoringType.SdcMonitoring,
     );
   }
 
@@ -114,7 +114,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.ServerMonitoring,
+        MonitoringType.ServerMonitoring,
       );
     }
 
@@ -138,7 +138,7 @@ export class ReminderParser {
       timestamp,
       message.guild,
       authorId,
-      RemindType.ServerMonitoring,
+      MonitoringType.ServerMonitoring,
     );
   }
 
@@ -170,7 +170,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.DisboardMonitoring,
+        MonitoringType.DisboardMonitoring,
       );
     }
 
@@ -198,7 +198,7 @@ export class ReminderParser {
         timestamp,
         message.guild,
         authorId,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       );
     }
 
@@ -206,7 +206,7 @@ export class ReminderParser {
       timestamp,
       message.guild,
       authorId,
-      RemindType.DiscordMonitoring,
+      MonitoringType.DiscordMonitoring,
     );
   }
 
@@ -216,7 +216,7 @@ export class ReminderParser {
         null,
         message.guild,
         message.interactionMetadata?.user?.id ?? message.author.id,
-        RemindType.DiscordMonitoring,
+        MonitoringType.DiscordMonitoring,
       );
     }
   }
@@ -225,7 +225,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guild: Guild,
     authorId: string,
-    type: RemindType,
+    type: MonitoringType,
   ): ParserValue {
     return {
       timestamp,
@@ -240,7 +240,7 @@ export class ReminderParser {
     timestamp: Date | null,
     guild: Guild,
     authorId: string,
-    type: RemindType,
+    type: MonitoringType,
   ): ParserValue {
     return {
       timestamp,

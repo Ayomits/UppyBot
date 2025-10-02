@@ -14,8 +14,8 @@ import type { BumpUser, BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
-import { UppyPaginationLimit } from "../uppy.const.js";
-import { BaseUppyService } from "../uppy.service.js";
+import { UppyPaginationLimit } from "../stats.const.js";
+import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyLeaderboardService extends BaseUppyService {

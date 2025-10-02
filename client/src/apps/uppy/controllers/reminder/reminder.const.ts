@@ -43,14 +43,14 @@ export const MonitoringBotMessage = {
   },
 } as const;
 
-export const RemindType = {
+export const MonitoringType = {
   DiscordMonitoring: 0,
   ServerMonitoring: 1,
   SdcMonitoring: 2,
   DisboardMonitoring: 3,
 } as const;
 
-export type RemindType = LiteralEnum<typeof RemindType>;
+export type MonitoringType = LiteralEnum<typeof MonitoringType>;
 
 export const MonitoringCommandIds = {
   DiscordMonitoring: "788801838828879933",
@@ -69,35 +69,35 @@ export const MonitoringCommandNames = {
 export type MonitoringCommandIds = LiteralEnum<typeof MonitoringCommandIds>;
 
 export const PointsRate = {
-  [RemindType.DiscordMonitoring]: 1,
-  [RemindType.SdcMonitoring]: 1,
-  [RemindType.ServerMonitoring]: 2,
-  [RemindType.DisboardMonitoring]: 2,
+  [MonitoringType.DiscordMonitoring]: 1,
+  [MonitoringType.SdcMonitoring]: 1,
+  [MonitoringType.ServerMonitoring]: 2,
+  [MonitoringType.DisboardMonitoring]: 2,
   night: 2,
 } as const;
 
-export function getCommandIdByRemindType(type: RemindType | number) {
+export function getCommandIdByRemindType(type: MonitoringType | number) {
   switch (type) {
-    case RemindType.DiscordMonitoring:
+    case MonitoringType.DiscordMonitoring:
       return MonitoringCommandIds.DiscordMonitoring;
-    case RemindType.SdcMonitoring:
+    case MonitoringType.SdcMonitoring:
       return MonitoringCommandIds.SdcMonitoring;
-    case RemindType.ServerMonitoring:
+    case MonitoringType.ServerMonitoring:
       return MonitoringCommandIds.ServerMonitoring;
-    case RemindType.DisboardMonitoring:
+    case MonitoringType.DisboardMonitoring:
       return MonitoringCommandIds.DisboardMonitoring;
   }
 }
 
-export function getCommandNameByRemindType(type: RemindType | number) {
+export function getCommandNameByRemindType(type: MonitoringType | number) {
   switch (type) {
-    case RemindType.DiscordMonitoring:
+    case MonitoringType.DiscordMonitoring:
       return MonitoringCommandNames.DiscordMonitoring;
-    case RemindType.SdcMonitoring:
+    case MonitoringType.SdcMonitoring:
       return MonitoringCommandNames.SdcMonitoring;
-    case RemindType.ServerMonitoring:
+    case MonitoringType.ServerMonitoring:
       return MonitoringCommandNames.ServerMonitoring;
-    case RemindType.DisboardMonitoring:
+    case MonitoringType.DisboardMonitoring:
       return MonitoringCommandNames.DisboardMonitoring;
   }
 }
@@ -115,15 +115,15 @@ export function getCommandNameByCommandId(id: MonitoringCommandIds | string) {
   }
 }
 
-export function getBotByRemindType(type: RemindType) {
+export function getBotByRemindType(type: MonitoringType) {
   switch (type) {
-    case RemindType.DiscordMonitoring:
+    case MonitoringType.DiscordMonitoring:
       return MonitoringBot.DiscordMonitoring;
-    case RemindType.SdcMonitoring:
+    case MonitoringType.SdcMonitoring:
       return MonitoringBot.SdcMonitoring;
-    case RemindType.ServerMonitoring:
+    case MonitoringType.ServerMonitoring:
       return MonitoringBot.ServerMonitoring;
-    case RemindType.DisboardMonitoring:
+    case MonitoringType.DisboardMonitoring:
       return MonitoringBot.DisboardMonitoring;
   }
 }
@@ -144,27 +144,27 @@ export function getBotByCommand(cmd: MonitoringCommandIds) {
 export function getRemindTypeByBot(type: MonitoringBot) {
   switch (type) {
     case MonitoringBot.DiscordMonitoring:
-      return RemindType.DiscordMonitoring;
+      return MonitoringType.DiscordMonitoring;
     case MonitoringBot.SdcMonitoring:
-      return RemindType.SdcMonitoring;
+      return MonitoringType.SdcMonitoring;
     case MonitoringBot.ServerMonitoring:
-      return RemindType.ServerMonitoring;
+      return MonitoringType.ServerMonitoring;
     case MonitoringBot.DisboardMonitoring:
-      return RemindType.DisboardMonitoring;
+      return MonitoringType.DisboardMonitoring;
   }
 }
 
 export function getFieldByRemindType(
-  type: RemindType | number,
+  type: MonitoringType | number,
 ): keyof BumpUser {
   switch (type) {
-    case RemindType.DiscordMonitoring:
+    case MonitoringType.DiscordMonitoring:
       return "dsMonitoring";
-    case RemindType.SdcMonitoring:
+    case MonitoringType.SdcMonitoring:
       return "sdcMonitoring";
-    case RemindType.ServerMonitoring:
+    case MonitoringType.ServerMonitoring:
       return "serverMonitoring";
-    case RemindType.DisboardMonitoring:
+    case MonitoringType.DisboardMonitoring:
       return "disboardMonitoring";
   }
 }

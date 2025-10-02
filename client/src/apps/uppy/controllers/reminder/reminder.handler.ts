@@ -28,16 +28,19 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
-import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
+import {
+  calculateReactionTime,
+  UppyRemindSystemMessage,
+} from "../../messages/remind-system.message.js";
 import { UppyLogService } from "../logging/log.service.js";
-import { endDateValue, startDateValue } from "../uppy/uppy.const.js";
+import { endDateValue, startDateValue } from "../stats/stats.const.js";
 import {
   BumpBanLimit,
   DefaultTimezone,
   getCommandIdByRemindType,
   getFieldByRemindType,
   MonitoringBot,
-  RemindType,
+  MonitoringType,
 } from "./reminder.const.js";
 import { type ParserValue, ReminderParser } from "./reminder.parser.js";
 import { ReminderScheduleManager } from "./reminder-schedule.manager.js";
@@ -137,6 +140,7 @@ export class ReminderHandler {
                 user,
                 points,
                 getCommandIdByRemindType(type),
+                message.createdAt,
                 lastRemind,
               ),
             ].join("\n"),
@@ -157,7 +161,16 @@ export class ReminderHandler {
           },
         })
         .catch(null),
-      this.logService.sendCommandExecutionLog(guild, user, type, points),
+      this.logService.sendCommandExecutionLog(
+        guild,
+        user,
+        type,
+        points,
+        calculateReactionTime(
+          message.createdAt,
+          lastRemind.timestamp ?? new Date(),
+        ),
+      ),
       this.createBump({
         guildId: guild.id,
         executorId: user.id,
@@ -167,7 +180,7 @@ export class ReminderHandler {
       }),
     ]);
 
-    if (type === RemindType.ServerMonitoring) {
+    if (type === MonitoringType.ServerMonitoring) {
       const member = await guild.members.fetch(user.id).catch(() => null);
       try {
         await this.handleBumpBan(member, guild, type, settings);
@@ -180,7 +193,7 @@ export class ReminderHandler {
   private async handleBumpBan(
     member: GuildMember,
     guild: Guild,
-    type: RemindType,
+    type: MonitoringType,
     settings: SettingsDocument,
   ) {
     const bumpBanRole = await guild.roles
@@ -231,7 +244,7 @@ export class ReminderHandler {
     executorId: string;
     messageId: string;
     points: number;
-    type: number | RemindType;
+    type: number | MonitoringType;
   }) {
     const start = DateTime.now().set(startDateValue);
     const timestampFilter = {
@@ -239,7 +252,7 @@ export class ReminderHandler {
       $lte: DateTime.now().set(endDateValue).toJSDate(),
     };
 
-    await Promise.all([
+    await Promise.allSettled([
       BumpLogModel.create({
         guildId,
         executorId,

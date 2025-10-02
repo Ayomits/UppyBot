@@ -19,7 +19,7 @@ import { singleton } from "tsyringe";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { SettingsModel } from "#/models/settings.model.js";
 
-import type { RemindType } from "../reminder/reminder.const.js";
+import type { MonitoringType } from "../reminder/reminder.const.js";
 import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,
@@ -43,8 +43,9 @@ export class UppyLogService {
   public async sendCommandExecutionLog(
     guild: Guild,
     author: User,
-    type: RemindType,
+    type: MonitoringType,
     points: number,
+    reactionTime: string,
   ) {
     const commandName = getCommandNameByRemindType(type);
     const commandId = getCommandIdByRemindType(type);
@@ -64,6 +65,7 @@ export class UppyLogService {
                 `Команда: ${commandMention}`,
                 `Поинты: ${points}`,
                 `Исполнитель: ${author}`,
+                `Время реакции: ${reactionTime}`,
               ]),
             ].join("\n"),
           ),
@@ -137,7 +139,7 @@ export class UppyLogService {
       { upsert: true },
     );
 
-    const logChannel = guild.channels.cache.get(settings?.logChannelId);
+    const logChannel = guild.channels.cache.get(settings?.actionLogChannelId);
 
     if (!logChannel || !logChannel.isSendable()) {
       return;
@@ -172,13 +174,8 @@ export class UppyLogService {
                 .send({
                   components,
                   flags: MessageFlags.IsComponentsV2,
-                  options: {
-                    allowedMentions: {
-                      roles: [],
-                      users: [],
-                      repliedUser: null,
-                      parse: [],
-                    },
+                  allowedMentions: {
+                    parse: [],
                   },
                 })
                 .catch(null);
