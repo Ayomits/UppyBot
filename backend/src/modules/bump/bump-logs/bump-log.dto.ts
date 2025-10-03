@@ -1,7 +1,28 @@
 import { MonitoringType } from '#/enums/monitoring';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateBumpLogDto {}
+import { BumpLog } from '#/models/bump-log.model';
+
+export class CreateBumpLogDto {
+  @ApiProperty({
+    enum: Object.values(MonitoringType),
+    required: true,
+  })
+  type: number;
+
+  @ApiProperty({
+    type: 'number',
+    minimum: 0,
+    required: true,
+  })
+  points: number;
+
+  @ApiProperty({
+    type: 'string',
+    required: true,
+  })
+  messageId: string;
+}
 
 export class BumpLogFilter {
   @ApiProperty({
@@ -29,3 +50,4 @@ export class BumpLogFilter {
   })
   limit: number;
 }
+
