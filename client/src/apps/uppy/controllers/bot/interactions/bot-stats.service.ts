@@ -31,7 +31,7 @@ export class UppyBotStatsService extends UppyBotInviteService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user)),
+            builder.setURL(UsersUtility.getAvatar(interaction.user))
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -43,15 +43,15 @@ export class UppyBotStatsService extends UppyBotInviteService {
                   `Количество высланных напоминаний: ${remindCount}`,
                   `Количество обработанных команд: ${bumpsCount}`,
                 ]),
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.client.user)),
+            builder.setURL(UsersUtility.getAvatar(interaction.client.user))
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -62,24 +62,21 @@ export class UppyBotStatsService extends UppyBotInviteService {
                   `Владелец: ${staff.owners.map((o) => userMention(o)).join("")}`,
                   `Совладельцы: ${staff.coOwners.map((co) => userMention(co)).join("")}`,
                 ]),
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addTextDisplayComponents((builder) =>
-        builder.setContent(heading("Полезные ссылки", HeadingLevel.Two)),
+        builder.setContent(heading("Полезные ссылки", HeadingLevel.Two))
       )
       .addActionRowComponents(this.buildResourcesLinks());
 
     return interaction.editReply({
       components: [container],
       flags: MessageFlags.IsComponentsV2,
-      options: {
-        allowedMentions: {
-          parse: [],
-          users: [],
-        },
+      allowedMentions: {
+        parse: [],
       },
     });
   }
