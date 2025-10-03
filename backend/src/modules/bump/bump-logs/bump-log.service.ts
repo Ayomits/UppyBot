@@ -2,7 +2,8 @@ import { BumpLog, BumpLogCollectionName } from '#/models/bump-log.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { BumpLogFilter } from './bump-log.dto';
+import { BumpLogFilter, CreateBumpLogDto } from './bump-log.dto';
+import { PaginationResponse } from '#/responses/pagination';
 
 @Injectable()
 export class BumpLogService {
@@ -10,15 +11,25 @@ export class BumpLogService {
     @InjectModel(BumpLogCollectionName) private bumpLogModel: Model<BumpLog>,
   ) {}
 
+  async createLog(guildId: string, userId: string, dto: CreateBumpLogDto) {
+    const entry = await this.bumpLogModel.create({
+      guildId,
+      executorId: userId,
+      ...dto,
+    });
+    return {
+      _id: entry?.id,
+      guildId,
+      userId,
+      points: dto.points,
+      type: dto.type,
+    };
+  }
+
   async findGuildLogs(guildId: string, qFilter: BumpLogFilter) {
     const filter: FilterQuery<BumpLog> = this.buildFilter({ guildId }, qFilter);
-
     const items = await this.findLogs(filter, qFilter.offset, qFilter.limit);
-
-    return {
-      items,
-      hasNext: items.length > qFilter.limit,
-    };
+    return new PaginationResponse(items, items.length > qFilter.limit);
   }
 
   async findUserLogs(guildId: string, userId: string, qFilter: BumpLogFilter) {
@@ -26,13 +37,8 @@ export class BumpLogService {
       { guildId, executorId: userId },
       qFilter,
     );
-
     const items = await this.findLogs(filter, qFilter.offset, qFilter.limit);
-
-    return {
-      items,
-      hasNext: items.length > qFilter.limit,
-    };
+    return new PaginationResponse(items, items.length > qFilter.limit);
   }
 
   private buildFilter(
@@ -56,6 +62,6 @@ export class BumpLogService {
     return await this.bumpLogModel
       .find(filter)
       .limit(limit + 1)
-      .skip(offset * limit);
+      .skip(offset * limit)
   }
 }
