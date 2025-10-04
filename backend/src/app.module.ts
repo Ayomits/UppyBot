@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BumpModule } from './modules/bump/bump.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BumpModule } from './modules/bump/bump.module';
     }),
 
     BumpModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],

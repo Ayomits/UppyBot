@@ -2,27 +2,30 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { ApiProperty } from '@nestjs/swagger';
 
-@Schema()
+@Schema({ timestamps: true })
 export class BumpLog {
-  @ApiProperty({ example: '123456789', description: 'ID гильдии' })
-  @Prop({ required: true, index: true, alias: 'guild_id' })
+  @ApiProperty({ type: 'string' })
+  @Prop({ required: true, index: true, alias: 'guild_id', expires: '30d' })
   guildId: string;
 
-  @ApiProperty({ example: 1, description: 'Тип бампа' })
+  @ApiProperty({ type: 'number' })
   @Prop({ required: true, index: true })
   type: number;
 
-  @ApiProperty({ example: '987654321', description: 'ID исполнителя' })
+  @ApiProperty({ type: 'string' })
   @Prop({ required: true, index: true, alias: 'author_id' })
   executorId: string;
 
-  @ApiProperty({ example: '112233445566778899', description: 'ID сообщения' })
+  @ApiProperty({ type: 'string' })
   @Prop({ required: true, unique: true })
   messageId: string;
 
-  @ApiProperty({ example: 10, description: 'Начисленные очки' })
+  @ApiProperty({ type: 'number' })
   @Prop({ required: true, default: 0, min: 0 })
   points: number;
+
+  @Prop({ expires: '30d' })
+  createdAt?: Date;
 }
 
 export const BumpLogCollectionName = 'bumps';

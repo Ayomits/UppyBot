@@ -8,38 +8,24 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiExtraModels,
-  ApiResponse,
-  ApiTags,
-  getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BumpLogService } from './bump-log.service';
-import { BumpLogFilter, CreateBumpLogDto } from './bump-log.dto';
+import {
+  BumpLogFilter,
+  BumpLogPaginationResponse,
+  CreateBumpLogDto,
+} from './bump-log.dto';
 import { BumpLog } from '#/models/bump-log.model';
 
 @Controller('/bump-logs')
-@ApiExtraModels(BumpLog)
-@ApiTags('bump-logs')
+@ApiTags('Бамп.Логи')
 export class BumpLogController {
   constructor(@Inject(BumpLogService) private bumpLogService: BumpLogService) {}
 
   @Get('/:guildId')
   @ApiResponse({
     status: HttpStatus.OK,
-    schema: {
-      type: 'object',
-      properties: {
-        items: {
-          type: 'array',
-          items: { $ref: getSchemaPath(BumpLog) },
-        },
-        hasNext: {
-          type: 'boolean',
-          example: true,
-        },
-      },
-    },
+    type: BumpLogPaginationResponse,
   })
   findGuildLogs(
     @Param('guildId') guildId: string,
@@ -55,19 +41,7 @@ export class BumpLogController {
   @Get('/:guildId/:userId')
   @ApiResponse({
     status: HttpStatus.OK,
-    schema: {
-      type: 'object',
-      properties: {
-        items: {
-          type: 'array',
-          items: { $ref: getSchemaPath(BumpLog) },
-        },
-        hasNext: {
-          type: 'boolean',
-          example: true,
-        },
-      },
-    },
+    type: BumpLogPaginationResponse,
   })
   findUserLogs(
     @Param('guildId') guildId: string,
