@@ -1,5 +1,5 @@
 import { BumpLog, BumpLogCollectionName } from '#/models/bump-log.model';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { BumpLogFilter, CreateBumpLogDto } from './bump-log.dto';
@@ -29,6 +29,9 @@ export class BumpLogService {
   async findGuildLogs(guildId: string, qFilter: BumpLogFilter) {
     const filter: FilterQuery<BumpLog> = this.buildFilter({ guildId }, qFilter);
     const items = await this.findLogs(filter, qFilter.offset, qFilter.limit);
+    if (items.length === 0) {
+      throw new NotFoundException();
+    }
     return new PaginationResponse(items, items.length > qFilter.limit);
   }
 
@@ -38,6 +41,9 @@ export class BumpLogService {
       qFilter,
     );
     const items = await this.findLogs(filter, qFilter.offset, qFilter.limit);
+    if (items.length === 0) {
+      throw new NotFoundException();
+    }
     return new PaginationResponse(items, items.length > qFilter.limit);
   }
 
@@ -62,6 +68,6 @@ export class BumpLogService {
     return await this.bumpLogModel
       .find(filter)
       .limit(limit + 1)
-      .skip(offset * limit)
+      .skip(offset * limit);
   }
 }

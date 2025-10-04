@@ -1,7 +1,6 @@
 import { MonitoringType } from '#/enums/monitoring';
-import { ApiProperty } from '@nestjs/swagger';
-
 import { BumpLog } from '#/models/bump-log.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBumpLogDto {
   @ApiProperty({
@@ -46,8 +45,16 @@ export class BumpLogFilter {
     description: 'Количество записей',
     maximum: 50,
     minimum: 10,
+    example: 10,
     required: true,
   })
   limit: number;
 }
 
+export class BumpLogPaginationResponse {
+  @ApiProperty({ type: [BumpLog] })
+  items: BumpLog[];
+
+  @ApiProperty({ type: 'boolean' })
+  hasNext: boolean;
+}

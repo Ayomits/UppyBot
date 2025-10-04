@@ -5,7 +5,7 @@ import {
 } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
-export class Settings extends TimeStamps {
+export class UppySettings extends TimeStamps {
   @prop({ alias: "guild_id", required: true, index: true, unique: true })
   guildId: string;
 
@@ -31,12 +31,12 @@ export class Settings extends TimeStamps {
   force: number;
 }
 
-export const SettingsCollectionName = "helper_bot_settings";
+export const UppySettingsCollectionName = "helper_bot_settings";
 
-export const SettingsModel = getModelForClass(Settings, {
+export const UppySettingsModel = getModelForClass(UppySettings, {
   options: {
     customName: "helper_bot_settings",
   },
 });
 
-export type SettingsDocument = DocumentType<Settings>;
+export type UppySettingsDocument = DocumentType<UppySettings>;
