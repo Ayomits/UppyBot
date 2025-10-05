@@ -11,7 +11,7 @@ import {
 import { injectable } from "tsyringe";
 
 import { CoreInviteMessage } from "#/app/messages/core-invite.message.js";
-import { inviteBot, newsTgc, supportServer } from "#/const/links.js";
+import { UppyLinks } from "#/const/links.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
 @injectable()
@@ -27,12 +27,12 @@ export class UppyBotInviteService {
                 heading(CoreInviteMessage.embed.title, HeadingLevel.Two),
                 "",
                 CoreInviteMessage.embed.description,
-              ].join("\n"),
-            ),
+              ].join("\n")
+            )
           )
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user)),
-          ),
+            builder.setURL(UsersUtility.getAvatar(interaction.user))
+          )
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -49,15 +49,19 @@ export class UppyBotInviteService {
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.support)
           .setStyle(ButtonStyle.Link)
-          .setURL(supportServer),
+          .setURL(UppyLinks.SupportServer),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.invite)
           .setStyle(ButtonStyle.Link)
-          .setURL(inviteBot),
+          .setURL(UppyLinks.InviteBot),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.news)
           .setStyle(ButtonStyle.Link)
-          .setURL(newsTgc),
+          .setURL(UppyLinks.NewsTgc),
+        new ButtonBuilder()
+          .setLabel(CoreInviteMessage.embed.resources.docs)
+          .setStyle(ButtonStyle.Link)
+          .setURL(UppyLinks.DocsUrl)
       ),
     ];
   }

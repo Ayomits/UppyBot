@@ -5,7 +5,11 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 
-import type { UppySettings } from "#/models/settings.model.js";
+import { UppyLinks } from "#/const/links.js";
+import type {
+  UppySettings,
+  UppySettingsDocument,
+} from "#/models/settings.model.js";
 import {
   createChannelField,
   createPropertyField,
@@ -16,24 +20,17 @@ import {
 export const UppySettingsMessage = {
   panel: {
     title: "Настройки бота",
-    fields: (settings: UppySettings): EmbedField[] => [
-      createChannelField("Канал для пингов", settings?.pingChannelId ?? null),
-      createRoleField("Роли хелпера", settings?.bumpRoleIds ?? null),
-      createRoleField("Роль бамп бана", settings?.bumpBanRoleId ?? null),
-      createPropertyField(
-        "Преждевременный пинг (секунды)",
-        settings?.force ?? 0,
-      ),
-      createPropertyField(
-        "Использовать только преждевременный пинг",
-        getToggledValue(settings?.useForceOnly),
-      ),
-    ],
+    description: [
+      "Добро пожаловать в панель настроек",
+      "Более подробно прочитать можно здесь:",
+      UppyLinks.DocsUrl,
+    ].join("\n"),
     components: {
       managers: {
         roles: "Управление ролями",
         channels: "Управление каналами",
         award: "Управление поинтами",
+        force: "Управление преждевременным пингом",
       },
       actions: {
         setForceTime: "Преждевременный пинг",
@@ -52,11 +49,11 @@ export const UppySettingsMessage = {
         fields: (settings: UppySettings): EmbedField[] => [
           createChannelField(
             "Канал для пингов",
-            settings?.pingChannelId ?? null,
+            settings?.pingChannelId ?? null
           ),
           createChannelField(
             "Канал для логов",
-            settings?.actionLogChannelId ?? null,
+            settings?.actionLogChannelId ?? null
           ),
         ],
       },
@@ -75,6 +72,18 @@ export const UppySettingsMessage = {
       },
     },
     force: {
+      embed: {
+        title: "Управление преждевременными пингами",
+        fields: (settings: UppySettingsDocument): EmbedField[] => {
+          return [
+            createPropertyField(
+              "Состояние",
+              getToggledValue(settings.useForceOnly)
+            ),
+            createPropertyField("Количество секунд", settings.force),
+          ];
+        },
+      },
       buttons: {
         actions: {
           useForceOnly: {
@@ -98,7 +107,7 @@ export const UppySettingsMessage = {
           createRoleField("Роли сотрудника", settings?.bumpRoleIds ?? null),
           createRoleField(
             "Роль для бамп бана",
-            settings?.bumpBanRoleId ?? null,
+            settings?.bumpBanRoleId ?? null
           ),
           createRoleField("Роли менеджеров", settings?.managerRoles ?? null),
         ],
