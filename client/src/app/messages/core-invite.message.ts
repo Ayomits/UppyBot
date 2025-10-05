@@ -4,9 +4,10 @@ export const CoreInviteMessage = {
     description:
       "Ниже вы сможете найти все официальные ресурсы связанные с Uppy",
     resources: {
-      support: "Support server",
-      news: "News tgc",
-      invite: "Add bot",
+      support: "Сервер поддержки",
+      news: "Новостной тгк",
+      invite: "Добавить бота",
+      docs: "Документация",
     },
   },
 } as const;
