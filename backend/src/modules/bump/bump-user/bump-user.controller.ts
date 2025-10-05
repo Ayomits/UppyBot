@@ -12,8 +12,8 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BumpUserService } from './bump-user.service';
 import {
   BumpUserFilterDto,
+  BumpUserInfoResponse,
   CreateBumpUserDto,
-  FindBumpUserResponse,
   LeadearboardFilter,
   LeaderboardPaginationResponse,
 } from './bump-user.dto';
@@ -28,7 +28,7 @@ export class BumpUserController {
   @Get(':guildId/users/:userId')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: FindBumpUserResponse,
+    type: BumpUserInfoResponse,
   })
   // Public
   findBumpUser(
@@ -36,11 +36,12 @@ export class BumpUserController {
     @Param('userId') userId: string,
     @Query() qFilter: BumpUserFilterDto,
   ) {
-    return this.bumpUserService.findBumpUser(
+    return this.bumpUserService.findUserInfo(
       guildId,
       userId,
       qFilter.from,
       qFilter.to,
+      qFilter.withBumpBan,
     );
   }
 

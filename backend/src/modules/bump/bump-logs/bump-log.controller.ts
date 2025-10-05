@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BumpLogService } from './bump-log.service';
@@ -23,14 +24,11 @@ export class BumpLogController {
   constructor(@Inject(BumpLogService) private bumpLogService: BumpLogService) {}
 
   @Get('/:guildId')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: BumpLogPaginationResponse,
-  })
   findGuildLogs(
     @Param('guildId') guildId: string,
-    @Query() { limit = 10, offset = 0, ...rest }: BumpLogFilter,
+    @Query(new ValidationPipe({ transform: true })) params: BumpLogFilter,
   ) {
+    const { limit = 10, offset = 0, ...rest } = params;
     return this.bumpLogService.findGuildLogs(guildId, {
       limit,
       offset,
@@ -46,8 +44,10 @@ export class BumpLogController {
   findUserLogs(
     @Param('guildId') guildId: string,
     @Param('userId') userId: string,
-    @Query() { limit = 10, offset = 0, ...rest }: BumpLogFilter,
+    @Query() params: any,
   ) {
+    console.log(params);
+    const { limit = 10, offset = 0, ...rest } = params;
     return this.bumpLogService.findUserLogs(guildId, userId, {
       limit,
       offset,

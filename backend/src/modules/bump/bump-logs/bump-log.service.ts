@@ -32,7 +32,11 @@ export class BumpLogService {
     if (items.length === 0) {
       throw new NotFoundException();
     }
-    return new PaginationResponse(items, items.length > qFilter.limit);
+    return new PaginationResponse({
+      items,
+      hasNext: items.length > qFilter.limit,
+      limit: qFilter.limit,
+    });
   }
 
   async findUserLogs(guildId: string, userId: string, qFilter: BumpLogFilter) {
@@ -44,7 +48,11 @@ export class BumpLogService {
     if (items.length === 0) {
       throw new NotFoundException();
     }
-    return new PaginationResponse(items, items.length > qFilter.limit);
+    return new PaginationResponse({
+      items,
+      hasNext: items.length > qFilter.limit,
+      limit: qFilter.limit,
+    });
   }
 
   private buildFilter(
