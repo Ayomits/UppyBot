@@ -1,16 +1,18 @@
 import { MonitoringType } from '#/enums/monitoring';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class UpdatePointSettingsDto {
-  @ApiProperty({ type: 'number', minimum: 0, required: true })
+  @ApiProperty({ type: 'number', minimum: 0, required: false })
   @IsInt()
   @Min(0)
+  @IsOptional()
   default: number;
 
-  @ApiProperty({ type: 'number', minimum: 0, required: true })
+  @ApiProperty({ type: 'number', minimum: 0, required: false })
   @IsInt()
   @Min(0)
+  @IsOptional()
   bonus: number;
 }
 

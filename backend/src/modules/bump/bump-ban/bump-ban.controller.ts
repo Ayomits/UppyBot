@@ -68,7 +68,7 @@ export class BumpBanController {
 
   @Post('/:guildId')
   @ApiOperation({
-    summary: 'Удаляет неактивные бампы по их id',
+    summary: 'Удаляет неактивные бампы по их userId',
   })
   deleteInactiveBumpBans(
     @Param('guildId') guildId: string,
