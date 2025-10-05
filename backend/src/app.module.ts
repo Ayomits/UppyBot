@@ -18,8 +18,8 @@ import { SettingsModule } from './modules/settings/settings.module';
       isGlobal: true,
     }),
 
-    BumpModule,
     SettingsModule,
+    BumpModule,
   ],
   controllers: [],
   providers: [],
