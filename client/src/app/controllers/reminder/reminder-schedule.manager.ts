@@ -34,7 +34,7 @@ export class ReminderScheduleManager {
         settings: entry.settings,
         type: entry.remind.type as MonitoringType,
         isStartup: true,
-      })
+      }),
     );
 
     await Promise.all(promises);
@@ -52,14 +52,14 @@ export class ReminderScheduleManager {
     ]);
 
     const settingsMap = Object.fromEntries(
-      settings?.map((s) => [s.guildId, s])
+      settings?.map((s) => [s.guildId, s]),
     );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ])
+      ]),
     );
 
     return {
@@ -88,7 +88,7 @@ export class ReminderScheduleManager {
     const lastRemind = await RemindModel.findOneAndUpdate(
       { guildId: guild.id, type },
       { timestamp },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     const GMTTimestamp = DateTime.fromJSDate(lastRemind.timestamp);
@@ -113,7 +113,7 @@ export class ReminderScheduleManager {
 
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
-        this.sendCommonRemind(lastRemind, guild)
+        this.sendCommonRemind(lastRemind, guild),
       );
       logs.push(this.saveRemindCreationLog(guild.id, type, RemindType.Common));
     }
@@ -122,7 +122,7 @@ export class ReminderScheduleManager {
       scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings?.force }).toJSDate(),
-        () => this.sendForceRemind(lastRemind, guild)
+        () => this.sendForceRemind(lastRemind, guild),
       );
 
       logs.push(this.saveRemindCreationLog(guild.id, type, RemindType.Force));
@@ -144,7 +144,7 @@ export class ReminderScheduleManager {
   public async forceRemindReplacement(
     guild: Guild,
     type: MonitoringType | number,
-    force: number
+    force: number,
   ) {
     const { id: guildId } = guild;
     const remind = await RemindModel.findOne({ guildId, type });
@@ -160,7 +160,7 @@ export class ReminderScheduleManager {
 
     this.forceRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, timestamp, () =>
-      this.sendForceRemind(remind, guild)
+      this.sendForceRemind(remind, guild),
     );
 
     await this.saveRemindCreationLog(guildId, type, RemindType.Common);
@@ -168,7 +168,7 @@ export class ReminderScheduleManager {
 
   public async commonRemindReplacement(
     guild: Guild,
-    type: MonitoringType | number
+    type: MonitoringType | number,
   ) {
     const { id: guildId } = guild;
     const remind = await RemindModel.findOne({ guildId, type });
@@ -181,7 +181,7 @@ export class ReminderScheduleManager {
 
     this.commonRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, remind?.timestamp, () =>
-      this.sendCommonRemind(remind, guild)
+      this.sendCommonRemind(remind, guild),
     );
 
     await this.saveRemindCreationLog(guildId, type, RemindType.Common);
@@ -202,14 +202,14 @@ export class ReminderScheduleManager {
       content: UppyRemindSystemMessage.remind.ping.content(
         settings?.bumpRoleIds ?? [],
         getCommandNameByRemindType(remind.type)!,
-        getCommandIdByRemindType(remind.type)!
+        getCommandIdByRemindType(remind.type)!,
       ),
     })).then((isSended) => {
       if (isSended) {
         this.saveRemindSendedLog(
           remind.guildId,
           remind.type,
-          RemindType.Common
+          RemindType.Common,
         );
       }
     });
@@ -221,14 +221,14 @@ export class ReminderScheduleManager {
         settings?.bumpRoleIds ?? [],
         getCommandNameByRemindType(remind.type)!,
         getCommandIdByRemindType(remind.type)!,
-        settings?.force
+        settings?.force,
       ),
     })).then((isSended) => {
       if (isSended) {
         this.saveRemindCreationLog(
           remind.guildId,
           remind.type,
-          RemindType.Force
+          RemindType.Force,
         );
       }
     });
@@ -239,13 +239,13 @@ export class ReminderScheduleManager {
     guild: Guild,
     message: (
       remind: RemindDocument,
-      settings: UppySettingsDocument
-    ) => MessageCreateOptions
+      settings: UppySettingsDocument,
+    ) => MessageCreateOptions,
   ) {
     const settings = await UppySettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     const channel = await guild.channels
@@ -270,7 +270,7 @@ export class ReminderScheduleManager {
   public async saveRemindCreationLog(
     guildId: Snowflake,
     monitoring: MonitoringType | number,
-    type: RemindType
+    type: RemindType,
   ) {
     return RemindLogsModel.create({
       guildId: guildId,
@@ -283,7 +283,7 @@ export class ReminderScheduleManager {
   public async saveRemindCancelationLog(
     guildId: Snowflake,
     monitoring: MonitoringType | number,
-    type: RemindType
+    type: RemindType,
   ) {
     return RemindLogsModel.create({
       guildId: guildId,
@@ -297,7 +297,7 @@ export class ReminderScheduleManager {
   public async saveRemindSendedLog(
     guildId: Snowflake,
     monitoring: MonitoringType | number,
-    type: RemindType
+    type: RemindType,
   ) {
     return RemindLogsModel.create({
       guildId: guildId,

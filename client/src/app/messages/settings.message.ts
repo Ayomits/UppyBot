@@ -49,11 +49,11 @@ export const UppySettingsMessage = {
         fields: (settings: UppySettings): EmbedField[] => [
           createChannelField(
             "Канал для пингов",
-            settings?.pingChannelId ?? null
+            settings?.pingChannelId ?? null,
           ),
           createChannelField(
             "Канал для логов",
-            settings?.actionLogChannelId ?? null
+            settings?.actionLogChannelId ?? null,
           ),
         ],
       },
@@ -78,7 +78,7 @@ export const UppySettingsMessage = {
           return [
             createPropertyField(
               "Состояние",
-              getToggledValue(settings.useForceOnly)
+              getToggledValue(settings.useForceOnly),
             ),
             createPropertyField("Количество секунд", settings.force),
           ];
@@ -107,7 +107,7 @@ export const UppySettingsMessage = {
           createRoleField("Роли сотрудника", settings?.bumpRoleIds ?? null),
           createRoleField(
             "Роль для бамп бана",
-            settings?.bumpBanRoleId ?? null
+            settings?.bumpBanRoleId ?? null,
           ),
           createRoleField("Роли менеджеров", settings?.managerRoles ?? null),
         ],

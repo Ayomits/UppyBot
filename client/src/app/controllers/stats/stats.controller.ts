@@ -24,7 +24,6 @@ import { UppyAutocompleteService } from "./interactions/stats-autocomplete.servi
 import { UppyStatsService } from "./interactions/stats-history.service.js";
 import { UppyInfoService } from "./interactions/stats-info.service.js";
 import { UppyLeaderboardService } from "./interactions/stats-top.service.js";
-import { BaseUppyService } from "./stats.service.js";
 
 @Discord()
 @singleton()
@@ -70,8 +69,9 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete:
-        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
+      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
+        UppyAutocompleteService,
+      ),
       required: false,
     })
     from: string,
@@ -79,8 +79,9 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete:
-        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
+      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
+        UppyAutocompleteService,
+      ),
       required: false,
     })
     to: string,
@@ -100,8 +101,9 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete:
-        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
+      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
+        UppyAutocompleteService,
+      ),
       required: false,
     })
     from: string,
@@ -109,8 +111,9 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete:
-        UppyAutocompleteService.handleTopAutocomplete.bind(BaseUppyService),
+      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
+        UppyAutocompleteService,
+      ),
       required: false,
     })
     to: string,
