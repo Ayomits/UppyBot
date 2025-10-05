@@ -29,7 +29,7 @@ export class InteractionError {
         : this.options;
 
     if (interaction.isRepliable()) {
-      if (this.options.embeds.length === 0 && !this.options.content) {
+      if (this.options.embeds?.length === 0 && !this.options.content) {
         throw new Error("Empty error message");
       }
 

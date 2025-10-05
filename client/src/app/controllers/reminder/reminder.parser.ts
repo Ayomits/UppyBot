@@ -11,7 +11,7 @@ import {
 } from "./reminder.const.js";
 
 export interface ParserValue {
-  guild: Guild;
+  guild: Guild | undefined;
   authorId: Snowflake;
   success: boolean;
   timestamp: Date | null;
@@ -43,7 +43,7 @@ export class ReminderParser {
     return null;
   }
 
-  public handleSdcMonitoring(message: Message): ParserValue {
+  public handleSdcMonitoring(message: Message): ParserValue | undefined {
     const embed = message.embeds[0];
 
     if (!embed?.description) {
@@ -55,7 +55,7 @@ export class ReminderParser {
     const match = embed.description?.match(/<t:(\d+):[tTdDfFR]?>/);
 
     const discordMessageTimestampDate = DateTime.fromJSDate(
-      new Date(Number(match[1]) * 1_000),
+      new Date(Number(match?.[1]) * 1_000),
     ).setZone(DefaultTimezone);
 
     if (
@@ -68,7 +68,7 @@ export class ReminderParser {
 
       return this.handleSuccess(
         timestamp,
-        message.guild,
+        message.guild!,
         authorId,
         MonitoringType.SdcMonitoring,
       );
@@ -76,13 +76,13 @@ export class ReminderParser {
 
     return this.handleFailure(
       discordMessageTimestampDate.toJSDate(),
-      message.guild,
+      message.guild!,
       authorId,
       MonitoringType.SdcMonitoring,
     );
   }
 
-  public handleServerMonitoring(message: Message): ParserValue {
+  public handleServerMonitoring(message: Message): ParserValue | undefined {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -95,7 +95,7 @@ export class ReminderParser {
     const includesSuccess = embed.description?.includes(
       MonitoringBotMessage.serverMonitoring.success,
     );
-    const includesFailure = embed.description.includes(
+    const includesFailure = embed.description?.includes(
       MonitoringBotMessage.serverMonitoring.failure,
     );
 
@@ -112,14 +112,14 @@ export class ReminderParser {
 
       return this.handleSuccess(
         timestamp,
-        message.guild,
+        message.guild!,
         authorId,
         MonitoringType.ServerMonitoring,
       );
     }
 
     const timestampRegex = /(\d{1,2}):(\d{1,2}):(\d{1,2})/;
-    const timeMatch = embed.description.match(timestampRegex);
+    const timeMatch = embed.description?.match(timestampRegex);
 
     if (!timeMatch) {
       return;
@@ -136,13 +136,13 @@ export class ReminderParser {
 
     return this.handleFailure(
       timestamp,
-      message.guild,
+      message.guild!,
       authorId,
       MonitoringType.ServerMonitoring,
     );
   }
 
-  public handleDisboardMonitoring(message: Message): ParserValue {
+  public handleDisboardMonitoring(message: Message): ParserValue | undefined {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -153,7 +153,7 @@ export class ReminderParser {
     const includesSuccess = embed.description?.includes(
       MonitoringBotMessage.disboardMonitoring.success,
     );
-    const includesFailure = embed.description.includes(
+    const includesFailure = embed.description?.includes(
       MonitoringBotMessage.disboardMonitoring.failure,
     );
 
@@ -168,7 +168,7 @@ export class ReminderParser {
         .toJSDate();
       return this.handleSuccess(
         timestamp,
-        message.guild,
+        message.guild!,
         authorId,
         MonitoringType.DisboardMonitoring,
       );
@@ -177,7 +177,7 @@ export class ReminderParser {
     return;
   }
 
-  public handleDiscordMonitoring(message: Message): ParserValue {
+  public handleDiscordMonitoring(message: Message): ParserValue | undefined {
     const emptyPayload = this.handleEmptyEmbeds(message);
     if (emptyPayload) return emptyPayload;
 
@@ -185,18 +185,22 @@ export class ReminderParser {
 
     const authorId = message.interactionMetadata?.user?.id ?? message.author.id;
 
+    if (!embed.timestamp) {
+      return;
+    }
+
     const timestamp = DateTime.fromJSDate(new Date(embed.timestamp))
       .setZone(DefaultTimezone)
       .toJSDate();
 
     if (
       MonitoringBotMessage.discordMonitoring.success.find((m) =>
-        embed.description.includes(m),
+        embed.description?.includes(m),
       )
     ) {
       return this.handleSuccess(
         timestamp,
-        message.guild,
+        message.guild!,
         authorId,
         MonitoringType.DiscordMonitoring,
       );
@@ -204,17 +208,17 @@ export class ReminderParser {
 
     return this.handleFailure(
       timestamp,
-      message.guild,
+      message.guild!,
       authorId,
       MonitoringType.DiscordMonitoring,
     );
   }
 
-  public handleEmptyEmbeds(message: Message): ParserValue {
+  public handleEmptyEmbeds(message: Message): ParserValue | undefined {
     if (!message.embeds.length) {
       return this.handleFailure(
         null,
-        message.guild,
+        message.guild!,
         message.interactionMetadata?.user?.id ?? message.author.id,
         MonitoringType.DiscordMonitoring,
       );

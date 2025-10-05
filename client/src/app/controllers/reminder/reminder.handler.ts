@@ -35,7 +35,6 @@ import {
 import { UppyLogService } from "../logging/log.service.js";
 import { endDateValue, startDateValue } from "../stats/stats.const.js";
 import {
-  BumpBanLimit,
   DefaultTimezone,
   getCommandIdByRemindType,
   getFieldByRemindType,
@@ -89,10 +88,10 @@ export class ReminderHandler {
         }),
       ]);
 
-      await this.scheduleManager.remind({ settings, ...payload });
+      await this.scheduleManager.remind({ settings: settings!, ...payload });
 
       if (process.env.APP_ENV == "dev" || payload.success) {
-        return this.handleSuccess(message, payload, settings, lastRemind);
+        return this.handleSuccess(message, payload, settings!, lastRemind);
       }
     } catch (err) {
       logger.error(err);
@@ -103,7 +102,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: UppySettingsDocument,
-    lastRemind: RemindDocument,
+    lastRemind: RemindDocument | null,
   ) {
     const existed = await BumpLogModel.findOne({ messageId: message.id });
 
@@ -114,9 +113,9 @@ export class ReminderHandler {
     const GMTNow = DateTime.now().setZone(DefaultTimezone);
     const nowHours = GMTNow.hour;
     const guild = message.guild;
-    const user = message.interactionMetadata.user;
+    const user = message.interactionMetadata?.user;
 
-    const pointConfig = await safePointConfig(message.guildId, type);
+    const pointConfig = await safePointConfig(message.guildId!, type);
 
     let points = pointConfig.default;
 
@@ -127,7 +126,7 @@ export class ReminderHandler {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
@@ -137,9 +136,9 @@ export class ReminderHandler {
                 HeadingLevel.Two,
               ),
               UppyRemindSystemMessage.monitoring.embed.description(
-                user,
+                user!,
                 points,
-                getCommandIdByRemindType(type),
+                getCommandIdByRemindType(type)!,
                 message.createdAt,
                 lastRemind,
               ),
@@ -156,24 +155,22 @@ export class ReminderHandler {
           allowedMentions: {
             roles: [],
             users: [],
-            repliedUser: null,
-            parse: [],
           },
         })
         .catch(null),
       this.logService.sendCommandExecutionLog(
-        guild,
-        user,
+        guild!,
+        user!,
         type,
         points,
         calculateReactionTime(
           message.createdAt,
-          lastRemind.timestamp ?? new Date(),
+          lastRemind?.timestamp ?? new Date(),
         ),
       ),
       this.createBump({
-        guildId: guild.id,
-        executorId: user.id,
+        guildId: guild!.id,
+        executorId: user!.id,
         messageId: message.id,
         points: points,
         type,
@@ -181,12 +178,11 @@ export class ReminderHandler {
     ]);
 
     if (type === MonitoringType.ServerMonitoring) {
-      const member = await guild.members.fetch(user.id).catch(() => null);
-      try {
-        await this.handleBumpBan(member, guild, type, settings);
-      } catch (err) {
-        logger.error("Ошибка выдачи бамп бана", err);
+      const member = await guild?.members.fetch(user!.id).catch(() => null);
+      if (!member) {
+        return;
       }
+      await this.handleBumpBan(member, guild!, type, settings);
     }
   }
 
@@ -196,11 +192,11 @@ export class ReminderHandler {
     type: MonitoringType,
     settings: UppySettingsDocument,
   ) {
-    const bumpBanRole = await guild.roles
-      .fetch(settings?.bumpBanRoleId)
-      .catch(() => null);
+    const bumpBanRole = settings?.bumpBanRoleId
+      ? await guild.roles.fetch(settings?.bumpBanRoleId).catch(() => null)
+      : null;
 
-    const bumpBan = await BumpBanModel.findOneAndUpdate(
+    await BumpBanModel.findOneAndUpdate(
       { guildId: guild.id, userId: member.id, type },
       {},
       { upsert: true },
@@ -211,13 +207,6 @@ export class ReminderHandler {
         member.roles.add(bumpBanRole).catch(null),
         this.logService.sendBumpBanRoleAddingLog(guild, member.user),
       ]);
-    }
-
-    if (bumpBan?.removeIn + 1 >= BumpBanLimit) {
-      await BumpBanModel.deleteOne({ _id: bumpBan._id });
-      if (bumpBanRole) {
-        member.roles.remove(bumpBanRole).catch(null);
-      }
     }
 
     await BumpBanModel.updateMany(
@@ -305,7 +294,7 @@ export class ReminderHandler {
             update: {
               $inc: {
                 points: points,
-                [getFieldByRemindType(type)]: 1,
+                [getFieldByRemindType(type)!]: 1,
               },
               $setOnInsert: {
                 timestamp: start.toJSDate(),

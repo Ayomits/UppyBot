@@ -1,3 +1,4 @@
+import { mongoose } from "@typegoose/typegoose";
 import type {
   ButtonInteraction,
   ChatInputCommandInteraction,
@@ -15,18 +16,15 @@ import {
   unorderedList,
 } from "discord.js";
 import type { Client } from "discordx";
-import { inject, injectable } from "tsyringe";
+import { injectable } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
-import { LatencyService } from "#/shared/services/latency.service.js";
 
 import { UppyCoreCustomIds } from "../bot.const.js";
 
 @injectable()
 export class UppyBotPingService {
-  constructor(@inject(LatencyService) private latencyService: LatencyService) {}
-
   async handleLatencyCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
@@ -58,8 +56,8 @@ export class UppyBotPingService {
     interaction: ChatInputCommandInteraction | ButtonInteraction,
   ): Promise<InteractionEditReplyOptions> {
     const [ws, mongo] = [
-      this.latencyService.wsLatency(interaction.client as Client),
-      await this.latencyService.mongoLatency(),
+      this.wsLatency(interaction.client as Client),
+      await this.mongoLatency(),
     ];
 
     const container = new ContainerBuilder()
@@ -94,5 +92,23 @@ export class UppyBotPingService {
       components: [container],
       flags: MessageFlags.IsComponentsV2,
     };
+  }
+
+  private async mongoLatency() {
+    const start = Date.now();
+    try {
+      const admin = mongoose.connection.db?.admin();
+      const ping = await admin?.ping();
+      if (!ping?.ok) {
+        return -1;
+      }
+      return Math.max(Date.now() - start, 1);
+    } catch {
+      return -1;
+    }
+  }
+
+  private wsLatency(client: Client) {
+    return Math.max(client.ws.ping, 1);
   }
 }

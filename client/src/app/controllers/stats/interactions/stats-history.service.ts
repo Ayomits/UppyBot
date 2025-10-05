@@ -106,14 +106,14 @@ export class UppyStatsService extends BaseUppyService {
             .map(({ executorId, createdAt, type, points }, index) => {
               const position = page * UppyPaginationLimit + index + 1;
               const command = chatInputApplicationCommandMention(
-                getCommandNameByRemindType(type),
-                getCommandIdByRemindType(type),
+                getCommandNameByRemindType(type)!,
+                getCommandIdByRemindType(type)!,
               );
               return [
                 `${bold(position.toString())} ${userMention(executorId)}`,
                 `• ${bold("Команда:")} ${command}`,
                 `• ${bold("Поинты:")} ${points}`,
-                `• ${bold("Дата выполнения:")} ${time(Math.floor(createdAt.getTime() / 1_000), TimestampStyles.LongDateTime)}`,
+                `• ${bold("Дата выполнения:")} ${time(Math.floor((createdAt ?? new Date()).getTime() / 1_000), TimestampStyles.LongDateTime)}`,
                 "",
               ].join("\n");
             })

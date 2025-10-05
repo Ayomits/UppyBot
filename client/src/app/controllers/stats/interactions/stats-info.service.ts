@@ -80,8 +80,8 @@ export class UppyInfoService extends BaseUppyService {
     ]);
 
     const [authorMember, targetMember] = await Promise.all([
-      interaction.guild.members.fetch(interaction.user.id),
-      interaction.guild.members.fetch(user.id),
+      interaction.guild!.members.fetch(interaction.user.id),
+      interaction.guild!.members.fetch(user.id),
     ]);
 
     const canManage = authorMember.roles.cache.some(

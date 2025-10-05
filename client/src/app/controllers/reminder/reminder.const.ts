@@ -156,7 +156,7 @@ export function getRemindTypeByBot(type: MonitoringBot) {
 
 export function getFieldByRemindType(
   type: MonitoringType | number,
-): keyof BumpUser {
+): keyof BumpUser | undefined {
   switch (type) {
     case MonitoringType.DiscordMonitoring:
       return "dsMonitoring";

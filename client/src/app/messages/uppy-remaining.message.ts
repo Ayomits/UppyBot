@@ -27,7 +27,7 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
   const curr = DateTime.now().setZone(DefaultTimezone).toMillis();
 
   return curr > timestamp
-    ? `${chatInputApplicationCommandMention(getCommandNameByRemindType(monitoring.type), getCommandIdByRemindType(monitoring.type))}`
+    ? `${chatInputApplicationCommandMention(getCommandNameByRemindType(monitoring.type)!, getCommandIdByRemindType(monitoring.type)!)}`
     : time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime);
 };
 
@@ -37,13 +37,8 @@ export const UppyRemainingMessage = {
   },
   embed: {
     title: "Статус мониторингов",
-    fields: (
-      monitorings: Record<
-        ReturnType<typeof getCommandIdByRemindType>,
-        RemindDocument
-      >,
-    ): string => {
-      const values = [];
+    fields: (monitorings: Record<string, RemindDocument>): string => {
+      const values: string[] = [];
 
       for (const key in monitorings) {
         values.push(

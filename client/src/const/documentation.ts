@@ -22,7 +22,7 @@ type DocumentationMeta = {
 type DocumentationTopic = {
   name: string;
   category: string;
-  meta?: DocumentationMeta;
+  meta: DocumentationMeta;
 };
 
 function createDocumentation(

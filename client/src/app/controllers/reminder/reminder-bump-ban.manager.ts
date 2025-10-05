@@ -48,16 +48,18 @@ export class RemindBumpBanManager {
       const guild = guilds.get(entry.ban.guildId);
 
       const [member, role] = await Promise.all([
-        guild.members.fetch(ban.userId).catch(() => null),
-        guild.roles
-          .fetch(settings?.bumpBanRoleId, { cache: true })
-          .catch(() => null),
+        guild?.members.fetch(ban.userId).catch(() => null),
+        settings?.bumpBanRoleId
+          ? guild?.roles
+              .fetch(settings?.bumpBanRoleId, { cache: true })
+              .catch(() => null)
+          : null,
       ]);
 
       if (role && member) {
         const hasRole = member.roles.cache.has(role.id);
         if (ban.removeIn >= BumpBanLimit) {
-          await this.logService.sendBumpBanRemovalLog(guild, member);
+          await this.logService.sendBumpBanRemovalLog(guild!, member.user);
           member.roles.remove(role).catch(() => null);
           continue;
         }
@@ -65,7 +67,7 @@ export class RemindBumpBanManager {
         if (ban.removeIn < BumpBanLimit) {
           if (!hasRole) {
             member.roles.add(role).catch(() => null);
-            await this.logService.sendBumpBanRoleAddingLog(guild, member);
+            await this.logService.sendBumpBanRoleAddingLog(guild!, member.user);
           }
         }
       }

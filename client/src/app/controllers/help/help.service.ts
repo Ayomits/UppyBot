@@ -42,7 +42,7 @@ export class UppyHelpService {
     }
 
     function normalizeLinks() {
-      const links = theme.meta.links!;
+      const links = theme.meta!.links!;
 
       if (!links.length) return [];
 
@@ -78,7 +78,7 @@ export class UppyHelpService {
               heading(theme.name),
               unorderedList([
                 `${bold("Категория:")} ${theme.category}`,
-                `${theme.meta.summary}`,
+                `${theme.meta!.summary}`,
               ]),
               normalizeDocs("Информация", theme.meta?.info),
               normalizeDocs("Как использовать", theme.meta?.usage),
