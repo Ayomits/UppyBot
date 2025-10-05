@@ -1,20 +1,29 @@
 import { MonitoringType } from '#/enums/monitoring';
 import { normalizePeriod, softPeriod } from '#/lib/time';
 import { BumpUser, BumpUserCollectionName } from '#/models/bump-user.model';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateBumpUserDto } from './bump-user.dto';
 import { PaginationResponse } from '#/responses/pagination';
 import { omit } from '#/lib/omit';
+import { PointSettingsService } from '#/modules/settings/point/point-settings.service';
+import { BumpBanService } from '../bump-ban/bump-ban.service';
 
 @Injectable()
 export class BumpUserService {
   constructor(
     @InjectModel(BumpUserCollectionName) private bumpUserModel: Model<BumpUser>,
+    @Inject(PointSettingsService) private pointSettings: PointSettingsService,
+    @Inject(BumpBanService) private bumpBanService: BumpBanService,
   ) {}
 
-  async findBumpUser(guildId: string, userId: string, from: Date, to: Date) {
+  private async findBumpUser(
+    guildId: string,
+    userId: string,
+    from: Date,
+    to: Date,
+  ) {
     const period = softPeriod(new Date(from), new Date(to));
     const { start, end } = normalizePeriod(period.start, period.end);
 
@@ -49,7 +58,32 @@ export class BumpUserService {
       throw new NotFoundException();
     }
 
-    return data[0];
+    return omit(data[0], ['_id', '__v', 'userId']);
+  }
+
+  async findUserInfo(
+    guildId: string,
+    userId: string,
+    from: Date,
+    to: Date,
+    withBumpBan: boolean,
+  ) {
+    const user = await this.findBumpUser(guildId, userId, from, to);
+    if (!user) throw new NotFoundException();
+
+    const response = {
+      user,
+    };
+
+    if (withBumpBan) {
+      const bumpBan = await this.bumpBanService
+        .findUserBumpBan(guildId, userId)
+        .catch(() => null);
+
+      response['bumpBan'] = bumpBan ?? null;
+    }
+
+    return response;
   }
 
   async leaderBoard(
@@ -94,15 +128,30 @@ export class BumpUserService {
       throw new NotFoundException();
     }
 
-    return new PaginationResponse(
-      data.map((m) => omit({ ...m, userId: m._id }, ['_id'])),
-      data.length > limit,
+    return omit(
+      new PaginationResponse({
+        items: data.map((m) =>
+          omit({ ...m, userId: m._id }, ['_id', '__v', 'userId']),
+        ),
+        hasNext: data.length > limit,
+        limit: limit,
+      }),
+      ['limit'],
     );
   }
 
   async createBumpUser({ guildId, userId, type }: CreateBumpUserDto) {
     const now = new Date();
     const { start, end } = normalizePeriod(now, now);
+    const rate = await this.pointSettings.findByType(guildId, type);
+    const hours = new Date().getHours();
+
+    let points = rate.default;
+
+    if (hours >= 0 && hours <= 8) {
+      points += rate.bonus;
+    }
+
     await this.bumpUserModel.bulkWrite([
       {
         updateOne: {
@@ -116,7 +165,7 @@ export class BumpUserService {
           },
           update: {
             $inc: {
-              // points: points,
+              points: points,
               [this.calculateField(type)!]: 1,
             },
             $setOnInsert: {

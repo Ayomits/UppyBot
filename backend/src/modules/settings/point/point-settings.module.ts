@@ -18,5 +18,6 @@ import { PointSettingsController } from './point-settings.controller';
   ],
   providers: [PointSettingsService],
   controllers: [PointSettingsController],
+  exports: [PointSettingsService],
 })
 export class PointSettingsModule {}
