@@ -1,5 +1,5 @@
 import type { Guild, MessageCreateOptions, Snowflake } from "discord.js";
-import type { Client } from "discordx";
+import type { Awaitable, Client } from "discordx";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
@@ -78,6 +78,10 @@ export class ReminderScheduleManager {
     settings: UppySettingsDocument;
     isStartup?: boolean;
   }) {
+    if (!guild) {
+      return;
+    }
+
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
 
@@ -105,7 +109,7 @@ export class ReminderScheduleManager {
 
     const shouldStartCommon = !settings?.useForceOnly && !commonSchedule;
 
-    const logs = [];
+    const logs: Awaitable<unknown>[] = [];
 
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
@@ -196,38 +200,38 @@ export class ReminderScheduleManager {
   private async sendCommonRemind(remind: RemindDocument, guild: Guild) {
     this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.ping.content(
-        settings?.bumpRoleIds,
-        getCommandNameByRemindType(remind.type),
-        getCommandIdByRemindType(remind.type),
+        settings?.bumpRoleIds ?? [],
+        getCommandNameByRemindType(remind.type)!,
+        getCommandIdByRemindType(remind.type)!,
       ),
-    })).then(
-      (isSended) =>
-        isSended &&
+    })).then((isSended) => {
+      if (isSended) {
         this.saveRemindSendedLog(
           remind.guildId,
           remind.type,
           RemindType.Common,
-        ),
-    );
+        );
+      }
+    });
   }
 
   private async sendForceRemind(remind: RemindDocument, guild: Guild) {
     this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.force.content(
-        settings?.bumpRoleIds,
-        getCommandNameByRemindType(remind.type),
-        getCommandIdByRemindType(remind.type),
+        settings?.bumpRoleIds ?? [],
+        getCommandNameByRemindType(remind.type)!,
+        getCommandIdByRemindType(remind.type)!,
         settings?.force,
       ),
-    })).then(
-      (isSended) =>
-        isSended &&
+    })).then((isSended) => {
+      if (isSended) {
         this.saveRemindCreationLog(
           remind.guildId,
           remind.type,
           RemindType.Force,
-        ),
-    );
+        );
+      }
+    });
   }
 
   private async sendRemind(
@@ -245,7 +249,7 @@ export class ReminderScheduleManager {
     );
 
     const channel = await guild.channels
-      .fetch(settings?.pingChannelId)
+      .fetch(settings?.pingChannelId ?? "")
       .catch(null);
 
     if (!channel) {
@@ -254,7 +258,7 @@ export class ReminderScheduleManager {
 
     if (channel?.isSendable()) {
       try {
-        channel?.send(message(remind, settings));
+        channel?.send(message(remind, settings!));
         return true;
       } catch {
         return false;

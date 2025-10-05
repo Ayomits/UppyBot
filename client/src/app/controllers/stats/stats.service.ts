@@ -18,11 +18,11 @@ export class BaseUppyService {
         ? DateTime.now()
             .setZone(DefaultTimezone)
             .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-        : DateTime.fromJSDate(new Date(from ?? to)).setZone(DefaultTimezone);
+        : DateTime.fromJSDate(new Date(from! ?? to!)).setZone(DefaultTimezone);
     const parsedToDate =
       !from && !to
         ? parsedFromDate
-        : DateTime.fromJSDate(new Date(to ?? from)).setZone(DefaultTimezone);
+        : DateTime.fromJSDate(new Date(to! ?? from)).setZone(DefaultTimezone);
 
     let toDate: DateTime = parsedToDate.set(endDateValue);
     let fromDate: DateTime = parsedFromDate.set(startDateValue);

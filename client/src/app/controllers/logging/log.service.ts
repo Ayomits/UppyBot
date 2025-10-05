@@ -47,8 +47,8 @@ export class UppyLogService {
     points: number,
     reactionTime: string,
   ) {
-    const commandName = getCommandNameByRemindType(type);
-    const commandId = getCommandIdByRemindType(type);
+    const commandName = getCommandNameByRemindType(type)!;
+    const commandId = getCommandIdByRemindType(type)!;
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
@@ -139,15 +139,17 @@ export class UppyLogService {
       { upsert: true },
     );
 
-    const logChannel = guild.channels.cache.get(settings?.actionLogChannelId);
+    const logChannel = guild.channels.cache.get(
+      settings?.actionLogChannelId ?? "",
+    );
 
     if (!logChannel || !logChannel.isSendable()) {
       return;
     }
 
-    const existed = this.cache.get<LogValue>(settings?.guildId);
+    const existed = this.cache.get<LogValue>(settings!.guildId);
     this.cache.set(
-      settings?.guildId,
+      settings!.guildId,
       {
         channel: logChannel as TextChannel,
         components: [embed, ...(existed?.components ?? [])],

@@ -29,7 +29,10 @@ import {
   PointSettingsModel,
   safePointConfig,
 } from "#/models/points-settings.model.js";
-import { type UppySettings, UppySettingsModel } from "#/models/settings.model.js";
+import {
+  type UppySettings,
+  UppySettingsModel,
+} from "#/models/settings.model.js";
 
 import { UppySettingsMessage } from "../../messages/settings.message.js";
 import {
@@ -88,7 +91,7 @@ export class SettingsService {
   private async buildMainSettingsPanel(
     interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
-    const settings = await this.getOrCreateSettings(interaction.guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId!);
 
     const embed = new EmbedBuilder()
       .setTitle(UppySettingsMessage.panel.title)
@@ -164,21 +167,21 @@ export class SettingsService {
     );
 
     await UppySettingsModel.updateOne(
-      { _id: existed.id },
-      { useForceOnly: !existed.useForceOnly },
+      { _id: existed?.id },
+      { useForceOnly: !existed?.useForceOnly },
     );
 
     interaction.editReply({
       content:
         UppySettingsMessage.managers.force.buttons.actions.useForceOnly.content(
-          !existed.useForceOnly,
+          !existed?.useForceOnly,
         ),
     });
 
     Object.values(MonitoringType).map((t) =>
-      !existed.useForceOnly
-        ? this.scheduleManager.commonRemindDeletion(interaction.guild.id, t)
-        : this.scheduleManager.commonRemindReplacement(interaction.guild, t),
+      !existed?.useForceOnly
+        ? this.scheduleManager.commonRemindDeletion(interaction.guild!.id, t)
+        : this.scheduleManager.commonRemindReplacement(interaction.guild!, t),
     );
   }
 
@@ -231,11 +234,11 @@ export class SettingsService {
     Object.values(MonitoringType).map((t) =>
       seconds > 0
         ? this.scheduleManager.forceRemindReplacement(
-            interaction.guild,
+            interaction.guild!,
             t,
             seconds,
           )
-        : this.scheduleManager.forceRemindDeletion(interaction.guild.id, t),
+        : this.scheduleManager.forceRemindDeletion(interaction.guild!.id, t),
     );
   }
 
@@ -250,7 +253,7 @@ export class SettingsService {
 
   private setupChannelManagementCollector(message: Message) {
     const collector = createSafeCollector(message, {
-      filter: (i) => i.memberPermissions.has("Administrator"),
+      filter: (i) => !!i.memberPermissions?.has("Administrator"),
     });
 
     let selectedField: ObjectKeys<UppySettings> | null = null;
@@ -270,7 +273,7 @@ export class SettingsService {
   private async buildChannelManagementPanel(
     interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
-    const settings = await this.getOrCreateSettings(interaction.guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId!);
 
     const embed = new EmbedBuilder()
       .setTitle(UppySettingsMessage.managers.channels.embed.title)
@@ -349,7 +352,7 @@ export class SettingsService {
 
   private setupRoleManagementCollector(message: Message) {
     const collector = createSafeCollector(message, {
-      filter: (i) => i.memberPermissions.has("Administrator"),
+      filter: (i) => !!i.memberPermissions?.has("Administrator"),
     });
 
     let selectedField: ObjectKeys<UppySettings> | null = null;
@@ -369,7 +372,7 @@ export class SettingsService {
   private async buildRoleManagementPanel(
     interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
-    const settings = await this.getOrCreateSettings(interaction.guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId!);
 
     const embed = new EmbedBuilder()
       .setTitle(UppySettingsMessage.managers.roles.embed.title)
@@ -393,7 +396,7 @@ export class SettingsService {
     interaction: StringSelectMenuInteraction,
     field: ObjectKeys<UppySettings>,
   ) {
-    const settings = await this.getOrCreateSettings(interaction.guildId);
+    const settings = await this.getOrCreateSettings(interaction.guildId!);
     await interaction.deferUpdate();
 
     const roleSelector = new RoleSelectMenuBuilder()
@@ -413,7 +416,7 @@ export class SettingsService {
       if (currentRoles && currentRoles?.length > 0) {
         roleSelector.setDefaultRoles(
           currentRoles
-            .filter((r) => interaction.guild.roles.cache.get(r))
+            .filter((r) => interaction.guild?.roles.cache.get(r))
             .slice(0, 25),
         );
       }
@@ -558,7 +561,7 @@ export class SettingsService {
     interaction: StringSelectMenuInteraction,
   ) {
     const type_ = Number(interaction.values[0]);
-    const entry = await safePointConfig(interaction.guildId, type_);
+    const entry = await safePointConfig(interaction.guildId!, type_);
 
     const modal = new ModalBuilder()
       .setTitle("Управление наградами")

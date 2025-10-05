@@ -30,7 +30,7 @@ export function calculateReactionTime(curr: Date, diff: Date) {
     ]);
 
   function format() {
-    const toFormat = [];
+    const toFormat: string[] = [];
 
     if (years > 0) {
       toFormat.push(`${Math.floor(years)} лет`);
@@ -101,10 +101,10 @@ export const UppyRemindSystemMessage = {
         points: number,
         command: MonitoringCommandIds,
         messageTimestamp: Date,
-        lastRemind: RemindDocument,
+        lastRemind: RemindDocument | null,
       ) => {
         return unorderedList([
-          `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command), command)}`,
+          `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command)!, command)}`,
           `Поинты: ${bold(`${points} поинтов`)}`,
           `Исполнитель: ${userMention(user.id)}`,
           `Время реакции: ${calculateReactionTime(messageTimestamp, lastRemind?.timestamp ?? new Date())}`,

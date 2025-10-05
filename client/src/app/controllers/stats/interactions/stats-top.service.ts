@@ -1,14 +1,10 @@
 import { Pagination, PaginationResolver } from "@discordx/pagination";
 import type { mongoose } from "@typegoose/typegoose";
-import type {
-  ChatInputCommandInteraction,
-  GuildMember,
-  User,
-} from "discord.js";
+import type { ChatInputCommandInteraction, User } from "discord.js";
 import { bold, MessageFlags, userMention } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { EmptyStaffRoleError, UserNotFoundError } from "#/errors/errors.js";
+import { EmptyStaffRoleError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import type { BumpUser, BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
@@ -31,28 +27,20 @@ export class UppyLeaderboardService extends BaseUppyService {
       { upsert: true },
     );
 
-    const member = (await interaction.guild.members
-      .fetch()
-      .catch(() => null)) as GuildMember;
-
-    if (!member) {
-      return UserNotFoundError.throw(interaction);
-    }
-
     if (!settings?.bumpRoleIds || settings?.bumpRoleIds?.length === 0) {
       return EmptyStaffRoleError.throw(interaction);
     }
 
-    const hasStaffRolesIds = interaction.guild.members.cache
+    const hasStaffRolesIds = interaction.guild?.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings?.bumpRoleIds.includes(r.id)),
+        m.roles.cache.some((r) => settings?.bumpRoleIds?.includes(r.id)),
       )
       .map((m) => m.id);
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
     const filter = {
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       userId: { $in: hasStaffRolesIds },
       timestamp: {
         $lte: toDate,

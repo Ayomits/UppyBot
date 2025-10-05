@@ -13,7 +13,7 @@ export const createChannelField = (
 ) => ({
   name: blockQuote(name),
   value: TextFormattingUtility.snowflakeMention(
-    channelId ? channelMention(channelId) : null,
+    channelId ? channelMention(channelId) : undefined,
   ),
   inline: true,
 });
@@ -35,7 +35,7 @@ export const createRoleField = (
       ? roleIds.map(roleMention)
       : roleIds
         ? roleMention(roleIds)
-        : null,
+        : undefined,
   ),
   inline: !Array.isArray(roleIds),
 });
