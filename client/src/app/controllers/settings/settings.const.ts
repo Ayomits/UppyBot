@@ -7,7 +7,7 @@ export const SettingsCustomIds = {
       roles: "settings-manage-roles",
       channels: "settings-manage-channels",
       award: "settings-manage-awards",
-      force: "settings-manage-force"
+      force: "settings-manage-force",
     },
     actions: {
       setForceTime: "settings-set-force-time",

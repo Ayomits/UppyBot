@@ -27,12 +27,12 @@ export class UppyBotInviteService {
                 heading(CoreInviteMessage.embed.title, HeadingLevel.Two),
                 "",
                 CoreInviteMessage.embed.description,
-              ].join("\n")
-            )
+              ].join("\n"),
+            ),
           )
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user))
-          )
+            builder.setURL(UsersUtility.getAvatar(interaction.user)),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -61,7 +61,7 @@ export class UppyBotInviteService {
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.docs)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.DocsUrl)
+          .setURL(UppyLinks.DocsUrl),
       ),
     ];
   }
