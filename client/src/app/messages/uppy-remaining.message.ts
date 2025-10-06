@@ -47,6 +47,10 @@ export const UppyRemainingMessage = {
         );
       }
 
+      if (values.length === 0) {
+        return "Нет мониторингов на сервере";
+      }
+
       return values.join("\n");
     },
   },
