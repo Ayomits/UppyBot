@@ -18,7 +18,7 @@ import {
 } from "../controllers/reminder/reminder.const.js";
 
 export function calculateReactionTime(curr: Date, diff: Date) {
-  const { years, months, weeks, days, hours, minutes, seconds } =
+  const { years, months, weeks, days, hours, minutes, seconds, milliseconds } =
     DateTime.fromJSDate(curr).diff(DateTime.fromJSDate(diff), [
       "years",
       "months",
@@ -27,6 +27,7 @@ export function calculateReactionTime(curr: Date, diff: Date) {
       "hours",
       "minutes",
       "seconds",
+      "milliseconds",
     ]);
 
   function format() {
@@ -58,6 +59,10 @@ export function calculateReactionTime(curr: Date, diff: Date) {
 
     if (seconds > 0) {
       toFormat.push(`${Math.floor(seconds)} секунд`);
+    }
+
+    if (toFormat.length === 0) {
+      toFormat.push(`${Math.floor(milliseconds)} милисекунд`);
     }
 
     return toFormat.join(" ");
