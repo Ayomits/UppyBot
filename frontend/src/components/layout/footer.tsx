@@ -47,7 +47,7 @@ export function Footer() {
           <div className="flex flex-col gap-2.5" key={idx}>
             <h3 className="text-xl">{nav.name}</h3>
             {nav.links.map((link, idx) => (
-              <Link key={idx} to={link.url}>
+              <Link key={idx} to={link.url} target="_blank">
                 {link.name}
               </Link>
             ))}
