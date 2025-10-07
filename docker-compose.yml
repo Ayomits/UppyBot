@@ -30,6 +30,18 @@ services:
     depends_on:
       - uppy-mongo
 
+  uppy-frontend:
+    container_name: uppy-frontend
+    build:
+      args:
+        - APP_ENV=dev
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - uppy-backend
 
   uppy-rabbitmq:
     container_name: uppy-rabbitmq
