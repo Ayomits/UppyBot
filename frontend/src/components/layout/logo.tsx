@@ -2,10 +2,11 @@ import type { HTMLAttributes } from "react";
 import clsx from "clsx";
 import { Link } from "react-router";
 import { AppRoutes } from "../../const/routes";
+import { cn } from "../../lib/cn";
 
-type LogoProps = HTMLAttributes<HTMLDivElement>;
+type LogoProps = HTMLAttributes<HTMLDivElement> & { forceText?: boolean };
 
-export function Logo({ className, ...props }: LogoProps) {
+export function Logo({ className, forceText = false, ...props }: LogoProps) {
   return (
     <Link to={AppRoutes.Home}>
       <div
@@ -19,7 +20,12 @@ export function Logo({ className, ...props }: LogoProps) {
           width={64}
           height={64}
         />
-        <h3 className="hidden xs:block hover:opacity-80 transition-opacity">
+        <h3
+          className={cn(
+            "hidden sm:block hover:opacity-80 transition-opacity",
+            forceText && "block"
+          )}
+        >
           UppyBot
         </h3>
       </div>
