@@ -32,6 +32,7 @@ import {
   calculateReactionTime,
   UppyRemindSystemMessage,
 } from "../../messages/remind-system.message.js";
+import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { UppyLogService } from "../logging/log.service.js";
 import { endDateValue, startDateValue } from "../stats/stats.const.js";
 import {
@@ -55,6 +56,7 @@ export class ReminderHandler {
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
     @inject(UppyLogService) private logService: UppyLogService,
+    @inject(BumpBanService) private bumpBanService: BumpBanService,
   ) {}
 
   public async handleCommand(message: Message) {
@@ -192,34 +194,24 @@ export class ReminderHandler {
     type: MonitoringType,
     settings: UppySettingsDocument,
   ) {
-    const bumpBanRole = settings?.bumpBanRoleId
-      ? await guild.roles.fetch(settings?.bumpBanRoleId).catch(() => null)
-      : null;
-
-    await BumpBanModel.findOneAndUpdate(
-      { guildId: guild.id, userId: member.id, type },
-      {},
-      { upsert: true },
-    );
-
-    if (bumpBanRole) {
-      await Promise.allSettled([
-        member.roles.add(bumpBanRole).catch(null),
-        this.logService.sendBumpBanRoleAddingLog(guild, member.user),
-      ]);
-    }
-
-    await BumpBanModel.updateMany(
-      {
-        guildId: guild.id,
-        userId: { $ne: member.id },
-      },
-      {
-        $inc: {
-          removeIn: 1,
+    await Promise.all([
+      BumpBanModel.updateMany(
+        {
+          guildId: guild.id,
+          userId: { $ne: member.id },
         },
-      },
-    );
+        {
+          $inc: {
+            removeIn: 1,
+          },
+        },
+      ),
+      this.bumpBanService.addBumpBan({
+        member,
+        settings,
+        type,
+      }),
+    ]);
   }
 
   private async createBump({
