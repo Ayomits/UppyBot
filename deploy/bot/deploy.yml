@@ -1,6 +1,6 @@
 ---
 - name: Deploy application
-  hosts: bots_test
+  hosts: bots
   vars_files:
     - shared.yml
     - secrets.yml
