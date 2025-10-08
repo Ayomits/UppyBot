@@ -18,7 +18,7 @@ import {
   TextDisplayBuilder,
   ThumbnailBuilder,
 } from "discord.js";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import { UppyInfoMessage } from "#/app/messages/core-info.message.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
@@ -28,12 +28,17 @@ import type { BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
 import { UppySettingsModel } from "#/models/settings.model.js";
 
+import { BumpBanService } from "../../bump-ban/bump-ban.service.js";
 import { BumpBanLimit } from "../../reminder/reminder.const.js";
 import { StaffCustomIds } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyInfoService extends BaseUppyService {
+  constructor(@inject(BumpBanService) private bumpBanService: BumpBanService) {
+    super();
+  }
+
   async handleInfoCommand(
     interaction:
       | ChatInputCommandInteraction
@@ -174,13 +179,15 @@ export class UppyInfoService extends BaseUppyService {
       });
     }
 
-    await Promise.allSettled([
-      member.roles.remove(settings?.bumpBanRoleId),
-      BumpBanModel.deleteOne({
-        guildId: interaction.guildId,
-        userId: member.id,
-      }),
-    ]);
+    await this.bumpBanService.removeBumpBan({
+      member,
+      type: bumpBan.type,
+      settings,
+      force: {
+        shouldDbQuery: true,
+        shouldRoleAction: true,
+      },
+    });
 
     return interaction.editReply({
       content: UppyInfoMessage.buttons.actions.removeBumpBan.success,
