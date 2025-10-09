@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - client/**
+      - backend/**
       - .github/workflows/deploy_backend.yml
       - deploy/backend/**
       - docker/**
