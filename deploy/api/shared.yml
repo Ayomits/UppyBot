@@ -1,0 +1,4 @@
+app_image: registry.gitlab.com/ayomits/fear-helper
+app_name: uppy-backend
+app_version: api_latest
+registry_url: https://registry.gitlab.com

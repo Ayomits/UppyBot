@@ -4,7 +4,8 @@ export const AppRoutes = {
 
 export const ExternalLinks = {
   Docs: "https://docs.uppy-bot.ru",
-  Tgc: "https://t.me/no_dev",
+  DevsTgc: "https://t.me/no_dev",
+  BotTgc: "https://t.me/UppyBotNews",
   SupportServer: "https://discord.gg/Vd4Ssfxpuc",
   InviteBot:
     "https://discord.com/oauth2/authorize?client_id=1413244173225693214&integration_type=0&scope=bot",

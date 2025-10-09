@@ -1,0 +1,6 @@
+- name: Login to GitLab Container Registry
+  docker_login:
+    registry: "{{ registry_url }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_token }}"
+  register: login_result

@@ -1,0 +1,30 @@
+- name: Stop container gracefully
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: stopped
+  ignore_errors: yes
+  changed_when: false
+  register: stop_result
+
+- name: Remove container
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: absent
+  ignore_errors: yes
+  changed_when: false
+  register: remove_result
+
+- name: Remove old image
+  community.docker.docker_image:
+    name: "{{ app_image }}"
+    tag: "{{ app_version }}"
+    state: absent
+  ignore_errors: yes
+  changed_when: false
+
+- name: Pull new image
+  community.docker.docker_image:
+    name: "{{ app_image }}"
+    tag: "{{ app_version }}"
+    source: pull
+    force_source: yes
