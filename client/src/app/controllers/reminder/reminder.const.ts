@@ -1,7 +1,7 @@
 import type { LiteralEnum } from "#/libs/utils/index.js";
 import type { BumpUser } from "#/models/bump-user.model.js";
 
-export const BumpBanCheckerInterval = 60_000;
+export const BumpBanCheckerInterval = 3_000;
 
 export const DefaultTimezone = "Europe/Moscow";
 export const MonitoringCooldownHours = 4;
