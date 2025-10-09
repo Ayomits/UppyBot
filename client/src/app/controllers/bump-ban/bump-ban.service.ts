@@ -50,7 +50,7 @@ export class BumpBanService {
           continue;
         }
         const action = await this.verifyAction(member, ban.type, settings, ban);
-        return action?.fn.bind(this)({
+        action?.fn.bind(this)({
           member,
           type: ban.type,
           settings,
@@ -58,7 +58,6 @@ export class BumpBanService {
         });
       }
 
-      // member sync
       if (members.size > 0 && members.size !== bans.length) {
         for (const [, member] of members) {
           for (const type of Object.values(MonitoringType)) {
