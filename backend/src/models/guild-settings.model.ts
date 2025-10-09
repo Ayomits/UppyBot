@@ -32,6 +32,7 @@ export class UppySettings {
   useForceOnly: boolean;
 
   @Prop({ min: 0, default: 0 })
+  @ApiProperty({ type: 'number' })
   force: number;
 }
 

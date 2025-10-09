@@ -10,6 +10,12 @@ async function bootstrap() {
     .setTitle('UppyBot')
     .setDescription('Апи для взаимодействия с ботом Uppy')
     .setVersion('1.0')
+    .addBearerAuth({
+      type: 'apiKey',
+      name: 'Authorization',
+      in: 'header',
+      description: 'Api key auth',
+    })
     .build();
 
   app.setGlobalPrefix('/api');

@@ -7,9 +7,10 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BumpLogService } from './bump-log.service';
 import {
   BumpLogFilter,
@@ -17,9 +18,12 @@ import {
   CreateBumpLogDto,
 } from './bump-log.dto';
 import { BumpLog } from '#/models/bump-log.model';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/bump-logs')
 @ApiTags('Бамп.Логи')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class BumpLogController {
   constructor(@Inject(BumpLogService) private bumpLogService: BumpLogService) {}
 

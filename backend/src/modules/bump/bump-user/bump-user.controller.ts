@@ -7,8 +7,9 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BumpUserService } from './bump-user.service';
 import {
   BumpUserFilterDto,
@@ -17,9 +18,12 @@ import {
   LeadearboardFilter,
   LeaderboardPaginationResponse,
 } from './bump-user.dto';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/bump-users')
 @ApiTags('Бамп.Пользователи')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class BumpUserController {
   constructor(
     @Inject(BumpUserService) private bumpUserService: BumpUserService,

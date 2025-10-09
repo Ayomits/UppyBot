@@ -7,18 +7,27 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   BumpBanFilter,
   BumpBanPaginationResponse,
   CreateBumpBanDto,
 } from './bump-ban.dto';
 import { BumpBanService } from './bump-ban.service';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/bump-ban')
 @ApiTags('Бамп.Бан')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class BumpBanController {
   constructor(private bumpBanService: BumpBanService) {}
 
