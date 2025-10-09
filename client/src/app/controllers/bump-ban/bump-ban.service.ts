@@ -40,10 +40,6 @@ export class BumpBanService {
         }),
       ]);
 
-      const members = (await guild.members.fetch()).filter((m) =>
-        m.roles.cache.has(settings?.bumpBanRoleId ?? "")
-      );
-
       for (const ban of bans) {
         const member = await guild.members.fetch(ban.userId).catch(() => null);
         if (!member) {
@@ -56,26 +52,6 @@ export class BumpBanService {
           settings,
           force: action.params,
         });
-      }
-
-      if (members.size > 0 && members.size !== bans.length) {
-        const bansUserIds = bans.map((b) => b.userId);
-        const membersForCheck = members.filter(
-          (m) => !bansUserIds.includes(m.id)
-        );
-        for (const [, member] of membersForCheck) {
-          for (const type of Object.values(MonitoringType)) {
-            this.removeBumpBan({
-              member,
-              type: type,
-              settings,
-              force: {
-                shouldDbQuery: false,
-                shouldRoleAction: true,
-              },
-            });
-          }
-        }
       }
     }
   }
