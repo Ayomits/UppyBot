@@ -65,12 +65,14 @@ export class BumpBanService {
         );
         for (const [, member] of membersForCheck) {
           for (const type of Object.values(MonitoringType)) {
-            const action = await this.verifyAction(member, type, settings);
-            action?.fn.bind(this)({
+            this.removeBumpBan({
               member,
               type: type,
               settings,
-              force: action.params,
+              force: {
+                shouldDbQuery: false,
+                shouldRoleAction: true,
+              },
             });
           }
         }
