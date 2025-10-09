@@ -53,6 +53,6 @@ jobs:
           chmod 600 /tmp/ssh_key
           echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
             -i deploy/inventory.ini \
-            deploy/api/deploy.yml \
+            deploy/backend/deploy.yml \
             --vault-password-file /dev/stdin \
             --private-key=/tmp/ssh_key
