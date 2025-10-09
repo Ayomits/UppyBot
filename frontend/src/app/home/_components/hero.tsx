@@ -34,7 +34,9 @@ export function HomeHero() {
         </div>
       </div>
       <img
-        className="hidden xl:block w-auto h-auto max-w-full max-h-[32rem] object-contain"
+        className="hidden lg:block"
+        height={350}
+        width={350}
         src="/logo.webp"
         alt="Логотип"
       />
