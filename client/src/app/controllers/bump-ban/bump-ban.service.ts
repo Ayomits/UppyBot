@@ -59,7 +59,11 @@ export class BumpBanService {
       }
 
       if (members.size > 0 && members.size !== bans.length) {
-        for (const [, member] of members) {
+        const bansUserIds = bans.map((b) => b.userId);
+        const membersForCheck = members.filter(
+          (m) => !bansUserIds.includes(m.id)
+        );
+        for (const [, member] of membersForCheck) {
           for (const type of Object.values(MonitoringType)) {
             const action = await this.verifyAction(member, type, settings);
             action?.fn.bind(this)({
