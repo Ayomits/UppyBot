@@ -84,25 +84,7 @@ export class UppyLogService {
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
-              heading("Выдача бамп бана", HeadingLevel.Two),
-              unorderedList([`Пользователь: ${user}`]),
-            ].join("\n"),
-          ),
-        )
-        .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
-        ),
-    );
-    return await this.push(guild, container);
-  }
-
-  public async sendBumpBanRoleAddingLog(guild: Guild, user: User) {
-    const container = new ContainerBuilder().addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            [
-              heading("Выдана бамп бан роль", HeadingLevel.Two),
+              heading("Выдан бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
             ].join("\n"),
           ),

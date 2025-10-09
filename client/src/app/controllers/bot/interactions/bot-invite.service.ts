@@ -55,6 +55,10 @@ export class UppyBotInviteService {
           .setStyle(ButtonStyle.Link)
           .setURL(UppyLinks.InviteBot),
         new ButtonBuilder()
+          .setLabel(CoreInviteMessage.embed.resources.devs)
+          .setStyle(ButtonStyle.Link)
+          .setURL(UppyLinks.DevsTgc),
+        new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.news)
           .setStyle(ButtonStyle.Link)
           .setURL(UppyLinks.NewsTgc),

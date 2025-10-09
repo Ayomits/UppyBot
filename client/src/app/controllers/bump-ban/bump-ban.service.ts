@@ -32,7 +32,7 @@ export class BumpBanService {
         UppySettingsModel.findOneAndUpdate(
           { guildId: guild.id },
           {},
-          { upsert: true }
+          { upsert: true },
         ),
         BumpBanModel.find({
           guildId: guild.id,
@@ -104,7 +104,7 @@ export class BumpBanService {
     member: GuildMember,
     type: number,
     settings?: UppySettingsDocument | null,
-    bumpBan?: BumpBan | null
+    bumpBan?: BumpBan | null,
   ): Promise<
     | {
         params: ActionOptions["force"];
@@ -120,7 +120,7 @@ export class BumpBanService {
       : await UppySettingsModel.findOneAndUpdate(
           { guildId: member.guild.id },
           {},
-          { upsert: true }
+          { upsert: true },
         )!;
 
     bumpBan = bumpBan
@@ -171,7 +171,7 @@ export class BumpBanService {
       member: GuildMember;
       role: Role;
       type: number;
-    }
+    },
   ) {
     let hasRole: boolean = options.shouldRoleAction === true;
     let hasBumpBan: boolean = options.shouldDbQuery === false;
@@ -201,7 +201,7 @@ export class BumpBanService {
       : await UppySettingsModel.findOneAndUpdate(
           { guildId: options.member.guild.id },
           {},
-          { upsert: true }
+          { upsert: true },
         )!;
 
     const guild = options.member.guild;
@@ -226,18 +226,6 @@ export class BumpBanService {
       type: options.type,
     });
 
-    if (!hasBumpBan && hasRole) {
-      await BumpBanModel.findOneAndUpdate(filter, {}, { upsert: true });
-      this.logService.sendBumpBanCreationLog(guild, options.member.user);
-      return true;
-    }
-
-    if (hasBumpBan && !hasRole) {
-      options.member.roles.add(role).catch(() => null);
-      this.logService.sendBumpBanRoleAddingLog(guild, options.member.user);
-      return true;
-    }
-
     if (hasBumpBan && hasRole) {
       return false;
     }
@@ -246,7 +234,6 @@ export class BumpBanService {
       BumpBanModel.findOneAndUpdate(filter, {}, { upsert: true }),
       options.member.roles.add(role).catch(() => null),
       this.logService.sendBumpBanCreationLog(guild, options.member.user),
-      this.logService.sendBumpBanRoleAddingLog(guild, options.member.user),
     ]);
 
     return true;
@@ -258,7 +245,7 @@ export class BumpBanService {
       : await UppySettingsModel.findOneAndUpdate(
           { guildId: options.member.guild.id },
           {},
-          { upsert: true }
+          { upsert: true },
         )!;
 
     const guild = options.member.guild;
@@ -283,29 +270,15 @@ export class BumpBanService {
       type: options.type,
     });
 
-    if (hasBumpBan && hasRole) {
-      await Promise.all([
-        options.member.roles.remove(role),
-        await BumpBanModel.deleteOne(filter),
-        this.logService.sendBumpBanRemovalLog(guild, options.member.user),
-      ]);
-      return true;
-    }
-
-    if (!hasBumpBan && hasRole) {
-      options.member.roles.remove(role);
-      this.logService.sendBumpBanRemovalLog(guild, options.member.user);
-      return true;
-    }
-
-    if (hasRole && !hasBumpBan) {
-      await BumpBanModel.deleteOne(filter);
-      this.logService.sendBumpBanRemovalLog(guild, options.member.user);
-      return true;
-    }
-
-    if (!hasBumpBan && !hasRole) {
+    if (!hasBumpBan || !hasRole) {
       return false;
     }
+
+    await Promise.all([
+      options.member.roles.remove(role),
+      BumpBanModel.deleteOne(filter),
+      this.logService.sendBumpBanRemovalLog(guild, options.member.user),
+    ]);
+    return true;
   }
 }
