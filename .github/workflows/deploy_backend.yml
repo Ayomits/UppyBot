@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - client/**
-      - .github/workflows/deploy_bot.yml
-      - deploy/bot/**
+      - .github/workflows/deploy_backend.yml
+      - deploy/backend/**
       - docker/**
 
 jobs:
@@ -34,15 +34,15 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - name: Build and push bot image
+      - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./client/Dockerfile
+          file: ./backend/Dockerfile
           push: true
           tags: |
-            registry.gitlab.com/ayomits/fear-helper:bot_latest
-            registry.gitlab.com/ayomits/fear-helper:bot
+            registry.gitlab.com/ayomits/fear-helper:api_latest
+            registry.gitlab.com/ayomits/fear-helper:api
           build-args:
             APP_ENV=prod
           no-cache: true
@@ -53,6 +53,6 @@ jobs:
           chmod 600 /tmp/ssh_key
           echo "${{ secrets.ANSIBLE_PASSWORD }}" | ansible-playbook \
             -i deploy/inventory.ini \
-            deploy/bot/deploy.yml \
+            deploy/api/deploy.yml \
             --vault-password-file /dev/stdin \
             --private-key=/tmp/ssh_key

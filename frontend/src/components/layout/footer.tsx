@@ -28,8 +28,12 @@ const navigationConfig = [
         url: ExternalLinks.SupportServer,
       },
       {
-        name: "Новостной телеграм",
-        url: ExternalLinks.Tgc,
+        name: "Новости бота",
+        url: ExternalLinks.BotTgc,
+      },
+      {
+        name: "Новости разработчиков",
+        url: ExternalLinks.DevsTgc,
       },
     ],
   },
@@ -47,7 +51,12 @@ export function Footer() {
           <div className="flex flex-col gap-2.5" key={idx}>
             <h3 className="text-xl">{nav.name}</h3>
             {nav.links.map((link, idx) => (
-              <Link key={idx} to={link.url} target="_blank">
+              <Link
+                className="hover:opacity-80 transition-colors duration-300"
+                key={idx}
+                to={link.url}
+                target="_blank"
+              >
                 {link.name}
               </Link>
             ))}

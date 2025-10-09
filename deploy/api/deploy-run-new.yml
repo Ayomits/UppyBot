@@ -1,0 +1,12 @@
+- name: Deploy app
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: started
+    image: "{{ app_image }}:{{ app_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "8088:8088"
+    env:
+      APP_ENV: prod
+      MONGO_URL: "{{ mongo_url }}"
+      SECRET_KEY: "{{ secret_key }}"
