@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { EnterIcon } from "../../icons/enter.icon";
-import { ChartIcon } from "../../icons/chart.icon";
-import { CogIcon } from "../../icons/cog.icon";
+import { EnterIcon } from "../../../icons/enter.icon";
+import { ChartIcon } from "../../../icons/chart.icon";
+import { CogIcon } from "../../../icons/cog.icon";
 
 type HomeFeature = {
   name: string;

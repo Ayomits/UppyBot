@@ -1,13 +1,19 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
+export const HEADER_HEIGHT = `6.25rem`;
+export const HEADER_MARGIN = `12.5rem`;
+
 export function Header({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <header
-      className={cn("flex items-center h-[6.25rem] bg-bg-200", className)}
+      style={{
+        height: HEADER_HEIGHT,
+      }}
+      className={cn("fixed z-40 w-full flex items-center bg-bg-200", className)}
       {...props}
     />
   );

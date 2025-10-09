@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { Button } from "../../ui/button";
-import { ExternalLinks } from "../../const/routes";
-import { ChatIcon } from "../../icons/chat.icon";
-import { InviteIcon } from "../../icons/invite.icon";
+import { Button } from "../../../ui/button";
+import { ExternalLinks } from "../../../const/routes";
+import { ChatIcon } from "../../../icons/chat.icon";
+import { InviteIcon } from "../../../icons/invite.icon";
 
 export function HomeHero() {
   return (
