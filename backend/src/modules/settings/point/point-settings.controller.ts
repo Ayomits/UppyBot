@@ -5,17 +5,21 @@ import {
   HttpStatus,
   Param,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PointSettingsService } from './point-settings.service';
 import {
   PointSettingsResponse,
   PointSettinsRates,
   UpdatePointSettingsDto,
 } from './point-settings.dto';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/point-settings')
 @ApiTags('Настройки.Поинты')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class PointSettingsController {
   constructor(private pointSettings: PointSettingsService) {}
 

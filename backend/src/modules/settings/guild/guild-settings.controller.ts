@@ -6,14 +6,18 @@ import {
   Inject,
   Param,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { GuildSettingsService } from './guild-settings.service';
 import { UpdateGuildSettingsDto } from './guild-settings.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UppySettings } from '#/models/guild-settings.model';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/guild-settings')
 @ApiTags('Настройки.Серверы')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class GuildSettingsController {
   constructor(
     @Inject(GuildSettingsService)

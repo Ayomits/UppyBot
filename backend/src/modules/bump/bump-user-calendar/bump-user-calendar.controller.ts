@@ -5,14 +5,18 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { BumpUserCalendarService } from './bump-user-calendar.service';
 import { BumpUserCalendarFilter } from './bump-user-calendar.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { SecretKeyGuard } from '#/common/guards/secret-key.guard';
 
 @Controller('/bump-user-calendar')
 @ApiTags('Бамп.Календари.Пользователей')
+@ApiBearerAuth()
+@UseGuards(SecretKeyGuard)
 export class BumpUserCalendarController {
   constructor(
     @Inject(BumpUserCalendarService)
