@@ -24,7 +24,7 @@ export class BumpBanController {
   @On({ event: Events.GuildMemberUpdate })
   async handleMemberUpdate([old, nw]: ArgsOf<Events.GuildMemberUpdate>) {
     if (old.roles.cache.size !== nw.roles.cache.size) {
-      return this.bumpBanService.handleMemberUpdate(nw);
+      return this.bumpBanService.processMember(nw);
     }
   }
 }
