@@ -212,6 +212,8 @@ export class ReminderHandler {
         type,
       }),
     ]);
+
+    await this.bumpBanService.handlePostIncrementBumpBans(guild, type);
   }
 
   private async createBump({

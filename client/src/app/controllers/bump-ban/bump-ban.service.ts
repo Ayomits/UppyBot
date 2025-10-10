@@ -1,4 +1,4 @@
-import type { GuildMember, Role } from "discord.js";
+import type { Guild, GuildMember, Role } from "discord.js";
 import type { Client } from "discordx";
 import { inject, injectable } from "tsyringe";
 
@@ -15,16 +15,17 @@ type ActionOptions = {
   type: number;
   settings?: UppySettingsDocument | null;
   force?: {
-    shouldDbQuery: boolean;
-    shouldRoleAction: boolean;
+    shouldDbQuery?: boolean;
+    shouldRoleAction?: boolean;
   };
+  prioritizeForce?: boolean;
 };
 
 @injectable()
 export class BumpBanService {
   constructor(@inject(UppyLogService) private logService: UppyLogService) {}
 
-  async handleBumpBan(client: Client) {
+  async handleBumpBanInit(client: Client) {
     const guilds = client.guilds.cache;
 
     for (const [, guild] of guilds) {
@@ -56,7 +57,36 @@ export class BumpBanService {
     }
   }
 
-  async processMember(member: GuildMember) {
+  async handlePostIncrementBumpBans(guild: Guild, type: number) {
+    const [bans, settings] = await Promise.all([
+      BumpBanModel.find({
+        guildId: guild.id,
+        type,
+        removeIn: { $gte: BumpBanLimit },
+      }),
+      await UppySettingsModel.findOneAndUpdate(
+        { guildId: guild.id },
+        {},
+        { upsert: true },
+      ),
+    ]);
+
+    for (const ban of bans) {
+      const member = await guild.members.fetch(ban.userId).catch(() => null);
+
+      if (!member) {
+        continue;
+      }
+
+      this.removeBumpBan({
+        member,
+        settings,
+        type,
+      });
+    }
+  }
+
+  async handleMemberUpdate(member: GuildMember) {
     const [entry] = await BumpBanModel.aggregate([
       {
         $match: {
@@ -263,8 +293,9 @@ export class BumpBanService {
     };
 
     const { hasBumpBan, hasRole } = await this.verifyBumpBan({
-      shouldDbQuery: options.force?.shouldDbQuery,
-      shouldRoleAction: options.force?.shouldRoleAction,
+      shouldDbQuery: options.force?.shouldDbQuery ?? options?.prioritizeForce,
+      shouldRoleAction:
+        options.force?.shouldRoleAction ?? options?.prioritizeForce,
       member: options.member,
       role,
       type: options.type,
