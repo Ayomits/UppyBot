@@ -35,7 +35,9 @@ export class SettingsController {
     return this.settingsService.handleSetForceModal(interaction);
   }
 
-  @ModalComponent({ id: SettingsCustomIds.modal.manageAward })
+  @ModalComponent({
+    id: new RegExp(`^${SettingsCustomIds.modal.manageAward}_(\\d+)$`),
+  })
   @Guard(IsGuildUser(GuildOnly))
   handleAwardManageModal(interaction: ModalSubmitInteraction) {
     return this.settingsService.handleAwardManagmentModal(interaction);

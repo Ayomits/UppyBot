@@ -39,7 +39,7 @@ export const SettingsCustomIds = {
   },
   modal: {
     setForceTime: "settings-set-force-modal",
-    manageAward: "settings-manage-award-modal",
+    manageAward: `settings-manage-award-modal_`,
   },
 } as const;
 

@@ -24,6 +24,7 @@ import {
 import { inject, injectable } from "tsyringe";
 
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
 import { createSafeCollector, type ObjectKeys } from "#/libs/utils/index.js";
 import {
   PointSettingsModel,
@@ -619,7 +620,7 @@ export class SettingsService {
 
     const modal = new ModalBuilder()
       .setTitle("Управление наградами")
-      .setCustomId(SettingsCustomIds.modal.manageAward);
+      .setCustomId(SettingsCustomIds.modal.manageAward + `_${type_}`);
 
     const defaultAmount =
       new ActionRowBuilder<TextInputBuilder>().addComponents(
@@ -638,28 +639,22 @@ export class SettingsService {
         .setValue(entry.bonus.toString())
         .setStyle(TextInputStyle.Short),
     );
-    const type = new ActionRowBuilder<TextInputBuilder>().addComponents(
-      new TextInputBuilder()
-        .setCustomId("type")
-        .setLabel("Мониторинг")
-        .setValue(type_.toString())
-        .setRequired(true)
-        .setStyle(TextInputStyle.Short),
-    );
 
-    modal.addComponents(defaultAmount, bonusAmount, type);
+    modal.addComponents(defaultAmount, bonusAmount);
 
     interaction.showModal(modal);
   }
 
   async handleAwardManagmentModal(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const args = CustomIdParser.parseArguments(interaction.customId);
+    const [typeString] = args;
     let [default_, bonus] = [
       Number(interaction.fields.getTextInputValue("default")),
       Number(interaction.fields.getTextInputValue("bonus")),
     ];
 
-    const type = Number(interaction.fields.getTextInputValue("type"));
+    const type = Number(typeString);
 
     default_ = Math.max(0, default_);
     bonus = Math.max(0, bonus);
