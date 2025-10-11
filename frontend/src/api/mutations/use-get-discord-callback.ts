@@ -9,7 +9,7 @@ export async function postDiscordCallback(code: string) {
   });
 }
 
-export function useGetDiscordCallback() {
+export function useDiscordCallback() {
   return useMutation({
     mutationFn: postDiscordCallback,
   });

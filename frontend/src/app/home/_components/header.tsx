@@ -4,19 +4,14 @@ import { Logo } from "../../../components/layout/logo";
 import { Fragment, useState, type HTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
 import { Button, type ButtonProps } from "../../../ui/button";
-import { EnterIcon } from "../../../icons/enter.icon";
 import { ExternalLinks } from "../../../const/routes";
 import { Header, HeaderMain } from "../../../components/layout/header";
 import { BurgerIcon } from "../../../icons/burger.icon";
 import { CareteRightIcon } from "../../../icons/carete.icon";
+import { Login } from "../../../components/auth/login";
 
 function HomeProfile({ ...props }: ButtonProps) {
-  return (
-    <Button variant="secondary" {...props}>
-      <EnterIcon className="size-4" />
-      <span>Войти</span>
-    </Button>
-  );
+  return <Login />;
 }
 
 const navigation = [
