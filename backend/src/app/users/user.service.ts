@@ -55,7 +55,9 @@ export class UserService {
     }
     const discordGuilds = await this.findDiscordGuilds(user.accessToken);
 
-    return discordGuilds;
+    return {
+      items: discordGuilds,
+    };
   }
 
   async findDiscordUser(accessToken: string) {
@@ -75,7 +77,12 @@ export class UserService {
         },
       },
     );
-    // @ts-expect-error idk
-    return guilds.data.filter((guild) => guild.permissions & 8);
+
+    return (
+      guilds.data
+        // @ts-expect-error idk
+        .filter((guild) => guild.permissions & 8 || guild.owner)
+        .map((guild) => pick(guild, ['name', 'icon', 'id']))
+    );
   }
 }
