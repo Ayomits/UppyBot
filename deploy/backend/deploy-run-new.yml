@@ -10,3 +10,7 @@
       APP_ENV: prod
       MONGO_URL: "{{ mongo_url }}"
       SECRET_KEY: "{{ secret_key }}"
+      JWT_SECRET: "{{ jwt_secret }}"
+      REDIRECT_URI: "{{ redirect_uri }}"
+      CLIENT_ID: "{{ client_id }}"
+      CLIENT_SECRET: "{{ client_secret }}"
