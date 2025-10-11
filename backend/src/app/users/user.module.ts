@@ -5,12 +5,13 @@ import { AuthModule } from '../auth/auth.module';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { HttpModule } from '@nestjs/axios';
+import { DiscordUrl } from '#/const/url';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
     HttpModule.register({
-      baseURL: 'https://discord.com',
+      baseURL: DiscordUrl,
     }),
     MongooseModule.forFeature([
       { name: UserCollectionName, schema: UserSchema },

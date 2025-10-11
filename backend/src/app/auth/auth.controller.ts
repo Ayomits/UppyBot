@@ -1,11 +1,17 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
+import type { Response } from 'express';
 
 @Controller('/auth')
 @ApiTags('Авторизация.Дискорд')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('signin')
+  signin() {
+    return this.authService.signin();
+  }
 
   @Get('/discord/callback')
   callback(@Query('code') code: string, @Res() res: any) {

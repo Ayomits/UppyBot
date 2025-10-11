@@ -11,6 +11,7 @@ import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { AUTH_COOKIE_NAME, AUTH_TOKEN_EXPIRATION } from './auth.const';
+import { DiscordUrl } from '#/const/url';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,23 @@ export class AuthService {
     private httpService: HttpService,
     private jwtService: JwtService,
   ) {}
+
+  signin() {
+    const clientId = this.configService.getOrThrow('CLIENT_ID');
+    const redirectUri = this.configService.get('REDIRECT_URI');
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      response_type: 'code',
+      scope: 'identify guilds',
+      ...(redirectUri && { redirect_uri: redirectUri }),
+    });
+
+    return {
+      url: `${DiscordUrl}/oauth2/authorize?${params.toString()}`,
+      statusCode: 302,
+    };
+  }
 
   async callback(code: string, res: Response) {
     const token = await this.httpService.axiosRef.post(

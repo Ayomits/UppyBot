@@ -7,12 +7,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AUTH_TOKEN_EXPIRATION } from './auth.const';
 import { JwtAuthGuard } from '#/common/guards/jwt-auth.guard';
+import { DiscordUrl } from '#/const/url';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
     HttpModule.register({
-      baseURL: 'https://discord.com',
+      baseURL: DiscordUrl,
     }),
     JwtModule.registerAsync({
       inject: [ConfigService],
