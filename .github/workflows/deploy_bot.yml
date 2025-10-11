@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - client/**
+      - bot/**
       - .github/workflows/deploy_bot.yml
       - deploy/bot/**
       - docker/**
