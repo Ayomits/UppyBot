@@ -34,15 +34,7 @@ export class UserService {
 
     const discordUser = await this.findDiscordUser(user.accessToken);
 
-    return {
-      uppy: pick(user.toObject(), ['discordId']),
-      discord: pick(discordUser.data, [
-        'id',
-        'username',
-        'global_name',
-        'avatar',
-      ]),
-    };
+    return pick(discordUser.data, ['id', 'username', 'global_name', 'avatar']);
   }
 
   async findGuilds(req: AuthenticatedRequest) {
