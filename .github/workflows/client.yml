@@ -26,25 +26,25 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd client 
+          cd bot 
           pnpm install
 
       - name: Check prettier
         run: |
-          cd client
+          cd bot
           pnpm run format:check
 
       - name: Check lint
         run: |
-          cd client
+          cd bot
           pnpm run lint:check
 
       - name: Run build
         run: |
-          cd client
+          cd bot
           pnpm run build
 
       - name: Run tests
         run: |
-          cd client
+          cd bot
           pnpm run test:ci
