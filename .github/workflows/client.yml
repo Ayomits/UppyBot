@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+    paths:
+      - "bot/**"
 
 jobs:
   lint-test-and-build:
