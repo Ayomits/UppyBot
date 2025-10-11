@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BumpModule } from './modules/bump/bump.module';
-import { SettingsModule } from './modules/settings/settings.module';
+import { BumpModule } from './app/bump/bump.module';
+import { SettingsModule } from './app/settings/settings.module';
+import { AuthModule } from './app/auth/auth.module';
+import { UserModule } from './app/users/user.module';
 
 @Module({
   imports: [
@@ -17,6 +19,9 @@ import { SettingsModule } from './modules/settings/settings.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
+    AuthModule,
+    UserModule,
 
     SettingsModule,
     BumpModule,

@@ -6,7 +6,7 @@ import {
   BumpUserCollectionName,
   BumpUserSchema,
 } from '#/models/bump-user.model';
-import { PointSettingsModule } from '#/modules/settings/point/point-settings.module';
+import { PointSettingsModule } from '#/app/settings/point/point-settings.module';
 import { BumpBanModule } from '../bump-ban/bump-ban.module';
 
 @Module({
