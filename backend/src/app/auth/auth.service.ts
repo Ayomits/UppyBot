@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   HttpStatus,
   Inject,
@@ -35,7 +36,6 @@ export class AuthService {
 
     return {
       url: `${DiscordUrl}/oauth2/authorize?${params.toString()}`,
-      statusCode: 302,
     };
   }
 
@@ -51,6 +51,11 @@ export class AuthService {
         scope: 'guilds identity',
       }),
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+    if (token.status === HttpStatus.BAD_REQUEST) {
+      throw new BadRequestException('Invalid code');
+    }
 
     if (!token.data) {
       throw new InternalServerErrorException();
