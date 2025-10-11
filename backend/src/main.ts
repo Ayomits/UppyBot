@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import { AUTH_COOKIE_NAME } from './app/auth/auth.const';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,16 +12,17 @@ async function bootstrap() {
     .setTitle('UppyBot')
     .setDescription('Апи для взаимодействия с ботом Uppy')
     .setVersion('1.0')
-    .addBearerAuth({
-      type: 'apiKey',
-      name: 'Authorization',
-      in: 'header',
-      description: 'Api key auth',
-    })
+    .addCookieAuth(AUTH_COOKIE_NAME)
     .build();
 
   app.setGlobalPrefix('/api');
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import { CreateBumpUserDto } from './bump-user.dto';
 import { PaginationResponse } from '#/responses/pagination';
 import { omit } from '#/lib/omit';
-import { PointSettingsService } from '#/modules/settings/point/point-settings.service';
+import { PointSettingsService } from '#/app/settings/point/point-settings.service';
 import { BumpBanService } from '../bump-ban/bump-ban.service';
 
 @Injectable()
