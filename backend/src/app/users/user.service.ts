@@ -7,6 +7,7 @@ import { AuthenticatedRequest } from '#/types/auth-request';
 import { HttpService } from '@nestjs/axios';
 import { pick } from '#/lib/pick';
 import { APIGuild, APIUser } from 'discord-api-types/v10';
+import { getUserAvatar as getDiscordUserAvatar } from '#/lib/discord-cdn';
 
 @Injectable()
 export class UserService {
@@ -34,7 +35,10 @@ export class UserService {
 
     const discordUser = await this.findDiscordUser(user.accessToken);
 
-    return pick(discordUser.data, ['id', 'username', 'global_name', 'avatar']);
+    return {
+      ...pick(discordUser.data, ['id', 'username', 'global_name', 'avatar']),
+      avatar: getDiscordUserAvatar(discordUser.data),
+    };
   }
 
   async findGuilds(req: AuthenticatedRequest) {

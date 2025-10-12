@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { EnterIcon } from "../../../icons/enter.icon";
-import { ChartIcon } from "../../../icons/chart.icon";
-import { CogIcon } from "../../../icons/cog.icon";
-import { cn } from "../../../lib/cn";
+import { EnterIcon } from "../../../../icons/enter.icon";
+import { ChartIcon } from "../../../../icons/chart.icon";
+import { CogIcon } from "../../../../icons/cog.icon";
+import { cn } from "../../../../lib/cn";
 
 type HomeFeature = {
   name: string;

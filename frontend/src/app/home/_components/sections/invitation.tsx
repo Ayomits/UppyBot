@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { ExternalLinks } from "../../../const/routes";
-import { Button } from "../../../ui/button";
-import { InviteIcon } from "../../../icons/invite.icon";
-import { ChatIcon } from "../../../icons/chat.icon";
+import { ExternalLinks } from "../../../../const/routes";
+import { Button } from "../../../../ui/button";
+import { InviteIcon } from "../../../../icons/invite.icon";
+import { ChatIcon } from "../../../../icons/chat.icon";
 
 export function HomeInvitation() {
   return (

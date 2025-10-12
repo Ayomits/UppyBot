@@ -1,10 +1,13 @@
+import { AuthProvider } from "./providers/auth";
 import { ReactQueryProvider } from "./providers/react-query";
 import { RouterProvider } from "./providers/router";
 
 function App() {
   return (
     <ReactQueryProvider>
-      <RouterProvider />
+      <AuthProvider>
+        <RouterProvider />
+      </AuthProvider>
     </ReactQueryProvider>
   );
 }

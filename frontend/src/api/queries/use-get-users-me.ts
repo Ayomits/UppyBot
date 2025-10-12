@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../utils/api";
 
-type UsersMeResponsse = {
+export type UsersMeResponsse = {
   id: string;
   username: string;
   avatar: string | null;
@@ -13,9 +13,11 @@ export async function getUsersMe(): Promise<UsersMeResponsse> {
   return response.data;
 }
 
+export const usersMeQueryKey = "users_me"
+
 export function useGetUsersMe() {
   return useQuery({
-    queryKey: ["users_me"],
+    queryKey: [usersMeQueryKey],
     queryFn: getUsersMe,
   });
 }

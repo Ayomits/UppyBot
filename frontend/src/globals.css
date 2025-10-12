@@ -11,13 +11,11 @@
   --accent-200: #51f9a0;
 
   --secondary-100: #1b1a1e;
+  --secondary-200: #242327;
+
+  --error: #f87878;
 
   --font-roboto: "Roboto", sans-serif;
-
-  --font-16: 1rem;
-  --font-20: 1.25rem;
-  --font-24: 1.5rem;
-  --font-32: 2rem;
 
   /* SIZES */
   --header-height: 6.25rem;
@@ -26,10 +24,15 @@
 @theme {
   --color-bg-100: var(--bg-100);
   --color-bg-200: var(--bg-200);
+
   --color-accent-100: var(--accent-100);
   --color-accent-200: var(--accent-200);
+
   --color-secondary-100: var(--secondary-100);
-  
+  --color-secondary-200: var(--secondary-200);
+
+  --color-error: var(--error);
+
   --font-roboto: "Roboto", sans-serif;
 }
 

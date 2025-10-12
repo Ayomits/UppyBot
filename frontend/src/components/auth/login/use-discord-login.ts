@@ -1,17 +1,22 @@
 import { useCallback, useState } from "react";
-import { useDiscordCallback } from "../../api/mutations/use-get-discord-callback";
+import { useDiscordCallback } from "../../../api/mutations/use-get-discord-callback";
+import { useAuth } from "#/providers/auth";
+import { useGetDiscordLoginUrl } from "#/api/queries/use-get-discord-login-url";
 
 export function useDiscordLogin() {
   const [isOpen, setIsOpen] = useState(false);
+  const discordUrlQuery = useGetDiscordLoginUrl();
+
+  const { login } = useAuth();
 
   const mutation = useDiscordCallback();
 
   const handle = useCallback(
-    async (url: string) => {
+    async () => {
       setIsOpen(true);
 
       try {
-        const wdw = window.open(url, "newWindow", "width=600,height=600");
+        const wdw = window.open(discordUrlQuery.data?.url, "newWindow", "width=600,height=600");
         if (!wdw) {
           throw new Error();
         }
@@ -34,7 +39,7 @@ export function useDiscordLogin() {
                 wdw.close();
                 resolve(codeParam);
               }
-            // eslint-disable-next-line no-empty
+              // eslint-disable-next-line no-empty
             } catch {}
           }, 500);
 
@@ -47,16 +52,17 @@ export function useDiscordLogin() {
 
         setIsOpen(false);
         await mutation.mutateAsync(code);
+        login();
       } catch {
         setIsOpen(false);
       }
     },
-    [mutation]
+    [discordUrlQuery.data?.url, login, mutation]
   );
 
   return {
     handle,
     isOpen,
-    isLoading: mutation.isPending,
+    isLoading: mutation.isPending || discordUrlQuery.isLoading,
   };
 }

@@ -1,8 +1,8 @@
 import { HomeLayout } from "../../layouts/home.layout";
-import { HomeFeatures } from "./_components/features";
-import { HomeHero } from "./_components/hero";
-import { HomeInvitation } from "./_components/invitation";
-import { HomeTrusted } from "./_components/trusted";
+import { HomeFeatures } from "./_components/sections/features";
+import { HomeHero } from "./_components/sections/hero";
+import { HomeInvitation } from "./_components/sections/invitation";
+import { HomeTrusted } from "./_components/sections/trusted";
 
 export function Home() {
   return (

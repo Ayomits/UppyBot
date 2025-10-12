@@ -84,4 +84,9 @@ export class AuthService {
     });
     return res.sendStatus(HttpStatus.OK);
   }
+
+  logout(res: Response) {
+    res.clearCookie(AUTH_COOKIE_NAME);
+    return res.sendStatus(HttpStatus.OK);
+  }
 }
