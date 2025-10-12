@@ -44,7 +44,7 @@ export function MiniProfile({
   return (
     <div className={cn("flex items-center gap-2.5", className)} {...props}>
       {getAvatar()}
-      <span className="text-xs md:hidden">
+      <span className="text-sm md:hidden">
         {user?.global_name ?? user?.username}
       </span>
     </div>

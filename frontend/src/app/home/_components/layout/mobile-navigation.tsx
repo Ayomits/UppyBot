@@ -13,25 +13,26 @@ import { Link } from "react-router";
 import { Fragment } from "react/jsx-runtime";
 import { NAVIGATION_ITEMS } from "./const";
 import { Separator } from "#/ui/separator";
+import { Slot } from "@radix-ui/react-slot";
 
 function MobileNavItem({
   className,
   children,
-  disabled,
+  asChild,
   ...props
-}: HTMLAttributes<HTMLDivElement> & { disabled?: boolean }) {
+}: HTMLAttributes<HTMLDivElement> & { asChild?: boolean }) {
+  const Component = asChild ? Slot : "div";
   return (
-    <div
+    <Component
       className={cn(
         "flex items-center px-6 py-4",
         "bg-bg-200 active:bg-secondary-100 transition-colors",
-        disabled && "bg-secondary-100/85",
         className
       )}
       {...props}
     >
       {children}
-    </div>
+    </Component>
   );
 }
 
@@ -43,7 +44,7 @@ function MobileNavigationList() {
   return (
     <ul className="relative flex flex-col w-full bg-background">
       {NAVIGATION_ITEMS.map((item, index) => (
-        <MobileNavItem key={index}>
+        <MobileNavItem key={index} asChild>
           <Link
             className="flex justify-between items-center w-full"
             to={item.url}
@@ -57,11 +58,12 @@ function MobileNavigationList() {
       <Separator />
       {isAuth && (
         <Fragment>
-          <Link to={AppRoutes.Account}>
-            <MobileNavItem className="justify-between">
+          <MobileNavItem className="justify-between" asChild>
+            <Link to={AppRoutes.Account}>
               <MiniProfile />
-            </MobileNavItem>
-          </Link>
+            </Link>
+          </MobileNavItem>
+
           <MobileNavItem className="justify-between" onClick={logout}>
             Выйти
             <EnterIcon className="text-error size-4" />
