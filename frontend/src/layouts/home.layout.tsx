@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { HomeHeader } from "../app/home/_components/header";
+import { HomeHeader } from "../app/home/_components/layout/header";
 import { Footer } from "../components/layout/footer";
 import { AppMain } from "../components/layout/main";
 

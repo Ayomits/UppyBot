@@ -1,5 +1,6 @@
 export const AppRoutes = {
   Home: "/",
+  Account: "/account"
 } as const;
 
 export const ExternalLinks = {

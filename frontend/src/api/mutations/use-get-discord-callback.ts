@@ -11,6 +11,8 @@ export async function getDiscordCallback(code: string) {
 
 export function useDiscordCallback() {
   return useMutation({
-    mutationFn: getDiscordCallback,
+    mutationFn: async (code: string) => {
+      await getDiscordCallback(code);
+    },
   });
 }
