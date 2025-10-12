@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { api } from "../utils/api";
 
-export async function postDiscordCallback(code: string) {
-  return await api.get("/discord/callback", {
+export async function getDiscordCallback(code: string) {
+  return await api.get("/api/auth/discord/callback", {
     params: {
       code,
     },
@@ -11,6 +11,6 @@ export async function postDiscordCallback(code: string) {
 
 export function useDiscordCallback() {
   return useMutation({
-    mutationFn: postDiscordCallback,
+    mutationFn: getDiscordCallback,
   });
 }

@@ -9,8 +9,11 @@ import { Header, HeaderMain } from "../../../components/layout/header";
 import { BurgerIcon } from "../../../icons/burger.icon";
 import { CareteRightIcon } from "../../../icons/carete.icon";
 import { Login } from "../../../components/auth/login";
+import { useGetUsersMe } from "../../../api/queries/use-get-users-me";
 
 function HomeProfile({ ...props }: ButtonProps) {
+  const usersMeQuery = useGetUsersMe();
+
   return <Login />;
 }
 
