@@ -5,9 +5,9 @@ services:
     build:
       args:
         - APP_ENV=dev
-      dockerfile: ./client/Dockerfile
+      dockerfile: ./bot/Dockerfile
     volumes:
-      - ./client:/app
+      - ./bot:/app
     ports:
       - "0.0.0.0:9001:9001"
     restart: always
@@ -16,6 +16,7 @@ services:
 
   uppy-backend:
     container_name: uppy-backend
+    network_mode: host
     build:
       args:
         - APP_ENV=dev

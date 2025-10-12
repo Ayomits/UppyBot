@@ -49,7 +49,7 @@ export function Footer() {
         </div>
         {navigationConfig.map((nav, idx) => (
           <div className="flex flex-col gap-2.5" key={idx}>
-            <h3 className="text-xl">{nav.name}</h3>
+            <h3 className="text-xl opacity-60">{nav.name}</h3>
             {nav.links.map((link, idx) => (
               <Link
                 className="hover:opacity-80 transition-colors duration-300"
