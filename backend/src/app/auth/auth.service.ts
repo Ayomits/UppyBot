@@ -78,7 +78,7 @@ export class AuthService {
     const jwt = await this.jwtService.signAsync({ discordId: user.data.id });
     res.cookie(AUTH_COOKIE_NAME, jwt, {
       httpOnly: false,
-      sameSite: 'strict',
+      sameSite: 'none',
       domain: this.configService.getOrThrow('APP_DOMAIN'),
       secure: this.configService.get('APP_ENV', 'dev') === 'prod',
       maxAge: AUTH_TOKEN_EXPIRATION * 1_000, // 7d
