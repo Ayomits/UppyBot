@@ -28,11 +28,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./backend/Dockerfile
+          file: ./frontend/Dockerfile
           push: true
           tags: |
-            registry.gitlab.com/ayomits/fear-helper:api_latest
-            registry.gitlab.com/ayomits/fear-helper:api
+            registry.gitlab.com/ayomits/fear-helper:frontend_latest
+            registry.gitlab.com/ayomits/fear-helper:frontend
           build-args:
             APP_ENV=prod
           no-cache: true
