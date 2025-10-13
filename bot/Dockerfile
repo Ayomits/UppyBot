@@ -6,7 +6,7 @@ WORKDIR /app
 
 ARG APP_ENV=dev
 
-COPY --chown=appuser:appuser ./client /app
+COPY --chown=appuser:appuser ./bot /app
 
 COPY docker/runit/dev.run /tmp/runit-dev.run
 COPY docker/runit/prod.run /tmp/runit-prod.run
