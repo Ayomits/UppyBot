@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./client/Dockerfile
+          file: ./bot/Dockerfile
           push: true
           tags: |
             registry.gitlab.com/ayomits/fear-helper:bot_latest
