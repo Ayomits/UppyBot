@@ -79,7 +79,6 @@ export class AuthService {
     res.cookie(AUTH_COOKIE_NAME, jwt, {
       httpOnly: false,
       sameSite: 'none',
-      domain: this.configService.getOrThrow('APP_DOMAIN'),
       secure: this.configService.get('APP_ENV', 'dev') === 'prod',
       maxAge: AUTH_TOKEN_EXPIRATION * 1_000, // 7d
     });
