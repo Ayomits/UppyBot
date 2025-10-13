@@ -1,4 +1,4 @@
-name: Deploy bot to prod
+name: Deploy frontend to prod
 
 on:
   push:
