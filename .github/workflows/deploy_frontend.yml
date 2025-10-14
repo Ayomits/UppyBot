@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - name: Build and push backend image
+      - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
           context: .
