@@ -1,19 +1,20 @@
 import type { HTMLAttributes } from "react";
 import clsx from "clsx";
-import { Link } from "react-router";
 import { AppRoutes } from "../../const/routes";
 import { cn } from "../../lib/cn";
+import Link from "next/link";
+import Image from "next/image";
 
 type LogoProps = HTMLAttributes<HTMLDivElement> & { forceText?: boolean };
 
 export function Logo({ className, forceText = false, ...props }: LogoProps) {
   return (
-    <Link to={AppRoutes.Home}>
+    <Link href={AppRoutes.Home}>
       <div
         className={clsx("flex items-center gap-2.5 text-2xl", className)}
         {...props}
       >
-        <img
+        <Image
           src="/logo.webp"
           alt="Логотип Uppy bot"
           loading="lazy"

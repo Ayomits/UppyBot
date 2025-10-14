@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+
+import Link from "next/link";
 import { ExternalLinks } from "../../const/routes";
 import { Logo } from "./logo";
 
@@ -54,7 +55,7 @@ export function Footer() {
               <Link
                 className="hover:opacity-80 transition-colors duration-300"
                 key={idx}
-                to={link.url}
+                href={link.url}
                 target="_blank"
               >
                 {link.name}

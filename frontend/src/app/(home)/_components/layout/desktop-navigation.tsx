@@ -1,16 +1,16 @@
 import { cn } from "#/lib/cn";
 import { Slot } from "@radix-ui/react-slot";
-import { type LinkProps, Link } from "react-router";
 import { NAVIGATION_ITEMS } from "./const";
+import Link, { LinkProps } from "next/link";
+import { AnchorHTMLAttributes } from "react";
 
-
-interface NavigationItemProps extends Partial<LinkProps> {
+interface NavigationItemProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   asChild?: boolean;
 }
 
 function DesktopNavItem({
   className,
-  to = "",
+  href = "",
   asChild = false,
   ...props
 }: NavigationItemProps) {
@@ -19,7 +19,7 @@ function DesktopNavItem({
   return (
     <Component
       target="_blank"
-      to={to}
+      href={href}
       className={cn(
         "hover:opacity-80 transition-opacity duration-200",
         className
@@ -33,7 +33,7 @@ export function DesktopNavigation() {
   return (
     <ul className="hidden md:flex gap-4">
       {NAVIGATION_ITEMS.map((item, index) => (
-        <DesktopNavItem key={index} to={item.url}>
+        <DesktopNavItem key={index} href={item.url}>
           {item.name}
         </DesktopNavItem>
       ))}

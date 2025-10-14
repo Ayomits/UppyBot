@@ -1,21 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+"use client";
+import { getQueryClient } from "#/api/utils/queryclient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime: Infinity,
-      retry: 3,
-      refetchOnMount: true,
-      refetchOnReconnect: true,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
 export function ReactQueryProvider({ children }: { children: ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  const qc = getQueryClient();
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }

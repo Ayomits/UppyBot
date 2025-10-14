@@ -15,8 +15,6 @@
 
   --error: #f87878;
 
-  --font-roboto: "Roboto", sans-serif;
-
   /* SIZES */
   --header-height: 6.25rem;
 }
@@ -33,7 +31,7 @@
 
   --color-error: var(--error);
 
-  --font-roboto: "Roboto", sans-serif;
+  --font-roboto: var(--font-roboto);
 }
 
 body {

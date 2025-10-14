@@ -1,3 +1,4 @@
 export const Env = {
-  ApiUrl: import.meta.env.VITE_API_URL,
+  ApiUrl: process.env.NEXT_PUBLIC_API_URL,
+  AppEnv: process.env.APP_ENV ?? "dev",
 } as const;

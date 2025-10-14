@@ -1,8 +1,8 @@
-import { Link } from "react-router";
-import { Button } from "../../../../ui/button";
-import { ExternalLinks } from "../../../../const/routes";
-import { ChatIcon } from "../../../../icons/chat.icon";
-import { InviteIcon } from "../../../../icons/invite.icon";
+import { Login } from "#/components/auth/login/login";
+import { ExternalLinks } from "#/const/routes";
+import { InviteIcon } from "#/icons/invite.icon";
+import { Button } from "#/ui/button";
+import Link from "next/link";
 
 export function HomeHero() {
   return (
@@ -19,18 +19,12 @@ export function HomeHero() {
         </div>
         <div className="flex items-center gap-2.5">
           <Button variant="accent" asChild>
-            <Link to={ExternalLinks.InviteBot} target="_blank">
+            <Link href={ExternalLinks.InviteBot} target="_blank">
               <InviteIcon className="size-6" />
               Пригласить
             </Link>
           </Button>
-          <Button asChild>
-            {/* TODO: Login button */}
-            <Link to={ExternalLinks.SupportServer} target="_blank">
-              <ChatIcon className="size-6" />
-              Сервер поддержки
-            </Link>
-          </Button>
+          <Login />
         </div>
       </div>
       <img

@@ -1,3 +1,4 @@
+"use client"
 import { useCallback, useState } from "react";
 import { useDiscordCallback } from "../../../api/mutations/use-get-discord-callback";
 import { useAuth } from "#/providers/auth";

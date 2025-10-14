@@ -1,10 +1,10 @@
+"use client"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "#/ui/dropdown-menu";
-import { Link } from "react-router";
 import { useAuth } from "../../../providers/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
 
@@ -14,6 +14,7 @@ import { UserIcon } from "#/icons/user.icon";
 import { cn } from "#/lib/cn";
 import type { ComponentProps, HTMLAttributes } from "react";
 import { Login } from "../login/login";
+import Link from "next/link";
 
 export function MiniProfile({
   className,
@@ -67,7 +68,7 @@ export function MiniProfileMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="hidden md:block w-[12rem]">
         <DropdownMenuItem asChild>
-          <Link to={AppRoutes.Account}>
+          <Link href={AppRoutes.Account}>
             <UserIcon className="size-6" />
             Profile
           </Link>

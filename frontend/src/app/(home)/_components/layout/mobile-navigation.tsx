@@ -1,3 +1,4 @@
+"use client";
 import { useDiscordLogin } from "#/components/auth/login/use-discord-login";
 import { MiniProfile } from "#/components/auth/profile/profile";
 import { AppRoutes } from "#/const/routes";
@@ -9,11 +10,11 @@ import { useAuth } from "#/providers/auth";
 import { Button } from "#/ui/button";
 import { Overlay } from "#/ui/overlay";
 import { type HTMLAttributes, useState } from "react";
-import { Link } from "react-router";
 import { Fragment } from "react/jsx-runtime";
 import { NAVIGATION_ITEMS } from "./const";
 import { Separator } from "#/ui/separator";
 import { Slot } from "@radix-ui/react-slot";
+import Link from "next/link";
 
 function MobileNavItem({
   className,
@@ -47,7 +48,7 @@ function MobileNavigationList() {
         <MobileNavItem key={index} asChild>
           <Link
             className="flex justify-between items-center w-full"
-            to={item.url}
+            href={item.url}
             target="_blank"
           >
             <span>{item.name}</span>
@@ -59,7 +60,7 @@ function MobileNavigationList() {
       {isAuth && (
         <Fragment>
           <MobileNavItem className="justify-between" asChild>
-            <Link to={AppRoutes.Account}>
+            <Link href={AppRoutes.Account}>
               <MiniProfile />
             </Link>
           </MobileNavItem>
