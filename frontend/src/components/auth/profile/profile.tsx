@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -63,7 +63,7 @@ export function MiniProfileMenu({
 
   return (
     <DropdownMenu modal={false}>
-      <DropdownMenuTrigger {...props}>
+      <DropdownMenuTrigger disabled={isLoading} {...props}>
         <MiniProfile />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="hidden md:block w-[12rem]">

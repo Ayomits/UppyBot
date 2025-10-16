@@ -40,7 +40,9 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 rounded-lg p-2.5 bg-secondary-200 overflow-x-hidden shadow-md",
+          "z-50 rounded-lg p-2.5 bg-secondary-200 overflow-x-hidden shadow-md transition-all duration-300",
+          "animate-fade-in",
+          "-ml-42",
           className
         )}
         {...props}
@@ -57,7 +59,7 @@ export function DropdownMenuItem({
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
       className={cn(
-        "flex items-center gap-3 rounded-lg cursor-pointer py-3 px-2.5 hover:bg-secondary-100/45 transition-colors duration-300 data-[highlighted]:border-0 data-[highlighted]:outline-none",
+        "flex items-center gap-3 rounded-lg cursor-pointer py-3 px-2.5 hover:bg-secondary-100 transition-colors duration-300 data-[highlighted]:border-0 data-[highlighted]:outline-none",
         className
       )}
       {...props}

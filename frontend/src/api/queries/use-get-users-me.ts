@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../utils/api";
+import { api } from "#/api/utils/api";
+
+import { QueryOptions } from "../utils/types";
+import { getQueryClient } from "../utils/queryclient";
 
 export type UsersMeResponsse = {
   id: string;
@@ -13,11 +16,19 @@ export async function getUsersMe(): Promise<UsersMeResponsse> {
   return response.data;
 }
 
-export const usersMeQueryKey = "users_me"
+export const usersMeQueryKey = "users_me";
 
-export function useGetUsersMe() {
+export function useGetUsersMe(options?: QueryOptions<UsersMeResponsse>) {
   return useQuery({
     queryKey: [usersMeQueryKey],
     queryFn: getUsersMe,
+    ...options,
+  });
+}
+
+export function invalidateUser() {
+  const qc = getQueryClient();
+  qc.invalidateQueries({
+    queryKey: [usersMeQueryKey],
   });
 }

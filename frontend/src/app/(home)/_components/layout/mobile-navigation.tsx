@@ -57,6 +57,7 @@ function MobileNavigationList() {
         </MobileNavItem>
       ))}
       <Separator />
+      
       {isAuth && (
         <Fragment>
           <MobileNavItem className="justify-between" asChild>
@@ -71,6 +72,8 @@ function MobileNavigationList() {
           </MobileNavItem>
         </Fragment>
       )}
+
+
       {!isAuth && (
         <MobileNavItem
           className="justify-between"

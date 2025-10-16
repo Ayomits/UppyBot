@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   createContext,
   useContext,
@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  invalidateUser,
   useGetUsersMe,
   type UsersMeResponsse as UsersMeResponse,
 } from "../api/queries/use-get-users-me";
@@ -32,15 +33,21 @@ export function useAuth() {
   return ctx;
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const user = useGetUsersMe();
-  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+export function AuthProvider({
+  children,
+  defaultAuth = false,
+}: {
+  children: ReactNode;
+  defaultAuth?: boolean;
+}) {
+  const [isAuth, setIsAuth] = useState<boolean>(defaultAuth);
+  const user = useGetUsersMe({ enabled: isAuth });
 
   const logoutMutation = useLogout();
 
   useEffect(() => {
     if (user.isLoading) {
-      setIsAuth(null);
+      setIsAuth(false);
     } else if (user.data) {
       setIsAuth(true);
     } else {
@@ -51,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     setIsAuth(false);
     logoutMutation.mutate();
+    invalidateUser();
   }
 
   function login() {

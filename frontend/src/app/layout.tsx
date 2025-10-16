@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { AppProvider } from "./providers";
+import { AuthProvider } from "#/providers/auth";
+import { ReactQueryProvider } from "#/providers/react-query";
+import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME } from "#/const/cookie";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -25,17 +28,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const hasAuthCookie = cookieStore.has(AUTH_COOKIE_NAME);
   return (
     <html lang="en">
-      <body
-        className={`${roboto.variable} antialiased`}
-      >
-        <AppProvider>{children}</AppProvider>
+      <body className={`${roboto.variable} antialiased`}>
+        <ReactQueryProvider>
+          <AuthProvider defaultAuth={hasAuthCookie}>{children}</AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

@@ -64,6 +64,6 @@ export function useDiscordLogin() {
   return {
     handle,
     isOpen,
-    isLoading: mutation.isPending || discordUrlQuery.isLoading,
+    isLoading: mutation.isPending,
   };
 }
