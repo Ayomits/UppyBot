@@ -13,7 +13,7 @@ export type UsersMeResponsse = {
 
 export async function getUsersMe(): Promise<UsersMeResponsse> {
   const response = await api.get<UsersMeResponsse>("/api/users/@me");
-  return response.data;
+  return response;
 }
 
 export const usersMeQueryKey = "users_me";
