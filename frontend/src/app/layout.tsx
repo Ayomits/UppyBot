@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Uppy bot",
   description:
     "Полезный бот для сбора статистики команд мониторингов, подходящий для современной замены BumpReminder.",
+  icons: ["/favicon.ico"],
   openGraph: {
     title: "Uppy bot",
     description:

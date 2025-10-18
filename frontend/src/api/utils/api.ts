@@ -55,12 +55,6 @@ export const fetchApi = async <T, K = object>(
     ? JSON.stringify(body)
     : undefined;
 
-  const requestData = { fullUrl, method, requestHeaders, requestBody };
-
-  if (Env.AppEnv == "dev") {
-    console.log(requestData);
-  }
-
   const response = await fetch(fullUrl, {
     method,
     headers: requestHeaders,
@@ -71,10 +65,6 @@ export const fetchApi = async <T, K = object>(
   });
 
   const bodyText = response.body ? await response.text() : undefined;
-
-  if (Env.AppEnv == "dev") {
-    console.log({ response, bodyText: bodyText, requestData });
-  }
 
   const data = bodyText ? JSON.parse(bodyText) : response;
   return data as T;

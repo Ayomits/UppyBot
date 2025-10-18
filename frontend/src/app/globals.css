@@ -13,6 +13,7 @@
 
   --secondary-100: #1b1a1e;
   --secondary-200: #19171d;
+  --secondary-300: #434246;
 
   --error: #f87878;
 
@@ -30,6 +31,7 @@
 
   --color-secondary-100: var(--secondary-100);
   --color-secondary-200: var(--secondary-200);
+  --color-secondary-300: var(--secondary-300);
 
   --color-error: var(--error);
 

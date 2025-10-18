@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import dynamic from "next/dynamic";
 
 const HomeHero = dynamic(() =>
@@ -18,13 +17,13 @@ const HomeInvitation = dynamic(() =>
   )
 );
 
-export default function Home() {
+export default async function Home() {
   return (
-    <Fragment>
+    <>
       <HomeHero />
       <HomeFeatures />
       <HomeStats />
       <HomeInvitation />
-    </Fragment>
+    </>
   );
 }
