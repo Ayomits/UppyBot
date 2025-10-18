@@ -29,14 +29,17 @@ export class PrivateLogController {
           {
             name: quote("Название"),
             value: codeBlock(guild.name),
+            inline: true,
           },
           {
             name: quote("Участников"),
             value: codeBlock(guild.memberCount.toString()),
+            inline: true,
           },
           {
             name: "Server ID",
             value: codeBlock(guild.id),
+            inline: true,
           }
         );
       channel
@@ -66,14 +69,17 @@ export class PrivateLogController {
           {
             name: quote("Название"),
             value: codeBlock(guild.name),
+            inline: true,
           },
           {
             name: quote("Участников"),
             value: codeBlock(guild.memberCount.toString()),
+            inline: true,
           },
           {
             name: "Server ID",
             value: codeBlock(guild.id),
+            inline: true,
           }
         );
       channel
