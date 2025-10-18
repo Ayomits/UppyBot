@@ -36,3 +36,16 @@ jobs:
           build-args:
             APP_ENV=prod
           no-cache: true
+          
+      - name: Trigger Dokploy Deployment
+        run: |
+          curl -X 'POST' \
+          'http://31.13.208.85:3000/api/trpc/application.deploy' \
+          -H 'accept: application/json' \
+          -H "x-api-key: ${{ secrets.DOKPLOY_TOKEN }}" \
+          -H 'Content-Type: application/json' \
+          -d '{
+              "json":{
+                  "applicationId": "0t9UOsB_SHQjeMLDsIas7"
+              }
+          }'

@@ -46,6 +46,6 @@ jobs:
           -H 'Content-Type: application/json' \
           -d '{
               "json":{
-                  "applicationId": "OnkkhOzAx_s7fP1Sokgqq?tab=general"
+                  "applicationId": "OnkkhOzAx_s7fP1Sokgqq"
               }
           }'
