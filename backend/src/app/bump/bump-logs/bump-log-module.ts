@@ -15,5 +15,6 @@ import { BumpLogCollectionName, BumpLogSchema } from '#/models/bump-log.model';
   ],
   controllers: [BumpLogController],
   providers: [BumpLogService],
+  exports: [MongooseModule, BumpLogService],
 })
 export class BumpLogModule {}

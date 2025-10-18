@@ -55,6 +55,12 @@ export class BumpLogService {
     });
   }
 
+  async countLogs(filter?: FilterQuery<BumpLog>) {
+    return {
+      count: await this.bumpLogModel.countDocuments(filter),
+    };
+  }
+
   private buildFilter(
     base: { guildId: string; executorId?: string },
     qFilter: BumpLogFilter,
