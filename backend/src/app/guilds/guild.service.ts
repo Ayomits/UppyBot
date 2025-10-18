@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SyncGuildsDto } from './guilds.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Guild, GuildCollectionName } from '#/models/guild-model';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { GuildType } from '#/enums/guild-type';
 
 @Injectable()
@@ -41,8 +41,8 @@ export class GuildService {
     await this.guildModel.insertMany(docs);
   }
 
-  async countGuilds() {
-    const count = await this.guildModel.countDocuments();
+  async countGuilds(filter?: FilterQuery<Guild>) {
+    const count = await this.guildModel.countDocuments(filter);
     return {
       count,
     };

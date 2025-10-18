@@ -12,7 +12,7 @@ export class StatsService {
 
   async findPublicStats(): Promise<StatsResponse> {
     const [guild, commands] = await Promise.all([
-      this.guildService.countGuilds(),
+      this.guildService.countGuilds({ isActive: true }),
       this.bumpLogService.countLogs(),
     ]);
 
