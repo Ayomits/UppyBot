@@ -24,4 +24,5 @@ export const Env = {
   AppEnv: configService.get("APP_ENV", "dev"),
   DiscordToken: configService.get("DISCORD_TOKEN"),
   MongoUrl: configService.get("MONGO_URL"),
+  MongoDbName: configService.get("MONGO_DB_NAME"),
 } as const;
