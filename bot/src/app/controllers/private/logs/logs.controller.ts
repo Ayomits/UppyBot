@@ -33,6 +33,10 @@ export class PrivateLogController {
           {
             name: quote("Участников"),
             value: codeBlock(guild.memberCount.toString()),
+          },
+          {
+            name: "Server ID",
+            value: codeBlock(guild.id),
           }
         );
       channel
@@ -66,6 +70,10 @@ export class PrivateLogController {
           {
             name: quote("Участников"),
             value: codeBlock(guild.memberCount.toString()),
+          },
+          {
+            name: "Server ID",
+            value: codeBlock(guild.id),
           }
         );
       channel
