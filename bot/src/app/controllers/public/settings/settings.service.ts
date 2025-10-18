@@ -36,7 +36,7 @@ import {
   UppySettingsModel,
 } from "#/models/settings.model.js";
 
-import { UppySettingsMessage } from "../../messages/settings.message.js";
+import { UppySettingsMessage } from "../../../messages/settings.message.js";
 import {
   MonitoringCooldownHours,
   MonitoringType,

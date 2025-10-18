@@ -5,7 +5,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import {
   type MonitoringType,
   PointsRate,
-} from "#/app/controllers/reminder/reminder.const.js";
+} from "#/app/controllers/public/reminder/reminder.const.js";
 
 export class PointSettings extends TimeStamps {
   @prop({ required: true, index: true })

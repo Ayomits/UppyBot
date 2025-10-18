@@ -9,8 +9,8 @@ const HomeFeatures = dynamic(() =>
     (m) => m.HomeFeatures
   )
 );
-const HomeTrusted = dynamic(() =>
-  import("#/app/(home)/_components/sections/trusted").then((m) => m.HomeTrusted)
+const HomeStats = dynamic(() =>
+  import("#/app/(home)/_components/sections/stats").then((m) => m.HomeStats)
 );
 const HomeInvitation = dynamic(() =>
   import("#/app/(home)/_components/sections/invitation").then(
@@ -23,7 +23,7 @@ export default function Home() {
     <Fragment>
       <HomeHero />
       <HomeFeatures />
-      <HomeTrusted />
+      <HomeStats />
       <HomeInvitation />
     </Fragment>
   );

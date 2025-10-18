@@ -8,7 +8,7 @@ export function HomeHero() {
   return (
     <section className="flex items-center justify-center gap-42 text-center px-6">
       <div className="flex flex-col items-center gap-6">
-        <div className="text-xl md:text-2xl">
+        <div className="text-xl md:text-2xl font-bold">
           <p>
             Продвигайте ваш <span className="text-accent-200">Discord</span>{" "}
             эффективно

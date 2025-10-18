@@ -15,7 +15,7 @@ import {
   UppySettingsModel,
 } from "#/models/settings.model.js";
 
-import { UppyRemindSystemMessage } from "../../messages/remind-system.message.js";
+import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,

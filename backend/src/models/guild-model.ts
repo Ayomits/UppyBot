@@ -1,5 +1,5 @@
 import { GuildType } from '#/enums/guild-type';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
@@ -16,3 +16,7 @@ export class Guild {
   @ApiProperty({ type: 'boolean' })
   isActive: boolean;
 }
+
+export const GuildCollectionName = 'guilds';
+
+export const GuildSchema = SchemaFactory.createForClass(Guild);

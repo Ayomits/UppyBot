@@ -3,7 +3,7 @@ import { bold, unorderedList } from "discord.js";
 import type { BumpBan } from "#/models/bump-ban.model.js";
 import type { BumpUser } from "#/models/bump-user.model.js";
 
-import { BumpBanLimit } from "../controllers/reminder/reminder.const.js";
+import { BumpBanLimit } from "../controllers/public/reminder/reminder.const.js";
 
 function normalize(label: string, value?: number) {
   return `${bold(label)}: ${value ? value.toString() : "0"}`;

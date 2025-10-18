@@ -22,7 +22,8 @@ export const configService = new ConfigService();
 
 export const Env = {
   AppEnv: configService.get("APP_ENV", "dev"),
+  ApiUrl: configService.get("API_URL", "http://localhost:8088"),
+  SecretKey: configService.get("SECRET_KEY", "super-secret-key"),
   DiscordToken: configService.get("DISCORD_TOKEN"),
   MongoUrl: configService.get("MONGO_URL"),
-  MongoDbName: configService.get("MONGO_DB_NAME"),
 } as const;

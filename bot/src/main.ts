@@ -15,7 +15,6 @@ async function bootstrap() {
   await mongoose
     .connect(Env.MongoUrl, {
       autoCreate: true,
-      dbName: Env.MongoDbName,
     })
     .catch(logger.error)
     .then(() => logger.success("succesfully connected to mongodb"));

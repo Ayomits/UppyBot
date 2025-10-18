@@ -11,11 +11,11 @@ import type { RemindDocument } from "#/models/remind.model.js";
 import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,
-} from "../controllers/reminder/reminder.const.js";
+} from "../controllers/public/reminder/reminder.const.js";
 import {
   DefaultTimezone,
   getBotByRemindType,
-} from "../controllers/reminder/reminder.const.js";
+} from "../controllers/public/reminder/reminder.const.js";
 
 const canUseMonitoring = (monitoring?: RemindDocument) => {
   if (!monitoring) return "Нет данных";

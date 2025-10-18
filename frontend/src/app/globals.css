@@ -18,6 +18,7 @@
 
   /* SIZES */
   --header-height: 6.25rem;
+  --max-app-width: 98.125rem;
 }
 
 @theme {

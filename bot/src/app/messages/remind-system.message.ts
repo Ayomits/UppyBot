@@ -15,7 +15,7 @@ import type { RemindDocument } from "#/models/remind.model.js";
 import {
   getCommandNameByCommandId,
   type MonitoringCommandIds,
-} from "../controllers/reminder/reminder.const.js";
+} from "../controllers/public/reminder/reminder.const.js";
 
 export function calculateReactionTime(curr: Date, diff: Date) {
   const { years, months, weeks, days, hours, minutes, seconds, milliseconds } =

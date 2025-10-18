@@ -13,7 +13,10 @@ export function Header({
       style={{
         height: HEADER_HEIGHT,
       }}
-      className={cn("fixed z-40 w-full flex items-center bg-bg-200", className)}
+      className={cn(
+        "fixed z-40 shadow w-full flex items-center bg-bg-200",
+        className
+      )}
       {...props}
     />
   );
@@ -26,7 +29,7 @@ export function HeaderMain({
   return (
     <div
       className={cn(
-        "flex justify-between w-full max-w-[98.125rem] mx-auto items-center px-6",
+        "flex justify-between w-full max-w-[var(--max-app-width)] mx-auto items-center px-6",
         className
       )}
       {...props}

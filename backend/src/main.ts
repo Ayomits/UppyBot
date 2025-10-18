@@ -13,6 +13,7 @@ async function bootstrap() {
     .setDescription('Апи для взаимодействия с ботом Uppy')
     .setVersion('1.0')
     .addCookieAuth(AUTH_COOKIE_NAME)
+    .addBearerAuth({ in: 'header', name: 'Authorization', type: 'apiKey' })
     .build();
 
   app.setGlobalPrefix('/api');

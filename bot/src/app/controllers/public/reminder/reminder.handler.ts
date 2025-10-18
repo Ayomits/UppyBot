@@ -31,7 +31,7 @@ import {
 import {
   calculateReactionTime,
   UppyRemindSystemMessage,
-} from "../../messages/remind-system.message.js";
+} from "../../../messages/remind-system.message.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { UppyLogService } from "../logging/log.service.js";
 import { endDateValue, startDateValue } from "../stats/stats.const.js";
