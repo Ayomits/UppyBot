@@ -41,7 +41,7 @@ export function DropdownMenuContent({
         sideOffset={sideOffset}
         className={cn(
           "z-50 rounded-lg p-2.5 bg-secondary overflow-x-hidden shadow-md transition-all duration-300",
-          "animate-fade-in",
+          "animate-in fade-in zoom-in-50",
           "-ml-42",
           className
         )}

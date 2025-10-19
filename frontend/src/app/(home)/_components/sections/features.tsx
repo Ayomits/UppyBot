@@ -13,15 +13,11 @@ type HomeFeature = {
 };
 
 export function HomeFeatureCard(item: HomeFeature) {
-  const [shouldFill, setShouldFill] = useState(false);
-
   return (
     <Card
-      onMouseEnter={() => setShouldFill(true)}
-      onMouseLeave={() => setShouldFill(false)}
       className={cn(
         "transition-all duration-300 gap-3 w-[22.5rem] h-[15.313rem] p-5",
-        shouldFill && "-translate-y-4"
+        "hover:-translate-y-3"
       )}
     >
       <CardHeader className="flex gap-1.5 items-center">
