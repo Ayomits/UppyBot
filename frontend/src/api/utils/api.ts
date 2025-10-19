@@ -1,10 +1,9 @@
 import { Env } from "#/const/env";
 import { isServer } from "@tanstack/react-query";
 
-type RequestOptions<T> = {
+type RequestOptions<T> = RequestInit & {
   method?: string;
   headers?: Record<string, string>;
-  body?: T;
   cookie?: string;
   params?: Record<string, string | number | boolean | undefined | null>;
   cache?: RequestCache;
@@ -27,47 +26,35 @@ export function getServerCookies() {
 
 export const fetchApi = async <T, K = object>(
   path: string,
-  options: RequestOptions<K>
+  {
+    method,
+    headers,
+    cookie,
+    body,
+    cache = "default",
+    next,
+    ...props
+  }: RequestOptions<K>
 ) => {
-  const { method, headers, cookie, body, cache = "default", next } = options;
   const fullUrl = `${Env.ApiUrl}${path}`;
   let cookieHeader = cookie;
   if (isServer && !cookie) {
     cookieHeader = await getServerCookies();
   }
 
-  const isFormData = body instanceof FormData;
-  const requestHeaders = isFormData
-    ? {
-        ...headers,
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-      }
-    : {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...headers,
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-      };
-
-  const requestBody = isFormData
-    ? body
-    : body
-    ? JSON.stringify(body)
-    : undefined;
-
   const response = await fetch(fullUrl, {
     method,
-    headers: requestHeaders,
-    body: requestBody,
+    headers: {
+      ...headers,
+      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+    },
     credentials: "include",
     cache,
     next,
+    ...props,
   });
 
-  const bodyText = response.body ? await response.text() : undefined;
-
-  const data = bodyText ? JSON.parse(bodyText) : response;
-  return data as T;
+  return response;
 };
 
 export const api = {

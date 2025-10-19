@@ -4,8 +4,8 @@ import { api } from "../utils/api";
 type DiscordLoginUrlResponse = { url: string };
 
 export async function getDiscordLoginUrl(): Promise<DiscordLoginUrlResponse> {
-  const response = await api.get<DiscordLoginUrlResponse>("/api/auth/signin");
-  return response;
+  const response = await api.get("/api/auth/signin");
+  return (await response.json()) as DiscordLoginUrlResponse;
 }
 
 export function useGetDiscordLoginUrl(

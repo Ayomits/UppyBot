@@ -21,7 +21,6 @@ export function MiniProfile({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   const { isAuth, isLoading, user } = useAuth();
-
   function getComponent() {
     if (isAuth && user) {
       return <AvatarImage src={user.avatar!} />;

@@ -12,8 +12,8 @@ export type UsersMeResponsse = {
 };
 
 export async function getUsersMe(): Promise<UsersMeResponsse> {
-  const response = await api.get<UsersMeResponsse>("/api/users/@me");
-  return response;
+  const res = await api.get<UsersMeResponsse>("/api/users/@me");
+  return await res.json() as UsersMeResponsse;
 }
 
 export const usersMeQueryKey = "users_me";

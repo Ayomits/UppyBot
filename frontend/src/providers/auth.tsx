@@ -1,8 +1,8 @@
 "use client";
 import {
   createContext,
+  use,
   useContext,
-  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -17,7 +17,7 @@ type AuthContext = {
   isAuth: boolean | null;
   isLoading: boolean;
   logout: () => void;
-  login: () => void;
+  login: () => Promise<void>;
   user?: UsersMeResponse;
 };
 
@@ -45,23 +45,12 @@ export function AuthProvider({
 
   const logoutMutation = useLogout();
 
-  useEffect(() => {
-    if (user.isLoading) {
-      setIsAuth(false);
-    } else if (user.data) {
-      setIsAuth(true);
-    } else {
-      setIsAuth(false);
-    }
-  }, [user.data, user.isLoading, user.error]);
-
   function logout() {
     setIsAuth(false);
     logoutMutation.mutate();
-    invalidateUser();
   }
 
-  function login() {
+  async function login() {
     setIsAuth(true);
     user.refetch();
   }

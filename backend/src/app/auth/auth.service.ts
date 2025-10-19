@@ -78,7 +78,7 @@ export class AuthService {
     const jwt = await this.jwtService.signAsync({ discordId: user.data.id });
     res.cookie(AUTH_COOKIE_NAME, jwt, {
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: 'lax',
       secure: this.configService.get('APP_ENV', 'dev') === 'prod',
       maxAge: AUTH_TOKEN_EXPIRATION * 1_000, // 7d
     });
@@ -88,5 +88,15 @@ export class AuthService {
   logout(res: Response) {
     res.clearCookie(AUTH_COOKIE_NAME);
     return res.sendStatus(HttpStatus.OK);
+  }
+
+  async refreshAccessToken(token: string) {
+    return await this.httpService.axiosRef.post(
+      '/api/oauth2/token/revoke',
+      new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: token,
+      }),
+    );
   }
 }

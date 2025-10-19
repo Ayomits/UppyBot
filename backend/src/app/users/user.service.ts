@@ -17,7 +17,11 @@ export class UserService {
   ) {}
 
   async createUser(dto: CreateUserDto) {
-    return await this.userModel.create(dto);
+    return await this.userModel.findOneAndUpdate(
+      { discordId: dto.discordId },
+      { accessToken: dto.accessToken, refreshToken: dto.refreshToken },
+      { upsert: true },
+    );
   }
 
   async findMeDb(discordId: string) {

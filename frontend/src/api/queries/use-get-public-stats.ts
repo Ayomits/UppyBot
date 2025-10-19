@@ -8,7 +8,8 @@ export interface PublicStats {
 }
 
 export async function getPublicStats() {
-  return await api.get<PublicStats>("/api/stats/all");
+  const res = await api.get<PublicStats>("/api/stats/all");
+  return (await res.json()) as PublicStats;
 }
 
 export function getPublicStatsOptions(options?: QueryOptions<PublicStats>) {
