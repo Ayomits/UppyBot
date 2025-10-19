@@ -7,5 +7,5 @@ export function getUserAvatar(user: APIUser) {
     return `${baseUrl}/avatars/${user.id}/${user.avatar}.webp`;
   }
 
-  return `${baseUrl}/embed/avatars/index.png`;
+  return `${baseUrl}/embed/avatars/0.png`;
 }
