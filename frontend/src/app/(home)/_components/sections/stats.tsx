@@ -34,12 +34,12 @@ export function HomeStats() {
         <HomeStatCard
           name="Количество серверов"
           count={publicStats.data?.guilds}
-          loading={publicStats.isLoading ?? true}
+          loading={publicStats.isLoading}
         />
         <HomeStatCard
           name="Количество выполненных команд"
           count={publicStats.data?.commands}
-          loading={publicStats.isLoading ?? true}
+          loading={publicStats.isLoading}
         />
       </div>
     </section>

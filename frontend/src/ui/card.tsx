@@ -6,7 +6,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-secondary text-white-200 flex flex-col gap-3 rounded-xl border border-white/20 py-6 shadow-sm bg-secondary-100",
+        "bg-secondary text-white-200 flex flex-col gap-3 rounded-xl border border-white/20 py-6 shadow-sm bg-secondary",
         className
       )}
       {...props}
@@ -35,7 +35,7 @@ function CardIcon({
     <div
       data-slot="card-icon"
       className={cn(
-        "flex bg-bg-200 size-16 justify-center rounded-3xl text-white items-center transition-all duration-300",
+        "flex bg-background-secondary size-16 justify-center rounded-3xl text-white items-center transition-all duration-300",
         className
       )}
       {...props}

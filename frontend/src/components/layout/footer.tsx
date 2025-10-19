@@ -42,7 +42,7 @@ const navigationConfig = [
 
 export function Footer() {
   return (
-    <footer className="flex justify-center p-10.5 bg-bg-200 min-h-[12.5rem]">
+    <footer className="flex justify-center p-10.5 bg-background-secondary min-h-[12.5rem]">
       <div className="flex flex-col gap-4.5 md:flex-row w-full justify-between max-w-[98.5rem]">
         <div className="flex flex-col gap-3.5">
           <Logo forceText />

@@ -27,7 +27,7 @@ function MobileNavItem({
     <Component
       className={cn(
         "flex items-center px-6 py-4",
-        "bg-bg-200 active:bg-secondary-100 transition-colors",
+        "bg-background-secondary active:bg-secondary transition-colors",
         className
       )}
       {...props}
@@ -61,7 +61,7 @@ function MobileNavigationList() {
       {isAuth && (
         <Fragment>
           <MobileNavItem className="justify-between" asChild>
-            <Link href={AppRoutes.Account}>
+            <Link href={AppRoutes.Servers}>
               <MiniProfile />
             </Link>
           </MobileNavItem>

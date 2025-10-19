@@ -5,5 +5,5 @@ export function Separator({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("self-stretch bg-secondary-100 h-0.5", className)} {...props} />;
+  return <div className={cn("self-stretch bg-secondary h-0.5", className)} {...props} />;
 }

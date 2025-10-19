@@ -2,18 +2,17 @@
 @import "./animations.css";
 
 :root {
-  --white-100: #fff;
-  --white-200: #f3f3f3;
+  --background-primary: #0b0b0e;
+  --background-secondary: #151517;
+  --background-accent: #24d373;
 
-  --bg-100: #121115;
-  --bg-200: #0c0b0f;
+  --accent-text: #51f9a0;
 
-  --accent-100: #24d373;
-  --accent-200: #51f9a0;
+  --foreground: #f3f3f3;
 
-  --secondary-100: #1b1a1e;
-  --secondary-200: #19171d;
-  --secondary-300: #434246;
+  --secondary: #212024;
+  --secondary-hover: #302f33;
+  --secondary-text: #a0a0a6;
 
   --error: #f87878;
 
@@ -23,15 +22,17 @@
 }
 
 @theme {
-  --color-bg-100: var(--bg-100);
-  --color-bg-200: var(--bg-200);
+  --color-background-primary: var(--background-primary);
+  --color-background-secondary: var(--background-secondary);
 
-  --color-accent-100: var(--accent-100);
-  --color-accent-200: var(--accent-200);
+  --color-background-accent: var(--background-accent);
+  --color-accent-text: var(--accent-text);
 
-  --color-secondary-100: var(--secondary-100);
-  --color-secondary-200: var(--secondary-200);
-  --color-secondary-300: var(--secondary-300);
+  --color-foreground: var(--foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-text: var(--secondary-text);
 
   --color-error: var(--error);
 
@@ -39,7 +40,7 @@
 }
 
 body {
-  background: var(--bg-100);
-  color: var(--white-100);
+  background: var(--background-primary);
+  color: var(--foreground);
   font-family: var(--font-roboto);
 }

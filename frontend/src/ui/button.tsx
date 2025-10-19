@@ -9,8 +9,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        accent: "bg-accent-100",
-        secondary: "bg-secondary-100",
+        accent: "bg-background-accent",
+        secondary: "bg-secondary",
       },
     },
     defaultVariants: {

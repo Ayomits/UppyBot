@@ -67,9 +67,9 @@ export function MiniProfileMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="hidden md:block w-[12rem]">
         <DropdownMenuItem asChild>
-          <Link href={AppRoutes.Account}>
+          <Link href={AppRoutes.Servers}>
             <UserIcon className="size-6" />
-            Profile
+            Мои серверы
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={logout}>
