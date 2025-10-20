@@ -6,6 +6,7 @@ import {
 } from "#/api/queries/use-get-discord-guilds";
 import { AppRoutes } from "#/const/routes";
 import { CareteRightIcon } from "#/icons/carete.icon";
+import { PlusIcon } from "#/icons/plus.icon";
 import { cn } from "#/lib/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "#/ui/avatar";
 import { Item } from "#/ui/item";
@@ -25,6 +26,7 @@ export function DiscordGuildList() {
 }
 
 export function DiscordGuild({
+  id,
   name,
   icon,
   inviteLink,
@@ -41,10 +43,15 @@ export function DiscordGuild({
       )}
     >
       <Component
-        href={invited ? AppRoutes.Servers : inviteLink!}
-        className="flex items-center"
+        href={invited ? AppRoutes.Settings(id!) : inviteLink!}
+        className="flex items-center justify-between"
       >
-        <div className="flex items-center gap-2.5">
+        <div
+          className={cn(
+            "flex items-center gap-2.5",
+            !invited && !isLoading && "opacity-80"
+          )}
+        >
           <Avatar className="size-16">
             {isLoading ? (
               <AvatarFallback className="bg-secondary" />
@@ -58,7 +65,12 @@ export function DiscordGuild({
             <span className="text-lg">{name}</span>
           )}
         </div>
-        {!isLoading && <CareteRightIcon className="size-6" />}
+        {!isLoading &&
+          (invited ? (
+            <CareteRightIcon className="size-6" />
+          ) : (
+            <PlusIcon className="size-6" />
+          ))}
       </Component>
     </Item>
   );

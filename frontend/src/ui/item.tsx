@@ -9,6 +9,6 @@ export function Item({
 }: HTMLAttributes<HTMLDivElement> & { asChild?: boolean }) {
   const Component = asChild ? Slot : "div";
   return (
-    <Component className={cn("flex justify-between", className)} {...props} />
+    <Component className={cn("flex hover:bg-secondary transition-colors duration-300", className)} {...props} />
   );
 }

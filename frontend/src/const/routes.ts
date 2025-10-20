@@ -1,6 +1,8 @@
 export const AppRoutes = {
   Home: "/",
   Servers: "/dashboard",
+  Settings: (guildId: string) => `/dashboard/${guildId}/settings`,
+  PointSettings: (guildId: string) => `/dashboard/${guildId}/point-settings`,
 } as const;
 
 export const ExternalLinks = {

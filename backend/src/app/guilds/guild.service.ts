@@ -4,11 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Guild, GuildCollectionName } from '#/models/guild-model';
 import { FilterQuery, Model } from 'mongoose';
 import { GuildType } from '#/enums/guild-type';
+import { DiscordService } from '#/shared/modules/discord/discord.service';
 
 @Injectable()
 export class GuildService {
   constructor(
     @InjectModel(GuildCollectionName) private guildModel: Model<Guild>,
+    private discordService: DiscordService,
   ) {}
 
   async create(id: string) {

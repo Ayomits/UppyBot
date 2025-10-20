@@ -8,18 +8,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../users/user.service';
-import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { AUTH_COOKIE_NAME, AUTH_TOKEN_EXPIRATION } from './auth.const';
 import { DiscordUrl } from '#/const/url';
+import { DiscordService } from '#/shared/modules/discord/discord.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UserService)) private userService: UserService,
     private configService: ConfigService,
-    private httpService: HttpService,
+    private discordService: DiscordService,
     private jwtService: JwtService,
   ) {}
 
@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   async callback(code: string, res: Response) {
-    const token = await this.httpService.axiosRef.post(
+    const token = await this.discordService.axiosRef.post(
       '/api/oauth2/token',
       new URLSearchParams({
         grant_type: 'authorization_code',
@@ -75,7 +75,10 @@ export class AuthService {
       refreshToken: token.data.refresh_token,
     });
 
-    const jwt = await this.jwtService.signAsync({ discordId: user.data.id });
+    const jwt = await this.jwtService.signAsync({
+      discordId: user.data.id,
+      accessToken: token.data.access_token,
+    });
     res.cookie(AUTH_COOKIE_NAME, jwt, {
       httpOnly: true,
       sameSite: 'lax',
@@ -91,7 +94,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(token: string) {
-    return await this.httpService.axiosRef.post(
+    return await this.discordService.axiosRef.post(
       '/api/oauth2/token/revoke',
       new URLSearchParams({
         grant_type: 'refresh_token',
