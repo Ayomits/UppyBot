@@ -39,6 +39,16 @@
   --font-roboto: var(--font-roboto);
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
 body {
   background: var(--background-primary);
   color: var(--foreground);

@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import clsx from "clsx";
-import { AppRoutes } from "../../const/routes";
-import { cn } from "../../lib/cn";
+import { AppRoutes } from "../const/routes";
+import { cn } from "../lib/cn";
 import Link from "next/link";
 import Image from "next/image";
 

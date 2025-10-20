@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "../lib/cn";
 
 export const HEADER_HEIGHT = `6.25rem`;
 export const HEADER_MARGIN = `12.5rem`;

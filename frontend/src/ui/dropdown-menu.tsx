@@ -40,9 +40,9 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 rounded-lg p-2.5 bg-secondary overflow-x-hidden shadow-md transition-all duration-300",
-          "animate-in fade-in zoom-in-50",
-          "-ml-42",
+          "z-50 rounded-lg p-2.5 bg-secondary overflow-x-hidden shadow-md transition-all",
+          "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in",
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-0",
           className
         )}
         {...props}

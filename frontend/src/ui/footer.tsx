@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { ExternalLinks } from "../../const/routes";
+import { ExternalLinks } from "../const/routes";
 import { Logo } from "./logo";
 
 const navigationConfig = [
