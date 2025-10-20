@@ -57,7 +57,7 @@ function MobileNavigationList() {
         </MobileNavItem>
       ))}
       <Separator />
-      
+
       {isAuth && (
         <Fragment>
           <MobileNavItem className="justify-between" asChild>
@@ -66,13 +66,12 @@ function MobileNavigationList() {
             </Link>
           </MobileNavItem>
 
-          <MobileNavItem className="justify-between" onClick={logout}>
+          <MobileNavItem className="justify-between" onClick={() => logout()}>
             Выйти
             <EnterIcon className="text-error size-4" />
           </MobileNavItem>
         </Fragment>
       )}
-
 
       {!isAuth && (
         <MobileNavItem
