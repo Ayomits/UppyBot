@@ -7,13 +7,20 @@ import { AuthenticatedRequest } from '#/types/auth-request';
 import { HttpService } from '@nestjs/axios';
 import { pick } from '#/lib/pick';
 import { APIGuild, APIUser } from 'discord-api-types/v10';
-import { getUserAvatar as getDiscordUserAvatar } from '#/lib/discord-cdn';
+import {
+  getDiscordGuildAvatar,
+  getUserAvatar as getDiscordUserAvatar,
+} from '#/lib/discord-cdn';
+import { GuildService } from '../guilds/guild.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(UserCollectionName) private userModel: Model<User>,
     private httpService: HttpService,
+    private guildService: GuildService,
+    private authService: AuthService,
   ) {}
 
   async createUser(dto: CreateUserDto) {
@@ -78,11 +85,22 @@ export class UserService {
       },
     );
 
+    const dbGuilds = await this.guildService.findUserGuilds(
+      guilds.data.map((g) => g.id),
+    );
+
+    const dGuildIds = dbGuilds.map((g) => g.guildId);
+
     return (
       guilds.data
         // @ts-expect-error idk
         .filter((guild) => guild.permissions & 8 || guild.owner)
-        .map((guild) => pick(guild, ['name', 'icon', 'id']))
+        .map((guild) => ({
+          ...pick(guild, ['name', 'id']),
+          icon: getDiscordGuildAvatar(guild),
+          invited: dGuildIds.includes(guild.id),
+          inviteLink: this.authService.createBotInviteLink(guild.id).url,
+        }))
     );
   }
 }

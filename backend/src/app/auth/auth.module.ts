@@ -27,6 +27,6 @@ import { DiscordUrl } from '#/const/url';
   ],
   providers: [AuthService, JwtAuthGuard],
   controllers: [AuthController],
-  exports: [JwtModule, HttpModule],
+  exports: [JwtModule, AuthService, HttpModule],
 })
 export class AuthModule {}

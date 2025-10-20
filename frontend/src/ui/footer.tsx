@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { ExternalLinks } from "../const/routes";
 import { Logo } from "./logo";
@@ -42,10 +41,10 @@ const navigationConfig = [
 
 export function Footer() {
   return (
-    <footer className="flex justify-center p-10.5 bg-background-secondary min-h-[12.5rem]">
+    <footer className="flex border-t border-foreground/20 justify-center p-10.5 bg-background-secondary min-h-[12.5rem]">
       <div className="flex flex-col gap-4.5 md:flex-row w-full justify-between max-w-[98.5rem]">
         <div className="flex flex-col gap-3.5">
-          <Logo forceText />
+          <Logo withText />
           <span className="text-white-200">&copy; UppyBot</span>
         </div>
         {navigationConfig.map((nav, idx) => (

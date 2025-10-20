@@ -6,10 +6,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { HttpModule } from '@nestjs/axios';
 import { DiscordUrl } from '#/const/url';
+import { GuildModule } from '../guilds/guild.module';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
+    GuildModule,
     HttpModule.register({
       baseURL: DiscordUrl,
     }),

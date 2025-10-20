@@ -16,6 +16,7 @@ import type { ComponentProps, HTMLAttributes } from "react";
 import { Login } from "../login/login";
 import Link from "next/link";
 import { Logout } from "../logout/logout";
+import { Skeleton } from "#/ui/skeleton";
 
 type MiniProfileFlags = {
   withUsername?: boolean;
@@ -45,10 +46,6 @@ export function MiniProfile({
     );
   }
 
-  if (isLoading) {
-    return getAvatar();
-  }
-
   return (
     <div
       className={cn("flex items-center justify-between", className)}
@@ -56,9 +53,18 @@ export function MiniProfile({
     >
       <div className="flex items-center gap-2.5">
         {getAvatar()}
-        <span className={cn("text-sm md:text-base md:hidden", withUsername && "md:block")}>
-          {user?.global_name ?? user?.username}
-        </span>
+        {isLoading ? (
+          <Skeleton className="bg-secondary w-12 h-4" />
+        ) : (
+          <span
+            className={cn(
+              "text-sm md:text-base md:hidden",
+              withUsername && "md:block"
+            )}
+          >
+            {user?.global_name ?? user?.username}
+          </span>
+        )}
       </div>
       {withLogout && <Logout />}
     </div>

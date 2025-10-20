@@ -21,6 +21,12 @@ class UserGuild {
 
   @ApiProperty({ type: 'string' })
   name: string;
+
+  @ApiProperty({ type: 'boolean' })
+  invited: boolean;
+
+  @ApiProperty({ type: 'string' })
+  inviteLink: string;
 }
 
 export class UserGuildsResponse {

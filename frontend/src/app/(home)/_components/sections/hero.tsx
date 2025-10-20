@@ -1,6 +1,6 @@
 "use client";
 import { Login } from "#/components/auth/login/login";
-import { ExternalLinks } from "#/const/routes";
+import { AppRoutes, ExternalLinks } from "#/const/routes";
 import { EnterIcon } from "#/icons/enter.icon";
 import { InviteIcon } from "#/icons/invite.icon";
 import { useAuth } from "#/providers/auth";
@@ -31,9 +31,9 @@ export function HomeHero() {
           </Button>
           {isAuth ? (
             <Button asChild>
-              <Link href={ExternalLinks.SupportServer}>
+              <Link href={AppRoutes.Servers}>
                 <EnterIcon className="size-6" />
-                Сервер поддержки
+                Мои серверы
               </Link>
             </Button>
           ) : (

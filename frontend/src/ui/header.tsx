@@ -14,7 +14,7 @@ export function Header({
         height: HEADER_HEIGHT,
       }}
       className={cn(
-        "fixed z-40 shadow w-full flex items-center bg-background-secondary",
+        "fixed z-40 shadow w-full flex border-b border-foreground/20 items-center bg-background-secondary",
         className
       )}
       {...props}
