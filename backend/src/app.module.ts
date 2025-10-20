@@ -7,6 +7,7 @@ import { AuthModule } from './app/auth/auth.module';
 import { UserModule } from './app/users/user.module';
 import { GuildModule } from './app/guilds/guild.module';
 import { StatsModule } from './app/stats/stats.module';
+import { DiscordModule } from './shared/modules/discord/discord.module';
 
 @Module({
   imports: [
@@ -31,6 +32,8 @@ import { StatsModule } from './app/stats/stats.module';
     GuildModule,
 
     StatsModule,
+
+    DiscordModule,
   ],
   controllers: [],
   providers: [],

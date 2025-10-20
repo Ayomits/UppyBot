@@ -1,6 +1,7 @@
 "use client";
 import { MiniProfile } from "#/components/auth/profile/profile";
 import { AppRoutes } from "#/const/routes";
+import { EnterIcon } from "#/icons/enter.icon";
 import { Logo } from "#/ui/logo";
 import {
   Sidebar,
@@ -10,13 +11,30 @@ import {
 } from "#/ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";
-import { HTMLAttributes } from "react";
+import { Fragment, HTMLAttributes, ReactNode } from "react";
 
-export function DashboardSidebar({ ...props }: HTMLAttributes<HTMLDivElement>) {
+export function DashboardSidebar({
+  withServerLink,
+  header,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & {
+  withServerLink?: boolean;
+  header?: ReactNode;
+}) {
   return (
     <Sidebar>
-      <SidebarHeader className="px-6 py-8">
-        <Logo withText />
+      <SidebarHeader className="justify-between w-full px-6 py-8">
+        {header ?? (
+          <Fragment>
+            <Logo withText />
+            {/* Опция отвечает за возрат обратно на страницу серверов */}
+          </Fragment>
+        )}
+        {withServerLink && (
+          <Link href={AppRoutes.Servers}>
+            <EnterIcon className="size-6" />
+          </Link>
+        )}
       </SidebarHeader>
       <SidebarContent {...props} />
       <SidebarFooter className="w-full px-6 py-4.5">
