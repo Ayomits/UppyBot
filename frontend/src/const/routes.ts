@@ -1,6 +1,6 @@
 export const AppRoutes = {
   Home: "/",
-  Servers: "/servers"
+  Servers: "/dashboard",
 } as const;
 
 export const ExternalLinks = {

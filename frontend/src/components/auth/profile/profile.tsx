@@ -15,11 +15,19 @@ import { cn } from "#/lib/cn";
 import type { ComponentProps, HTMLAttributes } from "react";
 import { Login } from "../login/login";
 import Link from "next/link";
+import { Logout } from "../logout/logout";
+
+type MiniProfileFlags = {
+  withUsername?: boolean;
+  withLogout?: boolean;
+};
 
 export function MiniProfile({
   className,
+  withLogout,
+  withUsername,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & MiniProfileFlags) {
   const { isAuth, isLoading, user } = useAuth();
   function getComponent() {
     if (isAuth && user) {
@@ -42,18 +50,26 @@ export function MiniProfile({
   }
 
   return (
-    <div className={cn("flex items-center gap-2.5", className)} {...props}>
-      {getAvatar()}
-      <span className="text-sm md:hidden">
-        {user?.global_name ?? user?.username}
-      </span>
+    <div
+      className={cn("flex items-center justify-between", className)}
+      {...props}
+    >
+      <div className="flex items-center gap-2.5">
+        {getAvatar()}
+        <span className={cn("text-sm md:text-base md:hidden", withUsername && "md:block")}>
+          {user?.global_name ?? user?.username}
+        </span>
+      </div>
+      {withLogout && <Logout />}
     </div>
   );
 }
 
 export function MiniProfileMenu({
+  withLogout,
+  withUsername,
   ...props
-}: ComponentProps<typeof DropdownMenuTrigger>) {
+}: ComponentProps<typeof DropdownMenuTrigger> & MiniProfileFlags) {
   const { isAuth, isLoading, logout } = useAuth();
 
   if (!isAuth && !isLoading) {
@@ -62,8 +78,8 @@ export function MiniProfileMenu({
 
   return (
     <DropdownMenu modal={false}>
-      <DropdownMenuTrigger disabled={isLoading} {...props}>
-        <MiniProfile />
+      <DropdownMenuTrigger disabled={isLoading} {...props} asChild>
+        <MiniProfile withLogout={withLogout} withUsername={withUsername} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="hidden md:block w-[12rem]">
         <DropdownMenuItem asChild>
@@ -72,7 +88,7 @@ export function MiniProfileMenu({
             Мои серверы
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={logout}>
+        <DropdownMenuItem onClick={() => logout()}>
           <EnterIcon className="text-error size-6" />
           Выйти
         </DropdownMenuItem>

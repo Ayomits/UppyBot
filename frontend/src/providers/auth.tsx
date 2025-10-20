@@ -12,11 +12,13 @@ import {
   type UsersMeResponsse as UsersMeResponse,
 } from "../api/queries/use-get-users-me";
 import { useLogout } from "#/api/mutations/use-post-logout";
+import { useRouter } from "next/navigation";
+import { AppRoutes } from "#/const/routes";
 
 type AuthContext = {
   isAuth: boolean | null;
   isLoading: boolean;
-  logout: () => void;
+  logout: (withRedirect?: boolean) => void;
   login: () => Promise<void>;
   user?: UsersMeResponse;
 };

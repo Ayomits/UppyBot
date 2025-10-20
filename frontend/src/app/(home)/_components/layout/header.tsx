@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from "react";
-import { Header, HeaderMain } from "#/components/layout/header";
-import { Logo } from "#/components/layout/logo";
+import { Header, HeaderMain } from "#/ui/header";
+import { Logo } from "#/ui/logo";
 import { cn } from "#/lib/cn";
 import dynamic from "next/dynamic";
 
