@@ -8,9 +8,9 @@ export default function DasboardServersPage() {
       <DashboardSidebar>
         <DiscordGuildList />
       </DashboardSidebar>
-      <div className="flex justify-center items-center text-2xl">
+      <main className="flex justify-center items-center text-2xl">
         Начните с выбора сервера
-      </div>
+      </main>
     </Fragment>
   );
 }
