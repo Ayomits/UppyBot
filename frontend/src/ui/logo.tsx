@@ -5,9 +5,9 @@ import { cn } from "../lib/cn";
 import Link from "next/link";
 import Image from "next/image";
 
-type LogoProps = HTMLAttributes<HTMLDivElement> & { forceText?: boolean };
+type LogoProps = HTMLAttributes<HTMLDivElement> & { withText?: boolean };
 
-export function Logo({ className, forceText = false, ...props }: LogoProps) {
+export function Logo({ className, withText: forceText = false, ...props }: LogoProps) {
   return (
     <Link href={AppRoutes.Home}>
       <div

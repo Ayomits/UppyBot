@@ -41,6 +41,12 @@ export class GuildService {
     await this.guildModel.insertMany(docs);
   }
 
+  async findUserGuilds(ids: string[]) {
+    return await this.guildModel
+      .find({ guildId: { $in: ids }, isActive: true })
+      .select('guildId');
+  }
+
   async countGuilds(filter?: FilterQuery<Guild>) {
     const count = await this.guildModel.countDocuments(filter);
     return {

@@ -1,5 +1,7 @@
-"use client"
+"use client";
 import { MiniProfile } from "#/components/auth/profile/profile";
+import { AppRoutes } from "#/const/routes";
+import { Logo } from "#/ui/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -7,20 +9,14 @@ import {
   SidebarHeader,
 } from "#/ui/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 import { HTMLAttributes } from "react";
 
 export function DashboardSidebar({ ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <Sidebar>
-      <SidebarHeader className="gap-2.5 px-6 py-8">
-        <Image
-          className="object-cover size-16 rounded-lg"
-          src="/logo.webp"
-          width={64}
-          height={64}
-          alt="Логотип uppy bot"
-        />
-        <h2 className="text-2xl">Uppy bot</h2>
+      <SidebarHeader className="px-6 py-8">
+        <Logo withText />
       </SidebarHeader>
       <SidebarContent {...props} />
       <SidebarFooter className="w-full px-6 py-4.5">

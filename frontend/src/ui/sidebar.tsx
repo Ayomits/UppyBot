@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useMediaQuery } from "#/hooks/use-media-query";
 import {
   Dispatch,
@@ -63,9 +63,9 @@ export function SidebarContent({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
+    <main
       className={cn(
-        "flex flex-col h-full justify-between overflow-y-auto no-scrollbar",
+        "flex flex-col h-full overflow-y-auto no-scrollbar",
         className
       )}
       {...props}

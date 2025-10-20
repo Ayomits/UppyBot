@@ -99,4 +99,22 @@ export class AuthService {
       }),
     );
   }
+
+  createBotInviteLink(guildId: string) {
+    const clientId = this.configService.getOrThrow('CLIENT_ID');
+    const redirectUri = this.configService.get('REDIRECT_URI');
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      response_type: 'code',
+      scope: 'bot',
+      disable_guild_select: 'true',
+      guild_id: guildId,
+      redirect_uri: `${redirectUri}/dashboard`,
+    });
+
+    return {
+      url: `${DiscordUrl}/oauth2/authorize?${params.toString()}`,
+    };
+  }
 }
