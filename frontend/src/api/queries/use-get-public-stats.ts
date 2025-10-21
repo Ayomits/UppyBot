@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryOptions } from "../utils/types";
 import { api } from "../utils/api";
 
-export interface PublicStats {
+export type PublicStats = {
   commands: number;
   guilds: number;
 }
