@@ -1,8 +1,15 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "#/lib/cn";
+import {
+  ControlledValue,
+  useControlledValue,
+} from "#/hooks/use-controlled-value";
+import { Checkbox } from "./checkbox";
+import { CareteDownIcon } from "#/icons/carete.icon";
 
 export function DropdownMenu({
+  defaultOpen = false,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -64,5 +71,69 @@ export function DropdownMenuItem({
       )}
       {...props}
     />
+  );
+}
+
+export function DropdownMenuZone({
+  className,
+  containerClassName,
+  placeholder,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+  containerClassName?: string;
+  placeholder?: string;
+}) {
+  return (
+    <DropdownMenuTrigger asChild>
+      <div
+        className={cn(
+          "flex items-center justify-between max-w-[25rem] p-2 w-full border rounded-lg",
+          containerClassName
+        )}
+      >
+        <div className={cn("flex flex-wrap", className)} {...props}>
+          {children ? (
+            children
+          ) : (
+            <span className="text-secondary-text">{placeholder}</span>
+          )}
+        </div>
+      </div>
+    </DropdownMenuTrigger>
+  );
+}
+
+export function DropdownMenuCheckbox({
+  controlled,
+  children,
+  setControlled,
+  onClick,
+  ...props
+}: Omit<
+  React.ComponentProps<typeof DropdownMenuPrimitive.Item>,
+  "defaultValue"
+> &
+  ControlledValue<boolean>) {
+  const [isOpen, setIsOpen] = useControlledValue<boolean>({
+    defaultValue: false,
+    setter: setControlled,
+    value: controlled,
+  });
+
+  const handleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    onClick?.(ev);
+    setIsOpen((prev) => !prev);
+  };
+
+  return (
+    <DropdownMenuItem
+      onClick={handleClick}
+      onSelect={(e) => e.preventDefault()}
+      {...props}
+    >
+      <Checkbox controlled={isOpen} setControlled={setIsOpen} />
+      {children}
+    </DropdownMenuItem>
   );
 }

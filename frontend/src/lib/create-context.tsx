@@ -1,33 +1,38 @@
-import type { JSX, ReactNode } from 'react';
+import type { JSX, ReactNode } from "react";
 
-import { createContext as createReactContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext as createReactContext,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 /** The create context options type */
-export interface CreateContextOptions {
+export type CreateContextOptions = {
   /** Display name for the context (useful for debugging) */
   name?: string;
   /** Whether to throw an error if context is used outside of Provider */
   strict?: boolean;
-}
+};
 
 /** The context value type */
-export interface ContextValue<Value> {
+export type ContextValue<Value> = {
   /** The context value */
   value: Value | undefined;
   /** The context set function */
   set: (value: Value) => void;
-}
+};
 
 /** The provider props type */
-export interface ProviderProps<Value> {
+export type ProviderProps<Value> = {
   /** The children */
   children?: ReactNode;
   /** The initial value */
   initialValue?: Value;
-}
+};
 
 /** The create context return type */
-export interface CreateContextReturn<Value> {
+export type CreateContextReturn<Value> = {
   /** The context instance */
   instance: React.Context<ContextValue<Value>>;
   /** The provider component */
@@ -37,7 +42,7 @@ export interface CreateContextReturn<Value> {
     <Selected>(selector: (value: Value) => Selected): Selected;
     (): ContextValue<Value>;
   };
-}
+};
 
 /**
  * @name createContext
@@ -62,7 +67,7 @@ export const createContext = <Value,>(
     set: (value: Value) => void;
   }>({
     value: defaultValue,
-    set: () => {}
+    set: () => {},
   });
 
   Context.displayName = options.name;
@@ -73,7 +78,9 @@ export const createContext = <Value,>(
     const context = useContext(Context);
 
     if (!context && options.strict) {
-      throw new Error(`Context hook ${options.name} must be used inside a Provider`);
+      throw new Error(
+        `Context hook ${options.name} must be used inside a Provider`
+      );
     }
 
     if (!selector) {
@@ -84,12 +91,14 @@ export const createContext = <Value,>(
   }
 
   const Provider = ({ children, initialValue }: ProviderProps<Value>) => {
-    const [profile, setProfile] = useState<Value | undefined>(initialValue ?? defaultValue);
+    const [profile, setProfile] = useState<Value | undefined>(
+      initialValue ?? defaultValue
+    );
 
     const value = useMemo(
       () => ({
         value: profile,
-        set: setProfile
+        set: setProfile,
       }),
       [profile]
     );
@@ -100,6 +109,6 @@ export const createContext = <Value,>(
   return {
     useSelect,
     instance: Context,
-    Provider
+    Provider,
   } as const;
 };
