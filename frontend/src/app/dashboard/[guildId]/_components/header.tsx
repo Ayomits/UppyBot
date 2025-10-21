@@ -2,11 +2,10 @@
 
 import { useGetDiscordGuilds } from "#/api/queries/use-get-discord-guilds";
 import { Avatar, AvatarFallback, AvatarImage } from "#/ui/avatar";
-import { Fragment } from "react";
 import { useDasboardSettings } from "../_context/settings-context";
 import { Skeleton } from "#/ui/skeleton";
 
-export function DashboardSettingsHeader() {
+export function DashboardSettingsSidebarHeader() {
   const { guildId } = useDasboardSettings((v) => v);
   const guilds = useGetDiscordGuilds();
 
@@ -24,7 +23,7 @@ export function DashboardSettingsHeader() {
         )}
       </Avatar>
       {guilds.isLoading ? (
-        <Skeleton className="h-3 w-24" />
+        <Skeleton className="bg-secondary h-3 w-24" />
       ) : (
         <span className="text-lg max-w-54 truncate">{guild!.name}</span>
       )}

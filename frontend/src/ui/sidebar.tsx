@@ -51,7 +51,7 @@ export function Sidebar({
 
   return (
     <aside
-      className="relative h-svh flex-col hidden md:flex ring-[0.2px] z-50 left-0 bg-background-secondary"
+      className="sticky top-0 h-svh flex-col hidden md:flex ring-[0.2px] z-50 left-0 bg-background-secondary"
       style={{ width: SIDEBAR_WIDTH, ...style }}
       {...props}
     />

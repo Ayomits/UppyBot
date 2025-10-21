@@ -9,7 +9,6 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "#/ui/sidebar";
-import Image from "next/image";
 import Link from "next/link";
 import { Fragment, HTMLAttributes, ReactNode } from "react";
 
