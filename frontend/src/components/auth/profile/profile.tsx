@@ -21,53 +21,68 @@ import { Skeleton } from "#/ui/skeleton";
 type MiniProfileFlags = {
   withUsername?: boolean;
   withLogout?: boolean;
+  withAvatar?: boolean;
 };
 
 export function MiniProfile({
   className,
+  withAvatar = true,
   withLogout,
   withUsername,
   ...props
 }: HTMLAttributes<HTMLDivElement> & MiniProfileFlags) {
-  const { isAuth, isLoading, user } = useAuth();
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between text-sm md:text-base",
+        className
+      )}
+      {...props}
+    >
+      <div className="flex items-center gap-2.5">
+        {withAvatar && <ProfileAvatar />}
+        {withUsername && <ProfileUsername className="text-sm md:text-base" />}
+      </div>
+      {withLogout && <Logout />}
+    </div>
+  );
+}
+
+export function ProfileUsername({
+  children,
+  ...props
+}: HTMLAttributes<HTMLSpanElement>) {
+  const { isLoading, user } = useAuth();
+  if (isLoading) {
+    return <Skeleton className="bg-secondary w-12 h-4" />;
+  }
+
+  return (
+    <span {...props}>
+      {children}
+      {user?.global_name ?? user?.username}
+    </span>
+  );
+}
+
+export function ProfileAvatar({
+  className,
+  ...props
+}: ComponentProps<typeof Avatar>) {
+  const { user } = useAuth();
+
   function getComponent() {
-    if (isAuth && user) {
+    if (user) {
       return <AvatarImage src={user.avatar!} />;
     }
 
     return <AvatarFallback />;
   }
 
-  function getAvatar() {
-    return (
-      <Avatar className={cn("size-8 md:size-12", className)}>
-        {getComponent()}
-      </Avatar>
-    );
-  }
-
   return (
-    <div
-      className={cn("flex items-center justify-between", className)}
-      {...props}
-    >
-      <div className="flex items-center gap-2.5">
-        {getAvatar()}
-        {isLoading ? (
-          <Skeleton className="bg-secondary w-12 h-4" />
-        ) : (
-          <span
-            className={cn(
-              "text-sm md:text-base md:hidden",
-              withUsername && "md:block"
-            )}
-          >
-            {user?.global_name ?? user?.username}
-          </span>
-        )}
-      </div>
-      {withLogout && <Logout />}
-    </div>
+    <Avatar className={cn("size-8 md:size-12", className)} {...props}>
+      {getComponent()}
+    </Avatar>
   );
 }
 

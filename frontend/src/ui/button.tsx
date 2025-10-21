@@ -11,6 +11,7 @@ const buttonVariants = cva(
       variant: {
         accent: "bg-background-accent",
         secondary: "bg-secondary",
+        "backgounrd-secondary": "bg-background-secondary",
         icon: "bg-transparent"
       },
     },

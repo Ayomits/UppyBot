@@ -10,11 +10,21 @@ import { useDasboardSettings } from "../_context/settings-context";
 const useNavigationItems = (guildId: string) => {
   return [
     {
-      name: "Настройка",
+      name: "Система напоминаний",
       items: [
+        {
+          name: "Общие настройки",
+          url: AppRoutes.GeneralSettings(guildId),
+          icon: <AlarmIcon className="size-6" />,
+        },
         {
           name: "Система поинтов",
           url: AppRoutes.PointSettings(guildId),
+          icon: <AlarmIcon className="size-6" />,
+        },
+        {
+          name: "Преждевременные напоминания",
+          url: AppRoutes.ForceReminds(guildId),
           icon: <AlarmIcon className="size-6" />,
         },
       ],
@@ -54,7 +64,7 @@ export function SettingsNavigationItem({
   ...props
 }: LinkProps & HTMLAttributes<HTMLAnchorElement>) {
   return (
-    <Item asChild className={cn("p-2 gap-2.5", className)}>
+    <Item asChild className={cn("py-5 px-2 gap-2.5", className)}>
       <Link {...props} />
     </Item>
   );

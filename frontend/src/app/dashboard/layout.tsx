@@ -20,6 +20,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           display: "grid",
           gridTemplateColumns: `${SIDEBAR_WIDTH} 1fr`,
         }}
+        className="relative"
       >
         {children}
       </div>
