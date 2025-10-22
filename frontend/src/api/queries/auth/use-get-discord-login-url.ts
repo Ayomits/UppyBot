@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
-import { api } from "../utils/api";
+import { api } from "../../utils/api";
 
 type DiscordLoginUrlResponse = { url: string };
 

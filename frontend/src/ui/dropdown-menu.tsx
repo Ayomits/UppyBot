@@ -50,6 +50,7 @@ export function DropdownMenuContent({
           "z-50 rounded-lg p-2.5 bg-secondary overflow-x-hidden shadow-md transition-all",
           "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-0",
+          "max-h-[25rem] overflow-y-auto no-scrollbar",
           className
         )}
         {...props}
@@ -67,6 +68,7 @@ export function DropdownMenuItem({
       data-slot="dropdown-menu-item"
       className={cn(
         "flex items-center gap-3 rounded-lg cursor-pointer py-3 px-2.5 hover:bg-secondary-hover transition-colors duration-300 data-[highlighted]:border-0 data-[highlighted]:outline-none",
+        "disabled:opacity-80",
         className
       )}
       {...props}
@@ -78,11 +80,13 @@ export function DropdownMenuZone({
   className,
   containerClassName,
   placeholder,
+  shouldRenderPlaceholder = true,
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   containerClassName?: string;
   placeholder?: string;
+  shouldRenderPlaceholder?: boolean;
 }) {
   return (
     <DropdownMenuTrigger asChild>
@@ -93,10 +97,10 @@ export function DropdownMenuZone({
         )}
       >
         <div className={cn("flex flex-wrap", className)} {...props}>
-          {children ? (
-            children
-          ) : (
+          {shouldRenderPlaceholder ? (
             <span className="text-secondary-text">{placeholder}</span>
+          ) : (
+            children
           )}
         </div>
       </div>

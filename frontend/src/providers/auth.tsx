@@ -10,7 +10,7 @@ import {
   invalidateUser,
   useGetUsersMe,
   type UsersMeResponsse as UsersMeResponse,
-} from "../api/queries/use-get-users-me";
+} from "../api/queries/account/use-get-users-me";
 import { useLogout } from "#/api/mutations/use-post-logout";
 import { useRouter } from "next/navigation";
 import { AppRoutes } from "#/const/routes";

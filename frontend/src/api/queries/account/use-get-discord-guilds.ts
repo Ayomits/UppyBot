@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../utils/api";
-import { ListResponse, QueryOptions } from "../utils/types";
+import { api } from "../../utils/api";
+import { ListResponse, QueryOptions } from "../../utils/types";
 
 export type UserDiscordGuild = {
   id: string;

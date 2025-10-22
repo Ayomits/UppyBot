@@ -3,6 +3,10 @@ import { Header, HeaderMain } from "#/ui/header";
 import { Logo } from "#/ui/logo";
 import { cn } from "#/lib/cn";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { Button } from "#/ui/button";
+import { ExternalLinks } from "#/const/routes";
+import { EnterIcon } from "#/icons/enter.icon";
 
 const MobileNavigation = dynamic(() =>
   import("./mobile-navigation").then((m) => m.MobileNavigation)
@@ -29,7 +33,12 @@ export function HomeHeader() {
       <HeaderMain>
         <Logo />
         <Navigation />
-        <MiniProfileMenu className="hidden md:flex items-center gap-4" />
+        <Button className="hidden md:flex" asChild>
+          <Link href={ExternalLinks.SupportServer}>
+            <EnterIcon className="size-6" />
+            Сервер поддержки
+          </Link>
+        </Button>
       </HeaderMain>
     </Header>
   );
