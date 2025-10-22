@@ -1,12 +1,7 @@
 "use client";
-import { useDiscordLogin } from "#/components/auth/login/use-discord-login";
-import { MiniProfile } from "#/components/auth/profile/profile";
-import { AppRoutes } from "#/const/routes";
 import { BurgerIcon } from "#/icons/burger.icon";
 import { CareteRightIcon } from "#/icons/carete.icon";
-import { EnterIcon } from "#/icons/enter.icon";
 import { cn } from "#/lib/cn";
-import { useAuth } from "#/providers/auth";
 import { Button } from "#/ui/button";
 import { Overlay } from "#/ui/overlay";
 import { type HTMLAttributes, useState } from "react";
@@ -38,10 +33,6 @@ function MobileNavItem({
 }
 
 function MobileNavigationList() {
-  const { isAuth, logout } = useAuth();
-
-  const discordLoginHandler = useDiscordLogin();
-
   return (
     <ul className="relative flex flex-col w-full bg-background">
       {NAVIGATION_ITEMS.map((item, index) => (
@@ -57,31 +48,6 @@ function MobileNavigationList() {
         </MobileNavItem>
       ))}
       <Separator />
-
-      {isAuth && (
-        <Fragment>
-          <MobileNavItem className="justify-between" asChild>
-            <Link href={AppRoutes.Servers}>
-              <MiniProfile />
-            </Link>
-          </MobileNavItem>
-
-          <MobileNavItem className="justify-between" onClick={() => logout()}>
-            Выйти
-            <EnterIcon className="text-error size-4" />
-          </MobileNavItem>
-        </Fragment>
-      )}
-
-      {!isAuth && (
-        <MobileNavItem
-          className="justify-between"
-          onClick={() => discordLoginHandler.handle()}
-        >
-          Войти
-          <EnterIcon className="size-4" />
-        </MobileNavItem>
-      )}
     </ul>
   );
 }

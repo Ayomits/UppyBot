@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useDiscordCallback } from "../../../api/mutations/use-get-discord-callback";
 import { useAuth } from "#/providers/auth";
-import { useGetDiscordLoginUrl } from "#/api/queries/use-get-discord-login-url";
+import { useGetDiscordLoginUrl } from "#/api/queries/auth/use-get-discord-login-url";
 
 export function useDiscordLogin() {
   const [isOpen, setIsOpen] = useState(false);

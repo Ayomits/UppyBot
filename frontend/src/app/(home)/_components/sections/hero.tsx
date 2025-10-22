@@ -8,8 +8,6 @@ import { Button } from "#/ui/button";
 import Link from "next/link";
 
 export function HomeHero() {
-  const { isAuth } = useAuth();
-
   return (
     <section className="flex items-center justify-center gap-42 text-center px-6">
       <div className="flex flex-col items-center gap-6">
@@ -29,16 +27,12 @@ export function HomeHero() {
               Пригласить
             </Link>
           </Button>
-          {isAuth ? (
-            <Button asChild>
-              <Link href={AppRoutes.Servers}>
-                <EnterIcon className="size-6" />
-                Мои серверы
-              </Link>
-            </Button>
-          ) : (
-            <Login />
-          )}
+          <Button asChild>
+            <Link href={ExternalLinks.SupportServer}>
+              <EnterIcon className="size-6" />
+              Сервер поддержки
+            </Link>
+          </Button>
         </div>
       </div>
       <img

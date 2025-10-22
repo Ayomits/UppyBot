@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetPublicStats } from "#/api/queries/use-get-public-stats";
+import { useGetPublicStats } from "#/api/queries/stats/use-get-public-stats";
 import { Card, CardContent, CardHeader, CardTitle } from "#/ui/card";
 import { Skeleton } from "#/ui/skeleton";
 

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "#/api/utils/api";
 
-import { QueryOptions } from "../utils/types";
-import { getQueryClient } from "../utils/queryclient";
+import { QueryOptions } from "../../utils/types";
+import { getQueryClient } from "../../utils/queryclient";
 
 export type UsersMeResponsse = {
   id: string;

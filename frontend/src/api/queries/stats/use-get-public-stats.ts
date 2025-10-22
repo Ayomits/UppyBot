@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { QueryOptions } from "../utils/types";
-import { api } from "../utils/api";
+import { QueryOptions } from "../../utils/types";
+import { api } from "../../utils/api";
 
 export type PublicStats = {
   commands: number;
