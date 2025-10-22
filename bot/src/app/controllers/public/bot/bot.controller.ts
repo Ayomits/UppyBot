@@ -9,7 +9,7 @@ import { inject, singleton } from "tsyringe";
 
 import { UppyLinks } from "#/const/links.js";
 
-import { UppyBotInviteService } from "./interactions/bot-invite.service.js";
+import { BotInviteService } from "./interactions/bot-invite.service.js";
 import { UppyBotPingService } from "./interactions/bot-ping.service.js";
 import { UppyBotStatsService } from "./interactions/bot-stats.service.js";
 
@@ -20,7 +20,7 @@ import { UppyBotStatsService } from "./interactions/bot-stats.service.js";
 export class UppyCoreController {
   constructor(
     @inject(UppyBotPingService) private pingService: UppyBotPingService,
-    @inject(UppyBotInviteService) private inviteService: UppyBotInviteService,
+    @inject(BotInviteService) private inviteService: BotInviteService,
     @inject(UppyBotStatsService) private statService: UppyBotStatsService,
   ) {}
 
