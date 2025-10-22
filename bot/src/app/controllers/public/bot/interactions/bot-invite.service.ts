@@ -15,7 +15,7 @@ import { UppyLinks } from "#/const/links.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
 @injectable()
-export class UppyBotInviteService {
+export class BotInviteService {
   async handleInviteCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const container = new ContainerBuilder()

@@ -14,10 +14,10 @@ import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { BumpLogModel } from "#/models/bump-log.model.js";
 import { RemindLogsModel, RemindLogState } from "#/models/remind-logs.model.js";
 
-import { UppyBotInviteService } from "./bot-invite.service.js";
+import { BotInviteService } from "./bot-invite.service.js";
 
 @injectable()
-export class UppyBotStatsService extends UppyBotInviteService {
+export class UppyBotStatsService extends BotInviteService {
   async handleStats(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
