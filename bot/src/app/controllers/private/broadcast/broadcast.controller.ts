@@ -32,12 +32,13 @@ export class BroadcastController {
         const owner = guild.members.cache.get(guild.ownerId);
 
         try {
+          await owner?.createDM(true);
           await owner?.send(payload);
           count += 1;
         } catch {
           // nothing here
         }
-      }),
+      })
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }
