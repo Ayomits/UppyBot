@@ -1,15 +1,16 @@
 import type { Client } from "discord.js";
 import {
   ContainerBuilder,
-  type Guild,
+  type Guild as DjsGuild,
   heading,
   HeadingLevel,
   MessageFlags,
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { guildCreate, guildDelete, syncGuilds } from "#/api/queries/guilds.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
+import type { Guild} from "#/models/guild.model.js";
+import { GuildModel, GuildType } from "#/models/guild.model.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
 
@@ -22,15 +23,34 @@ export class GuildService extends BotInviteService {
     }
 
     const ids = guilds.map((g) => g.id);
-    await syncGuilds({ ids });
+    this.syncGuilds(ids);
   }
 
-  async handleGuildCreation(guild: Guild) {
-    await guildCreate(guild.id);
+  private async syncGuilds(ids: string[]) {
+    const guilds = (await GuildModel.find({ guildId: { $in: ids } })).map(
+      (g) => g.guildId
+    );
+    const docs: Guild[] = ids
+      .filter((g) => !guilds.includes(g))
+      .map((g) => ({
+        guildId: g,
+        isActive: true,
+        type: GuildType.Common,
+      }));
+
+    await GuildModel.insertMany(docs);
+  }
+
+  async handleGuildCreation(guild: DjsGuild) {
+    await GuildModel.findOneAndUpdate(
+      { guildId: guild.id },
+      { isActive: true },
+      { upsert: true }
+    );
     this.postGuildCreation(guild);
   }
 
-  private async postGuildCreation(guild: Guild) {
+  private async postGuildCreation(guild: DjsGuild) {
     const owner = await guild.members.fetch(guild.ownerId);
 
     const container = new ContainerBuilder()
@@ -60,7 +80,10 @@ export class GuildService extends BotInviteService {
       .catch(console.error);
   }
 
-  async handleGuildRemoval(guild: Guild) {
-    await guildDelete(guild.id);
+  async handleGuildRemoval(guild: DjsGuild) {
+    await GuildModel.findOneAndUpdate(
+      { guildId: guild.id },
+      { isActive: false }
+    );
   }
 }
