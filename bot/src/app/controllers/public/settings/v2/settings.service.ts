@@ -1,5 +1,4 @@
 import type {
-  ButtonInteraction,
   Interaction,
   InteractionEditReplyOptions,
   StringSelectMenuInteraction,
@@ -33,7 +32,7 @@ import { SettingsIds, SettingsNavigation } from "./settings.const.js";
 export class SettingsService extends BotInviteService {
   constructor(
     @inject(ReminderScheduleManager)
-    private scheduleManager: ReminderScheduleManager
+    private scheduleManager: ReminderScheduleManager,
   ) {
     super();
   }
@@ -42,7 +41,7 @@ export class SettingsService extends BotInviteService {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const repl = await interaction.editReply(
-      await this.buildMessage(interaction, "roles")
+      await this.buildMessage(interaction, "roles"),
     );
 
     const collector = createSafeCollector(repl);
@@ -64,15 +63,15 @@ export class SettingsService extends BotInviteService {
       .editReply(
         await this.buildMessage(
           interaction,
-          interaction.values[0] as keyof typeof SettingsPipelines
-        )
+          interaction.values[0] as keyof typeof SettingsPipelines,
+        ),
       )
       .catch(null);
   }
 
   private async buildMessage(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines
+    pipelineName: keyof typeof SettingsPipelines,
   ): Promise<InteractionEditReplyOptions> {
     const [main, settings, navigation] = [
       this.buildMainContainer(interaction),
@@ -95,7 +94,7 @@ export class SettingsService extends BotInviteService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.client.user))
+            builder.setURL(UsersUtility.getAvatar(interaction.client.user)),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -103,9 +102,9 @@ export class SettingsService extends BotInviteService {
                 heading("Настройки Uppy"),
                 "",
                 "В этой панели вы сможете удобно настроить uppy",
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addActionRowComponents(this.buildResourcesLinks());
     return container;
@@ -117,27 +116,27 @@ export class SettingsService extends BotInviteService {
         new StringSelectMenuBuilder()
           .setCustomId(SettingsIds.navigation)
           .setPlaceholder("Выберите раздел")
-          .setOptions(SettingsNavigation)
-      )
+          .setOptions(SettingsNavigation),
+      ),
     );
     return container;
   }
 
   private async buildSettingsContainer(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines
+    pipelineName: keyof typeof SettingsPipelines,
   ): Promise<ContainerBuilder> {
     const pipeline = SettingsPipelines[pipelineName]!;
     const container = new ContainerBuilder().addTextDisplayComponents(
       (builder) =>
         builder.setContent(
-          heading(this.resolveNavigationName(pipelineName), HeadingLevel.Two)
-        )
+          heading(this.resolveNavigationName(pipelineName), HeadingLevel.Two),
+        ),
     );
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     for (const key in pipeline) {
@@ -148,16 +147,16 @@ export class SettingsService extends BotInviteService {
             builder
               .setLabel("Изменить")
               .setStyle(ButtonStyle.Primary)
-              .setCustomId(`${SettingsIds.change}_${key}`)
+              .setCustomId(`${SettingsIds.change}_${key}`),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
               [
                 quote(`${config.label}`),
                 this.resolveValue(settings!, config.field, config.type),
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       );
     }
 
@@ -183,7 +182,7 @@ export class SettingsService extends BotInviteService {
   private resolveValue(
     settings: SettingsDocument,
     field: string,
-    type: SettingsConfig["type"]
+    type: SettingsConfig["type"],
   ) {
     if (!settings) {
       return "Нет";
@@ -212,7 +211,7 @@ export class SettingsService extends BotInviteService {
 
   private resolveMentions(
     value: string[] | string | null | undefined,
-    type: SettingsConfig["type"]
+    type: SettingsConfig["type"],
   ): string {
     if (!value || value?.length === 0) {
       return "Нет";

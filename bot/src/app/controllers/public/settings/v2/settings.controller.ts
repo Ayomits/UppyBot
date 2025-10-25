@@ -11,7 +11,7 @@ import { SettingsService } from "./settings.service.js";
 @singleton()
 export class SettingsController {
   constructor(
-    @inject(SettingsService) private settingsService: SettingsService
+    @inject(SettingsService) private settingsService: SettingsService,
   ) {}
 
   @Slash({

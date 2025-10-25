@@ -9,7 +9,7 @@ import {
 import { injectable } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import type { Guild} from "#/models/guild.model.js";
+import type { Guild } from "#/models/guild.model.js";
 import { GuildModel, GuildType } from "#/models/guild.model.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
@@ -28,7 +28,7 @@ export class GuildService extends BotInviteService {
 
   private async syncGuilds(ids: string[]) {
     const guilds = (await GuildModel.find({ guildId: { $in: ids } })).map(
-      (g) => g.guildId
+      (g) => g.guildId,
     );
     const docs: Guild[] = ids
       .filter((g) => !guilds.includes(g))
@@ -45,7 +45,7 @@ export class GuildService extends BotInviteService {
     await GuildModel.findOneAndUpdate(
       { guildId: guild.id },
       { isActive: true },
-      { upsert: true }
+      { upsert: true },
     );
     this.postGuildCreation(guild);
   }
@@ -57,7 +57,7 @@ export class GuildService extends BotInviteService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(guild.client.user))
+            builder.setURL(UsersUtility.getAvatar(guild.client.user)),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -65,9 +65,9 @@ export class GuildService extends BotInviteService {
                 heading("Спасибо, что добавили", HeadingLevel.One),
                 "",
                 "Мы уверены, что этот бот поможет стать вашему серверу лучше !",
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -83,7 +83,7 @@ export class GuildService extends BotInviteService {
   async handleGuildRemoval(guild: DjsGuild) {
     await GuildModel.findOneAndUpdate(
       { guildId: guild.id },
-      { isActive: false }
+      { isActive: false },
     );
   }
 }
