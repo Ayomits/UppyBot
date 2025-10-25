@@ -1,26 +1,13 @@
 FROM node:24-alpine3.21
 
-RUN apk add runit
-
 WORKDIR /app
 
-ARG APP_ENV=dev
+COPY ./bot /app
 
-COPY --chown=appuser:appuser ./bot /app
+RUN npm install pnpm -g
 
-COPY docker/runit/dev.run /tmp/runit-dev.run
-COPY docker/runit/prod.run /tmp/runit-prod.run
+RUN pnpm install
 
-RUN mkdir -p /etc/service/app /runit
+RUN pnpm run build
 
-RUN if [ "$APP_ENV" != "dev" ]; then \
-  cp /tmp/runit-prod.run /etc/service/app/run; \
-  else \
-  cp /tmp/runit-dev.run /etc/service/app/run; \
-  fi && \
-  rm /tmp/runit-*.run
-
-RUN chmod +x /etc/service/app/run
-RUN npm install pnpm@10.13.1 -g
-
-CMD ["runsvdir", "/etc/service"]
+CMD ["pnpm run prod"]
