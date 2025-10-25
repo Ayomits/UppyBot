@@ -4,7 +4,7 @@ import { ChartIcon } from "#/icons/chart.icon";
 import { CogIcon } from "#/icons/cog.icon";
 import { cn } from "#/lib/cn";
 import { Card, CardContent, CardHeader, CardIcon, CardTitle } from "#/ui/card";
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 type HomeFeature = {
   name: string;
@@ -45,7 +45,8 @@ const homeFeatures: HomeFeature[] = [
   },
   {
     name: "Удобная настройка",
-    description: "Всё внутри бота настраивается с помощью удобной веб-панели",
+    description:
+      "Всё внутри бота настраивается с помощью удобной команды /settings",
     icon: <CogIcon className="size-8" />,
   },
 ];
