@@ -8,9 +8,6 @@ const HomeFeatures = dynamic(() =>
     (m) => m.HomeFeatures
   )
 );
-const HomeStats = dynamic(() =>
-  import("#/app/(home)/_components/sections/stats").then((m) => m.HomeStats)
-);
 const HomeInvitation = dynamic(() =>
   import("#/app/(home)/_components/sections/invitation").then(
     (m) => m.HomeInvitation
@@ -22,7 +19,6 @@ export default async function Home() {
     <>
       <HomeHero />
       <HomeFeatures />
-      <HomeStats />
       <HomeInvitation />
     </>
   );
