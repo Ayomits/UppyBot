@@ -1,5 +1,16 @@
 import { buildSchema, getModelForClass, prop } from "@typegoose/typegoose";
 
+import type { LiteralEnum } from "#/libs/utils/types.js";
+
+export const GuildType = {
+  Common: 0,
+  Premium: 1,
+  Test: 2,
+  Developer: 3,
+} as const;
+
+export type GuildType = LiteralEnum<typeof GuildType>;
+
 export class Guild {
   @prop({ required: true })
   guildId: string;
