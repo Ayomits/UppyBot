@@ -40,7 +40,7 @@ export class PrivateLogController {
             name: "Server ID",
             value: codeBlock(guild.id),
             inline: true,
-          }
+          },
         );
       channel
         .send({
@@ -80,7 +80,7 @@ export class PrivateLogController {
             name: "Server ID",
             value: codeBlock(guild.id),
             inline: true,
-          }
+          },
         );
       channel
         .send({
