@@ -17,7 +17,7 @@ import {
 import { singleton } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { UppySettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/models/settings.model.js";
 
 import type { MonitoringType } from "../reminder/reminder.const.js";
 import {
@@ -115,14 +115,14 @@ export class UppyLogService {
   }
 
   private async push(guild: Guild, embed: ContainerBuilder) {
-    const settings = await UppySettingsModel.findOneAndUpdate(
+    const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
       { upsert: true },
     );
 
     const logChannel = guild.channels.cache.get(
-      settings?.actionLogChannelId ?? "",
+      settings?.channels.actionLogChannelId ?? "",
     );
 
     if (!logChannel || !logChannel.isSendable()) {

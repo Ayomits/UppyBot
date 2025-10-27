@@ -15,7 +15,7 @@ export interface ParserValue {
   authorId: Snowflake;
   success: boolean;
   timestamp: Date | null;
-  type: MonitoringType;
+  type: MonitoringType | number;
 }
 
 @injectable()

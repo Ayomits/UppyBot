@@ -3,7 +3,7 @@ import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
 import { developers } from "#/const/owners.js";
-import { UppySettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/models/settings.model.js";
 
 import { UppyGuardMessage } from "../messages/guard.message.js";
 
@@ -18,7 +18,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
     return next();
   }
 
-  const settings = await UppySettingsModel.findOne(
+  const settings = await SettingsModel.findOneAndUpdate(
     {
       guildId: interaction.guildId,
     },
@@ -26,14 +26,16 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
     { upsert: true },
   );
 
-  if (!settings || (settings && settings?.bumpRoleIds?.length === 0)) {
+  if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {
     return interaction.reply({
       content: UppyGuardMessage.isHelper.invalidSettings,
       flags: MessageFlags.Ephemeral,
     });
   }
 
-  if (member.roles.cache.some((r) => settings?.bumpRoleIds?.includes(r.id))) {
+  if (
+    member.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id))
+  ) {
     return next();
   }
 

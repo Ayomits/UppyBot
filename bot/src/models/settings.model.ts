@@ -1,42 +1,119 @@
 import {
+  buildSchema,
   type DocumentType,
   getModelForClass,
   prop,
 } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
-export class UppySettings extends TimeStamps {
+export class Settings extends TimeStamps {
   @prop({ alias: "guild_id", required: true, index: true, unique: true })
   guildId: string;
 
-  @prop({ alias: "bump_role_ids", default: [] })
-  bumpRoleIds?: string[];
+  @prop({
+    default: {
+      pingRoles: [],
+      managerRoles: [],
+      staffRoles: [],
+    },
+  })
+  roles: {
+    pingRoles?: string[];
+    staffRoles?: string[];
+    managerRoles: string[];
+  };
 
-  @prop({ default: [] })
-  managerRoles: string[];
+  @prop({
+    default: {
+      pingChannelId: null,
+      actionLogChannelId: null,
+    },
+  })
+  channels: {
+    pingChannelId: string | null;
+    actionLogChannelId: string | null;
+  };
 
-  @prop({ default: null })
-  bumpBanRoleId?: string;
+  @prop({ default: { enabled: true, useForceOnly: false, force: 0 } })
+  remind: {
+    enabled: boolean;
+    useForceOnly: boolean;
+    force: number;
+  };
 
-  @prop({ default: null })
-  pingChannelId?: string;
+  @prop({
+    default: {
+      enabled: false,
+      dsMonitoring: 0,
+      disboard: 0,
+      sdc: 0,
+      server: 5,
+    },
+  })
+  kd: {
+    enabled: boolean;
+    dsMonitoring: number;
+    disboard: number;
+    sdc: number;
+    server: number;
+  };
 
-  @prop({ default: null })
-  actionLogChannelId?: string;
+  @prop({
+    default: {
+      enabled: false,
+      dsMonitoring: {
+        default: 1,
+        bonus: 1,
+      },
+      disboard: {
+        default: 1,
+        bonus: 1,
+      },
+      sdc: {
+        default: 1,
+        bonus: 1,
+      },
+      server: {
+        default: 1,
+        bonus: 1,
+      },
+    },
+  })
+  points: {
+    enabled: boolean;
+    dsMonitoring: {
+      default: number;
+      bonus: number;
+    };
+    disboard: {
+      default: number;
+      bonus: number;
+    };
+    sdc: {
+      default: number;
+      bonus: number;
+    };
+    server: {
+      default: number;
+      bonus: number;
+    };
+  };
 
-  @prop({ default: false })
-  useForceOnly: boolean;
-
-  @prop({ min: 0, default: 0 })
-  force: number;
+  @prop({ default: { enabled: false, roleId: null } })
+  bumpBan: {
+    enabled: boolean;
+    roleId: string;
+  };
 }
 
-export const UppySettingsCollectionName = "helper_bot_settings";
+export const SettingsCollectionName = "settings";
 
-export const UppySettingsModel = getModelForClass(UppySettings, {
+export const SettingsModel = getModelForClass(Settings, {
   options: {
-    customName: "helper_bot_settings",
+    customName: SettingsCollectionName,
   },
 });
 
-export type UppySettingsDocument = DocumentType<UppySettings>;
+export type SettingsDocument = DocumentType<Settings>;
+
+export const SettingsSchema = buildSchema(Settings);

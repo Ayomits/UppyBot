@@ -107,13 +107,16 @@ export const UppyRemindSystemMessage = {
         command: MonitoringCommandIds,
         messageTimestamp: Date,
         lastRemind: RemindDocument | null,
+        shouldDisplayPoints: boolean,
       ) => {
-        return unorderedList([
-          `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command)!, command)}`,
-          `Поинты: ${bold(`${points} поинтов`)}`,
-          `Исполнитель: ${userMention(user.id)}`,
-          `Время реакции: ${calculateReactionTime(messageTimestamp, lastRemind?.timestamp ?? new Date())}`,
-        ]);
+        return unorderedList(
+          [
+            `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command)!, command)}`,
+            shouldDisplayPoints ? `Поинты: ${bold(`${points} поинтов`)}` : "",
+            `Исполнитель: ${userMention(user.id)}`,
+            `Время реакции: ${calculateReactionTime(messageTimestamp, lastRemind?.timestamp ?? new Date())}`,
+          ].filter(Boolean),
+        );
       },
     },
   },
