@@ -24,10 +24,10 @@ export class ReminderScheduleManager {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
       this.remind.bind(this)({
-        guild: guilds.get(entry.remind.guildId),
-        timestamp: entry.remind.timestamp,
+        guild: guilds.get(entry.remind?.guildId),
+        timestamp: entry.remind?.timestamp,
         settings: entry.settings,
-        type: entry.remind.type as MonitoringType,
+        type: entry.remind?.type as MonitoringType,
       })
     );
 
@@ -74,7 +74,7 @@ export class ReminderScheduleManager {
       return;
     }
 
-    if (!settings.remind.enabled) {
+    if (!settings.remind?.enabled) {
       return;
     }
 
@@ -98,12 +98,12 @@ export class ReminderScheduleManager {
     const forceSchedule = scheduleManager.getJob(forceId);
 
     const shouldStartForce =
-      settings?.remind.force > 0 &&
-      GMTTimestamp.minus({ second: settings?.remind.force }).toMillis() >
+      settings?.remind?.force > 0 &&
+      GMTTimestamp.minus({ second: settings?.remind?.force }).toMillis() >
         GMTCurrent.toMillis() &&
       !forceSchedule;
 
-    const shouldStartCommon = !settings?.remind.useForceOnly && !commonSchedule;
+    const shouldStartCommon = !settings?.remind?.useForceOnly && !commonSchedule;
 
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
@@ -114,7 +114,7 @@ export class ReminderScheduleManager {
     if (shouldStartForce) {
       scheduleManager.updateJob(
         forceId,
-        GMTTimestamp.minus({ seconds: settings?.remind.force }).toJSDate(),
+        GMTTimestamp.minus({ seconds: settings?.remind?.force }).toJSDate(),
         () => this.sendForceRemind(lastRemind, guild)
       );
     }
@@ -211,7 +211,7 @@ export class ReminderScheduleManager {
         settings?.roles.pingRoles ?? [],
         getCommandNameByRemindType(remind.type)!,
         getCommandIdByRemindType(remind.type)!,
-        settings?.remind.force
+        settings?.remind?.force
       ),
     }));
   }
