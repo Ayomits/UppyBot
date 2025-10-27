@@ -22,6 +22,7 @@ import type { ParserValue } from "./reminder.parser.js";
 export class ReminderScheduleManager {
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
+    console.log(entriesMap);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
       this.remind.bind(this)({
         guild: guilds.get(entry.remind?.guildId),
@@ -74,7 +75,11 @@ export class ReminderScheduleManager {
       return;
     }
 
-    if (!settings.remind?.enabled) {
+    if (!settings) {
+      settings = await SettingsModel.create({ guildId: guild.id });
+    }
+
+    if (!settings?.remind.enabled) {
       return;
     }
 
@@ -103,7 +108,8 @@ export class ReminderScheduleManager {
         GMTCurrent.toMillis() &&
       !forceSchedule;
 
-    const shouldStartCommon = !settings?.remind?.useForceOnly && !commonSchedule;
+    const shouldStartCommon =
+      !settings?.remind?.useForceOnly && !commonSchedule;
 
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
