@@ -22,7 +22,6 @@ import type { ParserValue } from "./reminder.parser.js";
 export class ReminderScheduleManager {
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
-    console.log(entriesMap);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
       this.remind.bind(this)({
         guild: guilds.get(entry.remind?.guildId),
