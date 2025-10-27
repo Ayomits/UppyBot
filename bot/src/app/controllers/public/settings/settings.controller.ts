@@ -1,10 +1,14 @@
 import { IsGuildUser } from "@discordx/utilities";
-import type { ChatInputCommandInteraction } from "discord.js";
-import { Discord, Guard, Slash } from "discordx";
+import type {
+  ChatInputCommandInteraction,
+  ModalSubmitInteraction,
+} from "discord.js";
+import { Discord, Guard, ModalComponent, Slash } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { GuildOnly } from "#/guards/is-guild-only.js";
 
+import { basePointsId, forceModalId } from "./settings.const.js";
 import { SettingsService } from "./settings.service.js";
 
 @Discord()
@@ -15,7 +19,7 @@ export class SettingsController {
   ) {}
 
   @Slash({
-    name: "settings-v2",
+    name: "settings",
     description: "Настроить бота",
     defaultMemberPermissions: ["Administrator"],
     dmPermission: false,
@@ -23,5 +27,15 @@ export class SettingsController {
   @Guard(IsGuildUser(GuildOnly))
   handleSettings(interaction: ChatInputCommandInteraction) {
     return this.settingsService.handleSettingsCommand(interaction);
+  }
+
+  @ModalComponent({ id: new RegExp(`${basePointsId}_(.+)$`) })
+  handlePoints(interaction: ModalSubmitInteraction) {
+    return this.settingsService.handlePointsModal(interaction);
+  }
+
+  @ModalComponent({ id: forceModalId })
+  handleForce(interaction: ModalSubmitInteraction) {
+    return this.settingsService.handleForceModal(interaction);
   }
 }

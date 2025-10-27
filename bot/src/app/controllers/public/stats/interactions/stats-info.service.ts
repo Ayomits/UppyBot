@@ -20,13 +20,13 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { UppyInfoMessage } from "#/app/messages/core-info.message.js";
+import { UppyInfoMessage } from "#/app/messages/stats-info.message.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import type { BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
-import { UppySettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/models/settings.model.js";
 
 import { BumpBanService } from "../../bump-ban/bump-ban.service.js";
 import { BumpBanLimit } from "../../reminder/reminder.const.js";
@@ -81,7 +81,11 @@ export class UppyInfoService extends BaseUppyService {
         guildId: interaction.guildId,
         userId: interaction.user.id,
       }),
-      UppySettingsModel.findOne({ guildId: interaction.guildId }),
+      SettingsModel.findOneAndUpdate(
+        { guildId: interaction.guildId },
+        {},
+        { upsert: true },
+      ),
     ]);
 
     const [authorMember, targetMember] = await Promise.all([
@@ -90,7 +94,9 @@ export class UppyInfoService extends BaseUppyService {
     ]);
 
     const canManage = authorMember.roles.cache.some(
-      (r) => settings?.managerRoles && settings?.managerRoles.includes(r.id),
+      (r) =>
+        settings?.roles.managerRoles &&
+        settings?.roles.managerRoles.includes(r.id),
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -151,7 +157,7 @@ export class UppyInfoService extends BaseUppyService {
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
-      UppySettingsModel.findOne({ guildId: interaction.guildId }),
+      SettingsModel.findOneAndUpdate({ guildId: interaction.guildId }),
       BumpBanModel.findOne({ guildId: interaction.guildId, userId: member.id }),
     ]);
 
@@ -163,7 +169,7 @@ export class UppyInfoService extends BaseUppyService {
 
     const authorMember = interaction.member as GuildMember;
 
-    if (!settings?.bumpBanRoleId) {
+    if (!settings?.bumpBan.roleId) {
       return interaction.editReply({
         content: UppyInfoMessage.errors.notSetUpped,
       });
@@ -171,7 +177,9 @@ export class UppyInfoService extends BaseUppyService {
 
     if (
       !authorMember.roles.cache.some(
-        (r) => settings?.managerRoles && settings?.managerRoles.includes(r.id),
+        (r) =>
+          settings?.roles.managerRoles &&
+          settings?.roles.managerRoles.includes(r.id),
       )
     ) {
       return interaction.editReply({

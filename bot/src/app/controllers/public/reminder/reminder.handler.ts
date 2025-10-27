@@ -20,12 +20,11 @@ import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
 import { BumpLogModel } from "#/models/bump-log.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
 import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
-import { safePointConfig } from "#/models/points-settings.model.js";
 import type { RemindDocument } from "#/models/remind.model.js";
 import { RemindModel } from "#/models/remind.model.js";
 import {
-  type UppySettingsDocument,
-  UppySettingsModel,
+  type SettingsDocument,
+  SettingsModel,
 } from "#/models/settings.model.js";
 
 import {
@@ -77,7 +76,7 @@ export class ReminderHandler {
       }
 
       const [settings, lastRemind] = await Promise.all([
-        UppySettingsModel.findOne(
+        SettingsModel.findOneAndUpdate(
           {
             guildId,
           },
@@ -103,7 +102,7 @@ export class ReminderHandler {
   private async handleSuccess(
     message: Message,
     { type }: ParserValue,
-    settings: UppySettingsDocument,
+    settings: SettingsDocument,
     lastRemind: RemindDocument | null,
   ) {
     const existed = await BumpLogModel.findOne({ messageId: message.id });
@@ -117,12 +116,14 @@ export class ReminderHandler {
     const guild = message.guild;
     const user = message.interactionMetadata?.user;
 
-    const pointConfig = await safePointConfig(message.guildId!, type);
+    const config = settings.points.enabled
+      ? this.getFieldByType(type as MonitoringType, settings)
+      : { default: 0, bonus: 0 };
 
-    let points = pointConfig.default;
+    let points = config.default;
 
     if (nowHours >= 0 && nowHours <= 7) {
-      points += pointConfig.bonus;
+      points += config.bonus;
     }
 
     const container = new ContainerBuilder().addSectionComponents(
@@ -143,6 +144,7 @@ export class ReminderHandler {
                 getCommandIdByRemindType(type)!,
                 message.createdAt,
                 lastRemind,
+                settings.points.enabled,
               ),
             ].join("\n"),
           ),
@@ -163,7 +165,7 @@ export class ReminderHandler {
       this.logService.sendCommandExecutionLog(
         guild!,
         user!,
-        type,
+        type as MonitoringType,
         points,
         calculateReactionTime(
           message.createdAt,
@@ -188,12 +190,29 @@ export class ReminderHandler {
     }
   }
 
+  private getFieldByType(type: MonitoringType, settings: SettingsDocument) {
+    switch (type) {
+      case MonitoringType.DiscordMonitoring:
+        return settings.points.dsMonitoring;
+      case MonitoringType.SdcMonitoring:
+        return settings.points.sdc;
+      case MonitoringType.ServerMonitoring:
+        return settings.points.server;
+      case MonitoringType.DisboardMonitoring:
+        return settings.points.disboard;
+    }
+  }
+
   private async handleBumpBan(
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: UppySettingsDocument,
+    settings: SettingsDocument,
   ) {
+    if (!settings.bumpBan.enabled) {
+      return;
+    }
+
     await Promise.all([
       BumpBanModel.updateMany(
         {

@@ -4,8 +4,10 @@ import { inject, injectable } from "tsyringe";
 
 import type { BumpBan } from "#/models/bump-ban.model.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
-import type { UppySettingsDocument } from "#/models/settings.model.js";
-import { UppySettingsModel } from "#/models/settings.model.js";
+import {
+  type SettingsDocument,
+  SettingsModel,
+} from "#/models/settings.model.js";
 
 import { UppyLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
@@ -13,7 +15,7 @@ import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
 type ActionOptions = {
   member: GuildMember;
   type: number;
-  settings?: UppySettingsDocument | null;
+  settings?: SettingsDocument | null;
   force?: {
     shouldDbQuery?: boolean;
     shouldRoleAction?: boolean;
@@ -30,7 +32,7 @@ export class BumpBanService {
 
     for (const [, guild] of guilds) {
       const [settings, bans] = await Promise.all([
-        UppySettingsModel.findOneAndUpdate(
+        SettingsModel.findOneAndUpdate(
           { guildId: guild.id },
           {},
           { upsert: true },
@@ -64,7 +66,7 @@ export class BumpBanService {
         type,
         removeIn: { $gte: BumpBanLimit },
       }),
-      await UppySettingsModel.findOneAndUpdate(
+      await SettingsModel.findOneAndUpdate(
         { guildId: guild.id },
         {},
         { upsert: true },
@@ -133,21 +135,21 @@ export class BumpBanService {
   private async verifyAction(
     member: GuildMember,
     type: number,
-    settings?: UppySettingsDocument | null,
+    settings?: SettingsDocument | null,
     bumpBan?: BumpBan | null,
   ): Promise<
     | {
         params: ActionOptions["force"];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fn: any;
-        settings: UppySettingsDocument;
+        settings: SettingsDocument;
         bumpBan: BumpBan;
       }
     | undefined
   > {
     settings = settings
       ? settings
-      : await UppySettingsModel.findOneAndUpdate(
+      : await SettingsModel.findOneAndUpdate(
           { guildId: member.guild.id },
           {},
           { upsert: true },
@@ -167,7 +169,7 @@ export class BumpBanService {
 
     const guild = member.guild;
 
-    const role = guild.roles.cache.get(settings?.bumpBanRoleId ?? "");
+    const role = guild.roles.cache.get(settings?.bumpBan.roleId ?? "");
 
     if (!role) {
       return;
@@ -228,7 +230,7 @@ export class BumpBanService {
   async addBumpBan(options: ActionOptions) {
     options.settings = options.settings
       ? options.settings
-      : await UppySettingsModel.findOneAndUpdate(
+      : await SettingsModel.findOneAndUpdate(
           { guildId: options.member.guild.id },
           {},
           { upsert: true },
@@ -236,7 +238,7 @@ export class BumpBanService {
 
     const guild = options.member.guild;
 
-    const role = guild.roles.cache.get(options.settings?.bumpBanRoleId ?? "");
+    const role = guild.roles.cache.get(options.settings?.bumpBan.roleId ?? "");
 
     if (!role) {
       return false;
@@ -272,7 +274,7 @@ export class BumpBanService {
   async removeBumpBan(options: ActionOptions) {
     options.settings = options.settings
       ? options.settings
-      : await UppySettingsModel.findOneAndUpdate(
+      : await SettingsModel.findOneAndUpdate(
           { guildId: options.member.guild.id },
           {},
           { upsert: true },
@@ -280,7 +282,7 @@ export class BumpBanService {
 
     const guild = options.member.guild;
 
-    const role = guild.roles.cache.get(options.settings?.bumpBanRoleId ?? "");
+    const role = guild.roles.cache.get(options.settings?.bumpBan.roleId ?? "");
 
     if (!role) {
       return false;

@@ -10,7 +10,7 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { CoreInviteMessage } from "#/app/messages/core-invite.message.js";
+import { CoreInviteMessage } from "#/app/messages/bot-invite.message.js";
 import { UppyLinks } from "#/const/links.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 

@@ -8,7 +8,7 @@ import { EmptyStaffRoleError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import type { BumpUser, BumpUserDocument } from "#/models/bump-user.model.js";
 import { BumpUserModel } from "#/models/bump-user.model.js";
-import { UppySettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/models/settings.model.js";
 
 import { UppyPaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
@@ -21,19 +21,22 @@ export class UppyLeaderboardService extends BaseUppyService {
     to?: string,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const settings = await UppySettingsModel.findOneAndUpdate(
+    const settings = await SettingsModel.findOneAndUpdate(
       { guildId: interaction.guildId },
       {},
       { upsert: true },
     );
 
-    if (!settings?.bumpRoleIds || settings?.bumpRoleIds?.length === 0) {
+    if (
+      !settings?.roles.staffRoles ||
+      settings?.roles.staffRoles?.length === 0
+    ) {
       return EmptyStaffRoleError.throw(interaction);
     }
 
     const hasStaffRolesIds = interaction.guild?.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings?.bumpRoleIds?.includes(r.id)),
+        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id)),
       )
       .map((m) => m.id);
 
