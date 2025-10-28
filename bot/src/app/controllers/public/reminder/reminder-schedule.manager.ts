@@ -28,7 +28,7 @@ export class ReminderScheduleManager {
         timestamp: entry.remind?.timestamp,
         settings: entry.settings,
         type: entry.remind?.type as MonitoringType,
-      })
+      }),
     );
 
     await Promise.all(promises);
@@ -46,14 +46,14 @@ export class ReminderScheduleManager {
     ]);
 
     const settingsMap = Object.fromEntries(
-      settings?.map((s) => [s.guildId, s])
+      settings?.map((s) => [s.guildId, s]),
     );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ])
+      ]),
     );
 
     return {
@@ -88,7 +88,7 @@ export class ReminderScheduleManager {
     const lastRemind = await RemindModel.findOneAndUpdate(
       { guildId: guild.id, type },
       { timestamp },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     const GMTTimestamp = DateTime.fromJSDate(lastRemind.timestamp);
@@ -112,7 +112,7 @@ export class ReminderScheduleManager {
 
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
-        this.sendCommonRemind(lastRemind, guild)
+        this.sendCommonRemind(lastRemind, guild),
       );
     }
 
@@ -120,7 +120,7 @@ export class ReminderScheduleManager {
       scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings?.remind?.force }).toJSDate(),
-        () => this.sendForceRemind(lastRemind, guild)
+        () => this.sendForceRemind(lastRemind, guild),
       );
     }
   }
@@ -136,7 +136,7 @@ export class ReminderScheduleManager {
   public async forceRemindReplacement(
     guild: Guild,
     type: MonitoringType | number,
-    force: number
+    force: number,
   ) {
     const { id: guildId } = guild;
     const remind = await RemindModel.findOne({ guildId, type });
@@ -152,13 +152,13 @@ export class ReminderScheduleManager {
 
     this.forceRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, timestamp, () =>
-      this.sendForceRemind(remind, guild)
+      this.sendForceRemind(remind, guild),
     );
   }
 
   public async commonRemindReplacement(
     guild: Guild,
-    type: MonitoringType | number
+    type: MonitoringType | number,
   ) {
     const { id: guildId } = guild;
     const remind = await RemindModel.findOne({ guildId, type });
@@ -171,7 +171,7 @@ export class ReminderScheduleManager {
 
     this.commonRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, remind?.timestamp, () =>
-      this.sendCommonRemind(remind, guild)
+      this.sendCommonRemind(remind, guild),
     );
   }
 
@@ -181,7 +181,7 @@ export class ReminderScheduleManager {
 
   public deleteAllCommonRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.commonRemindDeletion(guildId, v)
+      this.commonRemindDeletion(guildId, v),
     );
   }
 
@@ -191,7 +191,7 @@ export class ReminderScheduleManager {
 
   public deleteAllForceRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.forceRemindDeletion(guildId, v)
+      this.forceRemindDeletion(guildId, v),
     );
   }
 
@@ -205,7 +205,7 @@ export class ReminderScheduleManager {
       content: UppyRemindSystemMessage.remind.ping.content(
         settings?.roles.pingRoles ?? [],
         getCommandNameByRemindType(remind.type)!,
-        getCommandIdByRemindType(remind.type)!
+        getCommandIdByRemindType(remind.type)!,
       ),
     }));
   }
@@ -216,7 +216,7 @@ export class ReminderScheduleManager {
         settings?.roles.pingRoles ?? [],
         getCommandNameByRemindType(remind.type)!,
         getCommandIdByRemindType(remind.type)!,
-        settings?.remind?.force
+        settings?.remind?.force,
       ),
     }));
   }
@@ -226,13 +226,13 @@ export class ReminderScheduleManager {
     guild: Guild,
     message: (
       remind: RemindDocument,
-      settings: SettingsDocument
-    ) => MessageCreateOptions
+      settings: SettingsDocument,
+    ) => MessageCreateOptions,
   ) {
     const settings = await SettingsModel.findOneAndUpdate(
       { guildId: guild.id },
       {},
-      { upsert: true }
+      { upsert: true },
     );
 
     const channel = await guild.channels
