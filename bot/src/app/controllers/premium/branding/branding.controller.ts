@@ -17,13 +17,17 @@ export class BrandingController {
     @inject(BrandingService) private brandingService: BrandingService
   ) {}
 
-  @Slash({ name: "branding", description: "Настройка брендинга в боте" })
+  @Slash({
+    name: "branding",
+    description: "Настройка брендинга в боте",
+    defaultMemberPermissions: ["Administrator"],
+  })
   @Guard(PremiumOnly)
   handleBranding(interaction: ChatInputCommandInteraction) {
     return this.brandingService.handleBrandingCommand(interaction);
   }
 
-  @ModalComponent({id: new RegExp(`${BrandingChangeUrlModal}_(.+)$`)})
+  @ModalComponent({ id: new RegExp(`${BrandingChangeUrlModal}_(.+)$`) })
   @Guard(PremiumOnly)
   handleBrandingChangeUrl(interaction: ModalSubmitInteraction) {
     return this.brandingService.handleChangeUrl(interaction);
