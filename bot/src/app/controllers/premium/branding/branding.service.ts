@@ -111,6 +111,7 @@ export class BrandingService {
             .setLabel("Ссылка")
             .setPlaceholder("Вставьте ссылку")
             .setStyle(TextInputStyle.Short)
+            .setRequired(false)
         )
       );
 
@@ -124,7 +125,7 @@ export class BrandingService {
 
     try {
       await interaction.guild?.members.editMe({
-        [type]: url,
+        [type]: url ?? null,
       });
 
       return interaction.editReply({
