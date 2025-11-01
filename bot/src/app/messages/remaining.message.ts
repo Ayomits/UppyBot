@@ -41,9 +41,10 @@ export const UppyRemainingMessage = {
       const values: string[] = [];
 
       for (const key in monitorings) {
+        const monitoring = monitorings[key];
         values.push(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitorings[key])}`,
+          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitoring)} ${time(Math.floor(monitoring.timestamp.getTime() / 1_000), TimestampStyles.LongDateTime)}`
         );
       }
 

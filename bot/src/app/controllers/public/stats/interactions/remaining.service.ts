@@ -19,7 +19,7 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { UppyRemainingMessage } from "#/app/messages/uppy-remaining.message.js";
+import { UppyRemainingMessage } from "#/app/messages/remaining.message.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
 import type { RemindDocument } from "#/models/remind.model.js";
