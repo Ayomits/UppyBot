@@ -26,9 +26,11 @@ const canUseMonitoring = (monitoring?: RemindDocument) => {
 
   const curr = DateTime.now().setZone(DefaultTimezone).toMillis();
 
+  const dsTimestamp = Math.floor(timestamp / 1_000);
+
   return curr > timestamp
-    ? `${chatInputApplicationCommandMention(getCommandNameByRemindType(monitoring.type)!, getCommandIdByRemindType(monitoring.type)!)} ${time(Math.floor(monitoring.timestamp.getTime() / 1_000), TimestampStyles.LongDateTime)}`
-    : time(Math.floor(timestamp / 1_000), TimestampStyles.RelativeTime);
+    ? `${chatInputApplicationCommandMention(getCommandNameByRemindType(monitoring.type)!, getCommandIdByRemindType(monitoring.type)!)}`
+    : `${time(dsTimestamp, TimestampStyles.RelativeTime)} ${time(dsTimestamp, TimestampStyles.LongTime)}`;
 };
 
 export const UppyRemainingMessage = {
@@ -44,7 +46,7 @@ export const UppyRemainingMessage = {
         const monitoring = monitorings[key];
         values.push(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitoring)}`,
+          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitoring)}`
         );
       }
 
