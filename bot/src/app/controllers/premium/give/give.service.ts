@@ -7,28 +7,30 @@ import { inject, injectable } from "tsyringe";
 import type { PremiumDocument } from "#/models/premium.model.js";
 import { PremiumModel } from "#/models/premium.model.js";
 
-import { PremiumSubscriptionManager } from "../subscription/subscription.service.js";
+import { PremiumSubscriptionManager } from "../subscription-manager/subscription.service.js";
 
 @injectable()
 @Discord()
 export class PremiumGiveService {
   constructor(
     @inject(PremiumSubscriptionManager)
-    private premiumManager: PremiumSubscriptionManager,
+    private premiumManager: PremiumSubscriptionManager
   ) {}
 
   async handleGive(
     period: string,
+    amount: number,
     guildId: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     const existed = await PremiumModel.findOne({ guildId });
 
-    const fn = existed
+    const fn = !existed
       ? this.premiumManager.assign.bind(this.premiumManager)
       : this.premiumManager.reveal.bind(this.premiumManager);
 
-    await fn(guildId, this.resolvePeriod(period, existed));
+    const date = this.resolvePeriod(period, amount, existed);
+    await fn(guildId, date);
 
     await interaction.reply({
       content: "Премиум успешно назначен",
@@ -36,23 +38,27 @@ export class PremiumGiveService {
     });
   }
 
-  private resolvePeriod(period: string, existed: PremiumDocument | null) {
-    const date = DateTime.fromJSDate(existed ? existed.expiresAt : new Date());
+  private resolvePeriod(
+    period: string,
+    amount: number,
+    existed: PremiumDocument | null
+  ) {
+    let date = DateTime.fromJSDate(existed ? existed.expiresAt : new Date());
     switch (period) {
       case "hour":
-        date.plus({ hours: 1 });
+        date = date.plus({ hours: amount });
         break;
       case "day":
-        date.plus({ days: 1 });
+        date = date.plus({ days: amount });
         break;
       case "week":
-        date.plus({ weeks: 1 });
+        date = date.plus({ weeks: amount });
         break;
       case "month":
-        date.plus({ months: 1 });
+        date = date.plus({ months: amount });
         break;
       case "year":
-        date.plus({ years: 1 });
+        date = date.plus({ years: amount });
         break;
     }
     return date.toJSDate();

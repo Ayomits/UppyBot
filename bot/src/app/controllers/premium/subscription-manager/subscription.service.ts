@@ -28,6 +28,9 @@ export class PremiumSubscriptionManager {
   }
 
   async assign(guildId: string, expiresAt: Date) {
+    scheduleManager.startOnceJob(this.generateId(guildId), expiresAt, () =>
+      this.stopPremium(guildId)
+    );
     await Promise.all([
       PremiumModel.findOneAndUpdate(
         { guildId },
@@ -52,7 +55,8 @@ export class PremiumSubscriptionManager {
       ),
       GuildModel.findOneAndUpdate(
         { guildId },
-        { type: GuildType.Premium, isActive: true }
+        { type: GuildType.Premium, isActive: true },
+        { upsert: true }
       ),
       scheduleManager.startOnceJob(this.generateId(guildId), newExpiresAt, () =>
         this.stopPremium(guildId)
@@ -77,7 +81,7 @@ export class PremiumSubscriptionManager {
 
   private async stopPremium(guildId: string) {
     await Promise.all([
-      GuildModel.updateOne({ guildId }),
+      GuildModel.updateOne({ guildId }, { type: GuildType.Common }),
       PremiumModel.deleteOne({ guildId }),
     ]);
   }

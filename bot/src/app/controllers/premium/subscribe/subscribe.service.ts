@@ -18,12 +18,12 @@ import { Requisits } from "#/const/requisits.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
 @injectable()
-export class PremiumInfoService {
+export class PremiumSubscribeCommandService {
   static create() {
-    return new PremiumInfoService();
+    return new PremiumSubscribeCommandService();
   }
 
-  async handleInfoCommand(
+  async handleSubscribeCommand(
     interaction: ChatInputCommandInteraction | ButtonInteraction,
   ) {
     await interaction.deferReply();

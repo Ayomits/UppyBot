@@ -6,12 +6,14 @@ import { ApplicationCommandType, MessageFlags } from "discord.js";
 import { ContextMenu, Discord } from "discordx";
 import { singleton } from "tsyringe";
 
+import { developerGuilds } from "#/const/guilds.js";
+
 @singleton()
 @Discord()
 export class BroadcastController {
   @ContextMenu({
     name: "Broadcast",
-    guilds: ["1419608270959808554", "1391117548036165752"],
+    guilds: developerGuilds,
     defaultMemberPermissions: ["Administrator"],
     type: ApplicationCommandType.Message,
   })
@@ -38,7 +40,7 @@ export class BroadcastController {
         } catch {
           // nothing here
         }
-      }),
+      })
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }
