@@ -1,58 +1,57 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck no check means no fucking check!
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import mongoose from "mongoose";
 
-import { RemindType } from "#/apps/uppy/controllers/reminder/reminder.const";
 import { Env } from "#/libs/config/index";
-import { BumpLogCollectionName, BumpLogSchema } from "#/models/bump-log.model";
+import { BumpLogCollectionName } from "#/models/bump-log.model";
 import { BumpUserCollectionName } from "#/models/bump-user.model";
-import { BumpUserSchema } from "#/models/bump-user.model";
+import { RemindType } from "#/models/remind-logs.model";
 
 export async function up(): Promise<void> {
-  const connection = await mongoose.connect(Env.MongoUrl);
-  const BumpUserModel = connection.model(
-    BumpUserCollectionName,
-    BumpUserSchema
-  );
-  const BumpLogModel = connection.model(BumpLogCollectionName, BumpLogSchema);
+  await mongoose.connect(Env.MongoUrl);
 
-  const docs = await BumpLogModel.aggregate([
-    {
-      $group: {
-        _id: {
-          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          executorId: "$executorId",
-          guildId: "$guildId",
-        },
-        points: { $sum: "$points" },
-        sdcMonitoring: {
-          $sum: { $cond: [{ $eq: ["$type", RemindType.SdcMonitoring] }, 1, 0] },
-        },
-        dsMonitoring: {
-          $sum: {
-            $cond: [{ $eq: ["$type", RemindType.DiscordMonitoring] }, 1, 0],
+  const docs = await mongoose.connection
+    .collection(BumpLogCollectionName)
+    .aggregate([
+      {
+        $group: {
+          _id: {
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            executorId: "$executorId",
+            guildId: "$guildId",
           },
-        },
-        serverMonitoring: {
-          $sum: {
-            $cond: [{ $eq: ["$type", RemindType.ServerMonitoring] }, 1, 0],
+          points: { $sum: "$points" },
+          sdcMonitoring: {
+            $sum: {
+              $cond: [{ $eq: ["$type", RemindType.SdcMonitoring] }, 1, 0],
+            },
           },
-        },
-        disboardMonitoring: {
-          $sum: {
-            $cond: [{ $eq: ["$type", RemindType.DisboardMonitoring] }, 1, 0],
+          dsMonitoring: {
+            $sum: {
+              $cond: [{ $eq: ["$type", RemindType.DiscordMonitoring] }, 1, 0],
+            },
           },
+          serverMonitoring: {
+            $sum: {
+              $cond: [{ $eq: ["$type", RemindType.ServerMonitoring] }, 1, 0],
+            },
+          },
+          disboardMonitoring: {
+            $sum: {
+              $cond: [{ $eq: ["$type", RemindType.DisboardMonitoring] }, 1, 0],
+            },
+          },
+          createdAt: { $first: "$createdAt" },
         },
-        createdAt: { $first: "$createdAt" },
       },
-    },
-    {
-      $sort: {
-        "_id.date": 1,
-        points: -1,
+      {
+        $sort: {
+          "_id.date": 1,
+          points: -1,
+        },
       },
-    },
-  ]);
+    ])
+    .toArray();
 
   const userBumps = [];
   for (const doc of docs) {
@@ -68,19 +67,16 @@ export async function up(): Promise<void> {
     });
   }
 
-  await BumpUserModel.insertMany(userBumps);
+  await mongoose.connection
+    .collection(BumpUserCollectionName)
+    .insertMany(userBumps);
 
-  connection.deleteModel(BumpUserModel.modelName);
-  connection.deleteModel(BumpLogModel.modelName);
+  await mongoose.connection.close();
 }
 
 export async function down(): Promise<void> {
-  const connection = await mongoose.connect(Env.MongoUrl);
-  const BumpUserModel = connection.model(
-    BumpUserCollectionName,
-    BumpUserSchema
-  );
-  await BumpUserModel.deleteMany({});
+  await mongoose.connect(Env.MongoUrl);
+  await mongoose.connection.collection(BumpUserCollectionName).deleteMany({});
 
-  connection.deleteModel(BumpUserModel.modelName);
+  await mongoose.connection.close();
 }

@@ -4,62 +4,50 @@ import type { Snowflake } from "discord.js";
 import mongoose from "mongoose";
 
 import { Env } from "#/libs/config/index";
-import {
-  BumpGuildCalendarCollectionName,
-  BumpGuildCalendarSchema,
-} from "#/models/bump-guild-calendar.model";
-import { BumpLogCollectionName, BumpLogSchema } from "#/models/bump-log.model";
-import {
-  BumpUserCalendarCollectionName,
-  BumpUserCalendarSchema,
-} from "#/models/bump-user-calendar.model";
+import { BumpGuildCalendarCollectionName } from "#/models/bump-guild-calendar.model";
+import { BumpLogCollectionName } from "#/models/bump-log.model";
+import { BumpUserCalendarCollectionName } from "#/models/bump-user-calendar.model";
 
 export async function up(): Promise<void> {
-  const connection = await mongoose.connect(Env.MongoUrl, { autoCreate: true });
-  const BumpLogModel = connection.model(BumpLogCollectionName, BumpLogSchema);
-  const BumpGuildCalendarModel = connection.model(
-    BumpGuildCalendarCollectionName,
-    BumpGuildCalendarSchema
-  );
-  const BumpUserCalendarModel = connection.model(
-    BumpUserCalendarCollectionName,
-    BumpUserCalendarSchema
-  );
+  await mongoose.connect(Env.MongoUrl, { autoCreate: true });
 
-  const docs = await BumpLogModel.aggregate<{
-    formattedDate: string;
-    timestamp: Date;
-    guildId: Snowflake;
-    executorId: Snowflake;
-  }>([
-    {
-      $group: {
-        _id: {
-          formattedDate: {
-            $dateToString: {
-              format: "%d.%m.%Y",
-              date: "$createdAt",
-              timezone: "Europe/Moscow",
+  const docs = await mongoose.connection
+    .collection(BumpLogCollectionName)
+    .aggregate<{
+      formattedDate: string;
+      timestamp: Date;
+      guildId: Snowflake;
+      executorId: Snowflake;
+    }>([
+      {
+        $group: {
+          _id: {
+            formattedDate: {
+              $dateToString: {
+                format: "%d.%m.%Y",
+                date: "$createdAt",
+                timezone: "Europe/Moscow",
+              },
             },
+            guildId: "$guildId",
+            executorId: "$executorId",
           },
-          guildId: "$guildId",
-          executorId: "$executorId",
+          timestamp: { $first: "$createdAt" },
+          guildId: { $first: "$guildId" },
+          executorId: { $first: "$executorId" },
         },
-        timestamp: { $first: "$createdAt" },
-        guildId: { $first: "$guildId" },
-        executorId: { $first: "$executorId" },
       },
-    },
-    {
-      $project: {
-        formattedDate: "$_id.formattedDate",
-        timestamp: 1,
-        guildId: 1,
-        executorId: 1,
-        _id: 0,
+      {
+        $project: {
+          formattedDate: "$_id.formattedDate",
+          timestamp: 1,
+          guildId: 1,
+          executorId: 1,
+          _id: 0,
+        },
       },
-    },
-  ]);
+    ])
+    .toArray();
 
   const guildCalendars = [];
   const userCalendars = [];
@@ -91,34 +79,29 @@ export async function up(): Promise<void> {
   }
 
   if (guildCalendars.length > 0) {
-    await BumpGuildCalendarModel.insertMany(guildCalendars);
+    await mongoose.connection
+      .collection(BumpGuildCalendarCollectionName)
+      .insertMany(guildCalendars);
   }
 
   if (userCalendars.length > 0) {
-    await BumpUserCalendarModel.insertMany(userCalendars);
+    await mongoose.connection
+      .collection(BumpUserCalendarCollectionName)
+      .insertMany(userCalendars);
   }
 
-  connection.deleteModel(BumpLogModel.modelName);
-  connection.deleteModel(BumpGuildCalendarModel.modelName);
-  connection.deleteModel(BumpUserCalendarModel.modelName);
+  await mongoose.connection.close();
 }
 
 export async function down(): Promise<void> {
-  const connection = await mongoose.connect(Env.MongoUrl);
-  const BumpGuildCalendarModel = connection.model(
-    BumpGuildCalendarCollectionName,
-    BumpGuildCalendarSchema
-  );
-  const BumpUserCalendarModel = connection.model(
-    BumpUserCalendarCollectionName,
-    BumpUserCalendarSchema
-  );
+  await mongoose.connect(Env.MongoUrl);
 
   await Promise.all([
-    BumpGuildCalendarModel.deleteMany(),
-    BumpUserCalendarModel.deleteMany(),
+    mongoose.connection
+      .collection(BumpGuildCalendarCollectionName)
+      .deleteMany(),
+    mongoose.connection.collection(BumpUserCalendarCollectionName).deleteMany(),
   ]);
 
-  connection.deleteModel(BumpGuildCalendarModel.modelName);
-  connection.deleteModel(BumpUserCalendarModel.modelName);
+  await mongoose.connection.close();
 }

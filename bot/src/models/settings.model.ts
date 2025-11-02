@@ -34,11 +34,9 @@ export class Settings extends TimeStamps {
     actionLogChannelId: string | null;
   };
 
-  @prop({ default: { enabled: true, useForceOnly: false, force: 0 } })
+  @prop({ default: { enabled: true } })
   remind: {
     enabled: boolean;
-    useForceOnly: boolean;
-    force: number;
   };
 
   @prop({
@@ -103,6 +101,12 @@ export class Settings extends TimeStamps {
   bumpBan: {
     enabled: boolean;
     roleId: string;
+  };
+
+  @prop({ default: { useForceOnly: false, seconds: 0 } })
+  force: {
+    useForceOnly: boolean;
+    seconds: number;
   };
 }
 

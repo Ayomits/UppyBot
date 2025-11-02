@@ -29,11 +29,13 @@ export class UppyStatsService extends BaseUppyService {
     user: User,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    user = typeof user !== "undefined" ? user : interaction.user;
     const filter: mongoose.FilterQuery<BumpLogDocument> = {
       guildId: interaction.guildId,
-      executorId: user.id,
     };
+
+    if (user) {
+      filter.executorId = user.id;
+    }
 
     const count = await BumpLogModel.countDocuments(filter);
 

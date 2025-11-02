@@ -12,7 +12,7 @@ export const GuildType = {
 export type GuildType = LiteralEnum<typeof GuildType>;
 
 export class Guild {
-  @prop({ required: true })
+  @prop({ required: true, unique: true })
   guildId: string;
 
   @prop({})

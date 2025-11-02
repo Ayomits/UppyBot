@@ -45,6 +45,7 @@ export class UppyController {
   @Slash({
     name: "remaining",
     description: "Время до команд",
+    dmPermission: false,
   })
   @Guard(IsHelper, IsGuildUser(GuildOnly))
   remaining(interaction: ChatInputCommandInteraction) {

@@ -10,12 +10,14 @@ import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { basePointsId, forceModalId } from "./settings.const.js";
 import { SettingsService } from "./settings.service.js";
+import { SettingsModalService } from "./settings-modals.service.js";
 
 @Discord()
 @singleton()
 export class SettingsController {
   constructor(
     @inject(SettingsService) private settingsService: SettingsService,
+    @inject(SettingsModalService) private settingsModals: SettingsModalService,
   ) {}
 
   @Slash({
@@ -31,11 +33,11 @@ export class SettingsController {
 
   @ModalComponent({ id: new RegExp(`${basePointsId}_(.+)$`) })
   handlePoints(interaction: ModalSubmitInteraction) {
-    return this.settingsService.handlePointsModal(interaction);
+    return this.settingsModals.handlePointsModal(interaction);
   }
 
   @ModalComponent({ id: forceModalId })
   handleForce(interaction: ModalSubmitInteraction) {
-    return this.settingsService.handleForceModal(interaction);
+    return this.settingsModals.handleForceModal(interaction);
   }
 }

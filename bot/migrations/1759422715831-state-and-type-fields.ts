@@ -33,6 +33,8 @@ export async function up(): Promise<void> {
         $unset: ["isForce"],
       },
     ]);
+    
+  await mongoose.connection.close();
 }
 
 export async function down(): Promise<void> {
@@ -56,4 +58,5 @@ export async function down(): Promise<void> {
         $unset: ["monitoring", "state", "isSended"],
       },
     ]);
+  await mongoose.connection.close();
 }

@@ -7,7 +7,7 @@ export const PremiumOnly = IsGuildUser(async ({ guild, arg }) => {
   const guildFromDb = await GuildModel.findOneAndUpdate(
     { guildId: guild?.id },
     {},
-    { upsert: true }
+    { upsert: true },
   );
 
   if (guildFromDb!.type < GuildType.Premium) {

@@ -5,6 +5,7 @@ import {
   TextInputStyle,
 } from "discord.js";
 
+import { GuildType } from "#/models/guild.model.js";
 import type { SettingsDocument } from "#/models/settings.model.js";
 
 // Базовые ID для взаимодействий
@@ -22,6 +23,7 @@ export const basePointsId = "@settings/points";
 
 // Тип конфигурации настройки
 export type SettingsConfig = {
+  access?: GuildType;
   label: string;
   field: string;
   type: "channel" | "role" | "value" | "toggle";
@@ -41,10 +43,19 @@ export type SettingsConfig = {
 };
 
 // Навигация по разделам
-export const SettingsNavigation = [
+export const SettingsNavigation: {
+  label: string;
+  value: keyof typeof SettingsPipelines;
+  description?: string;
+}[] = [
   { label: "Роли", value: "roles" },
   { label: "Каналы", value: "channels" },
   { label: "Напоминания", value: "reminds" },
+  {
+    label: "Преждевременные напоминания",
+    value: "force",
+    description: "Только для премиум серверов",
+  },
   { label: "Поинты", value: "points" },
   { label: "Бамп баны", value: "bumpBan" },
 ];
@@ -52,27 +63,42 @@ export const SettingsNavigation = [
 // Базовые конфигурации для часто используемых паттернов
 const baseConfigs = {
   // Роли с мультивыбором
-  multiRole: (field: string, label: string): SettingsConfig => ({
+  multiRole: (
+    field: string,
+    label: string,
+    access: GuildType = GuildType.Common,
+  ): SettingsConfig => ({
     label,
     field,
     type: "role",
     select: { choice: "multi", placeholder: "Выберите роли" },
+    access,
   }),
 
   // Канал с одиночным выбором
-  singleChannel: (field: string, label: string): SettingsConfig => ({
+  singleChannel: (
+    field: string,
+    label: string,
+    access: GuildType = GuildType.Common,
+  ): SettingsConfig => ({
     label,
     field,
     type: "channel",
     select: { choice: "single", placeholder: "Выберите канал" },
+    access,
   }),
 
   // Тоггл
-  toggle: (field: string, label: string): SettingsConfig => ({
+  toggle: (
+    field: string,
+    label: string,
+    access: GuildType = GuildType.Common,
+  ): SettingsConfig => ({
     label,
     field,
     type: "toggle",
     toggle: true,
+    access,
   }),
 };
 
@@ -110,23 +136,27 @@ export const SettingsChannelsPipeline = {
 
 export const SettingsRemindsPipeline = {
   enabled: baseConfigs.toggle("remind.enabled", "Состояние"),
+} as const;
+
+export const SettingsForceRemindsPipeline = {
+  enabled: baseConfigs.toggle("force.enabled", "Состояние"),
   useForceOnly: baseConfigs.toggle(
-    "remind.useForceOnly",
+    "force.useForceOnly",
     "Использовать только преждевременные пинги",
   ),
-  force: {
+  seconds: {
     label: "Секунд до преждевременного пинга",
-    field: "remind.force",
+    field: "force.seconds",
     type: "value" as const,
     modal: {
-      customId: forceModalId, // Частный случай
+      customId: forceModalId,
       title: "Преждевременный пинг",
       fields: (settings: SettingsDocument) => [
-        createNumberInput("value", "Секунды", settings.remind?.force ?? 0),
+        createNumberInput("value", "Секунды", settings.force?.seconds ?? 0),
       ],
     },
   },
-} as const;
+};
 
 // Функция для создания конфигураций мониторинга поинтов
 const createPointsMonitoringConfig = (
@@ -143,7 +173,7 @@ const createPointsMonitoringConfig = (
   type: "value" as const,
   modal: {
     title: "Настройки поинтов",
-    customId: `${basePointsId}_points.${service}`, // Частный случай с basePointsId
+    customId: `${basePointsId}_points.${service}`,
     fields: (settings: SettingsDocument) => [
       createNumberInput(
         "default",
@@ -164,7 +194,10 @@ export const SettingsPointsPipeline = {
 } as const;
 
 export const SettingsKdPipeline = {
-  enabled: baseConfigs.toggle("kd.enabled", "Состояние"),
+  enabled: {
+    access: GuildType.Premium,
+    ...baseConfigs.toggle("kd.enabled", "Состояние"),
+  },
   dsMonitoring: {
     label: "Ds monitoring",
     field: "kd.dsMonitoring",
@@ -195,12 +228,48 @@ export const SettingsBumpBanPipeline = {
 
 // Все конвейеры настроек
 export const SettingsPipelines = {
-  roles: SettingsRolesPipeline,
-  channels: SettingsChannelsPipeline,
-  points: SettingsPointsPipeline,
-  reminds: SettingsRemindsPipeline,
-  kd: SettingsKdPipeline,
-  bumpBan: SettingsBumpBanPipeline,
+  roles: {
+    access: GuildType.Common,
+    pipeline: SettingsRolesPipeline,
+  },
+  channels: {
+    access: GuildType.Common,
+    pipeline: SettingsChannelsPipeline,
+  },
+  points: {
+    access: GuildType.Common,
+    pipeline: SettingsPointsPipeline,
+  },
+  reminds: {
+    access: GuildType.Common,
+    pipeline: SettingsRemindsPipeline,
+  },
+  force: {
+    access: GuildType.Premium,
+    pipeline: SettingsForceRemindsPipeline,
+  },
+  kd: {
+    access: GuildType.Premium,
+    pipeline: SettingsKdPipeline,
+  },
+  bumpBan: {
+    access: GuildType.Common,
+    pipeline: SettingsBumpBanPipeline,
+  },
 } as const;
 
 export type SettingsPipelineConfig = Record<string, SettingsConfig>;
+
+export function getSectionName(name: keyof typeof SettingsPipelines) {
+  const names = {
+    roles: "Настройки ролей",
+    channels: "Настройки каналов",
+    points: "Настройки системы поинтов",
+    reminds: "Настройки системы напоминаний",
+    force: "Настройки системы преждевременных напоминаний",
+    kd: "Настройка кд системы",
+    bumpBan: "Настройка бамп бана",
+  };
+
+  return names[name] || "";
+}

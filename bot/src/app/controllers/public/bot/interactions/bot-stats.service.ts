@@ -7,7 +7,7 @@ import {
   unorderedList,
   userMention,
 } from "discord.js";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import { staff } from "#/const/owners.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
@@ -17,7 +17,11 @@ import { RemindLogsModel, RemindLogState } from "#/models/remind-logs.model.js";
 import { BotInviteService } from "./bot-invite.service.js";
 
 @injectable()
-export class UppyBotStatsService extends BotInviteService {
+export class UppyBotStatsService {
+  constructor(
+    @inject(BotInviteService) private botInviteService: BotInviteService,
+  ) {}
+
   async handleStats(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -70,7 +74,7 @@ export class UppyBotStatsService extends BotInviteService {
       .addTextDisplayComponents((builder) =>
         builder.setContent(heading("Полезные ссылки", HeadingLevel.Two)),
       )
-      .addActionRowComponents(this.buildResourcesLinks());
+      .addActionRowComponents(this.botInviteService.buildResourcesLinks());
 
     return interaction.editReply({
       components: [container],

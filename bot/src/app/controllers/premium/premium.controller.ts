@@ -9,7 +9,7 @@ import { PremiumOnly } from "#/app/guards/premium-only.guard.js";
 
 import { BrandingChangeUrlModal } from "./branding/branding.const.js";
 import { BrandingService } from "./branding/branding.service.js";
-import { PremiumInfoService } from "./info/info.service.js";
+import { PremiumInfoService } from "./subscribe/subscribe.service.js";
 
 @Discord()
 @singleton()
@@ -18,13 +18,14 @@ import { PremiumInfoService } from "./info/info.service.js";
 export class PremiumController {
   constructor(
     @inject(BrandingService) private brandingService: BrandingService,
-    @inject(PremiumInfoService) private premiumInfoService: PremiumInfoService
+    @inject(PremiumInfoService) private premiumInfoService: PremiumInfoService,
   ) {}
 
   @Slash({
     name: "branding",
     description: "Настройка брендинга в боте",
     defaultMemberPermissions: ["Administrator"],
+    dmPermission: false,
   })
   @Guard(PremiumOnly)
   handleBranding(interaction: ChatInputCommandInteraction) {
@@ -37,7 +38,7 @@ export class PremiumController {
     return this.brandingService.handleChangeUrl(interaction);
   }
 
-  @Slash({ name: "info", description: "Информация о премиум подписке" })
+  @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
   handlePremiumInfo(interaction: ChatInputCommandInteraction) {
     return this.premiumInfoService.handleInfoCommand(interaction);
   }

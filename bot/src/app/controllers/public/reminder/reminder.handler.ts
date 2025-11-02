@@ -15,6 +15,7 @@ import { inject, singleton } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
+import { calculateDiffTime } from "#/libs/time/diff.js";
 import { BumpBanModel } from "#/models/bump-ban.model.js";
 import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
 import { BumpLogModel } from "#/models/bump-log.model.js";
@@ -27,10 +28,7 @@ import {
   SettingsModel,
 } from "#/models/settings.model.js";
 
-import {
-  calculateReactionTime,
-  UppyRemindSystemMessage,
-} from "../../../messages/remind-system.message.js";
+import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { UppyLogService } from "../logging/log.service.js";
 import { endDateValue, startDateValue } from "../stats/stats.const.js";
@@ -167,7 +165,7 @@ export class ReminderHandler {
         user!,
         type as MonitoringType,
         points,
-        calculateReactionTime(
+        calculateDiffTime(
           message.createdAt,
           lastRemind?.timestamp ?? new Date(),
         ),

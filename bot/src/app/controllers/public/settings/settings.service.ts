@@ -4,7 +4,6 @@ import type {
   GuildMember,
   Interaction,
   InteractionEditReplyOptions,
-  ModalSubmitInteraction,
   StringSelectMenuInteraction,
 } from "discord.js";
 import {
@@ -30,6 +29,7 @@ import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { getNestedValue } from "#/libs/json/nested.js";
 import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
+import { GuildModel } from "#/models/guild.model.js";
 import { RemindModel } from "#/models/remind.model.js";
 import type { SettingsDocument } from "#/models/settings.model.js";
 import { SettingsModel } from "#/models/settings.model.js";
@@ -37,17 +37,16 @@ import { SettingsModel } from "#/models/settings.model.js";
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
 import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";
 import type { SettingsConfig } from "./settings.const.js";
-import { SettingsPipelines } from "./settings.const.js";
+import { getSectionName, SettingsPipelines } from "./settings.const.js";
 import { SettingsIds, SettingsNavigation } from "./settings.const.js";
 
 @injectable()
-export class SettingsService extends BotInviteService {
+export class SettingsService {
   constructor(
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-  ) {
-    super();
-  }
+    @inject(BotInviteService) private botInviteService: BotInviteService,
+  ) {}
 
   // Основная команда настроек
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
@@ -75,58 +74,29 @@ export class SettingsService extends BotInviteService {
     });
   }
 
-  // Модальное окно для настроек поинтов
-  public async handlePointsModal(interaction: ModalSubmitInteraction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-    // Получаем значения из полей модалки
-    const [defaultVal, bonusVal] = [
-      Math.max(0, Number(interaction.fields.getTextInputValue("default"))),
-      Math.max(0, Number(interaction.fields.getTextInputValue("bonus"))),
-    ];
-
-    const [fieldPath] = CustomIdParser.parseArguments(interaction.customId, {});
-
-    // Обновляем настройки в БД
-    await SettingsModel.findOneAndUpdate(
-      { guildId: interaction.guildId! },
-      {
-        [`${fieldPath}.default`]: defaultVal,
-        [`${fieldPath}.bonus`]: bonusVal,
-      },
-      { upsert: true },
-    );
-
-    await interaction.editReply({ content: "Успешно обновлены значения" });
-  }
-
-  // Модальное окно для принудительных напоминаний
-  public async handleForceModal(interaction: ModalSubmitInteraction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-    const [forceValue] = [
-      Math.max(0, Number(interaction.fields.getTextInputValue("value"))),
-    ];
-
-    await SettingsModel.findOneAndUpdate(
-      { guildId: interaction.guildId! },
-      { "remind.force": forceValue },
-      { upsert: true },
-    );
-
-    await interaction.editReply({ content: "Успешно обновлено значение" });
-  }
-
   // Навигация по разделам
   private async handleNav(interaction: StringSelectMenuInteraction) {
+    const pipelineName = interaction
+      .values[0] as keyof typeof SettingsPipelines;
+
+    const guild = await GuildModel.findOneAndUpdate(
+      { guildId: interaction.guildId },
+      {},
+      { upsert: true },
+    );
+
+    const config = SettingsPipelines[pipelineName];
+
+    if (config.access > guild!.type) {
+      return interaction.reply({
+        content: "Ваш сервер недостаточно крут для этого функционала",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
     await interaction.deferUpdate();
     await interaction
-      .editReply(
-        await this.buildMessage(
-          interaction,
-          interaction.values[0] as keyof typeof SettingsPipelines,
-        ),
-      )
+      .editReply(await this.buildMessage(interaction, pipelineName))
       .catch(null);
   }
 
@@ -332,11 +302,11 @@ export class SettingsService extends BotInviteService {
       return this.scheduleManager.deleteAll(guildId);
     }
 
-    if (settings?.remind.useForceOnly) {
+    if (settings?.force.useForceOnly) {
       return this.scheduleManager.deleteAllCommonRemind(guildId);
     }
 
-    if (settings?.remind.force === 0) {
+    if (settings?.force.seconds === 0) {
       return this.scheduleManager.deleteAllForceRemind(guildId);
     }
 
@@ -390,7 +360,7 @@ export class SettingsService extends BotInviteService {
             ),
           ),
       )
-      .addActionRowComponents(this.buildResourceLinks());
+      .addActionRowComponents(this.botInviteService.buildResourcesLinks());
 
     return container;
   }
@@ -422,20 +392,22 @@ export class SettingsService extends BotInviteService {
     interaction: Interaction,
     pipelineName: keyof typeof SettingsPipelines,
   ): Promise<ContainerBuilder> {
-    const pipeline = SettingsPipelines[pipelineName]!;
+    const pipelineConfig = SettingsPipelines[pipelineName]!;
     const container = new ContainerBuilder().addTextDisplayComponents((text) =>
-      text.setContent(
-        heading(this.getSectionName(pipelineName), HeadingLevel.Two),
-      ),
+      text.setContent(heading(getSectionName(pipelineName), HeadingLevel.Two)),
     );
 
-    const settings = await SettingsModel.findOne({
-      guildId: interaction.guildId,
-    });
+    const settings = await SettingsModel.findOneAndUpdate(
+      {
+        guildId: interaction.guildId,
+      },
+      {},
+      { upsert: true },
+    );
 
     // Добавляем каждую настройку раздела
-    for (const key in pipeline) {
-      const config = pipeline[key]!;
+    for (const key in pipelineConfig.pipeline) {
+      const config = pipelineConfig.pipeline[key]!;
       container.addSectionComponents((section) =>
         section
           .setButtonAccessory((button) =>
@@ -458,20 +430,6 @@ export class SettingsService extends BotInviteService {
     }
 
     return container;
-  }
-
-  // Названия разделов
-  private getSectionName(name: keyof typeof SettingsPipelines) {
-    const names = {
-      roles: "Настройки ролей",
-      channels: "Настройки каналов",
-      points: "Настройки системы поинтов",
-      reminds: "Настройки системы напоминаний",
-      kd: "Настройка кд системы",
-      bumpBan: "Настройка бамп бана",
-    };
-
-    return names[name] || "";
   }
 
   // Форматирование значений для отображения
@@ -519,11 +477,5 @@ export class SettingsService extends BotInviteService {
     return Array.isArray(value)
       ? value.map((v) => mentionFn(v)).join("\n")
       : mentionFn(value);
-  }
-
-  // Ссылки на ресурсы (упрощенная версия)
-  private buildResourceLinks() {
-    // Возвращает кнопки с ссылками
-    return [];
   }
 }

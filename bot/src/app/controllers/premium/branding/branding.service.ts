@@ -29,14 +29,14 @@ export class BrandingService {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const client = await interaction.guild!.members.fetch(
-      interaction.client.user.id
+      interaction.client.user.id,
     );
 
     const baseId = "@branding/change";
 
     const container = new ContainerBuilder()
       .addTextDisplayComponents((builder) =>
-        builder.setContent([heading("Настройки профиля")].join("\n"))
+        builder.setContent([heading("Настройки профиля")].join("\n")),
       )
       .addSectionComponents(
         (builder) =>
@@ -48,14 +48,14 @@ export class BrandingService {
                   client.displayAvatarURL()
                     ? hyperlink("Тык", client.displayAvatarURL())
                     : "Нет",
-                ].join("\n")
-              )
+                ].join("\n"),
+              ),
             )
             .setButtonAccessory((builder) =>
               builder
                 .setLabel("Изменить")
                 .setStyle(ButtonStyle.Primary)
-                .setCustomId(`${baseId}_avatar`)
+                .setCustomId(`${baseId}_avatar`),
             ),
         (builder) =>
           builder
@@ -66,15 +66,15 @@ export class BrandingService {
                   client.displayBannerURL()
                     ? hyperlink("Тык", client.displayBannerURL()!)
                     : "Нет",
-                ].join("\n")
-              )
+                ].join("\n"),
+              ),
             )
             .setButtonAccessory((builder) =>
               builder
                 .setLabel("Изменить")
                 .setStyle(ButtonStyle.Primary)
-                .setCustomId(`${baseId}_banner`)
-            )
+                .setCustomId(`${baseId}_banner`),
+            ),
       );
 
     const reply = await interaction.editReply({
@@ -111,8 +111,8 @@ export class BrandingService {
             .setLabel("Ссылка")
             .setPlaceholder("Вставьте ссылку")
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
-        )
+            .setRequired(false),
+        ),
       );
 
     interaction.showModal(modal);

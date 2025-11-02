@@ -43,7 +43,7 @@ export class BotInviteService {
     });
   }
 
-  protected buildResourcesLinks() {
+  buildResourcesLinks() {
     return [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()

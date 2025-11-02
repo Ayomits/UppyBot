@@ -12,7 +12,7 @@ import { UsersUtility } from "#/libs/embed/users.utility.js";
 import type { Guild } from "#/models/guild.model.js";
 import { GuildModel, GuildType } from "#/models/guild.model.js";
 
-import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
+import { BotInviteService } from "../../public/bot/interactions/bot-invite.service.js";
 
 @injectable()
 export class GuildService extends BotInviteService {
