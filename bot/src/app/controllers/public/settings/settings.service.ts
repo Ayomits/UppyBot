@@ -302,7 +302,7 @@ export class SettingsService {
       return this.scheduleManager.deleteAllCommonRemind(guildId);
     }
 
-    if (settings?.force.seconds === 0) {
+    if (settings?.force.seconds === 0 || !settings.force.enabled) {
       return this.scheduleManager.deleteAllForceRemind(guildId);
     }
 

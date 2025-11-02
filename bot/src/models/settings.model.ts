@@ -105,6 +105,7 @@ export class Settings extends TimeStamps {
 
   @prop({ default: { useForceOnly: false, seconds: 0 } })
   force: {
+    enabled: boolean;
     useForceOnly: boolean;
     seconds: number;
   };
