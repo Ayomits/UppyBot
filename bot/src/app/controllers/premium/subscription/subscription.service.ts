@@ -22,7 +22,7 @@ export class PremiumSubscriptionManager {
       scheduleManager.startOnceJob(
         this.generateId(doc.guildId),
         doc.expiresAt,
-        () => this.stopPremium(doc.guildId),
+        () => this.stopPremium(doc.guildId)
       );
     }
   }
@@ -32,12 +32,12 @@ export class PremiumSubscriptionManager {
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt },
-        { upsert: true },
+        { upsert: true }
       ),
       GuildModel.findOneAndUpdate(
         { guildId },
         { type: GuildType.Premium, isActive: true },
-        { upsert: true },
+        { upsert: true }
       ),
     ]);
   }
@@ -48,15 +48,14 @@ export class PremiumSubscriptionManager {
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt: newExpiresAt },
-        { upsert: true },
+        { upsert: true }
       ),
       GuildModel.findOneAndUpdate(
         { guildId },
-        { type: GuildType.Premium, isActive: true },
-        { upsert: true },
+        { type: GuildType.Premium, isActive: true }
       ),
       scheduleManager.startOnceJob(this.generateId(guildId), newExpiresAt, () =>
-        this.stopPremium(guildId),
+        this.stopPremium(guildId)
       ),
     ]);
   }
@@ -65,7 +64,7 @@ export class PremiumSubscriptionManager {
     await Promise.all([
       GuildModel.updateMany(
         { guildId: { $in: guildIds } },
-        { type: GuildType.Common },
+        { type: GuildType.Common }
       ),
       PremiumModel.deleteMany({ guildId: { $in: guildIds } }),
     ]);
