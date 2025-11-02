@@ -1,8 +1,4 @@
 #!/bin/sh
 cd /app
 
-export APP_ENV
-export DISCORD_TOKEN
-export MONGO_URL
-
 pnpm install && pnpm run build && pnpm run migrate up && pnpm run prod
