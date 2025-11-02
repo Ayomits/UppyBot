@@ -2,7 +2,7 @@ import type {
   MessageContextMenuCommandInteraction,
   MessageCreateOptions,
 } from "discord.js";
-import { ApplicationCommandType } from "discord.js";
+import { ApplicationCommandType, MessageFlags } from "discord.js";
 import { ContextMenu, Discord } from "discordx";
 import { singleton } from "tsyringe";
 
@@ -16,7 +16,7 @@ export class BroadcastController {
     type: ApplicationCommandType.Message,
   })
   async handleBroadcast(interaction: MessageContextMenuCommandInteraction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const client = interaction.client;
     const msg = interaction.targetMessage;
     const payload: MessageCreateOptions = {
@@ -38,7 +38,7 @@ export class BroadcastController {
         } catch {
           // nothing here
         }
-      }),
+      })
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }
