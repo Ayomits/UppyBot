@@ -6,7 +6,6 @@ import type { BumpBan } from "#/db/models/bump-ban.model.js";
 import { BumpBanModel } from "#/db/models/bump-ban.model.js";
 import {
   type SettingsDocument,
-  SettingsModel,
 } from "#/db/models/settings.model.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 
@@ -36,11 +35,7 @@ export class BumpBanService {
 
     for (const [, guild] of guilds) {
       const [settings, bans] = await Promise.all([
-        SettingsModel.findOneAndUpdate(
-          { guildId: guild.id },
-          {},
-          { upsert: true }
-        ),
+        this.settingsRepository.findGuildSettings(guild.id),
         BumpBanModel.find({
           guildId: guild.id,
           type: { $in: Object.values(MonitoringType) },

@@ -11,7 +11,6 @@ import { ExternalLinks } from "#/const/links.js";
 
 import { BotInviteService } from "./interactions/bot-invite.service.js";
 import { UppyBotPingService } from "./interactions/bot-ping.service.js";
-import { UppyBotStatsService } from "./interactions/bot-stats.service.js";
 
 @Discord()
 @singleton()
@@ -21,7 +20,6 @@ export class UppyCoreController {
   constructor(
     @inject(UppyBotPingService) private pingService: UppyBotPingService,
     @inject(BotInviteService) private inviteService: BotInviteService,
-    @inject(UppyBotStatsService) private statService: UppyBotStatsService,
   ) {}
 
   @On({ event: Events.ClientReady })
@@ -45,10 +43,5 @@ export class UppyCoreController {
   @Slash({ name: "invite", description: "Приглашение на сервер поддержки" })
   handleInvite(interaction: ChatInputCommandInteraction) {
     return this.inviteService.handleInviteCommand(interaction);
-  }
-
-  @Slash({ name: "stats", description: "Статистика бота" })
-  handleStats(interaction: ChatInputCommandInteraction) {
-    return this.statService.handleStats(interaction);
   }
 }

@@ -21,12 +21,11 @@ import {
 import { inject, injectable } from "tsyringe";
 
 import { UppyInfoMessage } from "#/app/messages/stats-info.message.js";
+import { BumpBanModel } from "#/db/models/bump-ban.model.js";
+import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
-import { BumpBanModel } from "#/db/models/bump-ban.model.js";
-import type { BumpUserDocument } from "#/db/models/bump-user.model.js";
-import { BumpUserModel } from "#/db/models/bump-user.model.js";
-import { SettingsModel } from "#/db/models/settings.model.js";
 
 import { BumpBanService } from "../../bump-ban/bump-ban.service.js";
 import { BumpBanLimit } from "../../reminder/reminder.const.js";
@@ -35,7 +34,11 @@ import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyInfoService extends BaseUppyService {
-  constructor(@inject(BumpBanService) private bumpBanService: BumpBanService) {
+  constructor(
+    @inject(BumpBanService) private bumpBanService: BumpBanService,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository
+  ) {
     super();
   }
 
@@ -45,7 +48,7 @@ export class UppyInfoService extends BaseUppyService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
@@ -53,39 +56,17 @@ export class UppyInfoService extends BaseUppyService {
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
     const [entry, bumpBan, settings] = await Promise.all([
-      BumpUserModel.aggregate<Partial<BumpUserDocument>>([
-        {
-          $match: {
-            guildId: interaction.guildId,
-            userId: user.id,
-            timestamp: {
-              $gte: fromDate,
-              $lte: toDate,
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            disboardMonitoring: { $sum: "$disboardMonitoring" },
-            dsMonitoring: { $sum: "$dsMonitoring" },
-            sdcMonitoring: { $sum: "$sdcMonitoring" },
-            serverMonitoring: { $sum: "$serverMonitoring" },
-            points: { $sum: "$points" },
-            userId: { $first: "$userId" },
-          },
-        },
-        { $limit: 1 },
-      ]),
+      this.bumpUserRepository.findUser(
+        interaction.guildId!,
+        user.id,
+        fromDate.toJSDate(),
+        toDate.toJSDate()
+      ),
       BumpBanModel.findOne({
         guildId: interaction.guildId,
-        userId: interaction.user.id,
+        userId: user.id,
       }),
-      SettingsModel.findOneAndUpdate(
-        { guildId: interaction.guildId },
-        {},
-        { upsert: true },
-      ),
+      this.settingsRepository.findGuildSettings(interaction.guildId!),
     ]);
 
     const [authorMember, targetMember] = await Promise.all([
@@ -96,7 +77,7 @@ export class UppyInfoService extends BaseUppyService {
     const canManage = authorMember.roles.cache.some(
       (r) =>
         settings?.roles.managerRoles &&
-        settings?.roles.managerRoles.includes(r.id),
+        settings?.roles.managerRoles.includes(r.id)
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -106,26 +87,26 @@ export class UppyInfoService extends BaseUppyService {
         .setLabel(UppyInfoMessage.buttons.actions.removeBumpBan.label)
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove),
+        .setDisabled(!canRemove)
     );
 
     const container = new ContainerBuilder()
       .addSectionComponents(
         new SectionBuilder()
           .setThumbnailAccessory(
-            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+            new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
           )
           .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
               [
                 heading(
                   UppyInfoMessage.embed.title(UsersUtility.getUsername(user)),
-                  HeadingLevel.Two,
+                  HeadingLevel.Two
                 ),
                 UppyInfoMessage.embed.fields(entry[0], bumpBan),
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -153,11 +134,11 @@ export class UppyInfoService extends BaseUppyService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember,
+    member: GuildMember
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
-      SettingsModel.findOneAndUpdate({ guildId: interaction.guildId }),
+      this.settingsRepository.findGuildSettings(interaction.guildId!),
       BumpBanModel.findOne({ guildId: interaction.guildId, userId: member.id }),
     ]);
 
@@ -179,7 +160,7 @@ export class UppyInfoService extends BaseUppyService {
       !authorMember.roles.cache.some(
         (r) =>
           settings?.roles.managerRoles &&
-          settings?.roles.managerRoles.includes(r.id),
+          settings?.roles.managerRoles.includes(r.id)
       )
     ) {
       return interaction.editReply({

@@ -4,46 +4,14 @@ import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
 import type { BumpGuildCalendarDocument } from "#/db/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
-import { BumpUserCalendarModel } from "#/db/models/bump-user-calendar.model.js";
+import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calendar.repository.js";
 
 import { endDateValue, startDateValue } from "../stats.const.js";
 
 @injectable()
 export class UppyAutocompleteService {
-  public static async handleInfoAutocomplete(
-    interaction: AutocompleteInteraction,
-  ) {
-    const value = interaction.options.getFocused();
-    const user = interaction.options.get("user")?.value ?? interaction.user.id;
-    const { inputDate, startDate, endDate } = this.parseDateString(value);
-
-    let createdAtFilter = {};
-
-    if (value) {
-      if (!inputDate) {
-        return interaction.respond([]);
-      } else {
-        createdAtFilter = { $lte: endDate, $gte: startDate };
-      }
-    }
-
-    const entries = await BumpUserCalendarModel.find({
-      guildId: interaction.guildId,
-      userId: user,
-      createdAt: createdAtFilter,
-    });
-
-    await interaction.respond(
-      entries.map((entry) => ({
-        name: entry.formatted,
-        value: entry.timestamp.toString(),
-      })),
-    );
-  }
-
   public static async handleTopAutocomplete(
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -60,15 +28,17 @@ export class UppyAutocompleteService {
       }
     }
 
-    const entries = await BumpGuildCalendarModel.find(createdAtFilter)
-      .sort({ timestamp: -1 })
-      .limit(25);
+    const repository = BumpGuildCalendarRepository.create();
+    const entries = await repository.findCalendar(
+      interaction.guildId!,
+      createdAtFilter
+    );
 
     await interaction.respond(
       entries.map((entry) => ({
         name: entry.formatted,
         value: entry.timestamp.toString(),
-      })),
+      }))
     );
   }
 

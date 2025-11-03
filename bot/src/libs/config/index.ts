@@ -31,4 +31,6 @@ export const Env = {
   ),
   RedisHost: configService.getOrThrow("REDIS_HOST", "localhost"),
   RedisPort: Number(configService.getOrThrow("REDIS_PORT", "6379")),
+  RedisUsername: configService.get("REDIS_USER", undefined),
+  RedisPassword: configService.get("REDIS_PASSWORD", undefined),
 } as const;

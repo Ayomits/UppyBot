@@ -1,9 +1,9 @@
-import type { FilterQuery, UpdateQuery } from "mongoose";
+import type { FilterQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { Remind } from "#/db/models/remind.model.js";
-import { RemindModel } from "#/db/models/remind.model.js";
-import { redisCache } from "../mongo.js";
+import type { Remind } from "../models/remind.model.js";
+import { RemindModel } from "../models/remind.model.js";
+import { useCachedQuery } from "../mongo.js";
 
 @injectable()
 export class RemindRepository {
@@ -16,45 +16,28 @@ export class RemindRepository {
     return await RemindModel.find(filter);
   }
 
-  async findOne(filter: FilterQuery<Remind>) {
-    return await RemindModel.findOne(filter);
-  }
-
-  async findManyByGuild(guildId: string) {
-    return await RemindModel.find({ guildId }).cache(
+  async findRemind(guildId: string, type: number) {
+    return await useCachedQuery(
+      this.generateId(guildId, type),
       this.ttl,
-      this.generateGuildKey(guildId)
+      async () => await RemindModel.findOne({ guildId, type })
     );
   }
 
-  async createOne(doc: Remind) {
-    await this.cleanUpCache(doc.guildId);
-    return await RemindModel.create(doc);
+  async findOrCreate(guildId: string, type: number, timestamp: Date) {
+    return await useCachedQuery(
+      this.generateId(guildId, type),
+      this.ttl,
+      async () =>
+        await RemindModel.findOneAndUpdate(
+          { guildId, type },
+          { $setOnInsert: { timestamp } },
+          { upsert: true, new: true }
+        )
+    );
   }
 
-  async createMany(docs: Remind[]) {
-    await this.cleanUpCache(docs.map((d) => d.guildId));
-    return await RemindModel.insertMany(docs);
-  }
-
-  async updateMany(filter: FilterQuery<Remind>, update: UpdateQuery<Remind>) {
-    return await RemindModel.updateMany(filter, update);
-  }
-
-  async deleteMany(filter: FilterQuery<Remind>) {
-    return await RemindModel.deleteMany(filter);
-  }
-
-  async cleanUpCache(id: string | string[]) {
-    if (Array.isArray(id)) {
-      return await Promise.all(id.map((x) => redisCache.clear(this.generateGuildKey(x))));
-    }
-    return await redisCache.clear(this.generateGuildKey(id));
-  }
-
-  private generateGuildKey(guildId: string) {
-    return `${guildId}-remind`;
+  private generateId(guildId: string, type: number) {
+    return `${guildId}-${type}-remind`;
   }
 }
-
-

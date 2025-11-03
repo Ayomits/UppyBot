@@ -13,29 +13,24 @@ import {
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
 
+import { BumpBanModel } from "#/db/models/bump-ban.model.js";
+import { BumpLogModel } from "#/db/models/bump-log.model.js";
+import type { RemindDocument } from "#/db/models/remind.model.js";
+import { type SettingsDocument } from "#/db/models/settings.model.js";
+import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calendar.repository.js";
+import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
+import { RemindRepository } from "#/db/repositories/remind.repository.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 import { calculateDiffTime } from "#/libs/time/diff.js";
-import { BumpBanModel } from "#/db/models/bump-ban.model.js";
-import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
-import { BumpLogModel } from "#/db/models/bump-log.model.js";
-import { BumpUserModel } from "#/db/models/bump-user.model.js";
-import { BumpUserCalendarModel } from "#/db/models/bump-user-calendar.model.js";
-import type { RemindDocument } from "#/db/models/remind.model.js";
-import { RemindModel } from "#/db/models/remind.model.js";
-import {
-  type SettingsDocument,
-  SettingsModel,
-} from "#/db/models/settings.model.js";
 
 import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { UppyLogService } from "../logging/log.service.js";
-import { endDateValue, startDateValue } from "../stats/stats.const.js";
 import {
   DefaultTimezone,
   getCommandIdByRemindType,
-  getFieldByRemindType,
   MonitoringBot,
   MonitoringType,
 } from "./reminder.const.js";
@@ -54,13 +49,18 @@ export class ReminderHandler {
     private scheduleManager: ReminderScheduleManager,
     @inject(UppyLogService) private logService: UppyLogService,
     @inject(BumpBanService) private bumpBanService: BumpBanService,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(BumpGuildCalendarRepository)
+    private bumpGuildCalendar: BumpGuildCalendarRepository,
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
+    @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -74,17 +74,8 @@ export class ReminderHandler {
       }
 
       const [settings, lastRemind] = await Promise.all([
-        SettingsModel.findOneAndUpdate(
-          {
-            guildId,
-          },
-          {},
-          { upsert: true },
-        ),
-        RemindModel.findOne({
-          guildId,
-          type: payload.type,
-        }),
+        this.settingsRepository.findGuildSettings(guildId!),
+        this.remindRepository.findRemind(guildId!, payload.type),
       ]);
 
       await this.scheduleManager.remind({ settings: settings!, ...payload });
@@ -101,7 +92,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument | null,
+    lastRemind: RemindDocument | null
   ) {
     const existed = await BumpLogModel.findOne({ messageId: message.id });
 
@@ -127,14 +118,14 @@ export class ReminderHandler {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!))
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
               heading(
                 UppyRemindSystemMessage.monitoring.embed.title,
-                HeadingLevel.Two,
+                HeadingLevel.Two
               ),
               UppyRemindSystemMessage.monitoring.embed.description(
                 user!,
@@ -142,11 +133,11 @@ export class ReminderHandler {
                 getCommandIdByRemindType(type)!,
                 message.createdAt,
                 lastRemind,
-                settings.points.enabled,
+                settings.points.enabled
               ),
-            ].join("\n"),
-          ),
-        ),
+            ].join("\n")
+          )
+        )
     );
 
     await Promise.allSettled([
@@ -167,8 +158,8 @@ export class ReminderHandler {
         points,
         calculateDiffTime(
           message.createdAt,
-          lastRemind?.timestamp ?? new Date(),
-        ),
+          lastRemind?.timestamp ?? new Date()
+        )
       ),
       this.createBump({
         guildId: guild!.id,
@@ -205,7 +196,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     if (!settings.bumpBan.enabled) {
       return;
@@ -221,7 +212,7 @@ export class ReminderHandler {
           $inc: {
             removeIn: 1,
           },
-        },
+        }
       ),
       this.bumpBanService.addBumpBan({
         member,
@@ -246,12 +237,6 @@ export class ReminderHandler {
     points: number;
     type: number | MonitoringType;
   }) {
-    const start = DateTime.now().set(startDateValue);
-    const timestampFilter = {
-      $gte: start.toJSDate(),
-      $lte: DateTime.now().set(endDateValue).toJSDate(),
-    };
-
     await Promise.allSettled([
       BumpLogModel.create({
         guildId,
@@ -260,63 +245,8 @@ export class ReminderHandler {
         points,
         type,
       }),
-      BumpGuildCalendarModel.findOneAndUpdate(
-        {
-          guildId,
-          timestamp: timestampFilter,
-        },
-        {
-          $setOnInsert: {
-            timestamp: start.toJSDate(),
-            formatted: start.toFormat("dd.MM.yyyy"),
-            guildId,
-          },
-        },
-        {
-          upsert: true,
-        },
-      ),
-      BumpUserCalendarModel.findOneAndUpdate(
-        {
-          guildId,
-          userId: executorId,
-          timestamp: timestampFilter,
-        },
-        {
-          $setOnInsert: {
-            timestamp: start.toJSDate(),
-            formatted: start.toFormat("D.MM.YY"),
-            guildId,
-            userId: executorId,
-          },
-        },
-        {
-          upsert: true,
-        },
-      ),
-      BumpUserModel.bulkWrite([
-        {
-          updateOne: {
-            filter: {
-              guildId,
-              userId: executorId,
-              timestamp: timestampFilter,
-            },
-            update: {
-              $inc: {
-                points: points,
-                [getFieldByRemindType(type)!]: 1,
-              },
-              $setOnInsert: {
-                timestamp: start.toJSDate(),
-                userId: executorId,
-                guildId: guildId,
-              },
-            },
-            upsert: true,
-          },
-        },
-      ]),
+      this.bumpGuildCalendar.pushToCalendar(guildId),
+      this.bumpUserRepository.update(guildId, executorId, points, type),
     ]);
   }
 }

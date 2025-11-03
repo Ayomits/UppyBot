@@ -2,26 +2,26 @@ import type { ChatInputCommandInteraction } from "discord.js";
 import {
   ButtonBuilder,
   ButtonStyle,
-  codeBlock,
   ContainerBuilder,
   heading,
   inlineCode,
   MessageFlags,
   quote,
+  time,
+  TimestampStyles,
 } from "discord.js";
 import { Discord } from "discordx";
 import { singleton } from "tsyringe";
 
 import { ExternalLinks } from "#/const/links.js";
 import { PremiumModel } from "#/db/models/premium.model.js";
-import { calculateDiffTime } from "#/libs/time/diff.js";
 
 @singleton()
 @Discord()
 export class PremiumInfoService {
   async handleInfo(interaction: ChatInputCommandInteraction) {
     const container = new ContainerBuilder().addTextDisplayComponents(
-      (builder) => builder.setContent(heading("Статус премиум подписки")),
+      (builder) => builder.setContent(heading("Статус премиум подписки"))
     );
     const premium = await PremiumModel.findOne({
       guildId: interaction.guildId,
@@ -33,17 +33,20 @@ export class PremiumInfoService {
           [
             "К сожалению, у вас нет премиум подписки",
             `Если вы хотите её купить - читайте информацию в команде: ${inlineCode("/premium subscribe")}`,
-          ].join("\n"),
-        ),
+          ].join("\n")
+        )
       );
     } else {
       container.addTextDisplayComponents((builder) =>
         builder.setContent(
           [
-            quote("Подписка действует:"),
-            codeBlock(calculateDiffTime(premium.expiresAt, new Date())),
-          ].join("\n"),
-        ),
+            quote("Подписка действует до:"),
+            time(
+              Math.floor(premium.expiresAt.getTime() / 1_000),
+              TimestampStyles.LongDateTime
+            ),
+          ].join("\n")
+        )
       );
     }
 
@@ -54,8 +57,8 @@ export class PremiumInfoService {
             new ButtonBuilder()
               .setLabel(premium ? "Продлить" : "Купить")
               .setStyle(ButtonStyle.Link)
-              .setURL(ExternalLinks.SupportServer),
-          ),
+              .setURL(ExternalLinks.SupportServer)
+          )
         ),
       ],
       flags: MessageFlags.IsComponentsV2,

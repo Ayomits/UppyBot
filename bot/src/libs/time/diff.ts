@@ -17,35 +17,35 @@ export function calculateDiffTime(curr: Date, diff: Date) {
     const toFormat: string[] = [];
 
     if (years > 0) {
-      toFormat.push(`${Math.floor(years)} лет`);
+      toFormat.push(`${Math.abs(Math.floor(years))} лет`);
     }
 
     if (months > 0) {
-      toFormat.push(`${Math.floor(months)} месяцев`);
+      toFormat.push(`${Math.abs(Math.floor(months))} месяцев`);
     }
 
     if (weeks > 0) {
-      toFormat.push(`${Math.floor(weeks)} недель`);
+      toFormat.push(`${Math.abs(Math.floor(weeks))} недель`);
     }
 
     if (days > 0) {
-      toFormat.push(`${Math.floor(days)} дней`);
+      toFormat.push(`${Math.abs(Math.floor(days))} дней`);
     }
 
     if (hours > 0) {
-      toFormat.push(`${Math.floor(hours)} часов`);
+      toFormat.push(`${Math.abs(Math.floor(hours))} часов`);
     }
 
     if (minutes > 0) {
-      toFormat.push(`${Math.floor(minutes)} минут`);
+      toFormat.push(`${Math.abs(Math.floor(minutes))} минут`);
     }
 
     if (seconds > 0) {
-      toFormat.push(`${Math.floor(seconds)} секунд`);
+      toFormat.push(`${Math.abs(Math.floor(seconds))} секунд`);
     }
 
     if (toFormat.length === 0) {
-      toFormat.push(`${Math.floor(milliseconds)} милисекунд`);
+      toFormat.push(`${Math.abs(Math.floor(milliseconds))} милисекунд`);
     }
 
     return toFormat.join(" ");

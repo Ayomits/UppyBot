@@ -1,60 +1,104 @@
-import type { FilterQuery, UpdateQuery } from "mongoose";
+import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { BumpUser } from "#/db/models/bump-user.model.js";
-import { BumpUserModel } from "#/db/models/bump-user.model.js";
-import { redisCache } from "../mongo.js";
+import { getFieldByRemindType } from "#/app/controllers/public/reminder/reminder.const.js";
+import {
+  endDateValue,
+  startDateValue,
+} from "#/app/controllers/public/stats/stats.const.js";
+
+import type { BumpUserDocument} from "../models/bump-user.model.js";
+import {BumpUserModel } from "../models/bump-user.model.js";
+import { useCachedQuery } from "../mongo.js";
+import { redisClient } from "../redis.js";
 
 @injectable()
 export class BumpUserRepository {
-  private ttl: number = 600_000;
+  private ttl = 600_000;
+
   static create() {
     return new BumpUserRepository();
   }
 
-  async findMany(filter: FilterQuery<BumpUser>) {
-    return await BumpUserModel.find(filter);
-  }
+  async findUser(guildId: string, userId: string, from: Date, to: Date) {
+    const now = DateTime.now().set(startDateValue).toMillis();
+    const toD = DateTime.fromJSDate(to).set(startDateValue).toMillis();
 
-  async findOne(filter: FilterQuery<BumpUser>) {
-    return await BumpUserModel.findOne(filter);
-  }
-
-  async findManyByGuild(guildId: string) {
-    return await BumpUserModel.find({ guildId }).cache(
-      this.ttl,
-      this.generateGuildKey(guildId)
-    );
-  }
-
-  async createOne(doc: BumpUser) {
-    await this.cleanUpCache(doc.guildId as unknown as string);
-    return await BumpUserModel.create(doc);
-  }
-
-  async createMany(docs: BumpUser[]) {
-    await this.cleanUpCache(docs.map((d) => d.guildId as unknown as string));
-    return await BumpUserModel.insertMany(docs);
-  }
-
-  async updateMany(filter: FilterQuery<BumpUser>, update: UpdateQuery<BumpUser>) {
-    return await BumpUserModel.updateMany(filter, update);
-  }
-
-  async deleteMany(filter: FilterQuery<BumpUser>) {
-    return await BumpUserModel.deleteMany(filter);
-  }
-
-  async cleanUpCache(id: string | string[]) {
-    if (Array.isArray(id)) {
-      return await Promise.all(id.map((x) => redisCache.clear(this.generateGuildKey(x))));
+    if (now > toD) {
+      return await useCachedQuery(
+        this.generateKey(guildId, userId, from, to),
+        this.ttl,
+        async () => await this.aggregationFn(guildId, userId, from, to)
+      );
     }
-    return await redisCache.clear(this.generateGuildKey(id));
+    return await this.aggregationFn(guildId, userId, from, to);
   }
 
-  private generateGuildKey(guildId: string) {
-    return `${guildId}-bump-user`;
+  async update(guildId: string, userId: string, points: number, type: number) {
+    const start = DateTime.now().set(startDateValue);
+    const timestampFilter = {
+      $gte: start.toJSDate(),
+      $lte: DateTime.now().set(endDateValue).toJSDate(),
+    };
+    await redisClient.delByPattern(`${guildId}-${userId}-*-*-user-stat`);
+    return await BumpUserModel.bulkWrite([
+      {
+        updateOne: {
+          filter: {
+            guildId,
+            userId: userId,
+            timestamp: timestampFilter,
+          },
+          update: {
+            $inc: {
+              points: points,
+              [getFieldByRemindType(type)!]: 1,
+            },
+            $setOnInsert: {
+              timestamp: start.toJSDate(),
+              userId: userId,
+              guildId: guildId,
+            },
+          },
+          upsert: true,
+        },
+      },
+    ]);
+  }
+
+  private async aggregationFn(
+    guildId: string,
+    userId: string,
+    from: Date,
+    to: Date
+  ) {
+    return await BumpUserModel.aggregate<Partial<BumpUserDocument>>([
+      {
+        $match: {
+          guildId,
+          userId,
+          timestamp: {
+            $gte: from,
+            $lte: to,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          disboardMonitoring: { $sum: "$disboardMonitoring" },
+          dsMonitoring: { $sum: "$dsMonitoring" },
+          sdcMonitoring: { $sum: "$sdcMonitoring" },
+          serverMonitoring: { $sum: "$serverMonitoring" },
+          points: { $sum: "$points" },
+          userId: { $first: "$userId" },
+        },
+      },
+      { $limit: 1 },
+    ]);
+  }
+
+  private generateKey(guildId: string, userId: string, from: Date, to: Date) {
+    return `${guildId}-${userId}-${from.getTime()}-${to.getTime()}-user-stat`;
   }
 }
-
-
