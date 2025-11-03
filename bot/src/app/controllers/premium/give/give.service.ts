@@ -14,14 +14,14 @@ import { PremiumSubscriptionManager } from "../subscription-manager/subscription
 export class PremiumGiveService {
   constructor(
     @inject(PremiumSubscriptionManager)
-    private premiumManager: PremiumSubscriptionManager
+    private premiumManager: PremiumSubscriptionManager,
   ) {}
 
   async handleGive(
     period: string,
     amount: number,
     guildId: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     const existed = await PremiumModel.findOne({ guildId });
 
@@ -41,7 +41,7 @@ export class PremiumGiveService {
   private resolvePeriod(
     period: string,
     amount: number,
-    existed: PremiumDocument | null
+    existed: PremiumDocument | null,
   ) {
     let date = DateTime.fromJSDate(existed ? existed.expiresAt : new Date());
     switch (period) {
