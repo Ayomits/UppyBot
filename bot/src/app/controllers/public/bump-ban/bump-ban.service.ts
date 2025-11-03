@@ -8,6 +8,7 @@ import {
   type SettingsDocument,
   SettingsModel,
 } from "#/db/models/settings.model.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 
 import { UppyLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
@@ -25,7 +26,10 @@ type ActionOptions = {
 
 @injectable()
 export class BumpBanService {
-  constructor(@inject(UppyLogService) private logService: UppyLogService) {}
+  constructor(
+    @inject(UppyLogService) private logService: UppyLogService,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+  ) {}
 
   async handleBumpBanInit(client: Client) {
     const guilds = client.guilds.cache;
@@ -35,7 +39,7 @@ export class BumpBanService {
         SettingsModel.findOneAndUpdate(
           { guildId: guild.id },
           {},
-          { upsert: true },
+          { upsert: true }
         ),
         BumpBanModel.find({
           guildId: guild.id,
@@ -66,11 +70,7 @@ export class BumpBanService {
         type,
         removeIn: { $gte: BumpBanLimit },
       }),
-      await SettingsModel.findOneAndUpdate(
-        { guildId: guild.id },
-        {},
-        { upsert: true },
-      ),
+      await this.settingsRepository.findGuildSettings(guild.id),
     ]);
 
     for (const ban of bans) {
@@ -136,7 +136,7 @@ export class BumpBanService {
     member: GuildMember,
     type: number,
     settings?: SettingsDocument | null,
-    bumpBan?: BumpBan | null,
+    bumpBan?: BumpBan | null
   ): Promise<
     | {
         params: ActionOptions["force"];
@@ -149,12 +149,7 @@ export class BumpBanService {
   > {
     settings = settings
       ? settings
-      : await SettingsModel.findOneAndUpdate(
-          { guildId: member.guild.id },
-          {},
-          { upsert: true },
-        )!;
-
+      : await this.settingsRepository.findGuildSettings(member.guild.id);
     bumpBan = bumpBan
       ? bumpBan
       : await BumpBanModel.findOne({
@@ -203,7 +198,7 @@ export class BumpBanService {
       member: GuildMember;
       role: Role;
       type: number;
-    },
+    }
   ) {
     let hasRole: boolean = options.shouldRoleAction === true;
     let hasBumpBan: boolean = options.shouldDbQuery === false;
@@ -230,11 +225,9 @@ export class BumpBanService {
   async addBumpBan(options: ActionOptions) {
     options.settings = options.settings
       ? options.settings
-      : await SettingsModel.findOneAndUpdate(
-          { guildId: options.member.guild.id },
-          {},
-          { upsert: true },
-        )!;
+      : await this.settingsRepository.findGuildSettings(
+          options.member.guild.id
+        );
 
     const guild = options.member.guild;
 
@@ -274,11 +267,9 @@ export class BumpBanService {
   async removeBumpBan(options: ActionOptions) {
     options.settings = options.settings
       ? options.settings
-      : await SettingsModel.findOneAndUpdate(
-          { guildId: options.member.guild.id },
-          {},
-          { upsert: true },
-        )!;
+      : await this.settingsRepository.findGuildSettings(
+          options.member.guild.id
+        );
 
     const guild = options.member.guild;
 

@@ -2,29 +2,36 @@ import { Pagination, PaginationResolver } from "@discordx/pagination";
 import type { mongoose } from "@typegoose/typegoose";
 import type { ChatInputCommandInteraction, User } from "discord.js";
 import { bold, MessageFlags, userMention } from "discord.js";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
+import type {
+  BumpUser,
+  BumpUserDocument,
+} from "#/db/models/bump-user.model.js";
+import { BumpUserModel } from "#/db/models/bump-user.model.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { EmptyStaffRoleError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
-import type { BumpUser, BumpUserDocument } from "#/db/models/bump-user.model.js";
-import { BumpUserModel } from "#/db/models/bump-user.model.js";
-import { SettingsModel } from "#/db/models/settings.model.js";
 
 import { UppyPaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class UppyLeaderboardService extends BaseUppyService {
+  constructor(
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+  ) {
+    super();
+  }
+
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const settings = await SettingsModel.findOneAndUpdate(
-      { guildId: interaction.guildId },
-      {},
-      { upsert: true },
+    const settings = await this.settingsRepository.findGuildSettings(
+      interaction.guildId!
     );
 
     if (
@@ -36,7 +43,7 @@ export class UppyLeaderboardService extends BaseUppyService {
 
     const hasStaffRolesIds = interaction.guild?.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id)),
+        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id))
       )
       .map((m) => m.id);
 
@@ -66,7 +73,7 @@ export class UppyLeaderboardService extends BaseUppyService {
             page,
             maxPages,
             data,
-            interaction.user,
+            interaction.user
           ),
         ],
       };
@@ -102,7 +109,7 @@ export class UppyLeaderboardService extends BaseUppyService {
 
   private async fetchLeaderboardPage(
     page: number,
-    filter: mongoose.FilterQuery<BumpUser>,
+    filter: mongoose.FilterQuery<BumpUser>
   ) {
     const skip = page * UppyPaginationLimit;
     const [data] = await BumpUserModel.aggregate<{
@@ -165,7 +172,7 @@ export class UppyLeaderboardService extends BaseUppyService {
     page: number,
     maxPages: number,
     payload: Awaited<ReturnType<typeof this.fetchLeaderboardPage>>,
-    user: User,
+    user: User
   ) {
     const embed = new EmbedBuilder().setDefaults(user);
     const description =
@@ -181,7 +188,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   serverMonitoring,
                   _id: userId,
                 },
-                index,
+                index
               ) => {
                 const position = page * UppyPaginationLimit + index + 1;
                 return [
@@ -190,7 +197,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   `• Up: ${sdcMonitoring} | Like: ${dsMonitoring} | Bump: ${serverMonitoring}`,
                   "",
                 ].join("\n");
-              },
+              }
             )
             .join("\n");
 

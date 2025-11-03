@@ -1,14 +1,12 @@
 import type { Guild, MessageCreateOptions, TextChannel } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
-import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 import { type RemindDocument, RemindModel } from "#/db/models/remind.model.js";
-import {
-  type SettingsDocument,
-  SettingsModel,
-} from "#/db/models/settings.model.js";
+import { type SettingsDocument } from "#/db/models/settings.model.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
+import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 
 import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import {
@@ -20,6 +18,10 @@ import type { ParserValue } from "./reminder.parser.js";
 
 @injectable()
 export class ReminderScheduleManager {
+  constructor(
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+  ) {}
+
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
     const promises = Object.entries(entriesMap).map(([, entry]) =>
@@ -39,7 +41,7 @@ export class ReminderScheduleManager {
     const guildIds = guilds.map((guild) => guild.id);
 
     const [settings, reminds] = await Promise.all([
-      SettingsModel.find({ guildId: { $in: guildIds } }),
+      this.settingsRepository.findMany({ guildId: { $in: guildIds } }),
       RemindModel.find({
         guildId: { $in: guildIds },
       }),
@@ -75,7 +77,7 @@ export class ReminderScheduleManager {
     }
 
     if (!settings) {
-      settings = await SettingsModel.create({ guildId: guild.id });
+      settings = await this.settingsRepository.findGuildSettings(guild.id);
     }
 
     if (!settings?.remind.enabled) {
@@ -228,11 +230,7 @@ export class ReminderScheduleManager {
       settings: SettingsDocument
     ) => MessageCreateOptions
   ) {
-    const settings = await SettingsModel.findOneAndUpdate(
-      { guildId: guild.id },
-      {},
-      { upsert: true }
-    ).cache();
+    const settings = await this.settingsRepository.findGuildSettings(guild.id);
 
     const channel = await guild.channels
       .fetch(settings?.channels.pingChannelId ?? "")
