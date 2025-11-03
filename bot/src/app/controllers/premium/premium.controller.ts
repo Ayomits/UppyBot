@@ -38,7 +38,7 @@ export class PremiumController {
     @inject(PremiumInfoService) private premiumInfoService: PremiumInfoService,
     @inject(PremiumSubscriptionManager)
     private subscriptionService: PremiumSubscriptionManager,
-    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService
+    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService,
   ) {}
 
   @Slash({
@@ -71,13 +71,13 @@ export class PremiumController {
       required: true,
     })
     guildId: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.premiumGiveService.handleGive(
       period,
       amount,
       guildId,
-      interaction
+      interaction,
     );
   }
 
@@ -106,7 +106,7 @@ export class PremiumController {
   @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
   handleSubscribeCommand(interaction: ChatInputCommandInteraction) {
     return this.premiumSubscribeCommandService.handleSubscribeCommand(
-      interaction
+      interaction,
     );
   }
 

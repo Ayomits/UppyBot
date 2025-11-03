@@ -11,7 +11,7 @@ import {
 import { injectable } from "tsyringe";
 
 import { CoreInviteMessage } from "#/app/messages/bot-invite.message.js";
-import { UppyLinks } from "#/const/links.js";
+import { ExternalLinks } from "#/const/links.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
 @injectable()
@@ -49,23 +49,23 @@ export class BotInviteService {
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.support)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.SupportServer),
+          .setURL(ExternalLinks.SupportServer),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.invite)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.InviteBot),
+          .setURL(ExternalLinks.InviteBot),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.devs)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.DevsTgc),
+          .setURL(ExternalLinks.DevsTgc),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.news)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.NewsTgc),
+          .setURL(ExternalLinks.NewsTgc),
         new ButtonBuilder()
           .setLabel(CoreInviteMessage.embed.resources.docs)
           .setStyle(ButtonStyle.Link)
-          .setURL(UppyLinks.DocsUrl),
+          .setURL(ExternalLinks.DocsUrl),
       ),
     ];
   }

@@ -46,7 +46,7 @@ export const UppyRemainingMessage = {
         const monitoring = monitorings[key];
         values.push(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitoring)}`
+          `${userMention(getBotByRemindType(Number(key) as any))}: ${canUseMonitoring(monitoring)}`,
         );
       }
 

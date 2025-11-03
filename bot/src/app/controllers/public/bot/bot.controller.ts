@@ -7,7 +7,7 @@ import type { ArgsOf } from "discordx";
 import { Discord, On, Slash, SlashGroup } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { UppyLinks } from "#/const/links.js";
+import { ExternalLinks } from "#/const/links.js";
 
 import { BotInviteService } from "./interactions/bot-invite.service.js";
 import { UppyBotPingService } from "./interactions/bot-ping.service.js";
@@ -28,7 +28,7 @@ export class UppyCoreController {
   handleReady([client]: ArgsOf<Events.ClientReady>) {
     client.user.setActivity({
       type: ActivityType.Custom,
-      name: UppyLinks.NewsTgc,
+      name: ExternalLinks.NewsTgc,
     });
   }
 

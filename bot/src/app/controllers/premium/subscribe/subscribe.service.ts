@@ -13,7 +13,7 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { UppyLinks } from "#/const/links.js";
+import { ExternalLinks } from "#/const/links.js";
 import { Requisits } from "#/const/requisits.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
@@ -44,7 +44,7 @@ export class PremiumSubscribeCommandService {
                 heading("Как купить?", HeadingLevel.Two),
                 "",
                 orderedList([
-                  `Зайдите на сервер поддержки ${UppyLinks.SupportServer}`,
+                  `Зайдите на сервер поддержки ${ExternalLinks.SupportServer}`,
                   `Напишите в личные сообщения овнеру ${inlineCode(`ayomi.dev (1129162686194790572)`)}, что хотите купить подписку`,
                 ]),
                 `Реквизиты:`,

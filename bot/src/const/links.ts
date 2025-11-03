@@ -1,4 +1,4 @@
-export const UppyLinks = {
+export const ExternalLinks = {
   SupportServer: "https://discord.gg/Vd4Ssfxpuc",
   DevsTgc: "https://t.me/no_dev",
   NewsTgc: "https://t.me/UppyBotNews",
