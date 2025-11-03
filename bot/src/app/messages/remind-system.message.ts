@@ -10,7 +10,7 @@ import {
 } from "discord.js";
 
 import { calculateDiffTime } from "#/libs/time/diff.js";
-import type { RemindDocument } from "#/models/remind.model.js";
+import type { RemindDocument } from "#/db/models/remind.model.js";
 
 import {
   getCommandNameByCommandId,

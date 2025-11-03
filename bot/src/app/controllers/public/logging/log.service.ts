@@ -17,7 +17,7 @@ import {
 import { singleton } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { SettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/db/models/settings.model.js";
 
 import type { MonitoringType } from "../reminder/reminder.const.js";
 import {

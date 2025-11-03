@@ -16,17 +16,17 @@ import { inject, singleton } from "tsyringe";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 import { calculateDiffTime } from "#/libs/time/diff.js";
-import { BumpBanModel } from "#/models/bump-ban.model.js";
-import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
-import { BumpLogModel } from "#/models/bump-log.model.js";
-import { BumpUserModel } from "#/models/bump-user.model.js";
-import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
-import type { RemindDocument } from "#/models/remind.model.js";
-import { RemindModel } from "#/models/remind.model.js";
+import { BumpBanModel } from "#/db/models/bump-ban.model.js";
+import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
+import { BumpLogModel } from "#/db/models/bump-log.model.js";
+import { BumpUserModel } from "#/db/models/bump-user.model.js";
+import { BumpUserCalendarModel } from "#/db/models/bump-user-calendar.model.js";
+import type { RemindDocument } from "#/db/models/remind.model.js";
+import { RemindModel } from "#/db/models/remind.model.js";
 import {
   type SettingsDocument,
   SettingsModel,
-} from "#/models/settings.model.js";
+} from "#/db/models/settings.model.js";
 
 import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";

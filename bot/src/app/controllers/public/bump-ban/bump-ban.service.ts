@@ -2,12 +2,12 @@ import type { Guild, GuildMember, Role } from "discord.js";
 import type { Client } from "discordx";
 import { inject, injectable } from "tsyringe";
 
-import type { BumpBan } from "#/models/bump-ban.model.js";
-import { BumpBanModel } from "#/models/bump-ban.model.js";
+import type { BumpBan } from "#/db/models/bump-ban.model.js";
+import { BumpBanModel } from "#/db/models/bump-ban.model.js";
 import {
   type SettingsDocument,
   SettingsModel,
-} from "#/models/settings.model.js";
+} from "#/db/models/settings.model.js";
 
 import { UppyLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";

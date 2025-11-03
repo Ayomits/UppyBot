@@ -14,7 +14,7 @@ import { singleton } from "tsyringe";
 
 import { ExternalLinks } from "#/const/links.js";
 import { calculateDiffTime } from "#/libs/time/diff.js";
-import { PremiumModel } from "#/models/premium.model.js";
+import { PremiumModel } from "#/db/models/premium.model.js";
 
 @singleton()
 @Discord()

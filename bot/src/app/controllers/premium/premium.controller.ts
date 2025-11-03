@@ -16,7 +16,7 @@ import {
 } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { PremiumOnly } from "#/app/guards/premium-only.guard.js";
+import { PremiumOnly } from "#/guards/premium-only.guard.js";
 import { developerGuilds } from "#/const/guilds.js";
 
 import { BrandingChangeUrlModal } from "./branding/branding.const.js";

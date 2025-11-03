@@ -5,8 +5,8 @@ import {
   TextInputStyle,
 } from "discord.js";
 
-import { GuildType } from "#/models/guild.model.js";
-import type { SettingsDocument } from "#/models/settings.model.js";
+import { UppyGuildType } from "#/db/models/guild.model.js";
+import type { SettingsDocument } from "#/db/models/settings.model.js";
 
 // Базовые ID для взаимодействий
 export const SettingsIds = {
@@ -23,7 +23,7 @@ export const basePointsId = "@settings/points";
 
 // Тип конфигурации настройки
 export type SettingsConfig = {
-  access?: GuildType;
+  access?: UppyGuildType;
   label: string;
   field: string;
   type: "channel" | "role" | "value" | "toggle";
@@ -66,7 +66,7 @@ const baseConfigs = {
   multiRole: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: UppyGuildType = UppyGuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -79,7 +79,7 @@ const baseConfigs = {
   singleChannel: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: UppyGuildType = UppyGuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -92,7 +92,7 @@ const baseConfigs = {
   toggle: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: UppyGuildType = UppyGuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -195,7 +195,7 @@ export const SettingsPointsPipeline = {
 
 export const SettingsKdPipeline = {
   enabled: {
-    access: GuildType.Premium,
+    access: UppyGuildType.Premium,
     ...baseConfigs.toggle("kd.enabled", "Состояние"),
   },
   dsMonitoring: {
@@ -229,31 +229,31 @@ export const SettingsBumpBanPipeline = {
 // Все конвейеры настроек
 export const SettingsPipelines = {
   roles: {
-    access: GuildType.Common,
+    access: UppyGuildType.Common,
     pipeline: SettingsRolesPipeline,
   },
   channels: {
-    access: GuildType.Common,
+    access: UppyGuildType.Common,
     pipeline: SettingsChannelsPipeline,
   },
   points: {
-    access: GuildType.Common,
+    access: UppyGuildType.Common,
     pipeline: SettingsPointsPipeline,
   },
   reminds: {
-    access: GuildType.Common,
+    access: UppyGuildType.Common,
     pipeline: SettingsRemindsPipeline,
   },
   force: {
-    access: GuildType.Premium,
+    access: UppyGuildType.Premium,
     pipeline: SettingsForceRemindsPipeline,
   },
   kd: {
-    access: GuildType.Premium,
+    access: UppyGuildType.Premium,
     pipeline: SettingsKdPipeline,
   },
   bumpBan: {
-    access: GuildType.Common,
+    access: UppyGuildType.Common,
     pipeline: SettingsBumpBanPipeline,
   },
 } as const;

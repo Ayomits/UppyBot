@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import { DateTime } from "luxon";
 
-import type { RemindDocument } from "#/models/remind.model.js";
+import type { RemindDocument } from "#/db/models/remind.model.js";
 
 import {
   getCommandIdByRemindType,

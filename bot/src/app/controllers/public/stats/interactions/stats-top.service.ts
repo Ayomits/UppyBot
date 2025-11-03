@@ -6,9 +6,9 @@ import { injectable } from "tsyringe";
 
 import { EmptyStaffRoleError } from "#/errors/errors.js";
 import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
-import type { BumpUser, BumpUserDocument } from "#/models/bump-user.model.js";
-import { BumpUserModel } from "#/models/bump-user.model.js";
-import { SettingsModel } from "#/models/settings.model.js";
+import type { BumpUser, BumpUserDocument } from "#/db/models/bump-user.model.js";
+import { BumpUserModel } from "#/db/models/bump-user.model.js";
+import { SettingsModel } from "#/db/models/settings.model.js";
 
 import { UppyPaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
