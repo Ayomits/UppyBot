@@ -16,7 +16,7 @@ export class BannerController {
 
     setInterval(
       () => this.bannerService.sendBanner(client as Client),
-      1800 * 1_000
+      1800 * 1_000,
     );
   }
 }

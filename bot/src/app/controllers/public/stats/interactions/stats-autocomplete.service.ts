@@ -11,7 +11,7 @@ import { endDateValue, startDateValue } from "../stats.const.js";
 @injectable()
 export class UppyAutocompleteService {
   public static async handleTopAutocomplete(
-    interaction: AutocompleteInteraction
+    interaction: AutocompleteInteraction,
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -31,14 +31,14 @@ export class UppyAutocompleteService {
     const repository = BumpGuildCalendarRepository.create();
     const entries = await repository.findCalendar(
       interaction.guildId!,
-      createdAtFilter
+      createdAtFilter,
     );
 
     await interaction.respond(
       entries.map((entry) => ({
         name: entry.formatted,
         value: entry.timestamp.toString(),
-      }))
+      })),
     );
   }
 

@@ -33,8 +33,8 @@ export class GuildRepository {
         await GuildModel.findOneAndUpdate(
           { guildId },
           {},
-          { upsert: true, setDefaultsOnInsert: true, new: true }
-        )
+          { upsert: true, setDefaultsOnInsert: true, new: true },
+        ),
     );
   }
 
@@ -47,7 +47,7 @@ export class GuildRepository {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
-        })
+        }),
     );
   }
 
@@ -57,7 +57,7 @@ export class GuildRepository {
 
   async cleanUpCache(id: string | string[]) {
     await redisClient.del(
-      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id
+      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id,
     );
   }
 

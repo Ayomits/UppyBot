@@ -10,7 +10,7 @@ import { UppyGuardMessage } from "../app/messages/guard.message.js";
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,
   _,
-  next
+  next,
 ) => {
   const member = interaction.member as GuildMember;
 
@@ -19,7 +19,9 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   }
 
   const settingsRepository = SettingsRepository.create();
-  const settings = await settingsRepository.findGuildSettings(interaction.guildId!);
+  const settings = await settingsRepository.findGuildSettings(
+    interaction.guildId!,
+  );
 
   if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {
     return interaction.reply({

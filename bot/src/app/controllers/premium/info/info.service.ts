@@ -21,7 +21,7 @@ import { PremiumModel } from "#/db/models/premium.model.js";
 export class PremiumInfoService {
   async handleInfo(interaction: ChatInputCommandInteraction) {
     const container = new ContainerBuilder().addTextDisplayComponents(
-      (builder) => builder.setContent(heading("Статус премиум подписки"))
+      (builder) => builder.setContent(heading("Статус премиум подписки")),
     );
     const premium = await PremiumModel.findOne({
       guildId: interaction.guildId,
@@ -33,8 +33,8 @@ export class PremiumInfoService {
           [
             "К сожалению, у вас нет премиум подписки",
             `Если вы хотите её купить - читайте информацию в команде: ${inlineCode("/premium subscribe")}`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     } else {
       container.addTextDisplayComponents((builder) =>
@@ -43,10 +43,10 @@ export class PremiumInfoService {
             quote("Подписка действует до:"),
             time(
               Math.floor(premium.expiresAt.getTime() / 1_000),
-              TimestampStyles.LongDateTime
+              TimestampStyles.LongDateTime,
             ),
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     }
 
@@ -57,8 +57,8 @@ export class PremiumInfoService {
             new ButtonBuilder()
               .setLabel(premium ? "Продлить" : "Купить")
               .setStyle(ButtonStyle.Link)
-              .setURL(ExternalLinks.SupportServer)
-          )
+              .setURL(ExternalLinks.SupportServer),
+          ),
         ),
       ],
       flags: MessageFlags.IsComponentsV2,

@@ -25,8 +25,8 @@ export class SettingsRepository {
         await SettingsModel.findOneAndUpdate(
           { guildId },
           {},
-          { upsert: true, setDefaultsOnInsert: true, new: true }
-        )
+          { upsert: true, setDefaultsOnInsert: true, new: true },
+        ),
     );
   }
 
@@ -39,7 +39,7 @@ export class SettingsRepository {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
-        })
+        }),
     );
   }
 

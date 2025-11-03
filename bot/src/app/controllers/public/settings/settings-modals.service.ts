@@ -8,7 +8,7 @@ import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
 @injectable()
 export class SettingsModalService {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {}
 
   // Модальное окно для настроек поинтов

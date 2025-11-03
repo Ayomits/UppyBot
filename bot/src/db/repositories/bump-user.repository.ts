@@ -7,8 +7,8 @@ import {
   startDateValue,
 } from "#/app/controllers/public/stats/stats.const.js";
 
-import type { BumpUserDocument} from "../models/bump-user.model.js";
-import {BumpUserModel } from "../models/bump-user.model.js";
+import type { BumpUserDocument } from "../models/bump-user.model.js";
+import { BumpUserModel } from "../models/bump-user.model.js";
 import { useCachedQuery } from "../mongo.js";
 import { redisClient } from "../redis.js";
 
@@ -28,7 +28,7 @@ export class BumpUserRepository {
       return await useCachedQuery(
         this.generateKey(guildId, userId, from, to),
         this.ttl,
-        async () => await this.aggregationFn(guildId, userId, from, to)
+        async () => await this.aggregationFn(guildId, userId, from, to),
       );
     }
     return await this.aggregationFn(guildId, userId, from, to);
@@ -70,7 +70,7 @@ export class BumpUserRepository {
     guildId: string,
     userId: string,
     from: Date,
-    to: Date
+    to: Date,
   ) {
     return await BumpUserModel.aggregate<Partial<BumpUserDocument>>([
       {

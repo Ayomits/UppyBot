@@ -19,7 +19,7 @@ import { BaseUppyService } from "../stats.service.js";
 @injectable()
 export class UppyLeaderboardService extends BaseUppyService {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {
     super();
   }
@@ -27,11 +27,11 @@ export class UppyLeaderboardService extends BaseUppyService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string
+    to?: string,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     if (
@@ -43,7 +43,7 @@ export class UppyLeaderboardService extends BaseUppyService {
 
     const hasStaffRolesIds = interaction.guild?.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id))
+        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id)),
       )
       .map((m) => m.id);
 
@@ -73,7 +73,7 @@ export class UppyLeaderboardService extends BaseUppyService {
             page,
             maxPages,
             data,
-            interaction.user
+            interaction.user,
           ),
         ],
       };
@@ -109,7 +109,7 @@ export class UppyLeaderboardService extends BaseUppyService {
 
   private async fetchLeaderboardPage(
     page: number,
-    filter: mongoose.FilterQuery<BumpUser>
+    filter: mongoose.FilterQuery<BumpUser>,
   ) {
     const skip = page * UppyPaginationLimit;
     const [data] = await BumpUserModel.aggregate<{
@@ -172,7 +172,7 @@ export class UppyLeaderboardService extends BaseUppyService {
     page: number,
     maxPages: number,
     payload: Awaited<ReturnType<typeof this.fetchLeaderboardPage>>,
-    user: User
+    user: User,
   ) {
     const embed = new EmbedBuilder().setDefaults(user);
     const description =
@@ -188,7 +188,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   serverMonitoring,
                   _id: userId,
                 },
-                index
+                index,
               ) => {
                 const position = page * UppyPaginationLimit + index + 1;
                 return [
@@ -197,7 +197,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   `• Up: ${sdcMonitoring} | Like: ${dsMonitoring} | Bump: ${serverMonitoring}`,
                   "",
                 ].join("\n");
-              }
+              },
             )
             .join("\n");
 
