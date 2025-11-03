@@ -11,9 +11,9 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 import type { BumpLogDocument } from "#/db/models/bump-log.model.js";
 import { BumpLogModel } from "#/db/models/bump-log.model.js";
+import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
 
 import {
   getCommandIdByRemindType,
