@@ -1,12 +1,16 @@
 import type { ModalSubmitInteraction } from "discord.js";
 import { MessageFlags } from "discord.js";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
-import { SettingsModel } from "#/db/models/settings.model.js";
 
 @injectable()
 export class SettingsModalService {
+  constructor(
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+  ) {}
+
   // Модальное окно для настроек поинтов
   public async handlePointsModal(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -20,14 +24,10 @@ export class SettingsModalService {
     const [fieldPath] = CustomIdParser.parseArguments(interaction.customId, {});
 
     // Обновляем настройки в БД
-    await SettingsModel.findOneAndUpdate(
-      { guildId: interaction.guildId! },
-      {
-        [`${fieldPath}.default`]: defaultVal,
-        [`${fieldPath}.bonus`]: bonusVal,
-      },
-      { upsert: true },
-    );
+    await this.settingsRepository.update(interaction.guildId!, {
+      [`${fieldPath}.default`]: defaultVal,
+      [`${fieldPath}.bonus`]: bonusVal,
+    });
 
     await interaction.editReply({ content: "Успешно обновлены значения" });
   }
@@ -40,11 +40,9 @@ export class SettingsModalService {
       Math.max(0, Number(interaction.fields.getTextInputValue("value"))),
     ];
 
-    await SettingsModel.findOneAndUpdate(
-      { guildId: interaction.guildId! },
-      { "force.seconds": forceValue },
-      { upsert: true },
-    );
+    await this.settingsRepository.update(interaction.guildId!, {
+      "force.seconds": forceValue,
+    });
 
     await interaction.editReply({ content: "Успешно обновлено значение" });
   }

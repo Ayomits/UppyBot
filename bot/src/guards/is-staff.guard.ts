@@ -3,7 +3,7 @@ import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
 import { developers } from "#/const/owners.js";
-import { Settings } from "#/db/models/settings.model.js";
+import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 
 import { UppyGuardMessage } from "../app/messages/guard.message.js";
 
@@ -18,7 +18,8 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
     return next();
   }
 
-  const settings = await Settings.findGuild(interaction.guildId!);
+  const settingsRepository = SettingsRepository.create();
+  const settings = await settingsRepository.findGuildSettings(interaction.guildId!);
 
   if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {
     return interaction.reply({

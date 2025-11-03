@@ -8,6 +8,11 @@ import { redisCache } from "../mongo.js";
 
 @injectable()
 export class SettingsRepository {
+
+  static create() {
+    return new SettingsRepository();
+  }
+
   async findMany(filter: FilterQuery<Settings>) {
     return await SettingsModel.find(filter);
   }

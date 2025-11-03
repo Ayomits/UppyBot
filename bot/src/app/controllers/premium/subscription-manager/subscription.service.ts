@@ -1,11 +1,16 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
-import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
-import { UppyGuildModel, UppyGuildType } from "#/db/models/guild.model.js";
+import { GuildType } from "#/db/models/guild.model.js";
 import { PremiumModel } from "#/db/models/premium.model.js";
+import { GuildRepository } from "#/db/repositories/guild.repository.js";
+import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 
 @injectable()
 export class PremiumSubscriptionManager {
+  constructor(
+    @inject(GuildRepository) private guildRepository: GuildRepository
+  ) {}
+
   async init() {
     const [expiredSubscriptions, nonExpiredSubscriptions] = await Promise.all([
       PremiumModel.find({
@@ -22,26 +27,25 @@ export class PremiumSubscriptionManager {
       scheduleManager.startOnceJob(
         this.generateId(doc.guildId),
         doc.expiresAt,
-        () => this.stopPremium(doc.guildId),
+        () => this.stopPremium(doc.guildId)
       );
     }
   }
 
   async assign(guildId: string, expiresAt: Date) {
     scheduleManager.startOnceJob(this.generateId(guildId), expiresAt, () =>
-      this.stopPremium(guildId),
+      this.stopPremium(guildId)
     );
     await Promise.all([
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt },
-        { upsert: true },
+        { upsert: true }
       ),
-      UppyGuildModel.findOneAndUpdate(
-        { guildId },
-        { type: UppyGuildType.Premium, isActive: true },
-        { upsert: true },
-      ),
+      this.guildRepository.update(guildId, {
+        type: GuildType.Premium,
+        isActive: true,
+      }),
     ]);
   }
 
@@ -51,26 +55,26 @@ export class PremiumSubscriptionManager {
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt: newExpiresAt },
-        { upsert: true },
+        { upsert: true }
       ),
-      UppyGuildModel.findOneAndUpdate(
-        { guildId },
-        { type: UppyGuildType.Premium, isActive: true },
-        { upsert: true },
-      ),
+      this.guildRepository.update(guildId, {
+        type: GuildType.Premium,
+        isActive: true,
+      }),
       scheduleManager.startOnceJob(this.generateId(guildId), newExpiresAt, () =>
-        this.stopPremium(guildId),
+        this.stopPremium(guildId)
       ),
     ]);
   }
 
   async bulkRemove(guildIds: string[]) {
     await Promise.all([
-      UppyGuildModel.updateMany(
+      this.guildRepository.updateMany(
         { guildId: { $in: guildIds } },
-        { type: UppyGuildType.Common },
+        { type: GuildType.Common }
       ),
       PremiumModel.deleteMany({ guildId: { $in: guildIds } }),
+      this.guildRepository.cleanUpCache(guildIds),
     ]);
   }
 
@@ -81,7 +85,7 @@ export class PremiumSubscriptionManager {
 
   private async stopPremium(guildId: string) {
     await Promise.all([
-      UppyGuildModel.updateOne({ guildId }, { type: UppyGuildType.Common }),
+      this.guildRepository.update(guildId, { type: GuildType.Common }),
       PremiumModel.deleteOne({ guildId }),
     ]);
   }
