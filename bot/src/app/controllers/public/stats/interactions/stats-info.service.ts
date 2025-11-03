@@ -23,10 +23,10 @@ import { inject, injectable } from "tsyringe";
 import { UppyInfoMessage } from "#/app/messages/stats-info.message.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
-import { BumpBanModel } from "#/models/bump-ban.model.js";
-import type { BumpUserDocument } from "#/models/bump-user.model.js";
-import { BumpUserModel } from "#/models/bump-user.model.js";
-import { SettingsModel } from "#/models/settings.model.js";
+import { BumpBanModel } from "#/db/models/bump-ban.model.js";
+import type { BumpUserDocument } from "#/db/models/bump-user.model.js";
+import { BumpUserModel } from "#/db/models/bump-user.model.js";
+import { SettingsModel } from "#/db/models/settings.model.js";
 
 import { BumpBanService } from "../../bump-ban/bump-ban.service.js";
 import { BumpBanLimit } from "../../reminder/reminder.const.js";

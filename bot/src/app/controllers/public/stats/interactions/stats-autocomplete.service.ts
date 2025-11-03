@@ -3,9 +3,9 @@ import type { AutocompleteInteraction } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { BumpGuildCalendarDocument } from "#/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarModel } from "#/models/bump-guild-calendar.model.js";
-import { BumpUserCalendarModel } from "#/models/bump-user-calendar.model.js";
+import type { BumpGuildCalendarDocument } from "#/db/models/bump-guild-calendar.model.js";
+import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
+import { BumpUserCalendarModel } from "#/db/models/bump-user-calendar.model.js";
 
 import { endDateValue, startDateValue } from "../stats.const.js";
 

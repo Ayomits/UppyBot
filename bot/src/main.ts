@@ -1,24 +1,17 @@
 import "reflect-metadata";
 
 import { dirname, importx } from "@discordx/importer";
-import { mongoose } from "@typegoose/typegoose";
 import type { Interaction, Message } from "discord.js";
 import { GatewayIntentBits } from "discord.js";
 import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
+import { createDb } from "./db/mongo.js";
 import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
 
-async function bootstrap() {
+async function createClient() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
-  await mongoose
-    .connect(Env.MongoUrl, {
-      autoCreate: true,
-    })
-    .catch(logger.error)
-    .then(() => logger.success("succesfully connected to mongodb"));
-
   const client = new Client({
     intents: [
       GatewayIntentBits.MessageContent,
@@ -69,4 +62,9 @@ async function bootstrap() {
   client.login(Env.DiscordToken);
 }
 
-bootstrap();
+async function start() {
+  await createDb();
+  await createClient();
+}
+
+start();

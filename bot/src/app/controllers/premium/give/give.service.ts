@@ -4,8 +4,8 @@ import { Discord } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import type { PremiumDocument } from "#/models/premium.model.js";
-import { PremiumModel } from "#/models/premium.model.js";
+import type { PremiumDocument } from "#/db/models/premium.model.js";
+import { PremiumModel } from "#/db/models/premium.model.js";
 
 import { PremiumSubscriptionManager } from "../subscription-manager/subscription.service.js";
 

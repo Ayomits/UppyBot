@@ -3,7 +3,7 @@ import { MessageFlags } from "discord.js";
 import { injectable } from "tsyringe";
 
 import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
-import { SettingsModel } from "#/models/settings.model.js";
+import { SettingsModel } from "#/db/models/settings.model.js";
 
 @injectable()
 export class SettingsModalService {

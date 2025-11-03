@@ -1,8 +1,8 @@
 import { injectable } from "tsyringe";
 
 import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
-import { GuildModel, GuildType } from "#/models/guild.model.js";
-import { PremiumModel } from "#/models/premium.model.js";
+import { UppyGuildModel, UppyGuildType } from "#/db/models/guild.model.js";
+import { PremiumModel } from "#/db/models/premium.model.js";
 
 @injectable()
 export class PremiumSubscriptionManager {
@@ -37,9 +37,9 @@ export class PremiumSubscriptionManager {
         { expiresAt },
         { upsert: true },
       ),
-      GuildModel.findOneAndUpdate(
+      UppyGuildModel.findOneAndUpdate(
         { guildId },
-        { type: GuildType.Premium, isActive: true },
+        { type: UppyGuildType.Premium, isActive: true },
         { upsert: true },
       ),
     ]);
@@ -53,9 +53,9 @@ export class PremiumSubscriptionManager {
         { expiresAt: newExpiresAt },
         { upsert: true },
       ),
-      GuildModel.findOneAndUpdate(
+      UppyGuildModel.findOneAndUpdate(
         { guildId },
-        { type: GuildType.Premium, isActive: true },
+        { type: UppyGuildType.Premium, isActive: true },
         { upsert: true },
       ),
       scheduleManager.startOnceJob(this.generateId(guildId), newExpiresAt, () =>
@@ -66,9 +66,9 @@ export class PremiumSubscriptionManager {
 
   async bulkRemove(guildIds: string[]) {
     await Promise.all([
-      GuildModel.updateMany(
+      UppyGuildModel.updateMany(
         { guildId: { $in: guildIds } },
-        { type: GuildType.Common },
+        { type: UppyGuildType.Common },
       ),
       PremiumModel.deleteMany({ guildId: { $in: guildIds } }),
     ]);
@@ -81,7 +81,7 @@ export class PremiumSubscriptionManager {
 
   private async stopPremium(guildId: string) {
     await Promise.all([
-      GuildModel.updateOne({ guildId }, { type: GuildType.Common }),
+      UppyGuildModel.updateOne({ guildId }, { type: UppyGuildType.Common }),
       PremiumModel.deleteOne({ guildId }),
     ]);
   }

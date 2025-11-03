@@ -3,14 +3,14 @@ import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
 import { developers } from "#/const/owners.js";
-import { SettingsModel } from "#/models/settings.model.js";
+import { Settings } from "#/db/models/settings.model.js";
 
-import { UppyGuardMessage } from "../messages/guard.message.js";
+import { UppyGuardMessage } from "../app/messages/guard.message.js";
 
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,
   _,
-  next,
+  next
 ) => {
   const member = interaction.member as GuildMember;
 
@@ -18,13 +18,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
     return next();
   }
 
-  const settings = await SettingsModel.findOneAndUpdate(
-    {
-      guildId: interaction.guildId,
-    },
-    {},
-    { upsert: true },
-  );
+  const settings = await Settings.findGuild(interaction.guildId!);
 
   if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {
     return interaction.reply({

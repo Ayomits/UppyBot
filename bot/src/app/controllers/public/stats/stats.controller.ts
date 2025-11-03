@@ -16,7 +16,7 @@ import {
 } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { IsHelper } from "#/app/guards/is-helper.guard.js";
+import { IsHelper } from "#/guards/is-staff.guard.js";
 import { GuildOnly } from "#/guards/is-guild-only.js";
 
 import { UppyRemainingService } from "./interactions/remaining.service.js";

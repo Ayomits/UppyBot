@@ -109,6 +109,14 @@ export class Settings extends TimeStamps {
     useForceOnly: boolean;
     seconds: number;
   };
+
+  static async findGuild(guildId: string) {
+    return await SettingsModel.findOneAndUpdate(
+      { guildId },
+      {},
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).cache(600_000);
+  }
 }
 
 export const SettingsCollectionName = "settings";

@@ -11,8 +11,8 @@ import { inject, injectable } from "tsyringe";
 
 import { staff } from "#/const/owners.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { BumpLogModel } from "#/models/bump-log.model.js";
-import { RemindLogsModel, RemindLogState } from "#/models/remind-logs.model.js";
+import { BumpLogModel } from "#/db/models/bump-log.model.js";
+import { RemindLogsModel, RemindLogState } from "#/db/models/remind-logs.model.js";
 
 import { BotInviteService } from "./bot-invite.service.js";
 
