@@ -3,7 +3,7 @@ import { injectable } from "tsyringe";
 
 import type { Remind } from "../models/remind.model.js";
 import { RemindModel } from "../models/remind.model.js";
-import { useCachedQuery } from "../mongo.js";
+import { useCachedQuery, useCachedUpdate } from "../mongo.js";
 
 @injectable()
 export class RemindRepository {
@@ -25,7 +25,7 @@ export class RemindRepository {
   }
 
   async findOrCreate(guildId: string, type: number, timestamp: Date) {
-    return await useCachedQuery(
+    return await useCachedUpdate(
       this.generateId(guildId, type),
       this.ttl,
       async () =>
