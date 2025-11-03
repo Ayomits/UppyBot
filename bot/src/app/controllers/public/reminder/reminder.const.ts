@@ -114,7 +114,7 @@ export function getCommandNameByCommandId(id: MonitoringCommandIds | string) {
   }
 }
 
-export function getBotByRemindType(type: MonitoringType) {
+export function getBotByRemindType(type: MonitoringType | number) {
   switch (type) {
     case MonitoringType.DiscordMonitoring:
       return MonitoringBot.DiscordMonitoring;
