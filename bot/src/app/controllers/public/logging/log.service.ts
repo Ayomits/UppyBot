@@ -37,7 +37,7 @@ export class UppyLogService {
   private cache: LocalCache<Snowflake, LogValue>;
 
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {
     this.cache = new LocalCache();
   }
@@ -47,14 +47,14 @@ export class UppyLogService {
     author: User,
     type: MonitoringType,
     points: number,
-    reactionTime: string
+    reactionTime: string,
   ) {
     const commandName = getCommandNameByRemindType(type)!;
     const commandId = getCommandIdByRemindType(type)!;
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
-      commandId
+      commandId,
     );
 
     const container = new ContainerBuilder().addSectionComponents(
@@ -69,12 +69,12 @@ export class UppyLogService {
                 `Исполнитель: ${author}`,
                 `Время реакции: ${reactionTime}`,
               ]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author)),
+        ),
     );
 
     return await this.push(guild, container);
@@ -88,12 +88,12 @@ export class UppyLogService {
             [
               heading("Выдан бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
     );
     return await this.push(guild, container);
   }
@@ -106,12 +106,12 @@ export class UppyLogService {
             [
               heading("Снят бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
     );
     return await this.push(guild, container);
   }
@@ -120,7 +120,7 @@ export class UppyLogService {
     const settings = await this.settingsRepository.findGuildSettings(guild.id);
 
     const logChannel = guild.channels.cache.get(
-      settings?.channels.actionLogChannelId ?? ""
+      settings?.channels.actionLogChannelId ?? "",
     );
 
     if (!logChannel || !logChannel.isSendable()) {
@@ -165,7 +165,7 @@ export class UppyLogService {
           });
           // eslint-disable-next-line no-empty
         } catch {}
-      }
+      },
     );
   }
 }

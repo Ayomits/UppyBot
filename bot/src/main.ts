@@ -66,7 +66,7 @@ async function createClient() {
 async function start() {
   await createDb().then(() => logger.success("Mongodb successfully connected"));
   await createRedisConnection().then(() =>
-    logger.success("Redis successfully connected")
+    logger.success("Redis successfully connected"),
   );
   await createClient().then(() => logger.success("Bot successfully connected"));
 }

@@ -6,11 +6,8 @@ import {
   endDateValue,
   startDateValue,
 } from "#/app/controllers/public/stats/stats.const.js";
-import type {
-  BumpGuildCalendar} from "#/db/models/bump-guild-calendar.model.js";
-import {
-  BumpGuildCalendarModel,
-} from "#/db/models/bump-guild-calendar.model.js";
+import type { BumpGuildCalendar } from "#/db/models/bump-guild-calendar.model.js";
+import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
 
 import { useCachedQuery } from "../mongo.js";
 import { redisClient } from "../redis.js";
@@ -32,7 +29,7 @@ export class BumpGuildCalendarRepository {
           ...filter,
         })
           .sort({ timestamp: -1 })
-          .limit(25)
+          .limit(25),
     );
   }
 
@@ -60,7 +57,7 @@ export class BumpGuildCalendarRepository {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
-        }
+        },
       ),
 
       redisClient.del(this.generateId(guildId)),

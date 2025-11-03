@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import type { Guild} from "#/db/models/guild.model.js";
+import type { Guild } from "#/db/models/guild.model.js";
 import { GuildType } from "#/db/models/guild.model.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
@@ -19,7 +19,7 @@ import { BotInviteService } from "../../public/bot/interactions/bot-invite.servi
 export class GuildService {
   constructor(
     @inject(BotInviteService) private botInviteService: BotInviteService,
-    @inject(GuildRepository) private guildRepository: GuildRepository
+    @inject(GuildRepository) private guildRepository: GuildRepository,
   ) {}
 
   async handleGuildSync(client: Client) {
@@ -59,7 +59,7 @@ export class GuildService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(guild.client.user))
+            builder.setURL(UsersUtility.getAvatar(guild.client.user)),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -67,9 +67,9 @@ export class GuildService {
                 heading("Спасибо, что добавили", HeadingLevel.One),
                 "",
                 "Мы уверены, что этот бот поможет стать вашему серверу лучше !",
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.botInviteService.buildResourcesLinks());

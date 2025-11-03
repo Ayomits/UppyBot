@@ -23,7 +23,7 @@ export class PremiumRepository {
     return await useCachedQuery(
       this.generateId(guildId),
       this.ttl,
-      async () => await PremiumModel.findOne({ guildId })
+      async () => await PremiumModel.findOne({ guildId }),
     );
   }
 
@@ -36,14 +36,14 @@ export class PremiumRepository {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
-        })
+        }),
     );
   }
 
   async deleteByGuildId(guildId: string) {
     return useCachedDelete(
       this.generateId(guildId),
-      async () => await PremiumModel.deleteOne({ guildId })
+      async () => await PremiumModel.deleteOne({ guildId }),
     );
   }
 
@@ -53,7 +53,7 @@ export class PremiumRepository {
 
   async cleanUpCache(id: string | string[]) {
     await redisClient.del(
-      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id
+      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id,
     );
   }
 

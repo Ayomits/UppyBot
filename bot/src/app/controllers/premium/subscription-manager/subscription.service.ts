@@ -8,7 +8,7 @@ import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 @injectable()
 export class PremiumSubscriptionManager {
   constructor(
-    @inject(GuildRepository) private guildRepository: GuildRepository
+    @inject(GuildRepository) private guildRepository: GuildRepository,
   ) {}
 
   async init() {
@@ -27,20 +27,20 @@ export class PremiumSubscriptionManager {
       scheduleManager.startOnceJob(
         this.generateId(doc.guildId),
         doc.expiresAt,
-        () => this.stopPremium(doc.guildId)
+        () => this.stopPremium(doc.guildId),
       );
     }
   }
 
   async assign(guildId: string, expiresAt: Date) {
     scheduleManager.startOnceJob(this.generateId(guildId), expiresAt, () =>
-      this.stopPremium(guildId)
+      this.stopPremium(guildId),
     );
     await Promise.all([
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt },
-        { upsert: true }
+        { upsert: true },
       ),
       this.guildRepository.update(guildId, {
         type: GuildType.Premium,
@@ -55,14 +55,14 @@ export class PremiumSubscriptionManager {
       PremiumModel.findOneAndUpdate(
         { guildId },
         { expiresAt: newExpiresAt },
-        { upsert: true }
+        { upsert: true },
       ),
       this.guildRepository.update(guildId, {
         type: GuildType.Premium,
         isActive: true,
       }),
       scheduleManager.startOnceJob(this.generateId(guildId), newExpiresAt, () =>
-        this.stopPremium(guildId)
+        this.stopPremium(guildId),
       ),
     ]);
   }
@@ -71,7 +71,7 @@ export class PremiumSubscriptionManager {
     await Promise.all([
       this.guildRepository.updateMany(
         { guildId: { $in: guildIds } },
-        { type: GuildType.Common }
+        { type: GuildType.Common },
       ),
       PremiumModel.deleteMany({ guildId: { $in: guildIds } }),
       this.guildRepository.cleanUpCache(guildIds),

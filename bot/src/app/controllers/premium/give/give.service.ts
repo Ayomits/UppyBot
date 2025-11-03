@@ -15,14 +15,14 @@ export class PremiumGiveService {
   constructor(
     @inject(PremiumSubscriptionManager)
     private premiumManager: PremiumSubscriptionManager,
-    @inject(PremiumRepository) private premiumRepository: PremiumRepository
+    @inject(PremiumRepository) private premiumRepository: PremiumRepository,
   ) {}
 
   async handleGive(
     period: string,
     amount: number,
     guildId: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     const existed = await this.premiumRepository.findByGuildId(guildId);
 
@@ -42,7 +42,7 @@ export class PremiumGiveService {
   private resolvePeriod(
     period: string,
     amount: number,
-    existed: PremiumDocument | null
+    existed: PremiumDocument | null,
   ) {
     let date = DateTime.fromJSDate(existed ? existed.expiresAt : new Date());
     switch (period) {

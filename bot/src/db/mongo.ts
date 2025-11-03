@@ -16,7 +16,7 @@ export async function createDb() {
 export async function useCachedQuery<T>(
   key: string,
   ttl: number,
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   const cached = await redisClient.getJson<T>(key);
   if (cached) {
@@ -32,7 +32,7 @@ export async function useCachedQuery<T>(
 export async function useCachedUpdate<T>(
   key: string,
   ttl: number,
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   await redisClient.del(key);
   return await useCachedQuery(key, ttl, queryFn);
@@ -40,7 +40,7 @@ export async function useCachedUpdate<T>(
 
 export async function useCachedDelete<T>(
   key: string | string[],
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   await queryFn();
   await redisClient.del(key);
