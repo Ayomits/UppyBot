@@ -7,10 +7,12 @@ import type { Remind } from "#/db/models/remind.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
 import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
+import { logger } from "#/libs/logger/logger.js";
 import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 
 import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import {
+  getBotByRemindType,
   getCommandIdByRemindType,
   getCommandNameByRemindType,
   MonitoringType,
@@ -77,7 +79,7 @@ export class ReminderScheduleManager {
     if (!guild) {
       return;
     }
-    
+
     if (!settings) {
       settings = await this.settingsRepository.findGuildSettings(guild.id);
     }
@@ -110,12 +112,18 @@ export class ReminderScheduleManager {
     const remind = { guildId: guild.id, timestamp: timestamp!, type };
 
     if (shouldStartCommon) {
+      logger.info(
+        `Common remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`
+      );
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild)
       );
     }
 
     if (shouldStartForce) {
+      logger.info(
+        `Force remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`
+      );
       scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings?.force?.seconds }).toJSDate(),
