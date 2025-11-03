@@ -3,7 +3,7 @@ import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import { type RemindDocument } from "#/db/models/remind.model.js";
+import type { Remind } from "#/db/models/remind.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
 import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
@@ -21,7 +21,7 @@ import type { ParserValue } from "./reminder.parser.js";
 export class ReminderScheduleManager {
   constructor(
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(RemindRepository) private remindRepository: RemindRepository,
+    @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
   async initReminds(client: Client) {
@@ -32,7 +32,7 @@ export class ReminderScheduleManager {
         timestamp: entry.remind?.timestamp,
         settings: entry.settings,
         type: entry.remind?.type as MonitoringType,
-      }),
+      })
     );
 
     await Promise.all(promises);
@@ -50,14 +50,14 @@ export class ReminderScheduleManager {
     ]);
 
     const settingsMap = Object.fromEntries(
-      settings?.map((s) => [s.guildId, s]),
+      settings?.map((s) => [s.guildId, s])
     );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ]),
+      ])
     );
 
     return {
@@ -77,7 +77,7 @@ export class ReminderScheduleManager {
     if (!guild) {
       return;
     }
-
+    
     if (!settings) {
       settings = await this.settingsRepository.findGuildSettings(guild.id);
     }
@@ -89,13 +89,7 @@ export class ReminderScheduleManager {
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
 
-    const lastRemind = await this.remindRepository.findOrCreate(
-      guild.id,
-      type,
-      timestamp!,
-    );
-
-    const GMTTimestamp = DateTime.fromJSDate(lastRemind.timestamp);
+    const GMTTimestamp = DateTime.fromJSDate(timestamp!);
     const GMTCurrent = DateTime.now();
 
     if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
@@ -113,9 +107,11 @@ export class ReminderScheduleManager {
 
     const shouldStartCommon = !settings?.force?.useForceOnly && !commonSchedule;
 
+    const remind = { guildId: guild.id, timestamp: timestamp!, type };
+
     if (shouldStartCommon) {
       scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
-        this.sendCommonRemind(lastRemind, guild),
+        this.sendCommonRemind(remind, guild)
       );
     }
 
@@ -123,7 +119,7 @@ export class ReminderScheduleManager {
       scheduleManager.updateJob(
         forceId,
         GMTTimestamp.minus({ seconds: settings?.force?.seconds }).toJSDate(),
-        () => this.sendForceRemind(lastRemind, guild),
+        () => this.sendForceRemind(remind, guild)
       );
     }
   }
@@ -139,7 +135,7 @@ export class ReminderScheduleManager {
   public async forceRemindReplacement(
     guild: Guild,
     type: MonitoringType | number,
-    force: number,
+    force: number
   ) {
     const { id: guildId } = guild;
     const remind = await this.remindRepository.findRemind(guildId, type);
@@ -155,13 +151,13 @@ export class ReminderScheduleManager {
 
     this.forceRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, timestamp, () =>
-      this.sendForceRemind(remind, guild),
+      this.sendForceRemind(remind, guild)
     );
   }
 
   public async commonRemindReplacement(
     guild: Guild,
-    type: MonitoringType | number,
+    type: MonitoringType | number
   ) {
     const { id: guildId } = guild;
     const remind = await this.remindRepository.findRemind(guildId, type);
@@ -174,7 +170,7 @@ export class ReminderScheduleManager {
 
     this.commonRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, remind?.timestamp, () =>
-      this.sendCommonRemind(remind, guild),
+      this.sendCommonRemind(remind, guild)
     );
   }
 
@@ -184,7 +180,7 @@ export class ReminderScheduleManager {
 
   public deleteAllCommonRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.commonRemindDeletion(guildId, v),
+      this.commonRemindDeletion(guildId, v)
     );
   }
 
@@ -194,7 +190,7 @@ export class ReminderScheduleManager {
 
   public deleteAllForceRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.forceRemindDeletion(guildId, v),
+      this.forceRemindDeletion(guildId, v)
     );
   }
 
@@ -203,34 +199,34 @@ export class ReminderScheduleManager {
     this.deleteAllForceRemind(guildId);
   }
 
-  private async sendCommonRemind(remind: RemindDocument, guild: Guild) {
+  private async sendCommonRemind(remind: Remind, guild: Guild) {
     this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.ping.content(
         settings?.roles.pingRoles ?? [],
         getCommandNameByRemindType(remind.type)!,
-        getCommandIdByRemindType(remind.type)!,
+        getCommandIdByRemindType(remind.type)!
       ),
     }));
   }
 
-  private async sendForceRemind(remind: RemindDocument, guild: Guild) {
+  private async sendForceRemind(remind: Remind, guild: Guild) {
     this.sendRemind(remind, guild, (_, settings) => ({
       content: UppyRemindSystemMessage.remind.force.content(
         settings?.roles.pingRoles ?? [],
         getCommandNameByRemindType(remind.type)!,
         getCommandIdByRemindType(remind.type)!,
-        settings?.force?.seconds,
+        settings?.force?.seconds
       ),
     }));
   }
 
   private async sendRemind(
-    remind: RemindDocument,
+    remind: Remind,
     guild: Guild,
     message: (
-      remind: RemindDocument,
-      settings: SettingsDocument,
-    ) => MessageCreateOptions,
+      remind: Remind,
+      settings: SettingsDocument
+    ) => MessageCreateOptions
   ) {
     const settings = await this.settingsRepository.findGuildSettings(guild.id);
 
