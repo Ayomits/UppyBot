@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
 import type { PremiumDocument } from "#/db/models/premium.model.js";
-import { PremiumModel } from "#/db/models/premium.model.js";
+import { PremiumRepository } from "#/db/repositories/premium.repository.js";
 
 import { PremiumSubscriptionManager } from "../subscription-manager/subscription.service.js";
 
@@ -15,15 +15,16 @@ export class PremiumGiveService {
   constructor(
     @inject(PremiumSubscriptionManager)
     private premiumManager: PremiumSubscriptionManager,
+    @inject(PremiumRepository) private premiumRepository: PremiumRepository
   ) {}
 
   async handleGive(
     period: string,
     amount: number,
     guildId: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
-    const existed = await PremiumModel.findOne({ guildId });
+    const existed = await this.premiumRepository.findByGuildId(guildId);
 
     const fn = !existed
       ? this.premiumManager.assign.bind(this.premiumManager)
@@ -41,7 +42,7 @@ export class PremiumGiveService {
   private resolvePeriod(
     period: string,
     amount: number,
-    existed: PremiumDocument | null,
+    existed: PremiumDocument | null
   ) {
     let date = DateTime.fromJSDate(existed ? existed.expiresAt : new Date());
     switch (period) {

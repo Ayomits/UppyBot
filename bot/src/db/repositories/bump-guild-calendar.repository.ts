@@ -1,10 +1,19 @@
-import type { FilterQuery, UpdateQuery } from "mongoose";
+import { DateTime } from "luxon";
+import type { FilterQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { BumpGuildCalendar } from "#/db/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarModel } from "#/db/models/bump-guild-calendar.model.js";
+import {
+  endDateValue,
+  startDateValue,
+} from "#/app/controllers/public/stats/stats.const.js";
+import type {
+  BumpGuildCalendar} from "#/db/models/bump-guild-calendar.model.js";
+import {
+  BumpGuildCalendarModel,
+} from "#/db/models/bump-guild-calendar.model.js";
 
-import { redisCache } from "../mongo.js";
+import { useCachedQuery } from "../mongo.js";
+import { redisClient } from "../redis.js";
 
 @injectable()
 export class BumpGuildCalendarRepository {
@@ -13,48 +22,52 @@ export class BumpGuildCalendarRepository {
     return new BumpGuildCalendarRepository();
   }
 
-  async findMany(filter: FilterQuery<BumpGuildCalendar>) {
-    return await BumpGuildCalendarModel.find(filter);
-  }
-
-  async findManyByGuild(guildId: string) {
-    return await BumpGuildCalendarModel.find({ guildId }).cache(
+  async findCalendar(guildId: string, filter?: FilterQuery<BumpGuildCalendar>) {
+    return await useCachedQuery(
+      this.generateId(guildId),
       this.ttl,
-      this.generateGuildKey(guildId)
+      async () =>
+        await BumpGuildCalendarModel.find({
+          guildId,
+          ...filter,
+        })
+          .sort({ timestamp: -1 })
+          .limit(25)
     );
   }
 
-  async createOne(doc: BumpGuildCalendar) {
-    await this.cleanUpCache(doc.guildId as unknown as string);
-    return await BumpGuildCalendarModel.create(doc);
+  async pushToCalendar(guildId: string) {
+    const start = DateTime.now().set(startDateValue);
+    const timestampFilter = {
+      $gte: start.toJSDate(),
+      $lte: DateTime.now().set(endDateValue).toJSDate(),
+    };
+
+    await Promise.all([
+      BumpGuildCalendarModel.findOneAndUpdate(
+        {
+          guildId,
+          timestamp: timestampFilter,
+        },
+        {
+          $setOnInsert: {
+            timestamp: start.toJSDate(),
+            formatted: start.toFormat("D.MM.YY"),
+            guildId,
+          },
+        },
+        {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        }
+      ),
+
+      redisClient.del(this.generateId(guildId)),
+    ]);
   }
 
-  async createMany(docs: BumpGuildCalendar[]) {
-    await this.cleanUpCache(docs.map((d) => d.guildId as unknown as string));
-    return await BumpGuildCalendarModel.insertMany(docs);
-  }
-
-  async updateMany(
-    filter: FilterQuery<BumpGuildCalendar>,
-    update: UpdateQuery<BumpGuildCalendar>
-  ) {
-    return await BumpGuildCalendarModel.updateMany(filter, update);
-  }
-
-  async deleteMany(filter: FilterQuery<BumpGuildCalendar>) {
-    return await BumpGuildCalendarModel.deleteMany(filter);
-  }
-
-  async cleanUpCache(id: string | string[]) {
-    if (Array.isArray(id)) {
-      return await Promise.all(id.map((x) => redisCache.clear(this.generateGuildKey(x))));
-    }
-    return await redisCache.clear(this.generateGuildKey(id));
-  }
-
-  private generateGuildKey(guildId: string) {
+  private generateId(guildId: string) {
     return `${guildId}-bump-guild-calendar`;
   }
 }
-
-

@@ -4,7 +4,8 @@ import { injectable } from "tsyringe";
 import type { Premium } from "#/db/models/premium.model.js";
 import { PremiumModel } from "#/db/models/premium.model.js";
 
-import { redisCache } from "../mongo.js";
+import { useCachedDelete, useCachedQuery, useCachedUpdate } from "../mongo.js";
+import { redisClient } from "../redis.js";
 
 @injectable()
 export class PremiumRepository {
@@ -19,24 +20,31 @@ export class PremiumRepository {
   }
 
   async findByGuildId(guildId: string) {
-    return await PremiumModel.findOne({ guildId }).cache(
+    return await useCachedQuery(
+      this.generateId(guildId),
       this.ttl,
-      this.generateId(guildId)
+      async () => await PremiumModel.findOne({ guildId })
     );
   }
 
-  async upsert(guildId: string, update: UpdateQuery<Premium>) {
-    await this.cleanUpCache(guildId);
-    return await PremiumModel.findOneAndUpdate({ guildId }, update, {
-      upsert: true,
-      new: true,
-      setDefaultsOnInsert: true,
-    }).cache(this.ttl, this.generateId(guildId));
+  async update(guildId: string, update: UpdateQuery<Premium>) {
+    return await useCachedUpdate(
+      this.generateId(guildId),
+      this.ttl,
+      async () =>
+        await PremiumModel.findOneAndUpdate({ guildId }, update, {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        })
+    );
   }
 
   async deleteByGuildId(guildId: string) {
-    await this.cleanUpCache(guildId);
-    return await PremiumModel.deleteOne({ guildId });
+    return useCachedDelete(
+      this.generateId(guildId),
+      async () => await PremiumModel.deleteOne({ guildId })
+    );
   }
 
   async deleteMany(filter: FilterQuery<Premium>) {
@@ -44,10 +52,9 @@ export class PremiumRepository {
   }
 
   async cleanUpCache(id: string | string[]) {
-    if (Array.isArray(id)) {
-      return await Promise.all(id.map((x) => redisCache.clear(this.generateId(x))));
-    }
-    return await redisCache.clear(this.generateId(id));
+    await redisClient.del(
+      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id
+    );
   }
 
   private generateId(guildId: string) {

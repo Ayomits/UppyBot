@@ -7,6 +7,7 @@ import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
 import { createDb } from "./db/mongo.js";
+import { createRedisConnection } from "./db/redis.js";
 import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
 
@@ -59,12 +60,15 @@ async function createClient() {
 
   await importx(`${dirname(import.meta.url)}/app/**/*.js`);
 
-  client.login(Env.DiscordToken);
+  await client.login(Env.DiscordToken);
 }
 
 async function start() {
-  await createDb();
-  await createClient();
+  await createDb().then(() => logger.success("Mongodb successfully connected"));
+  await createRedisConnection().then(() =>
+    logger.success("Redis successfully connected")
+  );
+  await createClient().then(() => logger.success("Bot successfully connected"));
 }
 
 start();

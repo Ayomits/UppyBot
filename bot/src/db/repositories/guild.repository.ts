@@ -4,10 +4,13 @@ import { injectable } from "tsyringe";
 import type { Guild } from "#/db/models/guild.model.js";
 import { GuildModel } from "#/db/models/guild.model.js";
 
-import { redisCache } from "../mongo.js";
+import { useCachedQuery, useCachedUpdate } from "../mongo.js";
+import { redisClient } from "../redis.js";
 
 @injectable()
 export class GuildRepository {
+  constructor() {}
+
   private ttl: number = 600_000;
 
   static create() {
@@ -23,19 +26,29 @@ export class GuildRepository {
   }
 
   async findGuild(guildId: string) {
-    return await GuildModel.findOneAndUpdate(
-      { guildId },
-      {},
-      { upsert: true, setDefaultsOnInsert: true, new: true }
-    ).cache(this.ttl, this.generateId(guildId));
+    return await useCachedQuery(
+      this.generateId(guildId),
+      this.ttl,
+      async () =>
+        await GuildModel.findOneAndUpdate(
+          { guildId },
+          {},
+          { upsert: true, setDefaultsOnInsert: true, new: true }
+        )
+    );
   }
 
   async update(guildId: string, update: UpdateQuery<Guild>) {
-    return await GuildModel.findOneAndUpdate({ guildId }, update, {
-      upsert: true,
-      setDefaultsOnInsert: true,
-      new: true,
-    }).cache(this.ttl, this.generateId(guildId));
+    return await useCachedUpdate(
+      this.generateId(guildId),
+      this.ttl,
+      async () =>
+        await GuildModel.findOneAndUpdate({ guildId }, update, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        })
+    );
   }
 
   async updateMany(filter: FilterQuery<Guild>, update: UpdateQuery<Guild>) {
@@ -43,12 +56,9 @@ export class GuildRepository {
   }
 
   async cleanUpCache(id: string | string[]) {
-    if (Array.isArray(id)) {
-      return await Promise.all(
-        id.map((id) => redisCache.clear(this.generateId(id)))
-      );
-    }
-    return await redisCache.clear(this.generateId(id));
+    await redisClient.del(
+      Array.isArray(id) ? id.map((id) => this.generateId(id)) : id
+    );
   }
 
   private generateId(guildId: string) {

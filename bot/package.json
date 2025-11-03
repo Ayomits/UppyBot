@@ -35,12 +35,12 @@
     "discordx": "^11.12.5",
     "dotenv": "^17.2.1",
     "glob": "^11.0.3",
+    "ioredis": "^5.8.2",
     "luxon": "^3.7.1",
     "mongoose": "^8.19.2",
     "node-html-parser": "^7.0.1",
     "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.2.2",
-    "ts-cache-mongoose": "^1.7.6",
     "tsyringe": "^4.10.0"
   },
   "devDependencies": {

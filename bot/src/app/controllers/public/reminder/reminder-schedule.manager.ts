@@ -3,8 +3,9 @@ import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import { type RemindDocument, RemindModel } from "#/db/models/remind.model.js";
+import { type RemindDocument } from "#/db/models/remind.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
+import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 
@@ -19,7 +20,8 @@ import type { ParserValue } from "./reminder.parser.js";
 @injectable()
 export class ReminderScheduleManager {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
   async initReminds(client: Client) {
@@ -42,7 +44,7 @@ export class ReminderScheduleManager {
 
     const [settings, reminds] = await Promise.all([
       this.settingsRepository.findMany({ guildId: { $in: guildIds } }),
-      RemindModel.find({
+      this.remindRepository.findMany({
         guildId: { $in: guildIds },
       }),
     ]);
@@ -87,10 +89,10 @@ export class ReminderScheduleManager {
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
 
-    const lastRemind = await RemindModel.findOneAndUpdate(
-      { guildId: guild.id, type },
-      { timestamp },
-      { upsert: true, new: true }
+    const lastRemind = await this.remindRepository.findOrCreate(
+      guild.id,
+      type,
+      timestamp!
     );
 
     const GMTTimestamp = DateTime.fromJSDate(lastRemind.timestamp);
@@ -140,7 +142,7 @@ export class ReminderScheduleManager {
     force: number
   ) {
     const { id: guildId } = guild;
-    const remind = await RemindModel.findOne({ guildId, type });
+    const remind = await this.remindRepository.findRemind(guildId, type);
 
     if (!remind) {
       return;
@@ -162,7 +164,7 @@ export class ReminderScheduleManager {
     type: MonitoringType | number
   ) {
     const { id: guildId } = guild;
-    const remind = await RemindModel.findOne({ guildId, type });
+    const remind = await this.remindRepository.findRemind(guildId, type);
 
     if (!remind) {
       return;
