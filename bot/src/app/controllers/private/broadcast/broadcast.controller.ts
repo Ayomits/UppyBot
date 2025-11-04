@@ -31,7 +31,11 @@ export class BroadcastController {
     let count: number = 0;
     await Promise.all(
       client.guilds.cache.map(async (guild) => {
-        const owner = guild.members.cache.get(guild.ownerId);
+        const owner = await guild.members.fetch(guild.ownerId).catch(null);
+
+        if (!owner) {
+          return;
+        }
 
         try {
           await owner?.createDM(true);
@@ -40,7 +44,7 @@ export class BroadcastController {
         } catch {
           // nothing here
         }
-      }),
+      })
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }
