@@ -25,7 +25,7 @@ type ActionOptions = {
 export class BumpBanService {
   constructor(
     @inject(UppyLogService) private logService: UppyLogService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
   async handleBumpBanInit(client: Client) {
@@ -129,7 +129,7 @@ export class BumpBanService {
     member: GuildMember,
     type: number,
     settings?: SettingsDocument | null,
-    bumpBan?: BumpBan | null,
+    bumpBan?: BumpBan | null
   ): Promise<
     | {
         params: ActionOptions["force"];
@@ -157,7 +157,9 @@ export class BumpBanService {
 
     const guild = member.guild;
 
-    const role = guild.roles.cache.get(settings?.bumpBan.roleId ?? "");
+    const role = await guild.roles
+      .fetch(settings?.bumpBan.roleId ?? "")
+      .catch(null);
 
     if (!role) {
       return;
@@ -191,7 +193,7 @@ export class BumpBanService {
       member: GuildMember;
       role: Role;
       type: number;
-    },
+    }
   ) {
     let hasRole: boolean = options.shouldRoleAction === true;
     let hasBumpBan: boolean = options.shouldDbQuery === false;
@@ -219,12 +221,14 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id,
+          options.member.guild.id
         );
 
     const guild = options.member.guild;
 
-    const role = guild.roles.cache.get(options.settings?.bumpBan.roleId ?? "");
+    const role = await guild.roles
+      .fetch(options.settings?.bumpBan.roleId ?? "")
+      .catch(null);
 
     if (!role) {
       return false;
@@ -249,7 +253,11 @@ export class BumpBanService {
     }
 
     await Promise.all([
-      BumpBanModel.findOneAndUpdate(filter, {}, { upsert: true }),
+      BumpBanModel.findOneAndUpdate(
+        filter,
+        {},
+        { upsert: true, setDefaultsOnInsert: true }
+      ),
       options.member.roles.add(role).catch(() => null),
       this.logService.sendBumpBanCreationLog(guild, options.member.user),
     ]);
@@ -261,12 +269,14 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id,
+          options.member.guild.id
         );
 
     const guild = options.member.guild;
 
-    const role = guild.roles.cache.get(options.settings?.bumpBan.roleId ?? "");
+    const role = await guild.roles.fetch(
+      options.settings?.bumpBan.roleId ?? ""
+    );
 
     if (!role) {
       return false;

@@ -11,12 +11,12 @@ import { PrivateLogConfig } from "./logs.const.js";
 @singleton()
 export class PrivateLogController {
   @On({ event: Events.GuildCreate })
-  handleGuildCreate([guild]: ArgsOf<Events.GuildCreate>) {
+  async handleGuildCreate([guild]: ArgsOf<Events.GuildCreate>) {
     const client = guild.client;
 
-    const channel = client.guilds.cache
-      .get(PrivateLogConfig.GuildId)
-      ?.channels.cache.get(PrivateLogConfig.Logs.Invites);
+    const channel = await client.channels
+      .fetch(PrivateLogConfig.Logs.Invites)
+      .catch(null);
     if (!channel) {
       return;
     }
@@ -40,7 +40,7 @@ export class PrivateLogController {
             name: "Server ID",
             value: codeBlock(guild.id),
             inline: true,
-          },
+          }
         );
       channel
         .send({
@@ -51,12 +51,12 @@ export class PrivateLogController {
   }
 
   @On({ event: Events.GuildDelete })
-  handleGuildDelete([guild]: ArgsOf<Events.GuildDelete>) {
+  async handleGuildDelete([guild]: ArgsOf<Events.GuildDelete>) {
     const client = guild.client;
 
-    const channel = client.guilds.cache
-      .get(PrivateLogConfig.GuildId)
-      ?.channels.cache.get(PrivateLogConfig.Logs.Leaves);
+    const channel = await client.channels
+      .fetch(PrivateLogConfig.Logs.Leaves)
+      .catch(null);
     if (!channel) {
       return;
     }
@@ -80,7 +80,7 @@ export class PrivateLogController {
             name: "Server ID",
             value: codeBlock(guild.id),
             inline: true,
-          },
+          }
         );
       channel
         .send({
