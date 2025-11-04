@@ -14,10 +14,10 @@ export class BannerService {
       memberCount += guild.memberCount;
     }
 
+    const banner = await this.drawBanner(guilds.size, memberCount);
+
     try {
-      await client.user
-        ?.setBanner(await this.drawBanner(guilds.size, memberCount))
-        .catch(null);
+      await client.user?.setBanner(banner).catch(null);
     } catch {
       // empty
     }
@@ -52,8 +52,8 @@ export class BannerService {
 
     ctx.drawImage(bannerImage, 0, 0);
 
-    ctx.fillText(guilds.toString(), 530, 108);
-    ctx.fillText(members.toString(), 530, 158);
+    ctx.fillText(guilds.toString(), 530, 106);
+    ctx.fillText(members.toString(), 530, 157);
 
     return canvas.toBuffer("image/png");
   }

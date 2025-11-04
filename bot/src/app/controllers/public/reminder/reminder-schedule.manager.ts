@@ -91,7 +91,13 @@ export class ReminderScheduleManager {
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
 
-    const GMTTimestamp = DateTime.fromJSDate(timestamp!);
+    const remind = await this.remindRepository.findOrCreate(
+      guild.id,
+      type,
+      timestamp!
+    );
+
+    const GMTTimestamp = DateTime.fromJSDate(remind.timestamp!);
     const GMTCurrent = DateTime.now();
 
     if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
@@ -108,8 +114,6 @@ export class ReminderScheduleManager {
       !forceSchedule;
 
     const shouldStartCommon = !settings?.force?.useForceOnly && !commonSchedule;
-
-    const remind = { guildId: guild.id, timestamp: timestamp!, type };
 
     if (shouldStartCommon) {
       logger.info(
@@ -130,6 +134,8 @@ export class ReminderScheduleManager {
         () => this.sendForceRemind(remind, guild)
       );
     }
+
+    return remind;
   }
 
   private generateCommonId(guildId: string, type: MonitoringType | number) {
@@ -247,7 +253,7 @@ export class ReminderScheduleManager {
     }
 
     try {
-      (channel as TextChannel)?.send?.(message(remind, settings!));
+      await (channel as TextChannel)?.send?.(message(remind, settings!));
       return true;
     } catch {
       return false;

@@ -20,7 +20,7 @@ export class RemindRepository {
     return await useCachedQuery(
       this.generateId(guildId, type),
       this.ttl,
-      async () => await RemindModel.findOne({ guildId, type }),
+      async () => await RemindModel.findOne({ guildId, type })
     );
   }
 
@@ -31,9 +31,9 @@ export class RemindRepository {
       async () =>
         await RemindModel.findOneAndUpdate(
           { guildId, type },
-          { $setOnInsert: { timestamp } },
-          { upsert: true, new: true },
-        ),
+          { timestamp },
+          { upsert: true, new: true }
+        )
     );
   }
 
