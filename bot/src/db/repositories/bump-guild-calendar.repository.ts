@@ -29,15 +29,17 @@ export class BumpGuildCalendarRepository {
           ...filter,
         })
           .sort({ timestamp: -1 })
-          .limit(25),
+          .limit(25)
     );
   }
 
   async pushToCalendar(guildId: string) {
-    const start = DateTime.now().set(startDateValue);
+    const start = DateTime.now().setLocale("ru").set(startDateValue);
+    const end = DateTime.now().setLocale("ru").set(endDateValue);
+
     const timestampFilter = {
       $gte: start.toJSDate(),
-      $lte: DateTime.now().set(endDateValue).toJSDate(),
+      $lte: end.toJSDate(),
     };
 
     await Promise.all([
@@ -57,9 +59,8 @@ export class BumpGuildCalendarRepository {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
-        },
+        }
       ),
-
       redisClient.del(this.generateId(guildId)),
     ]);
   }
