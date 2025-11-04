@@ -53,14 +53,14 @@ export class ReminderHandler {
     @inject(BumpGuildCalendarRepository)
     private bumpGuildCalendar: BumpGuildCalendarRepository,
     @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
-    @inject(RemindRepository) private remindRepository: RemindRepository,
+    @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -73,15 +73,17 @@ export class ReminderHandler {
         return;
       }
 
-      const [settings, lastRemind] = await Promise.all([
-        this.settingsRepository.findGuildSettings(guildId!),
-        this.remindRepository.findRemind(guildId!, payload.type),
-      ]);
+      const settings = await this.settingsRepository.findGuildSettings(
+        guildId!
+      );
 
-      await this.scheduleManager.remind({ settings: settings!, ...payload });
+      const remind = await this.scheduleManager.remind({
+        settings: settings!,
+        ...payload,
+      });
 
       if (process.env.APP_ENV == "dev" || payload.success) {
-        return this.handleSuccess(message, payload, settings!, lastRemind);
+        return this.handleSuccess(message, payload, settings!, remind!);
       }
     } catch (err) {
       logger.error(err);
@@ -92,7 +94,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument | null,
+    lastRemind: RemindDocument | null
   ) {
     const existed = await BumpLogModel.findOne({ messageId: message.id });
 
@@ -118,14 +120,14 @@ export class ReminderHandler {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!))
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
               heading(
                 UppyRemindSystemMessage.monitoring.embed.title,
-                HeadingLevel.Two,
+                HeadingLevel.Two
               ),
               UppyRemindSystemMessage.monitoring.embed.description(
                 user!,
@@ -133,11 +135,11 @@ export class ReminderHandler {
                 getCommandIdByRemindType(type)!,
                 message.createdAt,
                 lastRemind,
-                settings.points.enabled,
+                settings.points.enabled
               ),
-            ].join("\n"),
-          ),
-        ),
+            ].join("\n")
+          )
+        )
     );
 
     await Promise.allSettled([
@@ -158,8 +160,8 @@ export class ReminderHandler {
         points,
         calculateDiffTime(
           message.createdAt,
-          lastRemind?.timestamp ?? new Date(),
-        ),
+          lastRemind?.timestamp ?? new Date()
+        )
       ),
       this.createBump({
         guildId: guild!.id,
@@ -196,7 +198,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     if (!settings.bumpBan.enabled) {
       return;
@@ -212,7 +214,7 @@ export class ReminderHandler {
           $inc: {
             removeIn: 1,
           },
-        },
+        }
       ),
       this.bumpBanService.addBumpBan({
         member,
