@@ -12,6 +12,7 @@ import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { createBump } from "#/db/utils/create-bump.js";
+import { logger } from "#/libs/logger/logger.js";
 
 import type { Loop } from "./__interface.js";
 
@@ -28,8 +29,9 @@ export class LikeLoop implements Loop {
 
   async create(client: Client) {
     await this.task(client);
+    logger.log("Like sync started");
     setInterval(() => {
-      this.task(client);
+      this.task(client).then(() => logger.log("Like sync executed"));
     }, 300_000);
   }
 
@@ -45,7 +47,6 @@ export class LikeLoop implements Loop {
         obj[guild.guildId] = [];
       }
 
-      // Задержка между запросами
       await new Promise((resolve) => setTimeout(resolve, 400));
     }
 
