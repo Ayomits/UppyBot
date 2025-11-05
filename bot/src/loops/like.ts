@@ -1,9 +1,11 @@
+import type { Guild } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
 import { fetchServer } from "#/api/ds-monitoring/api.js";
+import { BumpLogService } from "#/app/controllers/public/logging/log.service.js";
 import { MonitoringType } from "#/app/controllers/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "#/app/controllers/public/reminder/reminder-schedule.manager.js";
 import { BumpLogModel, BumpLogSourceType } from "#/db/models/bump-log.model.js";
@@ -24,7 +26,8 @@ export class LikeLoop implements Loop {
     @inject(ReminderScheduleManager)
     private remindScheduleManager: ReminderScheduleManager,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
+    @inject(BumpLogService) private logService: BumpLogService
   ) {}
 
   async create(client: Client) {
@@ -54,19 +57,21 @@ export class LikeLoop implements Loop {
     }
 
     for (const guildId in obj) {
+      const guild = client.guilds.cache.get(guildId);
       const entry = obj[guildId];
       const settings = await this.settingsRepository.findGuildSettings(guildId);
+
       for (const user of entry) {
         await Promise.all([
-          this.ensureRemind(client, guildId, user.timestamp, settings),
-          this.ensureBumpUser(guildId, user.id, user.timestamp, settings),
+          this.ensureRemind(guild!, user.timestamp, settings),
+          this.ensureBumpUser(guild!, user.id, user.timestamp, settings),
         ]);
       }
     }
   }
 
   private async ensureBumpUser(
-    guildId: string,
+    guild: Guild,
     executorId: string,
     timestamp: Date,
     settings: SettingsDocument
@@ -76,7 +81,7 @@ export class LikeLoop implements Loop {
       DateTime.fromJSDate(timestamp).set({ millisecond: 999 }),
     ];
     const hasLog = await BumpLogModel.findOne({
-      guildId,
+      guildId: guild.id,
       executorId: executorId,
       type: MonitoringType.DiscordMonitoring,
       source: BumpLogSourceType.Web,
@@ -98,22 +103,36 @@ export class LikeLoop implements Loop {
         settings.points.dsMonitoring.bonus;
     }
 
-    await createBump({
-      guildId,
-      executorId,
-      points,
-      type: MonitoringType.DiscordMonitoring,
-      timestamp,
-    });
+    await Promise.all([
+      createBump({
+        guildId: guild.id,
+        executorId,
+        points,
+        type: MonitoringType.DiscordMonitoring,
+        timestamp,
+      }),
+    ]);
+
+    const author = await guild.members.fetch(executorId).catch(null);
+
+    if (author) {
+      await this.logService
+        .sendCommandExecutionLog(
+          guild,
+          author.user!,
+          MonitoringType.DiscordMonitoring,
+          points,
+          "ВРЕМЯ НА САЙТЕ"
+        )
+        .catch(null);
+    }
   }
 
   private async ensureRemind(
-    client: Client,
-    guildId: string,
+    guild: Guild,
     timestamp: Date,
     settings: SettingsDocument
   ) {
-    const guild = client.guilds.cache.get(guildId);
     await this.remindScheduleManager.remind({
       guild,
       settings,
