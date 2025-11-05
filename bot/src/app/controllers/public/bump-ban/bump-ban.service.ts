@@ -7,7 +7,7 @@ import { BumpBanModel } from "#/db/models/bump-ban.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 
-import { UppyLogService } from "../logging/log.service.js";
+import { BumpLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
 
 type ActionOptions = {
@@ -24,7 +24,7 @@ type ActionOptions = {
 @injectable()
 export class BumpBanService {
   constructor(
-    @inject(UppyLogService) private logService: UppyLogService,
+    @inject(BumpLogService) private logService: BumpLogService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 

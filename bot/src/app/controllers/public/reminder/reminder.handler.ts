@@ -28,7 +28,7 @@ import { calculateDiffTime } from "#/libs/time/diff.js";
 
 import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
-import { UppyLogService } from "../logging/log.service.js";
+import { BumpLogService } from "../logging/log.service.js";
 import {
   DefaultTimezone,
   getCommandIdByRemindType,
@@ -48,7 +48,7 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-    @inject(UppyLogService) private logService: UppyLogService,
+    @inject(BumpLogService) private logService: BumpLogService,
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(BumpGuildCalendarRepository)
