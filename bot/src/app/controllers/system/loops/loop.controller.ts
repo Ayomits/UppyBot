@@ -1,4 +1,5 @@
 import { Events } from "discord.js";
+import type { ArgsOf, Client} from "discordx";
 import { Discord, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
@@ -10,7 +11,7 @@ export class LoopController {
   constructor(@inject(LikeLoop) private likeLoop: LikeLoop) {}
 
   @On({ event: Events.ClientReady })
-  handleReady() {
-    this.likeLoop.create();
+  handleReady([client]: ArgsOf<Events.ClientReady>) {
+    this.likeLoop.create(client as Client);
   }
 }

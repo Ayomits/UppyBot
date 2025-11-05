@@ -21,6 +21,7 @@ import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calend
 import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
 import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
+import { createBump } from "#/db/utils/create-bump.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 import { calculateDiffTime } from "#/libs/time/diff.js";
@@ -163,13 +164,7 @@ export class ReminderHandler {
           lastRemind?.timestamp ?? new Date()
         )
       ),
-      this.createBump({
-        guildId: guild!.id,
-        executorId: user!.id,
-        messageId: message.id,
-        points: points,
-        type,
-      }),
+      createBump(guild!.id, user!.id, points, type, message.id),
     ]);
 
     if (type === MonitoringType.ServerMonitoring) {
@@ -224,31 +219,5 @@ export class ReminderHandler {
     ]);
 
     await this.bumpBanService.handlePostIncrementBumpBans(guild, type);
-  }
-
-  private async createBump({
-    guildId,
-    executorId,
-    messageId,
-    points,
-    type,
-  }: {
-    guildId: string;
-    executorId: string;
-    messageId: string;
-    points: number;
-    type: number | MonitoringType;
-  }) {
-    await Promise.allSettled([
-      BumpLogModel.create({
-        guildId,
-        executorId,
-        messageId,
-        points,
-        type,
-      }),
-      this.bumpGuildCalendar.pushToCalendar(guildId),
-      this.bumpUserRepository.update(guildId, executorId, points, type),
-    ]);
   }
 }

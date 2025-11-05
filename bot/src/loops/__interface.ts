@@ -1,4 +1,6 @@
+import type { Client } from "discordx";
+
 export interface Loop {
-  create(): void | Promise<void>;
-  task(): void | Promise<void>;
+  create(client: Client): void | Promise<void>;
+  task(client: Client): void | Promise<void>;
 }
