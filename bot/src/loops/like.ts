@@ -31,8 +31,10 @@ export class LikeLoop implements Loop {
     logger.log("Initial like sync stated");
     await this.task(client);
     logger.log("Initial like sync ended");
-    setInterval(() => {
-      this.task(client).then(() => logger.log("Like sync executed"));
+    setInterval(async () => {
+      logger.log("Like sync executed");
+      await this.task(client).then();
+      logger.info("Like sync ended");
     }, 300_000);
   }
 
