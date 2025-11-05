@@ -63,7 +63,7 @@ export class LikeLoop implements Loop {
 
   private async ensureBumpUser(
     guildId: string,
-    userId: string,
+    executorId: string,
     timestamp: Date,
     settings: SettingsDocument
   ) {
@@ -73,7 +73,7 @@ export class LikeLoop implements Loop {
     ];
     const hasLog = await BumpLogModel.findOne({
       guildId,
-      executorId: userId,
+      executorId: executorId,
       type: MonitoringType.DiscordMonitoring,
       source: BumpLogSourceType.Web,
       createdAt: {
@@ -94,15 +94,13 @@ export class LikeLoop implements Loop {
         settings.points.dsMonitoring.bonus;
     }
 
-    await createBump(
+    await createBump({
       guildId,
-      userId,
+      executorId,
       points,
-      MonitoringType.DiscordMonitoring,
-      null,
-      BumpLogSourceType.Web,
-      timestamp
-    );
+      type: MonitoringType.DiscordMonitoring,
+      timestamp,
+    });
   }
 
   private async ensureRemind(

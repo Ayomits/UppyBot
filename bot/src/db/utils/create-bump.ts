@@ -4,15 +4,23 @@ import { BumpLogModel, BumpLogSourceType } from "../models/bump-log.model.js";
 import { BumpGuildCalendarRepository } from "../repositories/bump-guild-calendar.repository.js";
 import { BumpUserRepository } from "../repositories/bump-user.repository.js";
 
-export async function createBump(
-  guildId: string,
-  executorId: string,
-  points: number,
-  type: number | MonitoringType,
-  messageId: string | null = null,
-  source: number = BumpLogSourceType.Discord,
-  timestamp: Date = new Date()
-) {
+export async function createBump({
+  guildId,
+  executorId,
+  points = 0,
+  type,
+  messageId = null,
+  source = BumpLogSourceType.Web,
+  timestamp = new Date(),
+}: {
+  guildId: string;
+  executorId: string;
+  points: number;
+  type: number | MonitoringType;
+  messageId?: string | null;
+  source?: number;
+  timestamp?: Date;
+}) {
   const bumpGuildCalendar = BumpGuildCalendarRepository.create();
   const bumpUserRepository = BumpUserRepository.create();
   await Promise.all([

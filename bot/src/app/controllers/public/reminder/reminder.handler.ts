@@ -164,7 +164,13 @@ export class ReminderHandler {
           lastRemind?.timestamp ?? new Date()
         )
       ),
-      createBump(guild!.id, user!.id, points, type, message.id),
+      createBump({
+        guildId: guild!.id,
+        executorId: user!.id,
+        points,
+        type,
+        messageId: message.id,
+      }),
     ]);
 
     if (type === MonitoringType.ServerMonitoring) {
