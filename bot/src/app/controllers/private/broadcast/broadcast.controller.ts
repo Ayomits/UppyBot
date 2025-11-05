@@ -3,10 +3,11 @@ import type {
   MessageCreateOptions,
 } from "discord.js";
 import { ApplicationCommandType, MessageFlags } from "discord.js";
-import { ContextMenu, Discord } from "discordx";
+import { ContextMenu, Discord, Guard } from "discordx";
 import { singleton } from "tsyringe";
 
 import { developerGuilds } from "#/const/guilds.js";
+import { SelectedGuildsOnly } from "#/guards/only-selected-guilds.js";
 
 @singleton()
 @Discord()
@@ -17,6 +18,7 @@ export class BroadcastController {
     defaultMemberPermissions: ["Administrator"],
     type: ApplicationCommandType.Message,
   })
+  @Guard(SelectedGuildsOnly(developerGuilds))
   async handleBroadcast(interaction: MessageContextMenuCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const client = interaction.client;
