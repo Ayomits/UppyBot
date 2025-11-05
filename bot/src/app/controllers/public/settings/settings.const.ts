@@ -37,7 +37,7 @@ export type SettingsConfig = {
     title: string;
     customId: string;
     fields: (
-      settings: SettingsDocument,
+      settings: SettingsDocument
     ) => ActionRowBuilder<TextInputBuilder>[];
   };
 };
@@ -54,7 +54,6 @@ export const SettingsNavigation: {
   {
     label: "Преждевременные напоминания",
     value: "force",
-    description: "Только для премиум серверов",
   },
   {
     label: "Бамп баны",
@@ -70,7 +69,7 @@ const baseConfigs = {
   multiRole: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -83,7 +82,7 @@ const baseConfigs = {
   singleChannel: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -96,7 +95,7 @@ const baseConfigs = {
   toggle: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -114,7 +113,7 @@ const createNumberInput = (id: string, label: string, value?: number) =>
       .setLabel(label)
       .setStyle(TextInputStyle.Short)
       .setPlaceholder("1")
-      .setValue(value?.toString() || "1"),
+      .setValue(value?.toString() || "1")
   );
 
 // Конфигурации разделов
@@ -123,18 +122,18 @@ export const SettingsRolesPipeline = {
   staffRoles: baseConfigs.multiRole("roles.staffRoles", "Роли для сотрудников"),
   managerRoles: baseConfigs.multiRole(
     "roles.managerRoles",
-    "Роли с расширенными правами",
+    "Роли с расширенными правами"
   ),
 } as const;
 
 export const SettingsChannelsPipeline = {
   actionLogChannelId: baseConfigs.singleChannel(
     "channels.actionLogChannelId",
-    "Канал для логгирования действий",
+    "Канал для логгирования действий"
   ),
   pingChannelId: baseConfigs.singleChannel(
     "channels.pingChannelId",
-    "Канал для напоминаний",
+    "Канал для напоминаний"
   ),
 } as const;
 
@@ -146,7 +145,7 @@ export const SettingsForceRemindsPipeline = {
   enabled: baseConfigs.toggle("force.enabled", "Состояние"),
   useForceOnly: baseConfigs.toggle(
     "force.useForceOnly",
-    "Использовать только преждевременные пинги",
+    "Использовать только преждевременные пинги"
   ),
   seconds: {
     label: "Секунд до преждевременного пинга",
@@ -165,7 +164,7 @@ export const SettingsForceRemindsPipeline = {
 // Функция для создания конфигураций мониторинга поинтов
 const createPointsMonitoringConfig = (
   service: string,
-  label: string,
+  label: string
 ): SettingsConfig => ({
   label,
   field: `points.${service}`,
@@ -182,7 +181,7 @@ const createPointsMonitoringConfig = (
       createNumberInput(
         "default",
         "Обычно",
-        settings.points?.[service]?.default,
+        settings.points?.[service]?.default
       ),
       createNumberInput("bonus", "Бонус", settings.points?.[service]?.bonus),
     ],
@@ -249,7 +248,7 @@ export const SettingsPipelines = {
     pipeline: SettingsRemindsPipeline,
   },
   force: {
-    access: GuildType.Premium,
+    access: GuildType.Common,
     pipeline: SettingsForceRemindsPipeline,
   },
   kd: {
