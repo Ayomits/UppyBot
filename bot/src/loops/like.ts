@@ -65,14 +65,18 @@ export class LikeLoop implements Loop {
     for (const guildId in obj) {
       const guild = client.guilds.cache.get(guildId);
       const entry = obj[guildId];
-      const settings = await this.settingsRepository.findGuildSettings(guildId);
-
-      for (const user of entry) {
-        await Promise.all([
-          this.ensureRemind(guild!, user.timestamp, settings),
-          this.ensureBumpUser(guild!, user.id, user.timestamp, settings),
-        ]);
+      if (entry.length === 0) {
+        continue;
       }
+      const settings = await this.settingsRepository.findGuildSettings(guildId);
+      const lastUser = entry[entry.length - 1];
+
+      await Promise.all([
+        ...entry.map((user) =>
+          this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
+        ),
+        this.ensureRemind(guild!, lastUser.timestamp, settings),
+      ]);
     }
   }
 
