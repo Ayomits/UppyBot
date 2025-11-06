@@ -1,6 +1,11 @@
-import type { Guild } from "discord.js";
+import {
+  ContainerBuilder,
+  type Guild,
+  heading,
+  MessageFlags,
+  unorderedList,
+} from "discord.js";
 import type { Client } from "discordx";
-import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
@@ -8,12 +13,12 @@ import { fetchServer } from "#/api/ds-monitoring/api.js";
 import { BumpLogService } from "#/app/controllers/public/logging/log.service.js";
 import { MonitoringType } from "#/app/controllers/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "#/app/controllers/public/reminder/reminder-schedule.manager.js";
-import { BumpLogModel, BumpLogSourceType } from "#/db/models/bump-log.model.js";
 import type { SettingsDocument } from "#/db/models/settings.model.js";
-import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
+import { BumpLogRepository } from "#/db/repositories/bump-log-repository.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { createBump } from "#/db/utils/create-bump.js";
+import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 
 import type { Loop } from "./__interface.js";
@@ -26,8 +31,8 @@ export class LikeLoop implements Loop {
     @inject(ReminderScheduleManager)
     private remindScheduleManager: ReminderScheduleManager,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
-    @inject(BumpLogService) private logService: BumpLogService
+    @inject(BumpLogService) private logService: BumpLogService,
+    @inject(BumpLogRepository) private bumpLogRepository: BumpLogRepository
   ) {}
 
   async create(client: Client) {
@@ -76,20 +81,12 @@ export class LikeLoop implements Loop {
     timestamp: Date,
     settings: SettingsDocument
   ) {
-    const [startPeriod, endPeriod] = [
-      DateTime.fromJSDate(timestamp).set({ millisecond: 0 }),
-      DateTime.fromJSDate(timestamp).set({ millisecond: 999 }),
-    ];
-    const hasLog = await BumpLogModel.findOne({
-      guildId: guild.id,
-      executorId: executorId,
-      type: MonitoringType.DiscordMonitoring,
-      source: BumpLogSourceType.Web,
-      createdAt: {
-        $gte: startPeriod.toJSDate(),
-        $lte: endPeriod.toJSDate(),
-      },
-    });
+    const hasLog = await this.bumpLogRepository.findByTimestamp(
+      guild.id,
+      executorId,
+      timestamp,
+      MonitoringType.DiscordMonitoring
+    );
 
     if (hasLog) {
       return;
@@ -103,27 +100,52 @@ export class LikeLoop implements Loop {
         settings.points.dsMonitoring.bonus;
     }
 
-    await Promise.all([
-      createBump({
-        guildId: guild.id,
-        executorId,
-        points,
-        type: MonitoringType.DiscordMonitoring,
-        timestamp,
-      }),
-    ]);
+    await createBump({
+      guildId: guild.id,
+      executorId,
+      points,
+      type: MonitoringType.DiscordMonitoring,
+      timestamp,
+    });
 
     const author = await guild.members.fetch(executorId).catch(null);
 
-    if (author) {
-      await this.logService
-        .sendCommandExecutionLog(
-          guild,
-          author.user!,
-          MonitoringType.DiscordMonitoring,
-          points,
-          "ВРЕМЯ НА САЙТЕ"
+    if (!author) {
+      return;
+    }
+
+    const channel = await guild.channels
+      .fetch(settings.channels.pingChannelId ?? "")
+      .catch(null);
+
+    if (!channel) {
+      return;
+    }
+
+    const container = new ContainerBuilder().addSectionComponents((builder) =>
+      builder
+        .setThumbnailAccessory((builder) =>
+          builder.setURL(UsersUtility.getAvatar(author))
         )
+        .addTextDisplayComponents((builder) =>
+          builder.setContent(
+            [
+              heading("Команда /like на сайте"),
+              unorderedList([`Исполнитель: ${author}`, `Поинты: ${points}`]),
+            ].join("\n")
+          )
+        )
+    );
+
+    if (channel.isSendable()) {
+      await channel
+        .send({
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
+          allowedMentions: {
+            users: [],
+          },
+        })
         .catch(null);
     }
   }
