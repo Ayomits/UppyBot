@@ -23,6 +23,8 @@ import { PremiumGiveService } from "./premium-give/give.service.js";
   defaultMemberPermissions: ["Administrator"],
   dmPermission: false,
 })
+@SlashGroup("dev")
+@Guard(SelectedGuildsOnly(developerGuilds))
 export class DevController {
   constructor(
     @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService
@@ -34,7 +36,6 @@ export class DevController {
     defaultMemberPermissions: ["Administrator"],
     guilds: developerGuilds,
   })
-  @Guard(SelectedGuildsOnly(developerGuilds))
   handleGiveCommand(
     @SlashChoice("hour", "day", "week", "month", "year")
     @SlashOption({
