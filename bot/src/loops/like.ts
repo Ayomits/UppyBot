@@ -6,6 +6,7 @@ import {
   unorderedList,
 } from "discord.js";
 import type { Client } from "discordx";
+import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
@@ -158,7 +159,7 @@ export class LikeLoop implements Loop {
     await this.remindScheduleManager.remind({
       guild,
       settings,
-      timestamp,
+      timestamp: DateTime.fromJSDate(timestamp).plus({ hours: 4 }).toJSDate(),
       type: MonitoringType.DiscordMonitoring,
     });
   }
