@@ -27,9 +27,14 @@ export class BumpLog extends TimeStamps {
   executorId: Snowflake;
 
   @prop({ required: true })
-  source: BumpLogSourceType;
+  source: number;
 
-  @prop({ required: false, default: null })
+  @prop({
+    required: false,
+    default: null,
+    index: true,
+    alias: "message_id", 
+  })
   messageId: string | null;
 
   @prop({ required: true, default: 0, min: 0 })
