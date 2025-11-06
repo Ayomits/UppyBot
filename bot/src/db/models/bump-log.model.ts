@@ -29,7 +29,7 @@ export class BumpLog extends TimeStamps {
   @prop({ required: true })
   source: BumpLogSourceType;
 
-  @prop({ required: false, unique: false, default: null })
+  @prop({ required: false, default: null })
   messageId: string | null;
 
   @prop({ required: true, default: 0, min: 0 })
