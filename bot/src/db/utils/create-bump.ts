@@ -1,7 +1,8 @@
 import type { MonitoringType } from "#/app/controllers/public/reminder/reminder.const.js";
 
-import { BumpLogModel, BumpLogSourceType } from "../models/bump-log.model.js";
+import { BumpLogSourceType } from "../models/bump-log.model.js";
 import { BumpGuildCalendarRepository } from "../repositories/bump-guild-calendar.repository.js";
+import { BumpLogRepository } from "../repositories/bump-log-repository.js";
 import { BumpUserRepository } from "../repositories/bump-user.repository.js";
 
 export async function createBump({
@@ -23,15 +24,16 @@ export async function createBump({
 }) {
   const bumpGuildCalendar = BumpGuildCalendarRepository.create();
   const bumpUserRepository = BumpUserRepository.create();
+  const bumpLogRepository = BumpLogRepository.create();
   await Promise.all([
-    BumpLogModel.create({
+    bumpLogRepository.createLog({
       guildId,
       executorId,
       messageId,
       points,
       type,
       source,
-      createdAt: timestamp,
+      timestamp,
     }),
     bumpGuildCalendar.pushToCalendar(guildId),
     bumpUserRepository.update(guildId, executorId, points, type),
