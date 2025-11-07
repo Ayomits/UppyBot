@@ -91,26 +91,27 @@ export class ReminderScheduleManager {
     const commonId = this.generateCommonId(guild.id, type);
     const forceId = this.generateForceId(guild.id, type);
 
+    const currentTimestamp = DateTime.now();
+
+    if (currentTimestamp.toMillis() >= timestamp!.getTime()) {
+      return;
+    }
+
     const remind = await this.remindRepository.findOrCreate(
       guild.id,
       type,
       timestamp!
     );
 
-    const GMTTimestamp = DateTime.fromJSDate(remind.timestamp!);
-    const GMTCurrent = DateTime.now();
-
-    if (GMTCurrent.toMillis() >= GMTTimestamp.toMillis()) {
-      return;
-    }
+    const remindTimestamp = DateTime.fromJSDate(remind.timestamp!);
 
     const commonSchedule = scheduleManager.getJob(commonId);
     const forceSchedule = scheduleManager.getJob(forceId);
 
     const shouldStartForce =
       settings?.force?.seconds > 0 &&
-      GMTTimestamp.minus({ second: settings?.force?.seconds }).toMillis() >
-        GMTCurrent.toMillis() &&
+      remindTimestamp.minus({ second: settings?.force?.seconds }).toMillis() >
+        currentTimestamp.toMillis() &&
       !forceSchedule;
 
     const shouldStartCommon = !settings?.force?.useForceOnly && !commonSchedule;
@@ -119,7 +120,7 @@ export class ReminderScheduleManager {
       logger.info(
         `Common remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`
       );
-      scheduleManager.updateJob(commonId, GMTTimestamp.toJSDate(), () =>
+      scheduleManager.updateJob(commonId, remindTimestamp.toJSDate(), () =>
         this.sendCommonRemind(remind, guild)
       );
     }
@@ -130,7 +131,7 @@ export class ReminderScheduleManager {
       );
       scheduleManager.updateJob(
         forceId,
-        GMTTimestamp.minus({ seconds: settings?.force?.seconds }).toJSDate(),
+        remindTimestamp.minus({ seconds: settings?.force?.seconds }).toJSDate(),
         () => this.sendForceRemind(remind, guild)
       );
     }
