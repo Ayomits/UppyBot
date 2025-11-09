@@ -55,7 +55,8 @@ export class LikeLoop implements Loop {
     for (const guild of guilds) {
       try {
         obj[guild.guildId] = await this.parseHtml(guild.guildId);
-      } catch  {
+      } catch (err) {
+        console.error(err);
         obj[guild.guildId] = [];
       }
 
@@ -89,8 +90,11 @@ export class LikeLoop implements Loop {
     timestamp: Date,
     settings: SettingsDocument
   ) {
+    if (!guild) {
+      return;
+    }
     const hasLog = await this.bumpLogRepository.findByTimestamp(
-      guild.id,
+      guild?.id,
       executorId,
       timestamp,
       MonitoringType.DiscordMonitoring
