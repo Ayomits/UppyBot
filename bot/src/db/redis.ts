@@ -32,17 +32,17 @@ class RedisClient {
   async getJson<T>(key: string): Promise<T | null> {
     const value = await redis.get(key);
     if (!value) {
-      logger.info("CACHE MISS:", key);
+      logger.debug("CACHE MISS:", key);
       return null;
     }
-    logger.info("CACHE HIT:", key);
+    logger.debug("CACHE HIT:", key);
     return JSON.parse(value) as T;
   }
 
   async setJson<T>(key: string, value: T, ttl: number) {
     return await redis
       .set(key, JSON.stringify(value), "EX", ttl)
-      .then(() => logger.info("CACHE SET:", key));
+      .then(() => logger.debug("CACHE SET:", key));
   }
 
   async del(key: string | string[]) {
@@ -54,7 +54,7 @@ class RedisClient {
 
     return await redis
       .del(...keys)
-      .then(() => logger.info(`Deleted next keys: ${keys.join(", ")}`));
+      .then(() => logger.debug(`Deleted next keys: ${keys.join(", ")}`));
   }
 
   async delByPattern(pattern: string) {
@@ -87,7 +87,7 @@ class RedisClient {
       }
     } while (cursor !== "0");
 
-    logger.info(`DELETED BY PATTERN ${pattern}: ${totalDeleted} keys`);
+    logger.debug(`DELETED BY PATTERN ${pattern}: ${totalDeleted} keys`);
 
     return totalDeleted;
   }
