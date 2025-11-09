@@ -109,6 +109,12 @@ export class Settings extends TimeStamps {
     useForceOnly: boolean;
     seconds: number;
   };
+
+  @prop({ default: { url: null, token: null } })
+  webhooks: {
+    url: string | null;
+    token: string | null;
+  };
 }
 
 export const SettingsCollectionName = "settings";

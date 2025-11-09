@@ -1,4 +1,6 @@
 import {
+  bold,
+  chatInputApplicationCommandMention,
   ContainerBuilder,
   type Guild,
   type GuildMember,
@@ -9,6 +11,7 @@ import {
   SectionBuilder,
   TextDisplayBuilder,
   ThumbnailBuilder,
+  userMention,
 } from "discord.js";
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
@@ -17,21 +20,20 @@ import { BumpBanModel } from "#/db/models/bump-ban.model.js";
 import { BumpLogModel } from "#/db/models/bump-log.model.js";
 import type { RemindDocument } from "#/db/models/remind.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
-import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calendar.repository.js";
-import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
-import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { createBump } from "#/db/utils/create-bump.js";
+import { CryptographyService } from "#/libs/crypto/index.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 import { calculateDiffTime } from "#/libs/time/diff.js";
 
-import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
+import { WebhookManager } from "../../webhooks/webhook.manager.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { BumpLogService } from "../logging/log.service.js";
 import {
   DefaultTimezone,
   getCommandIdByRemindType,
+  getCommandNameByCommandId,
   MonitoringBot,
   MonitoringType,
 } from "./reminder.const.js";
@@ -51,10 +53,8 @@ export class ReminderHandler {
     @inject(BumpLogService) private logService: BumpLogService,
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpGuildCalendarRepository)
-    private bumpGuildCalendar: BumpGuildCalendarRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
-    @inject(RemindRepository) private remindRepository: RemindRepository
+    @inject(WebhookManager) private webhookManager: WebhookManager,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {}
 
   public async handleCommand(message: Message) {
@@ -118,6 +118,8 @@ export class ReminderHandler {
       points += config.bonus;
     }
 
+    const command = getCommandIdByRemindType(type)!;
+
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
@@ -126,22 +128,35 @@ export class ReminderHandler {
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
-              heading(
-                UppyRemindSystemMessage.monitoring.embed.title,
-                HeadingLevel.Two
-              ),
-              UppyRemindSystemMessage.monitoring.embed.description(
-                user!,
-                points,
-                getCommandIdByRemindType(type)!,
-                message.createdAt,
-                lastRemind,
+              heading("Продвижение на сервере", HeadingLevel.Two),
+              [
+                `Команда: ${chatInputApplicationCommandMention(getCommandNameByCommandId(command)!, command)}`,
                 settings.points.enabled
-              ),
+                  ? `Поинты: ${bold(`${points} поинтов`)}`
+                  : "",
+                `Исполнитель: ${userMention(user!.id)}`,
+                `Время реакции: ${calculateDiffTime(message.createdAt, lastRemind?.timestamp ?? new Date())}`,
+              ]
+                .filter(Boolean)
+                .join("\n"),
             ].join("\n")
           )
         )
     );
+
+    if (settings.webhooks?.url) {
+      this.webhookManager.pushConsumer(
+        settings.webhooks.url,
+        this.cryptography.decrypt(settings.webhooks.token!),
+        this.webhookManager.createCommandExecutedPayload({
+          channelId: message.channelId,
+          executedAt: new Date(),
+          points,
+          type,
+          userId: user!.id,
+        })
+      );
+    }
 
     await Promise.allSettled([
       message

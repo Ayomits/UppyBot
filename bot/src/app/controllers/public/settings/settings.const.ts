@@ -58,7 +58,6 @@ export const SettingsNavigation: {
   {
     label: "Бамп баны",
     value: "bumpBan",
-    description: "Только для премиум серверов",
   },
   { label: "Поинты", value: "points" },
 ];
@@ -252,11 +251,11 @@ export const SettingsPipelines = {
     pipeline: SettingsForceRemindsPipeline,
   },
   kd: {
-    access: GuildType.Premium,
+    access: GuildType.Common,
     pipeline: SettingsKdPipeline,
   },
   bumpBan: {
-    access: GuildType.Premium,
+    access: GuildType.Common,
     pipeline: SettingsBumpBanPipeline,
   },
 } as const;

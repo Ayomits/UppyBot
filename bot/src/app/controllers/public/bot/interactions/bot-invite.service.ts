@@ -10,7 +10,6 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { CoreInviteMessage } from "#/app/messages/bot-invite.message.js";
 import { ExternalLinks } from "#/const/links.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 
@@ -24,15 +23,15 @@ export class BotInviteService {
           .addTextDisplayComponents((builder) =>
             builder.setContent(
               [
-                heading(CoreInviteMessage.embed.title, HeadingLevel.Two),
+                heading("Основные ресурсы бота", HeadingLevel.Two),
                 "",
-                CoreInviteMessage.embed.description,
-              ].join("\n"),
-            ),
+                "Ниже вы сможете найти все официальные ресурсы связанные с Uppy",
+              ].join("\n")
+            )
           )
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user)),
-          ),
+            builder.setURL(UsersUtility.getAvatar(interaction.user))
+          )
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -47,25 +46,25 @@ export class BotInviteService {
     return [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
-          .setLabel(CoreInviteMessage.embed.resources.support)
+          .setLabel("Сервер поддержки")
           .setStyle(ButtonStyle.Link)
           .setURL(ExternalLinks.SupportServer),
         new ButtonBuilder()
-          .setLabel(CoreInviteMessage.embed.resources.invite)
+          .setLabel("Разработчики тгк")
           .setStyle(ButtonStyle.Link)
           .setURL(ExternalLinks.InviteBot),
         new ButtonBuilder()
-          .setLabel(CoreInviteMessage.embed.resources.devs)
+          .setLabel("Новостной тгк")
           .setStyle(ButtonStyle.Link)
           .setURL(ExternalLinks.DevsTgc),
         new ButtonBuilder()
-          .setLabel(CoreInviteMessage.embed.resources.news)
+          .setLabel("Добавить бота")
           .setStyle(ButtonStyle.Link)
           .setURL(ExternalLinks.NewsTgc),
         new ButtonBuilder()
-          .setLabel(CoreInviteMessage.embed.resources.docs)
+          .setLabel("Документация")
           .setStyle(ButtonStyle.Link)
-          .setURL(ExternalLinks.DocsUrl),
+          .setURL(ExternalLinks.DocsUrl)
       ),
     ];
   }

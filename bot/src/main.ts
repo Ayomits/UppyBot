@@ -7,9 +7,11 @@ import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
 import { createDb } from "./db/mongo.js";
+import { createRabbitConnection } from "./db/rabbitmq.js";
 import { createRedisConnection } from "./db/redis.js";
 import { Env } from "./libs/config/index.js";
 import { logger } from "./libs/logger/logger.js";
+import { registerConsumers } from "./queue/routes/index.js";
 
 async function createClient() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
@@ -66,8 +68,12 @@ async function createClient() {
 async function start() {
   await createDb().then(() => logger.success("Mongodb successfully connected"));
   await createRedisConnection().then(() =>
-    logger.success("Redis successfully connected"),
+    logger.success("Redis successfully connected")
   );
+  await createRabbitConnection().then(() =>
+    logger.success("Rabbitmq connected")
+  );
+  await registerConsumers();
   await createClient().then(() => logger.success("Bot successfully connected"));
 }
 

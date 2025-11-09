@@ -6,7 +6,10 @@ import type { BumpBan } from "#/db/models/bump-ban.model.js";
 import { BumpBanModel } from "#/db/models/bump-ban.model.js";
 import { type SettingsDocument } from "#/db/models/settings.model.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
+import { CryptographyService } from "#/libs/crypto/index.js";
 
+import { WebhookManager } from "../../webhooks/webhook.manager.js";
+import { WebhookNotificationType } from "../../webhooks/webhook.types.js";
 import { BumpLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
 
@@ -25,7 +28,9 @@ type ActionOptions = {
 export class BumpBanService {
   constructor(
     @inject(BumpLogService) private logService: BumpLogService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(WebhookManager) private webhookManager: WebhookManager,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {}
 
   async handleBumpBanInit(client: Client) {
@@ -252,6 +257,20 @@ export class BumpBanService {
       return false;
     }
 
+    if (options.settings.webhooks.url) {
+      this.webhookManager.pushConsumer(
+        options.settings.webhooks.url,
+        this.cryptography.decrypt(options.settings.webhooks.token!),
+        this.webhookManager.createBumpBanPayload(
+          WebhookNotificationType.BumpBanRemoval,
+          {
+            userId: options.member.id,
+            executedAt: new Date(),
+          }
+        )
+      );
+    }
+
     await Promise.all([
       BumpBanModel.findOneAndUpdate(
         filter,
@@ -299,6 +318,20 @@ export class BumpBanService {
 
     if (!hasBumpBan || !hasRole) {
       return false;
+    }
+
+    if (options.settings.webhooks.url) {
+      this.webhookManager.pushConsumer(
+        options.settings.webhooks.url,
+        this.cryptography.decrypt(options.settings.webhooks.token!),
+        this.webhookManager.createBumpBanPayload(
+          WebhookNotificationType.BumpBanRemoval,
+          {
+            userId: options.member.id,
+            executedAt: new Date(),
+          }
+        )
+      );
     }
 
     await Promise.all([

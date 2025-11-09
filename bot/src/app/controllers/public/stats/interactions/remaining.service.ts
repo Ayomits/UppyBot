@@ -8,6 +8,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  chatInputApplicationCommandMention,
   ContainerBuilder,
   heading,
   HeadingLevel,
@@ -16,16 +17,20 @@ import {
   SeparatorBuilder,
   TextDisplayBuilder,
   ThumbnailBuilder,
+  time,
+  TimestampStyles,
 } from "discord.js";
+import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { UppyRemainingMessage } from "#/app/messages/remaining.message.js";
 import type { RemindDocument } from "#/db/models/remind.model.js";
 import { RemindModel } from "#/db/models/remind.model.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
 
 import {
+  getCommandIdByRemindType,
+  getCommandNameByRemindType,
   MonitoringBot,
   MonitoringType,
 } from "../../reminder/reminder.const.js";
@@ -37,7 +42,7 @@ export class UppyRemainingService extends BaseUppyService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const repl = await interaction.editReply(
-      await this.buildRemaining(interaction),
+      await this.buildRemaining(interaction)
     );
 
     const collector = createSafeCollector(repl, {
@@ -62,7 +67,7 @@ export class UppyRemainingService extends BaseUppyService {
   }
 
   private async buildRemaining(
-    interaction: Interaction,
+    interaction: Interaction
   ): Promise<InteractionEditReplyOptions> {
     const [
       discordMonitoring,
@@ -72,16 +77,16 @@ export class UppyRemainingService extends BaseUppyService {
     ] = await Promise.all([
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DiscordMonitoring,
+        MonitoringBot.DiscordMonitoring
       ),
       this.fetchMonitoringBot(interaction.guild!, MonitoringBot.SdcMonitoring),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.ServerMonitoring,
+        MonitoringBot.ServerMonitoring
       ),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DisboardMonitoring,
+        MonitoringBot.DisboardMonitoring
       ),
     ]);
 
@@ -111,14 +116,14 @@ export class UppyRemainingService extends BaseUppyService {
       .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
-      monitorings.map((m) => [m.type, m as RemindDocument]),
+      monitorings.map((m) => [m.type, m as RemindDocument])
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel(UppyRemainingMessage.buttons.update)
+        .setLabel("Обновить информацию")
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
-        .setStyle(ButtonStyle.Secondary),
+        .setStyle(ButtonStyle.Secondary)
     );
 
     const container = new ContainerBuilder()
@@ -127,17 +132,17 @@ export class UppyRemainingService extends BaseUppyService {
           .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
               [
-                heading(UppyRemainingMessage.embed.title, HeadingLevel.Two),
+                heading("Статус мониторингов", HeadingLevel.Two),
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                UppyRemainingMessage.embed.fields(monitoringsMap as any),
-              ].join("\n"),
-            ),
+                this.buildMonitoringStatuses(monitoringsMap as any),
+              ].join("\n")
+            )
           )
           .setThumbnailAccessory(
             new ThumbnailBuilder().setURL(
-              UsersUtility.getAvatar(interaction.user),
-            ),
-          ),
+              UsersUtility.getAvatar(interaction.user)
+            )
+          )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(updateButton);
@@ -146,5 +151,39 @@ export class UppyRemainingService extends BaseUppyService {
       components: [container],
       flags: MessageFlags.IsComponentsV2,
     };
+  }
+
+  private buildMonitoringStatus(monitoring?: RemindDocument) {
+    if (!monitoring) return "Нет данных";
+
+    const timestamp = DateTime.fromJSDate(monitoring.timestamp).toMillis();
+
+    const curr = DateTime.now().toMillis();
+
+    const dsTimestamp = Math.floor(timestamp / 1_000);
+
+    return curr > timestamp
+      ? `${chatInputApplicationCommandMention(getCommandNameByRemindType(monitoring.type)!, getCommandIdByRemindType(monitoring.type)!)}`
+      : `${time(dsTimestamp, TimestampStyles.RelativeTime)} ${time(dsTimestamp, TimestampStyles.LongTime)}`;
+  }
+
+  private buildMonitoringStatuses(
+    monitorings: Record<string, RemindDocument>
+  ): string {
+    const values: string[] = [];
+
+    for (const key in monitorings) {
+      const monitoring = monitorings[key];
+      values.push(
+        // @ts-expect-error it's ok
+        `${userMention(getBotByRemindType(Number(key)))}: ${canUseMonitoring(monitoring)}`
+      );
+    }
+
+    if (values.length === 0) {
+      return "Нет мониторингов на сервере";
+    }
+
+    return values.join("\n");
   }
 }
