@@ -11,14 +11,15 @@ import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
 import { fetchServer } from "#/api/ds-monitoring/api.js";
-import { BumpLogService } from "#/app/controllers/public/logging/log.service.js";
 import { MonitoringType } from "#/app/controllers/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "#/app/controllers/public/reminder/reminder-schedule.manager.js";
+import { WebhookManager } from "#/app/controllers/webhooks/webhook.manager.js";
 import type { SettingsDocument } from "#/db/models/settings.model.js";
 import { BumpLogRepository } from "#/db/repositories/bump-log-repository.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { createBump } from "#/db/utils/create-bump.js";
+import { CryptographyService } from "#/libs/crypto/index.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
 
@@ -32,8 +33,10 @@ export class LikeLoop implements Loop {
     @inject(ReminderScheduleManager)
     private remindScheduleManager: ReminderScheduleManager,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpLogService) private logService: BumpLogService,
-    @inject(BumpLogRepository) private bumpLogRepository: BumpLogRepository
+    @inject(BumpLogRepository) private bumpLogRepository: BumpLogRepository,
+    @inject(WebhookManager) private webhookManager: WebhookManager,
+    @inject(CryptographyService)
+    private cryptographyService: CryptographyService
   ) {}
 
   async create(client: Client) {
@@ -109,6 +112,20 @@ export class LikeLoop implements Loop {
       points =
         settings.points.dsMonitoring.default +
         settings.points.dsMonitoring.bonus;
+    }
+
+    if (settings.webhooks.url) {
+      this.webhookManager.pushConsumer(
+        settings.webhooks.url,
+        this.cryptographyService.decrypt(settings.webhooks.token!),
+        this.webhookManager.createCommandExecutedPayload({
+          channelId: null,
+          executedAt: timestamp,
+          points,
+          type: MonitoringType.DiscordMonitoring,
+          userId: executorId,
+        })
+      );
     }
 
     await createBump({

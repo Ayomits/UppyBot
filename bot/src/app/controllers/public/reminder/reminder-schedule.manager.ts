@@ -1,4 +1,12 @@
-import type { Guild, MessageCreateOptions, TextChannel } from "discord.js";
+import {
+  chatInputApplicationCommandMention,
+  type Guild,
+  type MessageCreateOptions,
+  roleMention,
+  type TextChannel,
+  time,
+  TimestampStyles,
+} from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
@@ -10,7 +18,6 @@ import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { logger } from "#/libs/logger/logger.js";
 import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
 
-import { UppyRemindSystemMessage } from "../../../messages/remind-system.message.js";
 import {
   getBotByRemindType,
   getCommandIdByRemindType,
@@ -215,23 +222,18 @@ export class ReminderScheduleManager {
   }
 
   private async sendCommonRemind(remind: Remind, guild: Guild) {
+    const commandName = getCommandNameByRemindType(remind.type)!;
+    const commandId = getCommandIdByRemindType(remind.type)!;
     this.sendRemind(remind, guild, (_, settings) => ({
-      content: UppyRemindSystemMessage.remind.ping.content(
-        settings?.roles.pingRoles ?? [],
-        getCommandNameByRemindType(remind.type)!,
-        getCommandIdByRemindType(remind.type)!
-      ),
+      content: `${settings.roles.pingRoles?.map(roleMention).join(" ")}, пора использовать команду ${chatInputApplicationCommandMention(commandName, commandId)}!`,
     }));
   }
 
   private async sendForceRemind(remind: Remind, guild: Guild) {
+    const commandName = getCommandNameByRemindType(remind.type)!;
+    const commandId = getCommandIdByRemindType(remind.type)!;
     this.sendRemind(remind, guild, (_, settings) => ({
-      content: UppyRemindSystemMessage.remind.force.content(
-        settings?.roles.pingRoles ?? [],
-        getCommandNameByRemindType(remind.type)!,
-        getCommandIdByRemindType(remind.type)!,
-        settings?.force?.seconds
-      ),
+      content: `${settings.roles.pingRoles?.map(roleMention).join(" ")}, команда ${chatInputApplicationCommandMention(commandName, commandId)} будет доступа ${time(Math.floor((Date.now() + settings.force!.seconds * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
     }));
   }
 

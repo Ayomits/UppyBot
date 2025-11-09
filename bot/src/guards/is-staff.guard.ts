@@ -5,12 +5,10 @@ import type { GuardFunction } from "discordx";
 import { developers } from "#/const/owners.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 
-import { UppyGuardMessage } from "../app/messages/guard.message.js";
-
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,
   _,
-  next,
+  next
 ) => {
   const member = interaction.member as GuildMember;
 
@@ -20,12 +18,12 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
 
   const settingsRepository = SettingsRepository.create();
   const settings = await settingsRepository.findGuildSettings(
-    interaction.guildId!,
+    interaction.guildId!
   );
 
   if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {
     return interaction.reply({
-      content: UppyGuardMessage.isHelper.invalidSettings,
+      content: "В настройках ботах нужно выставить роли для сотрудников!",
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -37,7 +35,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   }
 
   return interaction.reply({
-    content: UppyGuardMessage.isHelper.notHelper,
+    content: "Вы не имеете роли сотрудников",
     flags: MessageFlags.Ephemeral,
   });
 };
