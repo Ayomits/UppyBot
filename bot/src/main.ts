@@ -2,10 +2,10 @@ import "reflect-metadata";
 
 import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
-import { GatewayIntentBits } from "discord.js";
-import { Client, DIService, tsyringeDependencyRegistryEngine } from "discordx";
+import { DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
+import { client } from "./client.js";
 import { createDb } from "./db/mongo.js";
 import { createRabbitConnection } from "./db/rabbitmq.js";
 import { createRedisConnection } from "./db/redis.js";
@@ -15,19 +15,6 @@ import { registerConsumers } from "./queue/routes/index.js";
 
 async function createClient() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
-  const client = new Client({
-    intents: [
-      GatewayIntentBits.MessageContent,
-      GatewayIntentBits.GuildMembers,
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMessages,
-    ],
-    silent: Env.AppEnv !== "dev",
-    logger,
-    simpleCommand: {
-      prefix: "!",
-    },
-  });
 
   client.once("ready", async () => {
     async function initCommands(__retries = 0) {
