@@ -5,7 +5,6 @@ import {
   MessageFlags,
   unorderedList,
 } from "discord.js";
-import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
@@ -17,18 +16,20 @@ import { WebhookManager } from "#/app/controllers/webhooks/webhook.manager.js";
 import type { SettingsDocument } from "#/db/models/settings.model.js";
 import { BumpLogRepository } from "#/db/repositories/bump-log-repository.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
+import { RemindRepository } from "#/db/repositories/remind.repository.js";
 import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { createBump } from "#/db/utils/create-bump.js";
 import { CryptographyService } from "#/libs/crypto/index.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { logger } from "#/libs/logger/logger.js";
+import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
 
 import type { Loop } from "./__interface.js";
 
 type ParsedUser = { id: string; isSite: boolean; timestamp: Date };
 
 @injectable()
-export class LikeLoop implements Loop {
+export class WebLikeSyncManager implements Loop {
   constructor(
     @inject(ReminderScheduleManager)
     private remindScheduleManager: ReminderScheduleManager,
@@ -39,51 +40,58 @@ export class LikeLoop implements Loop {
     private cryptographyService: CryptographyService
   ) {}
 
-  async create(client: Client) {
+  async create() {
     logger.log("Initial like sync stated");
-    await this.task(client);
+    await this.task();
     logger.log("Initial like sync ended");
     setInterval(async () => {
       logger.log("Like sync started");
-      await this.task(client);
+      await this.task();
       logger.log("Like sync ended");
     }, 300_000);
   }
 
-  async task(client: Client): Promise<void> {
+  static create() {
+    const settingsRepository = SettingsRepository.create();
+    const remindRepository = RemindRepository.create();
+    return new WebLikeSyncManager(
+      new ReminderScheduleManager(settingsRepository, remindRepository),
+      settingsRepository,
+      BumpLogRepository.create(),
+      WebhookManager.create(),
+      CryptographyService.create()
+    );
+  }
+
+  async task(): Promise<void> {
     const guildRepository = GuildRepository.create();
-    const guilds = await guildRepository.findMany({ isActive: true });
-    const obj: Record<string, ParsedUser[]> = {};
-
-    for (const guild of guilds) {
-      try {
-        obj[guild.guildId] = await this.parseHtml(guild.guildId);
-      } catch {
-        obj[guild.guildId] = [];
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 400));
+    const guilds = (await guildRepository.findMany({ isActive: true })).map(
+      (guild) => guild.guildId
+    );
+    for (const guildId in guilds) {
+      likeSyncProduce({ guildId: guildId });
     }
+  }
 
-    for (const guildId in obj) {
-      logger.info(`Start like sync for guild ${guildId}`);
-      const guild = client.guilds.cache.get(guildId);
-      const entry = obj[guildId];
-      if (entry.length === 0) {
-        logger.info(`No web like users for ${guildId}. Skip`);
-        continue;
-      }
-      const settings = await this.settingsRepository.findGuildSettings(guildId);
-      const lastUser = entry[entry.length - 1];
-      logger.info(`${entry.length} users for ${guildId} syncing`);
-      await Promise.all([
-        ...entry.map((user) =>
-          this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
-        ),
-        this.ensureRemind(guild!, lastUser.timestamp, settings),
-      ]);
-      logger.info(`${entry.length} users for ${guildId} synced`);
+  public async syncGuildLikes(guild: Guild | null | undefined) {
+    if (!guild) return;
+    const guildId = guild.id;
+    const users = await this.parseHtml(guildId);
+    logger.info(`Start like sync for guild ${guildId}`);
+    if (users.length === 0) {
+      logger.info(`No web like users for ${guildId}. Skip`);
+      return;
     }
+    const settings = await this.settingsRepository.findGuildSettings(guildId);
+    const lastUser = users[users.length - 1];
+    logger.info(`${users.length} users for ${guildId} syncing`);
+    await Promise.all([
+      ...users.map((user) =>
+        this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
+      ),
+      this.ensureRemind(guild!, lastUser.timestamp, settings),
+    ]);
+    logger.info(`${users.length} users for ${guildId} synced`);
   }
 
   private async ensureBumpUser(
