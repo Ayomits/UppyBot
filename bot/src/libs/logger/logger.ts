@@ -1,6 +1,8 @@
 import { Logger as AyoLogger } from "ayologger";
 import type { ILogger } from "discordx";
 
+import { Env } from "../config/index.js";
+
 const ayoLogger = new AyoLogger();
 
 export class Logger implements ILogger {
@@ -11,6 +13,10 @@ export class Logger implements ILogger {
     ayoLogger.info(...args);
   }
   log(...args: unknown[]): void {
+    ayoLogger.info(...args);
+  }
+  debug(...args: unknown[]): void {
+    if (Env.AppEnv !== "dev") return;
     ayoLogger.info(...args);
   }
   success(...args: unknown[]): void {
