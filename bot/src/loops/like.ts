@@ -55,8 +55,7 @@ export class LikeLoop implements Loop {
     for (const guild of guilds) {
       try {
         obj[guild.guildId] = await this.parseHtml(guild.guildId);
-      } catch (err) {
-        console.error(err);
+      } catch {
         obj[guild.guildId] = [];
       }
 
