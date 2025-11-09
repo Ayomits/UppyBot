@@ -42,7 +42,7 @@ export class LikeLoop implements Loop {
     logger.log("Initial like sync ended");
     setInterval(async () => {
       logger.log("Like sync executed");
-      await this.task(client).then();
+      await this.task(client);
       logger.info("Like sync ended");
     }, 300_000);
   }
@@ -55,7 +55,7 @@ export class LikeLoop implements Loop {
     for (const guild of guilds) {
       try {
         obj[guild.guildId] = await this.parseHtml(guild.guildId);
-      } catch {
+      } catch  {
         obj[guild.guildId] = [];
       }
 
@@ -70,13 +70,14 @@ export class LikeLoop implements Loop {
       }
       const settings = await this.settingsRepository.findGuildSettings(guildId);
       const lastUser = entry[entry.length - 1];
-
+      logger.info(`${entry.length} users syncing`);
       await Promise.all([
         ...entry.map((user) =>
           this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
         ),
         this.ensureRemind(guild!, lastUser.timestamp, settings),
       ]);
+      logger.info(`${entry.length} users synced`);
     }
   }
 
