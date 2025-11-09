@@ -1,5 +1,9 @@
 import axios from "axios";
 
+import { logger } from "#/libs/logger/logger.js";
+
+import { getProxy } from "../config/proxy.js";
+
 export const dsMonitoring = axios.create({
   baseURL: "https://discordserver.info",
   headers: {
@@ -28,7 +32,19 @@ dsMonitoring.interceptors.request.use((config) => {
 });
 
 export async function fetchServer(guildId: string) {
-  const response = await dsMonitoring.get<string>(`/${guildId}`);
-
-  return response;
+  const proxy = getProxy();
+  try {
+    const response = await dsMonitoring.get<string>(`/${guildId}`, {
+      proxy: {
+        host: proxy.ip,
+        port: Number(proxy.port)!,
+      },
+    });
+    return response;
+  } catch (err) {
+    if (err.statusText === "ECONNREFUSED") {
+      logger.log(proxy.ip, proxy.port, "Invalid");
+      return await fetchServer(guildId);
+    }
+  }
 }
