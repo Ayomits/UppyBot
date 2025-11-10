@@ -161,7 +161,7 @@ export class UppyInfoService extends BaseUppyService {
 
     ctx.fillStyle = "black";
     ctx.strokeStyle = "#000000";
-    ctx.font = "14px onest-extrabold";
+    ctx.font = "15px onest-extrabold";
     ctx.textAlign = "left";
 
     const bannerImage = await loadImage(pathToFileURL(bannerPath));
