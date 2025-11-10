@@ -37,7 +37,7 @@ export class BumpLogService {
   private cache: LocalCache<Snowflake, LogValue>;
 
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {
     this.cache = new LocalCache();
   }
@@ -47,14 +47,14 @@ export class BumpLogService {
     author: User,
     type: MonitoringType,
     points: number,
-    reactionTime: string
+    reactionTime: string,
   ) {
     const commandName = getCommandNameByRemindType(type)!;
     const commandId = getCommandIdByRemindType(type)!;
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
-      commandId
+      commandId,
     );
 
     const container = new ContainerBuilder().addSectionComponents(
@@ -69,12 +69,12 @@ export class BumpLogService {
                 `Исполнитель: ${author}`,
                 `Время реакции: ${reactionTime}`,
               ]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author)),
+        ),
     );
 
     return await this.push(guild, container);
@@ -88,12 +88,12 @@ export class BumpLogService {
             [
               heading("Выдан бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
     );
     return await this.push(guild, container);
   }
@@ -106,12 +106,12 @@ export class BumpLogService {
             [
               heading("Снят бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
-        )
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
+        ),
     );
     return await this.push(guild, container);
   }
@@ -165,7 +165,7 @@ export class BumpLogService {
           });
           // eslint-disable-next-line no-empty
         } catch {}
-      }
+      },
     );
   }
 }

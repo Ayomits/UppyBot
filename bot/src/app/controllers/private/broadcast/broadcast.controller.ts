@@ -46,7 +46,7 @@ export class BroadcastController {
         } catch {
           // nothing here
         }
-      })
+      }),
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }

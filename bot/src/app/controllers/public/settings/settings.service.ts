@@ -32,7 +32,7 @@ import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { getNestedValue } from "#/libs/json/nested.js";
 import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
-import { createSafeCollector } from "#/libs/utils/collector.js";
+import { createSafeCollector } from "#/libs/djs/collector.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
 import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";

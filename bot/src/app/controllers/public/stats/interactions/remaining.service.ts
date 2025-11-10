@@ -26,8 +26,8 @@ import { injectable } from "tsyringe";
 
 import type { RemindDocument } from "#/db/models/remind.model.js";
 import { RemindModel } from "#/db/models/remind.model.js";
+import { createSafeCollector } from "#/libs/djs/collector.js";
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { createSafeCollector } from "#/libs/utils/collector.js";
 
 import {
   getBotByRemindType,
@@ -44,7 +44,7 @@ export class UppyRemainingService extends BaseUppyService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const repl = await interaction.editReply(
-      await this.buildRemaining(interaction)
+      await this.buildRemaining(interaction),
     );
 
     const collector = createSafeCollector(repl, {
@@ -69,7 +69,7 @@ export class UppyRemainingService extends BaseUppyService {
   }
 
   private async buildRemaining(
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<InteractionEditReplyOptions> {
     const [
       discordMonitoring,
@@ -79,16 +79,16 @@ export class UppyRemainingService extends BaseUppyService {
     ] = await Promise.all([
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DiscordMonitoring
+        MonitoringBot.DiscordMonitoring,
       ),
       this.fetchMonitoringBot(interaction.guild!, MonitoringBot.SdcMonitoring),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.ServerMonitoring
+        MonitoringBot.ServerMonitoring,
       ),
       this.fetchMonitoringBot(
         interaction.guild!,
-        MonitoringBot.DisboardMonitoring
+        MonitoringBot.DisboardMonitoring,
       ),
     ]);
 
@@ -118,14 +118,14 @@ export class UppyRemainingService extends BaseUppyService {
       .limit(types.length);
 
     const monitoringsMap = Object.fromEntries(
-      monitorings.map((m) => [m.type, m as RemindDocument])
+      monitorings.map((m) => [m.type, m as RemindDocument]),
     );
 
     const updateButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel("Обновить информацию")
         .setCustomId(StaffCustomIds.remaining.buttons.updaters.updateRemaining)
-        .setStyle(ButtonStyle.Secondary)
+        .setStyle(ButtonStyle.Secondary),
     );
 
     const container = new ContainerBuilder()
@@ -137,14 +137,14 @@ export class UppyRemainingService extends BaseUppyService {
                 heading("Статус мониторингов", HeadingLevel.Two),
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 this.buildMonitoringStatuses(monitoringsMap as any),
-              ].join("\n")
-            )
+              ].join("\n"),
+            ),
           )
           .setThumbnailAccessory(
             new ThumbnailBuilder().setURL(
-              UsersUtility.getAvatar(interaction.user)
-            )
-          )
+              UsersUtility.getAvatar(interaction.user),
+            ),
+          ),
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(updateButton);
@@ -170,14 +170,14 @@ export class UppyRemainingService extends BaseUppyService {
   }
 
   private buildMonitoringStatuses(
-    monitorings: Record<string, RemindDocument>
+    monitorings: Record<string, RemindDocument>,
   ): string {
     const values: string[] = [];
 
     for (const key in monitorings) {
       const monitoring = monitorings[key];
       values.push(
-        `${userMention(getBotByRemindType(Number(key))!)}: ${this.buildMonitoringStatus(monitoring)}`
+        `${userMention(getBotByRemindType(Number(key))!)}: ${this.buildMonitoringStatus(monitoring)}`,
       );
     }
 

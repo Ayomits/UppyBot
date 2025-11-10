@@ -60,7 +60,7 @@ export class PremiumController {
   @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
   handleSubscribeCommand(interaction: ChatInputCommandInteraction) {
     return this.premiumSubscribeCommandService.handleSubscribeCommand(
-      interaction
+      interaction,
     );
   }
 

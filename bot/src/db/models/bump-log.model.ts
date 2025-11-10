@@ -7,7 +7,7 @@ import {
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
-import type { LiteralEnum } from "#/libs/utils/types.js";
+import type { LiteralEnum } from "#/libs/djs/types.js";
 
 export const BumpLogSourceType = {
   Web: 0,
@@ -33,7 +33,7 @@ export class BumpLog extends TimeStamps {
     required: false,
     default: null,
     index: true,
-    alias: "message_id", 
+    alias: "message_id",
   })
   messageId: string | null;
 

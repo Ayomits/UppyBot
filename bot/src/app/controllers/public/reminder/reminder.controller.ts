@@ -17,7 +17,7 @@ export class BumpReminderController {
     private reminderHandler: ReminderHandler,
     @inject(ReminderScheduleManager)
     private remindSchedule: ReminderScheduleManager,
-    @inject(WebLikeSyncManager) private likeManager: WebLikeSyncManager
+    @inject(WebLikeSyncManager) private likeManager: WebLikeSyncManager,
   ) {}
 
   @On({ event: "ready" })

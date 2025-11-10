@@ -1,10 +1,17 @@
-import type { GuildMember, User } from "discord.js";
+import type { GuildMember, ImageURLOptions, User } from "discord.js";
 
 export type UsersUtilityAccept = User | GuildMember;
 
 export class UsersUtility {
-  static getAvatar(user: UsersUtilityAccept) {
-    return user.displayAvatarURL() ?? user.avatarURL() ?? undefined;
+  static getAvatar(
+    user: UsersUtilityAccept,
+    options?: { avatar?: ImageURLOptions },
+  ) {
+    return (
+      user.displayAvatarURL(options?.avatar) ??
+      user.avatarURL(options?.avatar) ??
+      undefined
+    );
   }
 
   static getUsername(user: UsersUtilityAccept) {

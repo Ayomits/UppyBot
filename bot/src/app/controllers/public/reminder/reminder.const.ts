@@ -1,5 +1,5 @@
 import type { BumpUser } from "#/db/models/bump-user.model.js";
-import type { LiteralEnum } from "#/libs/utils/index.js";
+import type { LiteralEnum } from "#/libs/djs/index.js";
 
 export const BumpBanCheckerInterval = 30_000;
 

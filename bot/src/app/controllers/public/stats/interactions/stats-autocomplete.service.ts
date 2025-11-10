@@ -5,6 +5,7 @@ import { injectable } from "tsyringe";
 
 import type { BumpGuildCalendarDocument } from "#/db/models/bump-guild-calendar.model.js";
 import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calendar.repository.js";
+import { formatDate } from "#/libs/time/to-format.js";
 
 import { endDateValue, startDateValue } from "../stats.const.js";
 
@@ -36,7 +37,7 @@ export class UppyAutocompleteService {
 
     await interaction.respond(
       entries.map((entry) => ({
-        name: entry.formatted,
+        name: formatDate(entry.timestamp),
         value: entry.timestamp.toString(),
       })),
     );

@@ -1,4 +1,4 @@
-import type { LiteralEnum } from "#/libs/utils/types.js";
+import type { LiteralEnum } from "#/libs/djs/types.js";
 
 export const WebhookNotificationType = {
   Test: -1,
