@@ -238,6 +238,8 @@ export class WebLikeSyncManager implements Loop {
       });
     }
 
-    return users.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return users
+      .filter((u) => u.isSite)
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 }
