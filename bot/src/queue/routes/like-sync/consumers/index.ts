@@ -12,7 +12,7 @@ export const likeSyncConsumer: Consumer = async (msg, ch) => {
 
     const likeSyncManager = WebLikeSyncManager.create();
     await likeSyncManager.syncGuildLikes(
-      client.guilds.cache.get(payload.guildId)
+      client.guilds.cache.get(payload.guildId),
     );
 
     ch.ack(msg);

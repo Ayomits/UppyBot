@@ -9,7 +9,6 @@ import { PremiumRepository } from "#/db/repositories/premium.repository.js";
 
 import { PremiumSubscriptionManager } from "../../premium/subscription-manager/subscription.service.js";
 
-
 @injectable()
 @Discord()
 export class PremiumGiveService {

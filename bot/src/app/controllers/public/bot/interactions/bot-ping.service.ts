@@ -19,7 +19,7 @@ import type { Client } from "discordx";
 import { injectable } from "tsyringe";
 
 import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { createSafeCollector } from "#/libs/utils/collector.js";
+import { createSafeCollector } from "#/libs/djs/collector.js";
 
 import { UppyCoreCustomIds } from "../bot.const.js";
 

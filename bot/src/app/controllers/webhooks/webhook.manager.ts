@@ -24,7 +24,7 @@ export class WebhookManager {
     type:
       | typeof WebhookNotificationType.BumpBanCreation
       | typeof WebhookNotificationType.BumpBanRemoval,
-    payload: WebhookBumpBanNotification
+    payload: WebhookBumpBanNotification,
   ) {
     return this.createPayload(type, payload);
   }
@@ -37,7 +37,7 @@ export class WebhookManager {
 
   private createPayload<T>(
     type: WebhookNotificationType,
-    payload: T
+    payload: T,
   ): WebhookNotification<T> {
     return {
       type,
@@ -56,7 +56,7 @@ export class WebhookManager {
   async sendNotification<T>(
     url: string,
     token: string,
-    payload: WebhookNotification<T>
+    payload: WebhookNotification<T>,
   ) {
     return await axios
       .post(url, payload, {

@@ -41,7 +41,7 @@ export class PrivateLogController {
               name: "Server ID",
               value: codeBlock(guild.id),
               inline: true,
-            }
+            },
           );
         await channel
           .send({
@@ -85,7 +85,7 @@ export class PrivateLogController {
               name: "Server ID",
               value: codeBlock(guild.id),
               inline: true,
-            }
+            },
           );
         await channel
           .send({

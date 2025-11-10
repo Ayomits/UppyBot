@@ -27,7 +27,7 @@ import { PremiumGiveService } from "./premium-give/give.service.js";
 @Guard(SelectedGuildsOnly(developerGuilds))
 export class DevController {
   constructor(
-    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService
+    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService,
   ) {}
 
   @Slash({
@@ -60,13 +60,13 @@ export class DevController {
       required: true,
     })
     guildId: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.premiumGiveService.handleGive(
       period,
       amount,
       guildId,
-      interaction
+      interaction,
     );
   }
 }

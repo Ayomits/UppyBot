@@ -8,7 +8,7 @@ import { SettingsRepository } from "#/db/repositories/settings.repository.js";
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,
   _,
-  next
+  next,
 ) => {
   const member = interaction.member as GuildMember;
 
@@ -18,7 +18,7 @@ export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
 
   const settingsRepository = SettingsRepository.create();
   const settings = await settingsRepository.findGuildSettings(
-    interaction.guildId!
+    interaction.guildId!,
   );
 
   if (!settings || (settings && settings?.roles.staffRoles?.length === 0)) {

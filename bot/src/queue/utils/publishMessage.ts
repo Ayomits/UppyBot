@@ -8,7 +8,7 @@ export async function publishMessage(message: string, content: object) {
     Buffer.from(JSON.stringify(content)),
     {
       persistent: true,
-    }
+    },
   );
 
   await channel.close();

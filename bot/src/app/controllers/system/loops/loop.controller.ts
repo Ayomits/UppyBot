@@ -7,7 +7,9 @@ import { WebLikeSyncManager } from "#/loops/like.js";
 @singleton()
 @Discord()
 export class LoopController {
-  constructor(@inject(WebLikeSyncManager) private likeLoop: WebLikeSyncManager) {}
+  constructor(
+    @inject(WebLikeSyncManager) private likeLoop: WebLikeSyncManager,
+  ) {}
 
   @On({ event: Events.ClientReady })
   handleReady() {

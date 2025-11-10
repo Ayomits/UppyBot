@@ -29,7 +29,7 @@ export class BumpGuildCalendarRepository {
           ...filter,
         })
           .sort({ timestamp: -1 })
-          .limit(25)
+          .limit(25),
     );
   }
 
@@ -59,7 +59,7 @@ export class BumpGuildCalendarRepository {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
-        }
+        },
       ),
       redisClient.del(this.generateId(guildId)),
     ]);

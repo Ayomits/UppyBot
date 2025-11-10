@@ -1,6 +1,6 @@
 import { buildSchema, getModelForClass, prop } from "@typegoose/typegoose";
 
-import type { LiteralEnum } from "#/libs/utils/types.js";
+import type { LiteralEnum } from "#/libs/djs/types.js";
 
 export const GuildType = {
   Common: 0,

@@ -12,6 +12,6 @@ export async function registerLikeSyncConsumers() {
   });
 
   await channel.consume(QueueMessages.like.sync, (msg) =>
-    likeSyncConsumer(msg!, channel)
+    likeSyncConsumer(msg!, channel),
   );
 }

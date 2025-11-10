@@ -41,7 +41,7 @@ export class BumpLogRepository {
           type,
           source,
           createdAt: timestamp,
-        })
+        }),
     );
   }
 
@@ -49,7 +49,7 @@ export class BumpLogRepository {
     guildId: string,
     executorId: string,
     timestamp: Date,
-    type: number
+    type: number,
   ) {
     const [startPeriod, endPeriod] = [
       DateTime.fromJSDate(timestamp).set({ millisecond: 0 }),
@@ -68,7 +68,7 @@ export class BumpLogRepository {
             $gte: startPeriod.toJSDate(),
             $lte: endPeriod.toJSDate(),
           },
-        })
+        }),
     );
   }
 
@@ -76,7 +76,7 @@ export class BumpLogRepository {
     guildId: string,
     executorId: string,
     timestamp: number,
-    type: number
+    type: number,
   ) {
     return `${guildId}-${executorId}-${timestamp}-${type}-log`;
   }
