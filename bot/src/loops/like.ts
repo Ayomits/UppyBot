@@ -3,6 +3,7 @@ import {
   type Guild,
   heading,
   MessageFlags,
+  TextChannel,
   unorderedList,
 } from "discord.js";
 import { DateTime } from "luxon";
@@ -153,9 +154,9 @@ export class WebLikeSyncManager implements Loop {
       return;
     }
 
-    const channel = await guild.channels
+    const channel = (await guild.channels
       .fetch(settings.channels.pingChannelId ?? "")
-      .catch(null);
+      .catch(null)) as TextChannel | null;
 
     if (!channel) {
       return;
@@ -176,7 +177,7 @@ export class WebLikeSyncManager implements Loop {
         )
     );
 
-    if (channel.isSendable()) {
+    try {
       await channel
         .send({
           components: [container],
@@ -186,6 +187,8 @@ export class WebLikeSyncManager implements Loop {
           },
         })
         .catch(null);
+    } catch {
+      //
     }
   }
 
