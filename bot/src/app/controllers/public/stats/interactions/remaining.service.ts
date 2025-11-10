@@ -30,6 +30,7 @@ import { UsersUtility } from "#/libs/embed/users.utility.js";
 import { createSafeCollector } from "#/libs/utils/collector.js";
 
 import {
+  getBotByRemindType,
   getCommandIdByRemindType,
   getCommandNameByRemindType,
   MonitoringBot,
@@ -176,8 +177,7 @@ export class UppyRemainingService extends BaseUppyService {
     for (const key in monitorings) {
       const monitoring = monitorings[key];
       values.push(
-        // @ts-expect-error idk
-        `${userMention(getBotByRemindType(Number(key)))}: ${canUseMonitoring(monitoring)}`
+        `${userMention(getBotByRemindType(Number(key))!)}: ${this.buildMonitoringStatus(monitoring)}`
       );
     }
 
