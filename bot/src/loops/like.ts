@@ -72,7 +72,7 @@ export class WebLikeSyncManager implements Loop {
         guildId: { $in: client.guilds.cache.map((g) => g.id) },
       })
     ).map((guild) => guild.guildId);
-    for (const guildId in guilds) {
+    for (const guildId of guilds) {
       likeSyncProduce({ guildId: guildId });
     }
   }
@@ -113,7 +113,6 @@ export class WebLikeSyncManager implements Loop {
       timestamp,
       MonitoringType.DiscordMonitoring
     );
-
     if (hasLog) {
       return;
     }

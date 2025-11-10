@@ -11,6 +11,7 @@ export const likeSyncConsumer: Consumer = async (msg, ch) => {
     const payload = JSON.parse(msg.content.toString()) as LikeSyncPayload;
 
     const likeSyncManager = WebLikeSyncManager.create();
+    console.log(payload);
     await likeSyncManager.syncGuildLikes(
       client.guilds.cache.get(payload.guildId)
     );
