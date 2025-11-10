@@ -19,6 +19,7 @@ import {
   ThumbnailBuilder,
   time,
   TimestampStyles,
+  userMention,
 } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
@@ -175,7 +176,7 @@ export class UppyRemainingService extends BaseUppyService {
     for (const key in monitorings) {
       const monitoring = monitorings[key];
       values.push(
-        // @ts-expect-error it's ok
+        // @ts-expect-error idk
         `${userMention(getBotByRemindType(Number(key)))}: ${canUseMonitoring(monitoring)}`
       );
     }
