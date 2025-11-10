@@ -13,6 +13,7 @@ import { fetchServer } from "#/api/ds-monitoring/api.js";
 import { MonitoringType } from "#/app/controllers/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "#/app/controllers/public/reminder/reminder-schedule.manager.js";
 import { WebhookManager } from "#/app/controllers/webhooks/webhook.manager.js";
+import { client } from "#/client.js";
 import type { SettingsDocument } from "#/db/models/settings.model.js";
 import { BumpLogRepository } from "#/db/repositories/bump-log-repository.js";
 import { GuildRepository } from "#/db/repositories/guild.repository.js";
@@ -65,7 +66,7 @@ export class WebLikeSyncManager implements Loop {
 
   async task(): Promise<void> {
     const guildRepository = GuildRepository.create();
-    const guilds = (await guildRepository.findMany({ isActive: true })).map(
+    const guilds = (await guildRepository.findMany({ isActive: true, guildId: {$in: client.guilds.cache.map(g => g.id)} })).map(
       (guild) => guild.guildId
     );
     for (const guildId in guilds) {

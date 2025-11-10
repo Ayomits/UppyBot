@@ -4,5 +4,5 @@ import { publishMessage } from "#/queue/utils/publishMessage.js";
 import type { LikeSyncPayload } from "../types.js";
 
 export function likeSyncProduce(payload: LikeSyncPayload) {
-  return publishMessage(QueueMessages.like.sync, payload);
+  publishMessage(QueueMessages.like.sync, payload);
 }
