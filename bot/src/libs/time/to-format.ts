@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 
-export function formatDate(date: Date) {
-  return DateTime.fromJSDate(date).toFormat("dd.MM.yy");
+export function formatDate(date: string | Date) {
+  const dateTime = DateTime.fromJSDate(new Date(date));
+  return dateTime.toFormat("dd.MM.yyyy");
 }
