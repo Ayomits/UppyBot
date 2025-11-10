@@ -41,7 +41,7 @@ export class UppyInfoService extends BaseUppyService {
   constructor(
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository
   ) {
     super();
   }
@@ -52,7 +52,7 @@ export class UppyInfoService extends BaseUppyService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
@@ -64,7 +64,7 @@ export class UppyInfoService extends BaseUppyService {
         interaction.guildId!,
         user.id,
         fromDate.toJSDate(),
-        toDate.toJSDate(),
+        toDate.toJSDate()
       ),
       BumpBanModel.findOne({
         guildId: interaction.guildId,
@@ -82,7 +82,7 @@ export class UppyInfoService extends BaseUppyService {
     const canManage = authorMember.roles.cache.some(
       (r) =>
         settings?.roles.managerRoles &&
-        settings?.roles.managerRoles.includes(r.id),
+        settings?.roles.managerRoles.includes(r.id)
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -92,15 +92,15 @@ export class UppyInfoService extends BaseUppyService {
         .setLabel(UppyInfoMessage.buttons.actions.removeBumpBan.label)
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove),
+        .setDisabled(!canRemove)
     );
 
     const banner = new AttachmentBuilder(
       await this.drawBanner(
         user,
         entry[0],
-        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`,
-      ),
+        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`
+      )
     ).setName("image.png");
 
     const container = new ContainerBuilder()
@@ -108,8 +108,8 @@ export class UppyInfoService extends BaseUppyService {
         builder.addItems((builder) =>
           builder
             .setDescription("Баннер пользователя")
-            .setURL("attachment://image.png"),
-        ),
+            .setURL("attachment://image.png")
+        )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -139,7 +139,7 @@ export class UppyInfoService extends BaseUppyService {
   private async drawBanner(
     user: User,
     entry: Partial<BumpUserDocument>,
-    interval: string,
+    interval: string
   ) {
     const canvas = createCanvas(680, 240);
 
@@ -149,12 +149,12 @@ export class UppyInfoService extends BaseUppyService {
 
     const bannerPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/images/user-profile.png`,
+      `${root}/assets/images/user-profile.png`
     );
 
     const fontPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/fonts/Onest-ExtraBold.ttf`,
+      `${root}/assets/fonts/Onest-ExtraBold.ttf`
     );
 
     GlobalFonts.registerFromPath(fontPath, "onest-extrabold");
@@ -174,7 +174,7 @@ export class UppyInfoService extends BaseUppyService {
       36,
       29.5,
       183,
-      180,
+      180
     );
 
     const baseCoordinates = { x: 317, y: 74 };
@@ -190,7 +190,7 @@ export class UppyInfoService extends BaseUppyService {
       getMaxStringLength(UsersUtility.getUsername(user)),
       baseCoordinates.x + 40,
       baseCoordinates.y + 26,
-      105,
+      105
     );
 
     // Нижняя (команды)
@@ -200,12 +200,12 @@ export class UppyInfoService extends BaseUppyService {
           entry?.dsMonitoring ?? 0,
           entry?.sdcMonitoring ?? 0,
           entry?.serverMonitoring ?? 0,
-          entry?.disboardMonitoring ?? 0,
-        ).toString(),
+          entry?.disboardMonitoring ?? 0
+        ).toString()
       ),
       baseCoordinates.x + 40,
       baseCoordinates.y + 26 + 50,
-      105,
+      105
     );
 
     // Правая строка (дата)
@@ -214,15 +214,15 @@ export class UppyInfoService extends BaseUppyService {
       getMaxStringLength(interval),
       baseCoordinates.x + 40 + 174,
       baseCoordinates.y + 26,
-      105,
+      105
     );
 
     // Нижняя (поинты)
     ctx.fillText(
-      getMaxStringLength(entry.points!.toString()),
+      getMaxStringLength((entry.points ?? 0).toString()),
       baseCoordinates.x + 40 + 174,
       baseCoordinates.y + 26 + 50,
-      105,
+      105
     );
 
     return canvas.toBuffer("image/png");
@@ -230,7 +230,7 @@ export class UppyInfoService extends BaseUppyService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember,
+    member: GuildMember
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
@@ -256,7 +256,7 @@ export class UppyInfoService extends BaseUppyService {
       !authorMember.roles.cache.some(
         (r) =>
           settings?.roles.managerRoles &&
-          settings?.roles.managerRoles.includes(r.id),
+          settings?.roles.managerRoles.includes(r.id)
       )
     ) {
       return interaction.editReply({
