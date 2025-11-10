@@ -12,6 +12,6 @@ export async function registerWebhookConsumers() {
   });
 
   await channel.consume(QueueMessages.webhooks.send, (msg) => {
-    webhookCreatedConsumer(msg!);
+    webhookCreatedConsumer(msg!, channel);
   });
 }
