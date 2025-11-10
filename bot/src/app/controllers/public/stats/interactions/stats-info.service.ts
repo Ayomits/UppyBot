@@ -197,10 +197,10 @@ export class UppyInfoService extends BaseUppyService {
     ctx.fillText(
       getMaxStringLength(
         sum(
-          entry.dsMonitoring ?? 0,
-          entry.sdcMonitoring ?? 0,
-          entry.serverMonitoring ?? 0,
-          entry.disboardMonitoring ?? 0,
+          entry?.dsMonitoring ?? 0,
+          entry?.sdcMonitoring ?? 0,
+          entry?.serverMonitoring ?? 0,
+          entry?.disboardMonitoring ?? 0,
         ).toString(),
       ),
       baseCoordinates.x + 40,
