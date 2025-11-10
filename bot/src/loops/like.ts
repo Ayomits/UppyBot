@@ -66,9 +66,12 @@ export class WebLikeSyncManager implements Loop {
 
   async task(): Promise<void> {
     const guildRepository = GuildRepository.create();
-    const guilds = (await guildRepository.findMany({ isActive: true, guildId: {$in: client.guilds.cache.map(g => g.id)} })).map(
-      (guild) => guild.guildId
-    );
+    const guilds = (
+      await guildRepository.findMany({
+        isActive: true,
+        guildId: { $in: client.guilds.cache.map((g) => g.id) },
+      })
+    ).map((guild) => guild.guildId);
     for (const guildId in guilds) {
       likeSyncProduce({ guildId: guildId });
     }
@@ -201,7 +204,7 @@ export class WebLikeSyncManager implements Loop {
   }
 
   private async parseHtml(guildId: string): Promise<ParsedUser[]> {
-    const response = await fetchServer(guildId).catch(null);
+    const response = await fetchServer(guildId).catch(() => null);
 
     if (!response) {
       return [];
@@ -233,8 +236,6 @@ export class WebLikeSyncManager implements Loop {
       });
     }
 
-    return users
-      .filter((u) => u.isSite)
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return users.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 }
