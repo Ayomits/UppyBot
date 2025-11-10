@@ -257,7 +257,7 @@ export class BumpBanService {
       return false;
     }
 
-    if (options.settings.webhooks.url) {
+    if (options.settings?.webhooks?.url) {
       this.webhookManager.pushConsumer(
         options.settings.webhooks.url,
         this.cryptography.decrypt(options.settings.webhooks.token!),
@@ -320,7 +320,7 @@ export class BumpBanService {
       return false;
     }
 
-    if (options.settings.webhooks.url) {
+    if (options.settings?.webhooks?.url) {
       this.webhookManager.pushConsumer(
         options.settings.webhooks.url,
         this.cryptography.decrypt(options.settings.webhooks.token!),
