@@ -138,7 +138,7 @@ export class UppyInfoService extends BaseUppyService {
 
   private async drawBanner(
     user: User,
-    entry: Partial<BumpUserDocument>,
+    entry: Partial<BumpUserDocument> | undefined | null,
     interval: string
   ) {
     const canvas = createCanvas(680, 240);
@@ -219,7 +219,7 @@ export class UppyInfoService extends BaseUppyService {
 
     // Нижняя (поинты)
     ctx.fillText(
-      getMaxStringLength((entry.points ?? 0).toString()),
+      getMaxStringLength((entry?.points ?? 0).toString()),
       baseCoordinates.x + 40 + 174,
       baseCoordinates.y + 26 + 50,
       105
