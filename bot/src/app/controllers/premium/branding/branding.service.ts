@@ -18,8 +18,8 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
 import { createSafeCollector } from "#/libs/djs/collector.js";
+import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
 
 import { BrandingChangeUrlModal } from "./branding.const.js";
 
