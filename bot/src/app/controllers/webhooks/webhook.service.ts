@@ -95,7 +95,7 @@ export class WebhookService {
     const settings = await this.settingsRepository.findGuildSettings(
       interaction.guildId!
     );
-    if (!settings.webhooks.url) {
+    if (!settings.webhooks?.url) {
       return interaction.editReply({
         content: "У вас не включена система вебхуков",
       });
@@ -116,7 +116,7 @@ export class WebhookService {
     const settings = await this.settingsRepository.findGuildSettings(
       interaction.guildId!
     );
-    if (!settings.webhooks.url) {
+    if (!settings.webhooks?.url) {
       return interaction.editReply({
         content: "У вас не включена система вебхуков",
       });
@@ -153,7 +153,7 @@ export class WebhookService {
           interaction.guildId!
         );
 
-        if (!settings.webhooks.url) {
+        if (!settings.webhooks?.url) {
           return interaction.editReply({
             content: "У вас не включена система вебхуков",
           });
@@ -161,7 +161,7 @@ export class WebhookService {
 
         let isSended = false;
         const token = this.cryptography.decrypt(settings.webhooks.token!);
-        const url = settings.webhooks.url;
+        const url = settings.webhooks?.url;
         switch (value) {
           case WebhookNotificationType.CommandSuccess:
             isSended = !!this.webhookManager.sendNotification(

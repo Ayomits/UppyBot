@@ -125,9 +125,9 @@ export class WebLikeSyncManager implements Loop {
         settings.points.dsMonitoring.bonus;
     }
 
-    if (settings.webhooks.url) {
+    if (settings.webhooks?.url) {
       this.webhookManager.pushConsumer(
-        settings.webhooks.url,
+        settings.webhooks?.url,
         this.cryptographyService.decrypt(settings.webhooks.token!),
         this.webhookManager.createCommandExecutedPayload({
           channelId: null,

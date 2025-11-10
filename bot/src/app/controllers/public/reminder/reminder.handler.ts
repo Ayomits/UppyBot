@@ -146,7 +146,7 @@ export class ReminderHandler {
 
     if (settings.webhooks?.url) {
       this.webhookManager.pushConsumer(
-        settings.webhooks.url,
+        settings.webhooks?.url,
         this.cryptography.decrypt(settings.webhooks.token!),
         this.webhookManager.createCommandExecutedPayload({
           channelId: message.channelId,
