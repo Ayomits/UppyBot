@@ -27,16 +27,16 @@ export class BannerService {
     const canvas = createCanvas(680, 240);
     const ctx = canvas.getContext("2d");
 
-    const root = `../../../../`;
+    const root = `../../../../..`;
 
     const bannerPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/images/banner.png`,
+      `${root}/assets/images/banner.png`
     );
 
     const fontPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/fonts/Onest-ExtraBold.ttf`,
+      `${root}/assets/fonts/Onest-ExtraBold.ttf`
     );
 
     GlobalFonts.registerFromPath(fontPath, "onest-extrabold");

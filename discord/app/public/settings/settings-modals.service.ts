@@ -2,8 +2,8 @@ import type { ModalSubmitInteraction } from "discord.js";
 import { MessageFlags } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 @injectable()
 export class SettingsModalService {

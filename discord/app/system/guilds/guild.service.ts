@@ -8,10 +8,10 @@ import {
 import type { Client } from "discordx";
 import { inject, injectable } from "tsyringe";
 
-import type { Guild } from "#/db/models/guild.model.js";
-import { GuildType } from "#/db/models/guild.model.js";
-import { GuildRepository } from "#/db/repositories/guild.repository.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
+import type { Guild } from "#/shared/db/models/guild.model.js";
+import { GuildType } from "#/shared/db/models/guild.model.js";
+import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
 import { BotInviteService } from "../../public/bot/interactions/bot-invite.service.js";
 

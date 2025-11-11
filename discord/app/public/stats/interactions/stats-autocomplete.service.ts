@@ -3,15 +3,15 @@ import type { AutocompleteInteraction } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { BumpGuildCalendarDocument } from "#/db/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarRepository } from "#/db/repositories/bump-guild-calendar.repository.js";
-import { endDateValue,startDateValue } from "#/libs/time/const.js";
-import { formatDate } from "#/libs/time/to-format.js";
+import type { BumpGuildCalendarDocument } from "#/shared/db/models/bump-guild-calendar.model.js";
+import { BumpGuildCalendarRepository } from "#/shared/db/repositories/bump-guild-calendar.repository.js";
+import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
+import { formatDate } from "#/shared/libs/time/to-format.js";
 
 @injectable()
 export class UppyAutocompleteService {
   public static async handleTopAutocomplete(
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction
   ) {
     const value = interaction.options.getFocused();
     const { inputDate, startDate, endDate } = this.parseDateString(value);
@@ -31,14 +31,14 @@ export class UppyAutocompleteService {
     const repository = BumpGuildCalendarRepository.create();
     const entries = await repository.findCalendar(
       interaction.guildId!,
-      createdAtFilter,
+      createdAtFilter
     );
 
     await interaction.respond(
       entries.map((entry) => ({
-        name: formatDate(entry.timestamp),
+        name: formatDate(entry.timestamp, "dd.MM.yyyy"),
         value: entry.timestamp.toString(),
-      })),
+      }))
     );
   }
 

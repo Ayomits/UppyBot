@@ -1,6 +1,6 @@
-import { WebhookManager } from "#/discord/app/webhooks/webhook.manager.js";
-import { logger } from "#/libs/logger/logger.js";
 import type { Consumer } from "#/queue/utils/types.js";
+import { logger } from "#/shared/libs/logger/logger.js";
+import { WebhookManager } from "#/shared/webhooks/webhook.manager.js";
 
 import type { WebhookCreatedPayload } from "../types.js";
 

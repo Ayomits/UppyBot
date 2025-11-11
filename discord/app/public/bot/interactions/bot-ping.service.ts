@@ -18,8 +18,8 @@ import {
 import type { Client } from "discordx";
 import { injectable } from "tsyringe";
 
-import { createSafeCollector } from "#/libs/djs/collector.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
+import { createSafeCollector } from "#/shared/libs/djs/collector.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
 import { UppyCoreCustomIds } from "../bot.const.js";
 

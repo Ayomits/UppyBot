@@ -14,16 +14,13 @@ init_prod:
 	make restart_bot
 
 build_bot:
-	docker exec -it uppy-bot pnpm run build
+	docker exec -it uppy-discord pnpm run build
 
 logs_bot:
-	docker compose logs uppy-bot -f
+	docker compose logs uppy-discord -f
 
 logs_backend:
 	docker compose logs uppy-backend -f
-
-logs_frontend:
-	docker compose logs uppy-frontend -f
 
 down:
 	docker compose down --remove-orphans
@@ -36,29 +33,15 @@ up:
 
 update_app:
 	make update_bot
-	make update_backend
-	make update_frontend
 
 update_bot:
-	docker exec -it uppy-bot pnpm install
-
-update_backend:
-	docker exec -it uppy-backend pnpm install
-
-update_frontend:
-	docker exec -it uppy-frontend pnpm install
+	docker exec -it uppy-discord pnpm install
 
 console_bot:
-	docker exec -it uppy-bot sh
-
-console_backend:
-	docker exec -it uppy-backend sh
-
-console_frontend:
-	docker exec -it uppy-frontend sh
+	docker exec -it uppy-discord sh
 
 restart_bot:
-	docker compose restart uppy-bot
+	docker compose restart uppy-discord
 
 restart_backend:
 	docker compose restart uppy-backend
@@ -70,5 +53,5 @@ restart:
 	docker compose restart
 
 lint_fix:
-	docker exec -it uppy-bot pnpm run lint:fix
-	docker exec -it uppy-bot pnpm run format:fix
+	docker exec -it uppy-discord pnpm run lint:fix
+	docker exec -it uppy-discord pnpm run format:fix

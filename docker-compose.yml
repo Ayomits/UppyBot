@@ -1,28 +1,17 @@
 services:
-  uppy-bot:
-    container_name: uppy-bot
+  uppy-discord:
+    container_name: uppy-discord
     network_mode: host
     build:
       args:
         - APP_ENV=dev
-      dockerfile: ./bot/Dockerfile
+      dockerfile: ./discord/Dockerfile
     volumes:
-      - ./bot:/app
+      - ./:/app
     ports:
       - "0.0.0.0:9001:9001"
     restart: always
-
-  uppy-frontend:
-    container_name: uppy-frontend
-    network_mode: host
-    build:
-      args:
-        - APP_ENV=dev
-      dockerfile: ./frontend/Dockerfile
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "5173:5173"
+  
 
   uppy-redis:
     container_name: uppy-redis

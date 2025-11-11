@@ -25,14 +25,14 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { RemindModel } from "#/db/models/remind.model.js";
-import type { SettingsDocument } from "#/db/models/settings.model.js";
-import { GuildRepository } from "#/db/repositories/guild.repository.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { createSafeCollector } from "#/libs/djs/collector.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { getNestedValue } from "#/libs/json/nested.js";
-import { CustomIdParser } from "#/libs/parser/custom-id.parser.js";
+import { RemindModel } from "#/shared/db/models/remind.model.js";
+import type { SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { createSafeCollector } from "#/shared/libs/djs/collector.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
+import { getNestedValue } from "#/shared/libs/json/nested.js";
+import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
 import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";

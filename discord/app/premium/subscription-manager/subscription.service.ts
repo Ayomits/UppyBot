@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
 
-import { GuildType } from "#/db/models/guild.model.js";
-import { PremiumModel } from "#/db/models/premium.model.js";
-import { GuildRepository } from "#/db/repositories/guild.repository.js";
-import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
+import { GuildType } from "#/shared/db/models/guild.model.js";
+import { PremiumModel } from "#/shared/db/models/premium.model.js";
+import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 
 @injectable()
 export class PremiumSubscriptionManager {

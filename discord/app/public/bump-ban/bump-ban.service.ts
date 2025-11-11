@@ -2,14 +2,14 @@ import type { Guild, GuildMember, Role } from "discord.js";
 import type { Client } from "discordx";
 import { inject, injectable } from "tsyringe";
 
-import type { BumpBan } from "#/db/models/bump-ban.model.js";
-import { BumpBanModel } from "#/db/models/bump-ban.model.js";
-import { type SettingsDocument } from "#/db/models/settings.model.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { CryptographyService } from "#/libs/crypto/index.js";
+import type { BumpBan } from "#/shared/db/models/bump-ban.model.js";
+import { BumpBanModel } from "#/shared/db/models/bump-ban.model.js";
+import { type SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
 
-import { WebhookManager } from "../../webhooks/webhook.manager.js";
-import { WebhookNotificationType } from "../../webhooks/webhook.types.js";
+import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
+import { WebhookNotificationType } from "../../../../shared/webhooks/webhook.types.js";
 import { BumpLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
 

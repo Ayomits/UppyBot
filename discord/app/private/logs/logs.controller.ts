@@ -3,7 +3,7 @@ import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
 import { singleton } from "tsyringe";
 
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import { PrivateLogConfig } from "./logs.const.js";
 
