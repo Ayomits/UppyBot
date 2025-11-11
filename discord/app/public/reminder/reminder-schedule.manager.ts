@@ -11,12 +11,12 @@ import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import type { Remind } from "#/db/models/remind.model.js";
-import { type SettingsDocument } from "#/db/models/settings.model.js";
-import { RemindRepository } from "#/db/repositories/remind.repository.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { logger } from "#/libs/logger/logger.js";
-import { scheduleManager } from "#/libs/schedule/schedule.manager.js";
+import type { Remind } from "#/shared/db/models/remind.model.js";
+import { type SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { RemindRepository } from "#/shared/db/repositories/remind.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { logger } from "#/shared/libs/logger/logger.js";
+import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 
 import {
   getBotByRemindType,

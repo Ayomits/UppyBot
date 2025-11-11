@@ -7,11 +7,11 @@ import { inject, injectable } from "tsyringe";
 import type {
   BumpUser,
   BumpUserDocument,
-} from "#/db/models/bump-user.model.js";
-import { BumpUserModel } from "#/db/models/bump-user.model.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
+} from "#/shared/db/models/bump-user.model.js";
+import { BumpUserModel } from "#/shared/db/models/bump-user.model.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
 import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import { PaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";

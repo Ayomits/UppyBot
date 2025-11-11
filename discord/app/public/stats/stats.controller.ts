@@ -22,7 +22,7 @@ import { IsHelper } from "#/discord/guards/is-staff.guard.js";
 import { UppyRemainingService } from "./interactions/remaining.service.js";
 import { UppyAutocompleteService } from "./interactions/stats-autocomplete.service.js";
 import { UppyStatsService } from "./interactions/stats-history.service.js";
-import { UppyInfoService } from "./interactions/stats-info.service.js";
+import { StatsInfoService } from "./interactions/stats-info.service.js";
 import { UppyLeaderboardService } from "./interactions/stats-top.service.js";
 
 @Discord()
@@ -39,7 +39,7 @@ export class UppyController {
     private uppyTopService: UppyLeaderboardService,
     @inject(UppyRemainingService)
     private uppyRemainingService: UppyRemainingService,
-    @inject(UppyInfoService) private uppyInfoService: UppyInfoService,
+    @inject(StatsInfoService) private uppyInfoService: StatsInfoService,
   ) {}
 
   @Slash({

@@ -9,21 +9,21 @@ import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
-import type { SettingsDocument } from "#/db/models/settings.model.js";
-import { BumpLogRepository } from "#/db/repositories/bump-log-repository.js";
-import { GuildRepository } from "#/db/repositories/guild.repository.js";
-import { RemindRepository } from "#/db/repositories/remind.repository.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { createBump } from "#/db/utils/create-bump.js";
-import { CryptographyService } from "#/libs/crypto/index.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { logger } from "#/libs/logger/logger.js";
+import type { SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { BumpLogRepository } from "#/shared/db/repositories/bump-log-repository.js";
+import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { RemindRepository } from "#/shared/db/repositories/remind.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { createBump } from "#/shared/db/utils/create-bump.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
 
 import { fetchServer } from "../api/ds-monitoring/api.js";
 import { MonitoringType } from "../app/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "../app/public/reminder/reminder-schedule.manager.js";
-import { WebhookManager } from "../app/webhooks/webhook.manager.js";
+import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";
 import { client } from "../client.js";
 import type { Loop } from "./__interface.js";
 

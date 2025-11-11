@@ -1,4 +1,0 @@
-#!/bin/sh
-cd /app
-
-pnpm install && pnpm run build && pnpm run prod

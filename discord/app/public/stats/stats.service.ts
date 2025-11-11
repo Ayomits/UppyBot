@@ -2,7 +2,7 @@ import { type Guild, type GuildMember } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { endDateValue, startDateValue } from "#/libs/time/const.js";
+import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 
 import type { MonitoringBot } from "../reminder/reminder.const.js";
 import { DefaultTimezone } from "../reminder/reminder.const.js";

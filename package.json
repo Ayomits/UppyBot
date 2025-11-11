@@ -13,8 +13,10 @@
     "migrate:up": "pnpm migrate up",
     "migrate:down": "pnpm migrate down",
     "build": "tsc -b && tsc-alias",
-    "dev": "nodemon",
-    "prod": "node dist/src/main.js",
+    "dev:ds": "nodemon --config nodemon.discord.json",
+    "dev:sr": "nodemon --config nodemon.server.json",
+    "start:ds": "node dist/discord/main.js",
+    "start:sr": "node dist/server/main.js",
     "test:ci": "vitest --no-watch"
   },
   "imports": {
@@ -37,7 +39,9 @@
     "discord.js": "^14.24.1",
     "discordx": "^11.12.5",
     "dotenv": "^17.2.1",
+    "fastify": "^5.6.2",
     "glob": "^11.0.3",
+    "grammy": "^1.38.3",
     "ioredis": "^5.8.2",
     "luxon": "^3.7.1",
     "mongoose": "^8.19.2",

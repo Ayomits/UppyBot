@@ -1,5 +1,5 @@
-import { rabbitMq } from "#/db/rabbitmq.js";
 import { QueueMessages } from "#/queue/const/index.js";
+import { rabbitMq } from "#/shared/db/rabbitmq.js";
 
 import { webhookCreatedConsumer } from "./consumers/index.js";
 

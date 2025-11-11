@@ -1,6 +1,6 @@
 import { bold, MessageFlags } from "discord.js";
 
-import { EmbedBuilder } from "#/libs/embed/embed.builder.js";
+import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import { createError } from "./create-error.js";
 

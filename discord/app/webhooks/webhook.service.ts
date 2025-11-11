@@ -15,16 +15,16 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { Env } from "#/libs/config/index.js";
-import { CryptographyService } from "#/libs/crypto/index.js";
-import { createSafeCollector } from "#/libs/djs/collector.js";
-import { randomArrValue } from "#/libs/random/index.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { Env } from "#/shared/libs/config/index.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { createSafeCollector } from "#/shared/libs/djs/collector.js";
+import { randomArrValue } from "#/shared/libs/random/index.js";
 
+import { WebhookManager } from "../../../shared/webhooks/webhook.manager.js";
+import { WebhookNotificationType } from "../../../shared/webhooks/webhook.types.js";
 import { MonitoringType } from "../public/reminder/reminder.const.js";
 import { WebhookIds } from "./webhook.const.js";
-import { WebhookManager } from "./webhook.manager.js";
-import { WebhookNotificationType } from "./webhook.types.js";
 
 @injectable()
 export class WebhookService {

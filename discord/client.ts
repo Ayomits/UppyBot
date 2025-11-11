@@ -1,8 +1,8 @@
 import { GatewayIntentBits } from "discord.js";
 import { Client } from "discordx";
 
-import { Env } from "../libs/config/index.js";
-import { logger } from "../libs/logger/logger.js";
+import { Env } from "../shared/libs/config/index.js";
+import { logger } from "../shared/libs/logger/logger.js";
 
 export const client = new Client({
   intents: [

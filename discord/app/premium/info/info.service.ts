@@ -13,7 +13,7 @@ import {
 import { Discord } from "discordx";
 import { singleton } from "tsyringe";
 
-import { PremiumModel } from "#/db/models/premium.model.js";
+import { PremiumModel } from "#/shared/db/models/premium.model.js";
 import { ExternalLinks } from "#/discord/const/links.js";
 
 @singleton()

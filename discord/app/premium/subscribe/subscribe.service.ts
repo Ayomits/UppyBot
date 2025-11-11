@@ -15,7 +15,7 @@ import { injectable } from "tsyringe";
 
 import { ExternalLinks } from "#/discord/const/links.js";
 import { Requisits } from "#/discord/const/requisits.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
 @injectable()
 export class PremiumSubscribeCommandService {

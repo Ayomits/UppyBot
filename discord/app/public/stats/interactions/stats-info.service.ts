@@ -20,15 +20,15 @@ import path from "path";
 import { inject, injectable } from "tsyringe";
 import { pathToFileURL } from "url";
 
-import { BumpBanModel } from "#/db/models/bump-ban.model.js";
-import type { BumpUserDocument } from "#/db/models/bump-user.model.js";
-import { BumpUserRepository } from "#/db/repositories/bump-user.repository.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { drawRoundedImage } from "#/libs/canvas/index.js";
-import { createSafeCollector } from "#/libs/djs/collector.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { sum } from "#/libs/number/sum.js";
-import { formatDate } from "#/libs/time/to-format.js";
+import { BumpBanModel } from "#/shared/db/models/bump-ban.model.js";
+import type { BumpUserDocument } from "#/shared/db/models/bump-user.model.js";
+import { BumpUserRepository } from "#/shared/db/repositories/bump-user.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { drawRoundedImage } from "#/shared/libs/canvas/index.js";
+import { createSafeCollector } from "#/shared/libs/djs/collector.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
+import { sum } from "#/shared/libs/number/sum.js";
+import { formatDate } from "#/shared/libs/time/to-format.js";
 
 import { BumpBanService } from "../../bump-ban/bump-ban.service.js";
 import { BumpBanLimit, MonitoringType } from "../../reminder/reminder.const.js";
@@ -36,7 +36,7 @@ import { StaffCustomIds } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
-export class UppyInfoService extends BaseUppyService {
+export class StatsInfoService extends BaseUppyService {
   constructor(
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
@@ -144,7 +144,7 @@ export class UppyInfoService extends BaseUppyService {
 
     const ctx = canvas.getContext("2d");
 
-    const root = `../../../../../`;
+    const root = `../../../../../..`;
 
     const bannerPath = path.join(
       dirname(import.meta.url),

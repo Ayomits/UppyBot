@@ -16,18 +16,18 @@ import {
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
 
-import { BumpBanModel } from "#/db/models/bump-ban.model.js";
-import { BumpLogModel } from "#/db/models/bump-log.model.js";
-import type { RemindDocument } from "#/db/models/remind.model.js";
-import { type SettingsDocument } from "#/db/models/settings.model.js";
-import { SettingsRepository } from "#/db/repositories/settings.repository.js";
-import { createBump } from "#/db/utils/create-bump.js";
-import { CryptographyService } from "#/libs/crypto/index.js";
-import { UsersUtility } from "#/libs/embed/users.utility.js";
-import { logger } from "#/libs/logger/logger.js";
-import { calculateDiffTime } from "#/libs/time/diff.js";
+import { BumpBanModel } from "#/shared/db/models/bump-ban.model.js";
+import { BumpLogModel } from "#/shared/db/models/bump-log.model.js";
+import type { RemindDocument } from "#/shared/db/models/remind.model.js";
+import { type SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { createBump } from "#/shared/db/utils/create-bump.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
+import { logger } from "#/shared/libs/logger/logger.js";
+import { calculateDiffTime } from "#/shared/libs/time/diff.js";
 
-import { WebhookManager } from "../../webhooks/webhook.manager.js";
+import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { BumpLogService } from "../logging/log.service.js";
 import {
