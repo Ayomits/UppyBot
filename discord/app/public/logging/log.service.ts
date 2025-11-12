@@ -16,7 +16,7 @@ import {
 } from "discord.js";
 import { inject, singleton } from "tsyringe";
 
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
 import type { MonitoringType } from "../reminder/reminder.const.js";

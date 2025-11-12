@@ -1,8 +1,8 @@
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { BumpLogModel, BumpLogSourceType } from "../models/bump-log.model.js";
-import { useCachedQuery } from "../mongo.js";
+import { BumpLogModel, BumpLogSourceType } from "../../models/uppy-discord/bump-log.model.js";
+import { useCachedQuery } from "../../mongo.js";
 
 @injectable()
 export class BumpLogRepository {

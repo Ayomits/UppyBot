@@ -7,9 +7,9 @@ import { inject, injectable } from "tsyringe";
 import type {
   BumpUser,
   BumpUserDocument,
-} from "#/shared/db/models/bump-user.model.js";
-import { BumpUserModel } from "#/shared/db/models/bump-user.model.js";
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+} from "#/shared/db/models/uppy-discord/bump-user.model.js";
+import { BumpUserModel } from "#/shared/db/models/uppy-discord/bump-user.model.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
 import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 

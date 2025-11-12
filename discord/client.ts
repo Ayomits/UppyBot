@@ -4,7 +4,7 @@ import { Client } from "discordx";
 import { Env } from "../shared/libs/config/index.js";
 import { logger } from "../shared/libs/logger/logger.js";
 
-export const client = new Client({
+export const discordClient = new Client({
   intents: [
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,

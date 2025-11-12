@@ -20,10 +20,10 @@ import path from "path";
 import { inject, injectable } from "tsyringe";
 import { pathToFileURL } from "url";
 
-import { BumpBanModel } from "#/shared/db/models/bump-ban.model.js";
-import type { BumpUserDocument } from "#/shared/db/models/bump-user.model.js";
-import { BumpUserRepository } from "#/shared/db/repositories/bump-user.repository.js";
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
+import type { BumpUserDocument } from "#/shared/db/models/uppy-discord/bump-user.model.js";
+import { BumpUserRepository } from "#/shared/db/repositories/uppy-discord/bump-user.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { drawRoundedImage } from "#/shared/libs/canvas/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";

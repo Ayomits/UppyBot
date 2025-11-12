@@ -1,8 +1,8 @@
 import { inject, injectable } from "tsyringe";
 
-import { GuildType } from "#/shared/db/models/guild.model.js";
-import { PremiumModel } from "#/shared/db/models/premium.model.js";
-import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
+import { PremiumModel } from "#/shared/db/models/uppy-discord/premium.model.js";
+import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
 import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 
 @injectable()

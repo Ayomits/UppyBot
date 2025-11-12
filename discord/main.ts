@@ -11,18 +11,18 @@ import { createRabbitConnection } from "../shared/db/rabbitmq.js";
 import { createRedisConnection } from "../shared/db/redis.js";
 import { Env } from "../shared/libs/config/index.js";
 import { logger } from "../shared/libs/logger/logger.js";
-import { client } from "./client.js";
+import { discordClient } from "./client.js";
 
 async function createClient() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
 
-  client.once("ready", async () => {
+  discordClient.once("ready", async () => {
     async function initCommands(__retries = 0) {
       if (__retries < 3) {
         try {
-          await client.initApplicationCommands().catch(logger.error);
+          await discordClient.initApplicationCommands().catch(logger.error);
         } catch (err) {
-          await client.clearApplicationCommands();
+          await discordClient.clearApplicationCommands();
           await initCommands(__retries + 1);
           logger.error(err);
         }
@@ -31,17 +31,17 @@ async function createClient() {
     await initCommands();
   });
 
-  client.on("interactionCreate", (interaction: Interaction) => {
+  discordClient.on("interactionCreate", (interaction: Interaction) => {
     try {
-      void client.executeInteraction(interaction);
+      void discordClient.executeInteraction(interaction);
     } catch (err) {
       logger.error(err);
     }
   });
 
-  client.on("messageCreate", (message: Message) => {
+  discordClient.on("messageCreate", (message: Message) => {
     try {
-      void client.executeCommand(message);
+      void discordClient.executeCommand(message);
     } catch (err) {
       logger.error(err);
     }
@@ -49,7 +49,7 @@ async function createClient() {
 
   await importx(`${dirname(import.meta.url)}/app/**/*.js`);
 
-  await client.login(Env.DiscordToken);
+  await discordClient.login(Env.DiscordToken);
 }
 
 async function start() {

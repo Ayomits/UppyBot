@@ -24,8 +24,8 @@ import {
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { RemindDocument} from "#/shared/db/models/remind.model.js";
-import {RemindModel } from "#/shared/db/models/remind.model.js";
+import type { RemindDocument} from "#/shared/db/models/uppy-discord/remind.model.js";
+import {RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 

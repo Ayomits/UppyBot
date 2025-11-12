@@ -15,7 +15,7 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
@@ -31,7 +31,7 @@ export class WebhookService {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
     @inject(CryptographyService) private cryptography: CryptographyService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
   async handleWebhookSetup(interaction: ChatInputCommandInteraction) {
@@ -46,8 +46,8 @@ export class WebhookService {
               .setCustomId("url")
               .setPlaceholder("Введите ссылку")
               .setStyle(TextInputStyle.Short)
-              .setRequired(true),
-          ),
+              .setRequired(true)
+          )
       );
     return interaction.showModal(modal);
   }
@@ -66,7 +66,7 @@ export class WebhookService {
     const isSended = await this.webhookManager.sendNotification(
       url,
       token,
-      this.webhookManager.createTestRemindPayload(),
+      this.webhookManager.createTestNotificationPayload(interaction.guildId!)
     );
 
     if (!isSended) {
@@ -93,7 +93,7 @@ export class WebhookService {
   async handleWebhookTokenReveal(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
     if (!settings.webhooks?.url) {
       return interaction.editReply({
@@ -114,7 +114,7 @@ export class WebhookService {
   async handleWebhookTest(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
     if (!settings.webhooks?.url) {
       return interaction.editReply({
@@ -133,7 +133,7 @@ export class WebhookService {
           .setValue(WebhookNotificationType.BumpBanCreation.toString()),
         new StringSelectMenuOptionBuilder()
           .setLabel("Бамп бан снят")
-          .setValue(WebhookNotificationType.BumpBanRemoval.toString()),
+          .setValue(WebhookNotificationType.BumpBanRemoval.toString())
       );
 
     const repl = await interaction.editReply({
@@ -150,7 +150,7 @@ export class WebhookService {
         const value = Number(interaction.values[0]);
 
         const settings = await this.settingsRepository.findGuildSettings(
-          interaction.guildId!,
+          interaction.guildId!
         );
 
         if (!settings.webhooks?.url) {
@@ -167,13 +167,16 @@ export class WebhookService {
             isSended = !!this.webhookManager.sendNotification(
               url,
               token,
-              this.webhookManager.createCommandExecutedPayload({
-                channelId: interaction.channelId!,
-                executedAt: new Date(),
-                type: randomArrValue(Object.values(MonitoringType)),
-                points: 10,
-                userId: interaction.user.id,
-              }),
+              this.webhookManager.createCommandExecutedPayload(
+                interaction.guildId!,
+                {
+                  channelId: interaction.channelId!,
+                  executedAt: new Date(),
+                  type: randomArrValue(Object.values(MonitoringType)),
+                  points: 10,
+                  userId: interaction.user.id,
+                }
+              )
             );
             break;
           case WebhookNotificationType.BumpBanCreation:
@@ -181,10 +184,14 @@ export class WebhookService {
             isSended = !!this.webhookManager.sendNotification(
               url,
               token,
-              this.webhookManager.createBumpBanPayload(value, {
-                executedAt: new Date(),
-                userId: interaction.user.id,
-              }),
+              this.webhookManager.createBumpBanPayload(
+                interaction.guildId!,
+                value,
+                {
+                  executedAt: new Date(),
+                  userId: interaction.user.id,
+                }
+              )
             );
             break;
         }
@@ -194,7 +201,7 @@ export class WebhookService {
             ? "Успешно выслано уведомление"
             : "Что-то пошло не так",
         });
-      },
+      }
     );
   }
 }

@@ -5,8 +5,8 @@ import {
   TextInputStyle,
 } from "discord.js";
 
-import { GuildType } from "#/shared/db/models/guild.model.js";
-import type { SettingsDocument } from "#/shared/db/models/settings.model.js";
+import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
+import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 
 // Базовые ID для взаимодействий
 export const SettingsIds = {

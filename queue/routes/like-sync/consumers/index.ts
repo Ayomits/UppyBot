@@ -1,5 +1,5 @@
 
-import { client } from "#/discord/client.js";
+import { discordClient } from "#/discord/client.js";
 import { WebLikeSyncManager } from "#/discord/loops/like.js";
 import type { Consumer } from "#/queue/utils/types.js";
 import { logger } from "#/shared/libs/logger/logger.js";
@@ -14,7 +14,7 @@ export const likeSyncConsumer: Consumer = async (msg, ch) => {
 
     const likeSyncManager = WebLikeSyncManager.create();
     await likeSyncManager.syncGuildLikes(
-      client.guilds.cache.get(payload.guildId),
+      discordClient.guilds.cache.get(payload.guildId),
     );
 
     ch.ack(msg);

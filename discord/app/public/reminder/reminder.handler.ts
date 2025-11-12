@@ -16,11 +16,11 @@ import {
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
 
-import { BumpBanModel } from "#/shared/db/models/bump-ban.model.js";
-import { BumpLogModel } from "#/shared/db/models/bump-log.model.js";
-import type { RemindDocument } from "#/shared/db/models/remind.model.js";
-import { type SettingsDocument } from "#/shared/db/models/settings.model.js";
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
+import { BumpLogModel } from "#/shared/db/models/uppy-discord/bump-log.model.js";
+import type { RemindDocument } from "#/shared/db/models/uppy-discord/remind.model.js";
+import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { createBump } from "#/shared/db/utils/create-bump.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
@@ -54,14 +54,14 @@ export class ReminderHandler {
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -75,7 +75,7 @@ export class ReminderHandler {
       }
 
       const settings = await this.settingsRepository.findGuildSettings(
-        guildId!,
+        guildId!
       );
 
       const remind = await this.scheduleManager.remind({
@@ -95,7 +95,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument | null,
+    lastRemind: RemindDocument | null
   ) {
     const existed = await BumpLogModel.findOne({ messageId: message.id });
 
@@ -123,7 +123,7 @@ export class ReminderHandler {
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!))
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
@@ -139,22 +139,22 @@ export class ReminderHandler {
               ]
                 .filter(Boolean)
                 .join("\n"),
-            ].join("\n"),
-          ),
-        ),
+            ].join("\n")
+          )
+        )
     );
 
     if (settings.webhooks?.url) {
       this.webhookManager.pushConsumer(
         settings.webhooks?.url,
         this.cryptography.decrypt(settings.webhooks.token!),
-        this.webhookManager.createCommandExecutedPayload({
+        this.webhookManager.createCommandExecutedPayload(guild!.id, {
           channelId: message.channelId,
           executedAt: new Date(),
           points,
           type,
           userId: user!.id,
-        }),
+        })
       );
     }
 
@@ -176,8 +176,8 @@ export class ReminderHandler {
         points,
         calculateDiffTime(
           message.createdAt,
-          lastRemind?.timestamp ?? new Date(),
-        ),
+          lastRemind?.timestamp ?? new Date()
+        )
       ),
       createBump({
         guildId: guild!.id,
@@ -214,7 +214,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     if (!settings.bumpBan.enabled) {
       return;
@@ -230,7 +230,7 @@ export class ReminderHandler {
           $inc: {
             removeIn: 1,
           },
-        },
+        }
       ),
       this.bumpBanService.addBumpBan({
         member,

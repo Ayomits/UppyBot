@@ -3,8 +3,8 @@ import type { AutocompleteInteraction } from "discord.js";
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { BumpGuildCalendarDocument } from "#/shared/db/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarRepository } from "#/shared/db/repositories/bump-guild-calendar.repository.js";
+import type { BumpGuildCalendarDocument } from "#/shared/db/models/uppy-discord/bump-guild-calendar.model.js";
+import { BumpGuildCalendarRepository } from "#/shared/db/repositories/uppy-discord/bump-guild-calendar.repository.js";
 import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 import { formatDate } from "#/shared/libs/time/to-format.js";
 
