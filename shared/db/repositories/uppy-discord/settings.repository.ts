@@ -1,10 +1,10 @@
 import type { FilterQuery, UpdateQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { Settings } from "#/shared/db/models/settings.model.js";
-import { SettingsModel } from "#/shared/db/models/settings.model.js";
+import type { Settings } from "#/shared/db/models/uppy-discord/settings.model.js";
+import { SettingsModel } from "#/shared/db/models/uppy-discord/settings.model.js";
 
-import { useCachedQuery, useCachedUpdate } from "../mongo.js";
+import { useCachedQuery, useCachedUpdate } from "../../mongo.js";
 
 @injectable()
 export class SettingsRepository {

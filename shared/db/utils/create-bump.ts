@@ -1,9 +1,9 @@
 import type { MonitoringType } from "#/discord/app/public/reminder/reminder.const.js";
 
-import { BumpLogSourceType } from "../models/bump-log.model.js";
-import { BumpGuildCalendarRepository } from "../repositories/bump-guild-calendar.repository.js";
-import { BumpLogRepository } from "../repositories/bump-log-repository.js";
-import { BumpUserRepository } from "../repositories/bump-user.repository.js";
+import { BumpLogSourceType } from "../models/uppy-discord/bump-log.model.js";
+import { BumpGuildCalendarRepository } from "../repositories/uppy-discord/bump-guild-calendar.repository.js";
+import { BumpLogRepository } from "../repositories/uppy-discord/bump-log-repository.js";
+import { BumpUserRepository } from "../repositories/uppy-discord/bump-user.repository.js";
 
 export async function createBump({
   guildId,

@@ -7,6 +7,7 @@ import type {
   WebhookBumpBanNotification,
   WebhookCommandSuccessNotification,
   WebhookNotification,
+  WebhookRemindNotication,
 } from "./webhook.types.js";
 import { WebhookNotificationType } from "./webhook.types.js";
 
@@ -16,30 +17,52 @@ export class WebhookManager {
     return new WebhookManager();
   }
 
-  createCommandExecutedPayload(payload: WebhookCommandSuccessNotification) {
-    return this.createPayload(WebhookNotificationType.CommandSuccess, payload);
+  createCommandExecutedPayload(
+    guildId: string,
+    payload: WebhookCommandSuccessNotification
+  ) {
+    return this.createPayload(
+      guildId,
+      WebhookNotificationType.CommandSuccess,
+      payload
+    );
   }
 
   createBumpBanPayload(
+    guildId: string,
     type:
       | typeof WebhookNotificationType.BumpBanCreation
       | typeof WebhookNotificationType.BumpBanRemoval,
     payload: WebhookBumpBanNotification
   ) {
-    return this.createPayload(type, payload);
+    return this.createPayload(guildId, type, payload);
   }
 
-  createTestRemindPayload() {
-    return this.createPayload(WebhookNotificationType.Test, {
+  createRemindPayload(guildId: string, payload: WebhookRemindNotication) {
+    return this.createPayload(guildId, WebhookNotificationType.Remind, payload);
+  }
+
+  createForceRemindPayload(guildId: string, payload: WebhookRemindNotication) {
+    return this.createPayload(
+      guildId,
+      WebhookNotificationType.ForceRemind,
+      payload
+    );
+  }
+
+  createTestNotificationPayload(guildId: string) {
+    return this.createPayload(guildId, WebhookNotificationType.Test, {
       message: "this is a test notification",
     });
   }
 
   private createPayload<T>(
+    guildId: string,
     type: WebhookNotificationType,
     payload: T
   ): WebhookNotification<T> {
     return {
+      guildId,
       type,
       data: payload,
     };

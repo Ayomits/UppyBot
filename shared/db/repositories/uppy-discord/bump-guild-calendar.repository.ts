@@ -2,12 +2,12 @@ import { DateTime } from "luxon";
 import type { FilterQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { BumpGuildCalendar } from "#/shared/db/models/bump-guild-calendar.model.js";
-import { BumpGuildCalendarModel } from "#/shared/db/models/bump-guild-calendar.model.js";
+import type { BumpGuildCalendar } from "#/shared/db/models/uppy-discord/bump-guild-calendar.model.js";
+import { BumpGuildCalendarModel } from "#/shared/db/models/uppy-discord/bump-guild-calendar.model.js";
 import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 
-import { useCachedQuery } from "../mongo.js";
-import { redisClient } from "../redis.js";
+import { useCachedQuery } from "../../mongo.js";
+import { redisClient } from "../../redis.js";
 
 @injectable()
 export class BumpGuildCalendarRepository {

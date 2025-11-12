@@ -9,22 +9,22 @@ import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
-import type { SettingsDocument } from "#/shared/db/models/settings.model.js";
-import { BumpLogRepository } from "#/shared/db/repositories/bump-log-repository.js";
-import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
-import { RemindRepository } from "#/shared/db/repositories/remind.repository.js";
-import { SettingsRepository } from "#/shared/db/repositories/settings.repository.js";
+import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
+import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
+import { BumpLogRepository } from "#/shared/db/repositories/uppy-discord/bump-log-repository.js";
+import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
+import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { createBump } from "#/shared/db/utils/create-bump.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 import { logger } from "#/shared/libs/logger/logger.js";
-import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
 
-import { fetchServer } from "../api/ds-monitoring/api.js";
+import { fetchServer } from "../../shared/api/ds-monitoring/index.js";
+import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";
 import { MonitoringType } from "../app/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "../app/public/reminder/reminder-schedule.manager.js";
-import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";
-import { client } from "../client.js";
+import { discordClient } from "../client.js";
 import type { Loop } from "./__interface.js";
 
 type ParsedUser = { id: string; isSite: boolean; timestamp: Date };
@@ -38,7 +38,7 @@ export class WebLikeSyncManager implements Loop {
     @inject(BumpLogRepository) private bumpLogRepository: BumpLogRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
     @inject(CryptographyService)
-    private cryptographyService: CryptographyService,
+    private cryptographyService: CryptographyService
   ) {}
 
   async create() {
@@ -55,12 +55,19 @@ export class WebLikeSyncManager implements Loop {
   static create() {
     const settingsRepository = SettingsRepository.create();
     const remindRepository = RemindRepository.create();
+    const webhookManager = WebhookManager.create();
+    const cryptography = CryptographyService.create();
     return new WebLikeSyncManager(
-      new ReminderScheduleManager(settingsRepository, remindRepository),
+      new ReminderScheduleManager(
+        settingsRepository,
+        remindRepository,
+        webhookManager,
+        cryptography
+      ),
       settingsRepository,
       BumpLogRepository.create(),
-      WebhookManager.create(),
-      CryptographyService.create(),
+      webhookManager,
+      cryptography
     );
   }
 
@@ -69,7 +76,7 @@ export class WebLikeSyncManager implements Loop {
     const guilds = (
       await guildRepository.findMany({
         isActive: true,
-        guildId: { $in: client.guilds.cache.map((g) => g.id) },
+        guildId: { $in: discordClient.guilds.cache.map((g) => g.id) },
       })
     ).map((guild) => guild.guildId);
     for (const guildId of guilds) {
@@ -91,7 +98,7 @@ export class WebLikeSyncManager implements Loop {
     logger.info(`${users.length} users for ${guildId} syncing`);
     await Promise.all([
       ...users.map((user) =>
-        this.ensureBumpUser(guild!, user.id, user.timestamp, settings),
+        this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
       ),
       this.ensureRemind(guild!, lastUser.timestamp, settings),
     ]);
@@ -102,7 +109,7 @@ export class WebLikeSyncManager implements Loop {
     guild: Guild,
     executorId: string,
     timestamp: Date,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     if (!guild) {
       return;
@@ -111,7 +118,7 @@ export class WebLikeSyncManager implements Loop {
       guild?.id,
       executorId,
       timestamp,
-      MonitoringType.DiscordMonitoring,
+      MonitoringType.DiscordMonitoring
     );
     if (hasLog) {
       return;
@@ -129,13 +136,13 @@ export class WebLikeSyncManager implements Loop {
       this.webhookManager.pushConsumer(
         settings.webhooks?.url,
         this.cryptographyService.decrypt(settings.webhooks.token!),
-        this.webhookManager.createCommandExecutedPayload({
+        this.webhookManager.createCommandExecutedPayload(settings.guildId, {
           channelId: null,
           executedAt: timestamp,
           points,
           type: MonitoringType.DiscordMonitoring,
           userId: executorId,
-        }),
+        })
       );
     }
 
@@ -164,16 +171,16 @@ export class WebLikeSyncManager implements Loop {
     const container = new ContainerBuilder().addSectionComponents((builder) =>
       builder
         .setThumbnailAccessory((builder) =>
-          builder.setURL(UsersUtility.getAvatar(author)),
+          builder.setURL(UsersUtility.getAvatar(author))
         )
         .addTextDisplayComponents((builder) =>
           builder.setContent(
             [
               heading("Команда /like на сайте"),
               unorderedList([`Исполнитель: ${author}`, `Поинты: ${points}`]),
-            ].join("\n"),
-          ),
-        ),
+            ].join("\n")
+          )
+        )
     );
 
     try {
@@ -194,7 +201,7 @@ export class WebLikeSyncManager implements Loop {
   private async ensureRemind(
     guild: Guild,
     timestamp: Date,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     await this.remindScheduleManager.remind({
       guild,

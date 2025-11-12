@@ -19,8 +19,8 @@ build_bot:
 logs_bot:
 	docker compose logs uppy-discord -f
 
-logs_backend:
-	docker compose logs uppy-backend -f
+logs_server:
+	docker compose logs uppy-server -f
 
 down:
 	docker compose down --remove-orphans

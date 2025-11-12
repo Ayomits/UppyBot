@@ -11,8 +11,8 @@ import {
 } from "discord.js";
 import { injectable } from "tsyringe";
 
-import type { BumpLogDocument } from "#/shared/db/models/bump-log.model.js";
-import { BumpLogModel } from "#/shared/db/models/bump-log.model.js";
+import type { BumpLogDocument } from "#/shared/db/models/uppy-discord/bump-log.model.js";
+import { BumpLogModel } from "#/shared/db/models/uppy-discord/bump-log.model.js";
 import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import {

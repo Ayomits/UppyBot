@@ -1,0 +1,6 @@
+#!/bin/sh
+cd /app
+
+. /proc/1/environ 2>/dev/null | xargs -0 export
+
+pnpm run dev:sr

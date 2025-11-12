@@ -1,9 +1,9 @@
 import type { FilterQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { Remind } from "../models/remind.model.js";
-import { RemindModel } from "../models/remind.model.js";
-import { useCachedQuery, useCachedUpdate } from "../mongo.js";
+import type { Remind } from "../../models/uppy-discord/remind.model.js";
+import { RemindModel } from "../../models/uppy-discord/remind.model.js";
+import { useCachedQuery, useCachedUpdate } from "../../mongo.js";
 
 @injectable()
 export class RemindRepository {

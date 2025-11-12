@@ -1,11 +1,11 @@
 import type { FilterQuery, UpdateQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { Guild } from "#/shared/db/models/guild.model.js";
-import { GuildModel } from "#/shared/db/models/guild.model.js";
+import type { Guild } from "#/shared/db/models/uppy-discord/guild.model.js";
+import { GuildModel } from "#/shared/db/models/uppy-discord/guild.model.js";
 
-import { useCachedQuery, useCachedUpdate } from "../mongo.js";
-import { redisClient } from "../redis.js";
+import { useCachedQuery, useCachedUpdate } from "../../mongo.js";
+import { redisClient } from "../../redis.js";
 
 @injectable()
 export class GuildRepository {

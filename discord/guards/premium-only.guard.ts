@@ -1,8 +1,8 @@
 import { IsGuildUser } from "@discordx/utilities";
 import { MessageFlags } from "discord.js";
 
-import { GuildType } from "#/shared/db/models/guild.model.js";
-import { GuildRepository } from "#/shared/db/repositories/guild.repository.js";
+import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
+import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
 
 export const PremiumOnly = IsGuildUser(async ({ guild, arg }) => {
   const guildRepository = GuildRepository.create();

@@ -5,6 +5,8 @@ export const WebhookNotificationType = {
   CommandSuccess: 0,
   BumpBanCreation: 1,
   BumpBanRemoval: 2,
+  Remind: 3,
+  ForceRemind: 4,
 } as const;
 
 export type WebhookNotificationType = LiteralEnum<
@@ -24,7 +26,17 @@ export type WebhookBumpBanNotification = {
   executedAt: Date;
 };
 
+export type WebhookRemindNotication = {
+  monitoring: {
+    command: string;
+  };
+  guildName: string;
+  channelName: string;
+  aproximatedNotificationUsers: string[];
+};
+
 export type WebhookNotification<T> = {
+  guildId: string;
   type: WebhookNotificationType;
   data: T;
 };

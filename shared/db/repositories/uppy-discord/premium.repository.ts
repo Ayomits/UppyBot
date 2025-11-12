@@ -1,11 +1,11 @@
 import type { FilterQuery, UpdateQuery } from "mongoose";
 import { injectable } from "tsyringe";
 
-import type { Premium } from "#/shared/db/models/premium.model.js";
-import { PremiumModel } from "#/shared/db/models/premium.model.js";
+import type { Premium } from "#/shared/db/models/uppy-discord/premium.model.js";
+import { PremiumModel } from "#/shared/db/models/uppy-discord/premium.model.js";
 
-import { useCachedDelete, useCachedQuery, useCachedUpdate } from "../mongo.js";
-import { redisClient } from "../redis.js";
+import { useCachedDelete, useCachedQuery, useCachedUpdate } from "../../mongo.js";
+import { redisClient } from "../../redis.js";
 
 @injectable()
 export class PremiumRepository {

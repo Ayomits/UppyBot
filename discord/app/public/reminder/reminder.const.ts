@@ -1,4 +1,4 @@
-import type { BumpUser } from "#/shared/db/models/bump-user.model.js";
+import type { BumpUser } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import type { LiteralEnum } from "#/shared/libs/djs/index.js";
 
 export const BumpBanCheckerInterval = 30_000;
