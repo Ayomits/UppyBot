@@ -20,6 +20,11 @@ export class GuildController {
     return this.guildService.handleGuildCreation(guild);
   }
 
+  @On({ event: Events.GuildUpdate })
+  async handleGuildUpdate([, guild]: ArgsOf<Events.GuildUpdate>) {
+    return this.guildService.handleGuildUpdate(guild);
+  }
+
   @On({ event: Events.GuildDelete })
   async handleGuildDelete([guild]: ArgsOf<Events.GuildDelete>) {
     return this.guildService.handleGuildRemoval(guild);

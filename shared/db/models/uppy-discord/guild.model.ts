@@ -15,6 +15,9 @@ export class Guild {
   @prop({ required: true, unique: true })
   guildId: string;
 
+  @prop({ required: true })
+  guildName: string;
+
   @prop({})
   type: number;
 

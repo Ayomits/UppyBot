@@ -1,13 +1,16 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { DateTime } from "luxon";
 
+import { telegramNotificationProduce } from "#/queue/routes/telegram-notification/producers/index.js";
 import {
   fetchDiscordOauth2Tokens,
   fetchDiscordOauth2User,
 } from "#/shared/api/discord/index.js";
 import type { NotificationUser } from "#/shared/db/models/uppy-telegram/user.model.js";
+import { NotificationUserTokenRepository } from "#/shared/db/repositories/uppy-telegram/token.repository.js";
 import { NotificationUserRepository } from "#/shared/db/repositories/uppy-telegram/user.repository.js";
 import { configService } from "#/shared/libs/config/index.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
 
 import { DISCORD_URL } from "../const/index.js";
 import { HTTPStatus } from "../const/status.js";
@@ -16,21 +19,43 @@ const clientId = configService.getOrThrow("DISCORD_CLIENT_ID");
 const clientSecret = configService.getOrThrow("DISCORD_CLIENT_SECRET");
 const redirectUri = configService.getOrThrow("DISCORD_REDIRECT_URI");
 
+type Payload = {
+  chatId: number;
+  token: string;
+};
+
 export class DiscordAuthService {
   static create() {
     return new DiscordAuthService();
   }
 
-  handleDiscordLogin(req: FastifyRequest, reply: FastifyReply) {
-    const tgId = req.query?.["tg_id"];
+  async handleDiscordLogin(req: FastifyRequest, reply: FastifyReply) {
+    const chatId = req.query?.["chat_id"];
+    const token = req.query?.["token"];
 
-    if (!tgId) {
+    if (!chatId) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "tg_id should be provided inside of query",
+        message: "chat_id must be provided inside of query",
       });
     }
 
-    const numTgId = Number(tgId);
+    if (!token) {
+      return reply.code(HTTPStatus.UnprocessableEntity).send({
+        message: "token must be provided inside of query",
+      });
+    }
+
+    const tokenRepository = NotificationUserTokenRepository.create();
+
+    const isValid = await tokenRepository.validate(token);
+
+    if (!isValid) {
+      return reply.code(HTTPStatus.Unauthorized).send({
+        message: `Token invalid`,
+      });
+    }
+
+    const numTgId = Number(chatId);
 
     if (Number.isNaN(numTgId)) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
@@ -43,7 +68,7 @@ export class DiscordAuthService {
       response_type: "code",
       scope: "guilds identify",
       redirect_uri: redirectUri,
-      state: btoa(JSON.stringify({ tgId: numTgId })),
+      state: btoa(JSON.stringify(this.createPayload(chatId, token))),
     });
 
     return reply.code(HTTPStatus.Ok).send({
@@ -66,17 +91,33 @@ export class DiscordAuthService {
       });
     }
 
-    const stateJson = JSON.parse(atob(state)) as { tgId: number };
+    const stateJson = JSON.parse(atob(state)) as Payload;
 
-    if (!stateJson.tgId) {
+    if (!stateJson.token) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "property tgId must be in state",
+        message: "property token must be in state",
       });
     }
 
-    if (Number.isNaN(stateJson.tgId)) {
+    const tokenRepository = NotificationUserTokenRepository.create();
+
+    const isValid = await tokenRepository.validate(stateJson.token);
+
+    if (!isValid) {
+      return reply.code(HTTPStatus.Unauthorized).send({
+        message: `Token invalid`,
+      });
+    }
+
+    if (!stateJson.chatId) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "tgId must be a valid number",
+        message: "property chatId must be in state",
+      });
+    }
+
+    if (Number.isNaN(stateJson.chatId)) {
+      return reply.code(HTTPStatus.UnprocessableEntity).send({
+        message: "chatId must be a valid number",
       });
     }
 
@@ -91,24 +132,44 @@ export class DiscordAuthService {
 
     const tokenQuery = await fetchDiscordOauth2Tokens(params);
 
+    const cryptography = CryptographyService.create();
+
+    const accessToken = tokenQuery.data.access_token;
+    const refreshToken = tokenQuery.data.refresh_token;
+
     const tokens: NotificationUser["tokens"] = {
-      access_token: tokenQuery.data.access_token,
-      refresh_token: tokenQuery.data.refresh_token,
+      access_token: cryptography.encrypt(accessToken),
+      refresh_token: cryptography.encrypt(refreshToken),
       expires_at: DateTime.now()
         .plus({ seconds: tokenQuery.data.expires_in })
         .toJSDate(),
     };
 
-    const repository = NotificationUserRepository.create();
+    const userRepository = NotificationUserRepository.create();
 
-    const discordUser = await fetchDiscordOauth2User(tokens.access_token!);
+    const discordUser = await fetchDiscordOauth2User(accessToken);
 
-    const user = await repository.createUser({
-      discord_user_id: discordUser.data.id,
-      telegram_user_id: stateJson.tgId,
+    const user = await userRepository.createUser({
+      discord_user_id: discordUser.id,
+      telegram_user_id: stateJson.chatId,
       tokens,
     });
 
+    telegramNotificationProduce({
+      content: `Вы успешно авторизировались как <strong>${discordUser.global_name ?? discordUser.username}</strong>`,
+      telegram_id: stateJson.chatId,
+      parse_mode: "HTML",
+    });
+
+    await tokenRepository.invalidate(stateJson.token);
+
     return reply.code(HTTPStatus.Ok).send(user);
+  }
+
+  private createPayload(chatId: number, token: string): Payload {
+    return {
+      chatId,
+      token,
+    };
   }
 }

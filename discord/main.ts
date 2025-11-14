@@ -5,10 +5,9 @@ import type { Interaction, Message } from "discord.js";
 import { DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
-import { registerConsumers } from "../queue/routes/index.js";
-import { createMongoDbConnection } from "../shared/db/mongo.js";
-import { createRabbitConnection } from "../shared/db/rabbitmq.js";
-import { createRedisConnection } from "../shared/db/redis.js";
+import { createStoreConnection } from "#/shared/db/connections.js";
+
+import { registerDiscordConsumers } from "../queue/routes/index.js";
 import { Env } from "../shared/libs/config/index.js";
 import { logger } from "../shared/libs/logger/logger.js";
 import { discordClient } from "./client.js";
@@ -53,14 +52,8 @@ async function createClient() {
 }
 
 async function start() {
-  await createMongoDbConnection().then(() => logger.success("Mongodb successfully connected"));
-  await createRedisConnection().then(() =>
-    logger.success("Redis successfully connected"),
-  );
-  await createRabbitConnection().then(() =>
-    logger.success("Rabbitmq connected"),
-  );
-  await registerConsumers();
+  await createStoreConnection({ mongo: { dbName: "Uppy" } });
+  await registerDiscordConsumers();
   await createClient().then(() => logger.success("Bot successfully connected"));
 }
 
