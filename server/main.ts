@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import Fastify from "fastify";
 import qs from "qs";
 

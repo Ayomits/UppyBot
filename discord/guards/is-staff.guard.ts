@@ -2,8 +2,8 @@ import type { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { MessageFlags } from "discord.js";
 import type { GuardFunction } from "discordx";
 
-import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { developers } from "#/discord/const/owners.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 export const IsHelper: GuardFunction<ChatInputCommandInteraction> = async (
   interaction,
   _,

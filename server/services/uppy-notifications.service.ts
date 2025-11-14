@@ -1,10 +1,10 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
+import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import type { WebhookNotification } from "#/shared/webhooks/webhook.types.js";
 
-import { WEBHOOKS_URL } from "../const/index.js";
 import { HTTPStatus } from "../const/status.js";
 
 export class UppyNotificationService {
@@ -26,8 +26,6 @@ export class UppyNotificationService {
       });
     }
 
-    console.log(data);
-
     return reply.send(req.body);
   }
 
@@ -40,7 +38,7 @@ export class UppyNotificationService {
 
     const settings = await settingsRepository.findGuildSettings(guildId);
 
-    if (!settings.webhooks.url || settings.webhooks.url !== WEBHOOKS_URL)
+    if (!settings.webhooks.url || settings.webhooks.url !== `${Env.UppyUrl}/uppy/notifications`)
       return false;
 
     const cryptography = CryptographyService.create();

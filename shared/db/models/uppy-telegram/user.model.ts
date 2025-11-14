@@ -5,8 +5,8 @@ export class NotificationUser extends TimeStamps {
   @prop({ required: true, unique: true })
   telegram_user_id: number;
 
-  @prop({ required: true, unique: true })
-  discord_user_id: string;
+  @prop({ required: true })
+  discord_user_id: string | null;
 
   @prop({
     required: true,

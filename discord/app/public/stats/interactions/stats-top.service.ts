@@ -4,13 +4,13 @@ import type { ChatInputCommandInteraction, User } from "discord.js";
 import { bold, MessageFlags, userMention } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
+import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
 import type {
   BumpUser,
   BumpUserDocument,
 } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
-import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
 import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import { PaginationLimit } from "../stats.const.js";

@@ -13,8 +13,8 @@ import {
 import { Discord } from "discordx";
 import { singleton } from "tsyringe";
 
-import { PremiumModel } from "#/shared/db/models/uppy-discord/premium.model.js";
 import { ExternalLinks } from "#/discord/const/links.js";
+import { PremiumModel } from "#/shared/db/models/uppy-discord/premium.model.js";
 
 @singleton()
 @Discord()

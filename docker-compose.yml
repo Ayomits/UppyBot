@@ -24,6 +24,19 @@ services:
     volumes:
       - ./:/app
     restart: always
+
+  uppy-telegram:
+    container_name: uppy-telegram
+    network_mode: host
+    build:
+      args:
+       - APP_ENV=dev
+      dockerfile: ./docker/images/telegram/Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./:/app
+    restart: always
     
 
   uppy-redis:

@@ -22,6 +22,9 @@ logs_bot:
 logs_server:
 	docker compose logs uppy-server -f
 
+logs_tg:
+	docker compose logs uppy-telegram -f
+
 down:
 	docker compose down --remove-orphans
 
