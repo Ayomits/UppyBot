@@ -4,6 +4,7 @@ import Fastify from "fastify";
 import qs from "qs";
 
 import { createStoreConnection } from "#/shared/db/connections.js";
+import { createNotificationsMongoConnection } from "#/shared/db/mongo.js";
 import { logger } from "#/shared/libs/logger/logger.js";
 
 import { registerDiscordAuthController } from "./controllers/discord-auth.controller.js";
@@ -19,11 +20,8 @@ async function start() {
   registerUppyNotificationController(app);
 
   app.listen({ port: 4200 }, async () => {
-    await createStoreConnection({
-      mongo: {
-        dbName: "UppyNotifications",
-      },
-    });
+    await createStoreConnection();
+    await createNotificationsMongoConnection();
     logger.info(`Server started: http://localhost:4200`);
   });
 }

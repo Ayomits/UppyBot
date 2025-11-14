@@ -32,7 +32,7 @@ export async function fetchDiscordOauth2User(access_token: string) {
       });
 
       return user.data;
-    }
+    },
   );
 }
 
@@ -48,6 +48,6 @@ export async function fetchDiscordOauth2Guilds(access_token: string) {
       });
 
       return guilds.data;
-    }
+    },
   );
 }

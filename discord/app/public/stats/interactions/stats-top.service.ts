@@ -7,7 +7,6 @@ import { inject, injectable } from "tsyringe";
 import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
 import type {
   BumpUser,
-  BumpUserDocument,
 } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
@@ -112,10 +111,7 @@ export class UppyLeaderboardService extends BaseUppyService {
     filter: mongoose.FilterQuery<BumpUser>,
   ) {
     const skip = page * PaginationLimit;
-    const [data] = await BumpUserModel.aggregate<{
-      users: Partial<BumpUserDocument>[];
-      meta: { count: number }[];
-    }>([
+    const [data] = await BumpUserModel.model.aggregate([
       {
         $match: filter,
       },

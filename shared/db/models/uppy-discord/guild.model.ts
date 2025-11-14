@@ -1,6 +1,9 @@
-import { buildSchema, getModelForClass, prop } from "@typegoose/typegoose";
+import { buildSchema, prop } from "@typegoose/typegoose";
 
 import type { LiteralEnum } from "#/shared/libs/djs/types.js";
+
+import { mainMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 export const GuildType = {
   Common: 0,
@@ -29,4 +32,6 @@ export const GuildCollectionName = "guilds";
 
 export const GuildSchema = buildSchema(Guild);
 
-export const GuildModel = getModelForClass(Guild);
+export const GuildModel = createLazyModel(() => mainMongoConnection, Guild, {
+  existingConnection: mainMongoConnection!,
+});

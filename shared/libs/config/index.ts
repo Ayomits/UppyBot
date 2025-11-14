@@ -28,7 +28,7 @@ export const Env = {
   UppyUrl: configService.getOrThrow("UPPY_URL", "http://localhost:4200"),
   MongoUrl: configService.getOrThrow(
     "MONGO_URL",
-    "mongodb://localhost:27018/?authSource=admin"
+    "mongodb://localhost:27018/?authSource=admin",
   ),
   RedisHost: configService.getOrThrow("REDIS_HOST", "localhost"),
   RedisPort: Number(configService.getOrThrow("REDIS_PORT", "6379")),

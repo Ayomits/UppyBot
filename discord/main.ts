@@ -6,6 +6,7 @@ import { DIService, tsyringeDependencyRegistryEngine } from "discordx";
 import { container } from "tsyringe";
 
 import { createStoreConnection } from "#/shared/db/connections.js";
+import { createMainMongoConnection } from "#/shared/db/mongo.js";
 
 import { registerDiscordConsumers } from "../queue/routes/index.js";
 import { Env } from "../shared/libs/config/index.js";
@@ -52,7 +53,8 @@ async function createClient() {
 }
 
 async function start() {
-  await createStoreConnection({ mongo: { dbName: "Uppy" } });
+  await createStoreConnection();
+  await createMainMongoConnection();
   await registerDiscordConsumers();
   await createClient().then(() => logger.success("Bot successfully connected"));
 }

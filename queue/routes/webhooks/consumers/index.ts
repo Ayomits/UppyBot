@@ -7,7 +7,7 @@ import type { WebhookCreatedPayload } from "../types.js";
 export const webhookCreatedConsumer: Consumer = async (msg, ch) => {
   try {
     const data = JSON.parse(
-      msg.content.toString()
+      msg.content.toString(),
     ) as WebhookCreatedPayload<object>;
 
     const webhookManager = WebhookManager.create();

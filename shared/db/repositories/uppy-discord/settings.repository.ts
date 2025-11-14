@@ -14,7 +14,7 @@ export class SettingsRepository {
   }
 
   async findMany(filter: FilterQuery<Settings>) {
-    return await SettingsModel.find(filter);
+    return await SettingsModel.model.find(filter);
   }
 
   async findGuildSettings(guildId: string) {
@@ -22,7 +22,7 @@ export class SettingsRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await SettingsModel.findOneAndUpdate(
+        await SettingsModel.model.findOneAndUpdate(
           { guildId },
           {},
           { upsert: true, setDefaultsOnInsert: true, new: true },
@@ -35,7 +35,7 @@ export class SettingsRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await SettingsModel.findOneAndUpdate({ guildId }, payload, {
+        await SettingsModel.model.findOneAndUpdate({ guildId }, payload, {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,

@@ -10,9 +10,9 @@ export class NotificationUserRepository {
 
   async createUser(
     payload: Partial<NotificationUser> &
-      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">
+      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">,
   ) {
-    return await NotificationUserModel.findOneAndUpdate(
+    return await NotificationUserModel.model.findOneAndUpdate(
       {
         $or: [
           { discord_user_id: payload.discord_user_id },
@@ -24,31 +24,33 @@ export class NotificationUserRepository {
         upsert: true,
         setDefaultsOnInsert: true,
         new: true,
-      }
+      },
     );
   }
 
   async findByDiscordId(dsId: string) {
-    return await NotificationUserModel.findOne({ discord_user_id: dsId });
+    return await NotificationUserModel.model.findOne({ discord_user_id: dsId });
   }
 
   async findByTgId(tgId: number) {
-    return await NotificationUserModel.findOne({ telegram_user_id: tgId });
+    return await NotificationUserModel.model.findOne({
+      telegram_user_id: tgId,
+    });
   }
 
   async updateByDiscordId(dsId: string, update: UpdateQuery<NotificationUser>) {
-    return await NotificationUserModel.findOneAndUpdate(
+    return await NotificationUserModel.model.findOneAndUpdate(
       { discord_user_id: dsId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true }
+      { upsert: true, setDefaultsOnInsert: true, new: true },
     );
   }
 
   async updateByTgId(tgId: number, update: UpdateQuery<NotificationUser>) {
-    return await NotificationUserModel.findOneAndUpdate(
+    return await NotificationUserModel.model.findOneAndUpdate(
       { telegram_user_id: tgId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true }
+      { upsert: true, setDefaultsOnInsert: true, new: true },
     );
   }
 }

@@ -30,7 +30,7 @@ export class BumpBanService {
     @inject(BumpLogService) private logService: BumpLogService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {}
 
   async handleBumpBanInit(client: Client) {
@@ -39,7 +39,7 @@ export class BumpBanService {
     for (const [, guild] of guilds) {
       const [settings, bans] = await Promise.all([
         this.settingsRepository.findGuildSettings(guild.id),
-        BumpBanModel.find({
+        BumpBanModel.model.find({
           guildId: guild.id,
           type: { $in: Object.values(MonitoringType) },
         }),
@@ -63,7 +63,7 @@ export class BumpBanService {
 
   async handlePostIncrementBumpBans(guild: Guild, type: number) {
     const [bans, settings] = await Promise.all([
-      BumpBanModel.find({
+      BumpBanModel.model.find({
         guildId: guild.id,
         type,
         removeIn: { $gte: BumpBanLimit },
@@ -87,7 +87,7 @@ export class BumpBanService {
   }
 
   async handleMemberUpdate(member: GuildMember) {
-    const [entry] = await BumpBanModel.aggregate([
+    const [entry] = await BumpBanModel.model.aggregate([
       {
         $match: {
           guildId: member.guild.id,
@@ -134,7 +134,7 @@ export class BumpBanService {
     member: GuildMember,
     type: number,
     settings?: SettingsDocument | null,
-    bumpBan?: BumpBan | null
+    bumpBan?: BumpBan | null,
   ): Promise<
     | {
         params: ActionOptions["force"];
@@ -150,7 +150,7 @@ export class BumpBanService {
       : await this.settingsRepository.findGuildSettings(member.guild.id);
     bumpBan = bumpBan
       ? bumpBan
-      : await BumpBanModel.findOne({
+      : await BumpBanModel.model.findOne({
           guildId: member.guild.id,
           userId: member.id,
           type,
@@ -198,7 +198,7 @@ export class BumpBanService {
       member: GuildMember;
       role: Role;
       type: number;
-    }
+    },
   ) {
     let hasRole: boolean = options.shouldRoleAction === true;
     let hasBumpBan: boolean = options.shouldDbQuery === false;
@@ -209,7 +209,7 @@ export class BumpBanService {
 
     if (!hasBumpBan) {
       hasBumpBan =
-        ((await BumpBanModel.countDocuments({
+        ((await BumpBanModel.model.countDocuments({
           guildId: options.member.guild.id,
           userId: options.member.id,
           type: options.type,
@@ -226,7 +226,7 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id
+          options.member.guild.id,
         );
 
     const guild = options.member.guild;
@@ -267,16 +267,16 @@ export class BumpBanService {
           {
             userId: options.member.id,
             executedAt: new Date(),
-          }
-        )
+          },
+        ),
       );
     }
 
     await Promise.all([
-      BumpBanModel.findOneAndUpdate(
+      BumpBanModel.model.findOneAndUpdate(
         filter,
         {},
-        { upsert: true, setDefaultsOnInsert: true }
+        { upsert: true, setDefaultsOnInsert: true },
       ),
       options.member.roles.add(role).catch(() => null),
       this.logService.sendBumpBanCreationLog(guild, options.member.user),
@@ -289,13 +289,13 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id
+          options.member.guild.id,
         );
 
     const guild = options.member.guild;
 
     const role = await guild.roles.fetch(
-      options.settings?.bumpBan.roleId ?? ""
+      options.settings?.bumpBan.roleId ?? "",
     );
 
     if (!role) {
@@ -331,14 +331,14 @@ export class BumpBanService {
           {
             userId: options.member.id,
             executedAt: new Date(),
-          }
-        )
+          },
+        ),
       );
     }
 
     await Promise.all([
       options.member.roles.remove(role),
-      BumpBanModel.deleteOne(filter),
+      BumpBanModel.model.deleteOne(filter),
       this.logService.sendBumpBanRemovalLog(guild, options.member.user),
     ]);
     return true;

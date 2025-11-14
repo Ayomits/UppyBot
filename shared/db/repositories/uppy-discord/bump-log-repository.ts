@@ -1,7 +1,10 @@
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import { BumpLogModel, BumpLogSourceType } from "../../models/uppy-discord/bump-log.model.js";
+import {
+  BumpLogModel,
+  BumpLogSourceType,
+} from "../../models/uppy-discord/bump-log.model.js";
 import { useCachedQuery } from "../../mongo.js";
 
 @injectable()
@@ -33,7 +36,7 @@ export class BumpLogRepository {
       this.generateId(guildId, executorId, timestamp.getTime(), type),
       this.ttl,
       async () =>
-        await BumpLogModel.create({
+        await BumpLogModel.model.create({
           guildId,
           executorId,
           messageId,
@@ -60,7 +63,7 @@ export class BumpLogRepository {
       this.generateId(guildId, executorId, timestamp.getTime(), type),
       this.ttl,
       async () =>
-        await BumpLogModel.findOne({
+        await BumpLogModel.model.findOne({
           guildId,
           executorId,
           type,

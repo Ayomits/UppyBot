@@ -4,7 +4,11 @@ import { injectable } from "tsyringe";
 import type { Premium } from "#/shared/db/models/uppy-discord/premium.model.js";
 import { PremiumModel } from "#/shared/db/models/uppy-discord/premium.model.js";
 
-import { useCachedDelete, useCachedQuery, useCachedUpdate } from "../../mongo.js";
+import {
+  useCachedDelete,
+  useCachedQuery,
+  useCachedUpdate,
+} from "../../mongo.js";
 import { redisClient } from "../../redis.js";
 
 @injectable()
@@ -16,14 +20,14 @@ export class PremiumRepository {
   }
 
   async findMany(filter: FilterQuery<Premium>) {
-    return await PremiumModel.find(filter);
+    return await PremiumModel.model.find(filter);
   }
 
   async findByGuildId(guildId: string) {
     return await useCachedQuery(
       this.generateId(guildId),
       this.ttl,
-      async () => await PremiumModel.findOne({ guildId }),
+      async () => await PremiumModel.model.findOne({ guildId }),
     );
   }
 
@@ -32,7 +36,7 @@ export class PremiumRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await PremiumModel.findOneAndUpdate({ guildId }, update, {
+        await PremiumModel.model.findOneAndUpdate({ guildId }, update, {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
@@ -43,12 +47,12 @@ export class PremiumRepository {
   async deleteByGuildId(guildId: string) {
     return useCachedDelete(
       this.generateId(guildId),
-      async () => await PremiumModel.deleteOne({ guildId }),
+      async () => await PremiumModel.model.deleteOne({ guildId }),
     );
   }
 
   async deleteMany(filter: FilterQuery<Premium>) {
-    return await PremiumModel.deleteMany(filter);
+    return await PremiumModel.model.deleteMany(filter);
   }
 
   async cleanUpCache(id: string | string[]) {

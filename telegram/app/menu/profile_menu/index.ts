@@ -9,7 +9,7 @@ import { settingsMenuId } from "./settings_menu/index.js";
 export const profileMenuId = "profile_menu";
 
 export const profileMenu = new Menu<AppContext>(profileMenuId).submenu(
-  `${Emojis.SAFETY_PIN} Настройки`,
+  `${Emojis.GEAR} Настройки`,
   settingsMenuId,
-  protectedInteraction
+  protectedInteraction,
 );

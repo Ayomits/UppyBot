@@ -18,11 +18,11 @@ export class GuildRepository {
   }
 
   async findMany(filter: FilterQuery<Guild>) {
-    return await GuildModel.find(filter);
+    return await GuildModel.model.find(filter);
   }
 
   async createMany(docs: Guild[]) {
-    return await GuildModel.insertMany(docs);
+    return await GuildModel.model.insertMany(docs);
   }
 
   async findGuild(guildId: string) {
@@ -30,7 +30,7 @@ export class GuildRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await GuildModel.findOneAndUpdate(
+        await GuildModel.model.findOneAndUpdate(
           { guildId },
           {},
           { upsert: true, setDefaultsOnInsert: true, new: true },
@@ -43,7 +43,7 @@ export class GuildRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await GuildModel.findOneAndUpdate({ guildId }, update, {
+        await GuildModel.model.findOneAndUpdate({ guildId }, update, {
           upsert: true,
           setDefaultsOnInsert: true,
           new: true,
@@ -52,7 +52,7 @@ export class GuildRepository {
   }
 
   async updateMany(filter: FilterQuery<Guild>, update: UpdateQuery<Guild>) {
-    return await GuildModel.updateMany(filter, update);
+    return await GuildModel.model.updateMany(filter, update);
   }
 
   async cleanUpCache(id: string | string[]) {

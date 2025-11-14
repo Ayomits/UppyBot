@@ -289,7 +289,7 @@ export class SettingsService {
   private async postUpdateActions(guild: Guild) {
     const guildId = guild.id;
     const settings = await this.settingsRepository.findGuildSettings(guildId);
-    const reminds = await RemindModel.find({ guildId });
+    const reminds = await RemindModel.model.find({ guildId });
 
     // Управление напоминаниями в зависимости от настроек
     if (!settings?.remind.enabled) {

@@ -2,9 +2,8 @@ import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
 import { getFieldByRemindType } from "#/discord/app/public/reminder/reminder.const.js";
-import { endDateValue,startDateValue } from "#/shared/libs/time/const.js";
+import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 
-import type { BumpUserDocument } from "../../models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "../../models/uppy-discord/bump-user.model.js";
 import { useCachedQuery } from "../../mongo.js";
 import { redisClient } from "../../redis.js";
@@ -38,7 +37,7 @@ export class BumpUserRepository {
       $lte: DateTime.now().set(endDateValue).toJSDate(),
     };
     await redisClient.delByPattern(`${guildId}-${userId}-*-*-user-stat`);
-    return await BumpUserModel.bulkWrite([
+    return await BumpUserModel.model.bulkWrite([
       {
         updateOne: {
           filter: {
@@ -69,7 +68,7 @@ export class BumpUserRepository {
     from: Date,
     to: Date,
   ) {
-    return await BumpUserModel.aggregate<Partial<BumpUserDocument>>([
+    return await BumpUserModel.model.aggregate([
       {
         $match: {
           guildId,

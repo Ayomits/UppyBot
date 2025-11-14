@@ -13,13 +13,14 @@ export class PremiumSubscriptionManager {
 
   async init() {
     const [expiredSubscriptions, nonExpiredSubscriptions] = await Promise.all([
-      PremiumModel.find({
-        expiresAt: { $lte: Date.now() },
-      }).select("guildId"),
-      PremiumModel.find({ expiresAt: { $gt: Date.now() } }).select([
-        "guildId",
-        "expiresAt",
-      ]),
+      PremiumModel.model
+        .find({
+          expiresAt: { $lte: Date.now() },
+        })
+        .select("guildId"),
+      PremiumModel.model
+        .find({ expiresAt: { $gt: Date.now() } })
+        .select(["guildId", "expiresAt"]),
     ]);
 
     this.bulkRemove(expiredSubscriptions.map((doc) => doc.guildId));
@@ -37,7 +38,7 @@ export class PremiumSubscriptionManager {
       this.stopPremium(guildId),
     );
     await Promise.all([
-      PremiumModel.findOneAndUpdate(
+      PremiumModel.model.findOneAndUpdate(
         { guildId },
         { expiresAt },
         { upsert: true },
@@ -52,7 +53,7 @@ export class PremiumSubscriptionManager {
   async reveal(guildId: string, newExpiresAt: Date) {
     scheduleManager.stopJob(this.generateId(guildId));
     await Promise.allSettled([
-      PremiumModel.findOneAndUpdate(
+      PremiumModel.model.findOneAndUpdate(
         { guildId },
         { expiresAt: newExpiresAt },
         { upsert: true },
@@ -73,7 +74,7 @@ export class PremiumSubscriptionManager {
         { guildId: { $in: guildIds } },
         { type: GuildType.Common },
       ),
-      PremiumModel.deleteMany({ guildId: { $in: guildIds } }),
+      PremiumModel.model.deleteMany({ guildId: { $in: guildIds } }),
       this.guildRepository.cleanUpCache(guildIds),
     ]);
   }
@@ -86,7 +87,7 @@ export class PremiumSubscriptionManager {
   private async stopPremium(guildId: string) {
     await Promise.all([
       this.guildRepository.update(guildId, { type: GuildType.Common }),
-      PremiumModel.deleteOne({ guildId }),
+      PremiumModel.model.deleteOne({ guildId }),
     ]);
   }
 

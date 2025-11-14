@@ -12,5 +12,5 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").url(
     const payload = await fetchOauth2UppyUrl(ctx.chatId!, token);
 
     return payload?.data?.url;
-  }
+  },
 );

@@ -1,5 +1,8 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import { prop } from "@typegoose/typegoose";
 import { DateTime } from "luxon";
+
+import { notificationMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 export class NotificationUserToken {
   @prop({
@@ -13,11 +16,13 @@ export class NotificationUserToken {
   telegram_user_id: number;
 }
 
-export const NotificationUserTokenModel = getModelForClass(
+export const NotificationUserTokenModel = createLazyModel(
+  () => notificationMongoConnection,
   NotificationUserToken,
   {
     options: {
       customName: "tokens",
     },
+    existingConnection: notificationMongoConnection!,
   }
 );
