@@ -1,13 +1,15 @@
 import {
   buildSchema,
   type DocumentType,
-  getModelForClass,
   prop,
 } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
 import type { LiteralEnum } from "#/shared/libs/djs/types.js";
+
+import { mainMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 export const BumpLogSourceType = {
   Web: 0,
@@ -45,10 +47,14 @@ export const BumpLogCollectionName = "bumps";
 
 export const BumpLogSchema = buildSchema(BumpLog);
 
-export const BumpLogModel = getModelForClass(BumpLog, {
-  options: {
-    customName: BumpLogCollectionName,
+export const BumpLogModel = createLazyModel(
+  () => mainMongoConnection,
+  BumpLog,
+  {
+    options: {
+      customName: BumpLogCollectionName,
+    },
   },
-});
+);
 
 export type BumpLogDocument = DocumentType<BumpLog>;

@@ -35,7 +35,7 @@ export class ReminderScheduleManager {
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(RemindRepository) private remindRepository: RemindRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {}
 
   async initReminds(client: Client) {
@@ -46,7 +46,7 @@ export class ReminderScheduleManager {
         timestamp: entry.remind?.timestamp,
         settings: entry.settings,
         type: entry.remind?.type as MonitoringType,
-      })
+      }),
     );
 
     await Promise.all(promises);
@@ -64,14 +64,14 @@ export class ReminderScheduleManager {
     ]);
 
     const settingsMap = Object.fromEntries(
-      settings?.map((s) => [s.guildId, s])
+      settings?.map((s) => [s.guildId, s]),
     );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ])
+      ]),
     );
 
     return {
@@ -112,7 +112,7 @@ export class ReminderScheduleManager {
     const remind = await this.remindRepository.findOrCreate(
       guild.id,
       type,
-      timestamp!
+      timestamp!,
     );
 
     const remindTimestamp = DateTime.fromJSDate(remind.timestamp!);
@@ -130,21 +130,21 @@ export class ReminderScheduleManager {
 
     if (shouldStartCommon) {
       logger.info(
-        `Common remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`
+        `Common remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`,
       );
       scheduleManager.updateJob(commonId, remindTimestamp.toJSDate(), () =>
-        this.sendCommonRemind(remind, guild)
+        this.sendCommonRemind(remind, guild),
       );
     }
 
     if (shouldStartForce) {
       logger.info(
-        `Force remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`
+        `Force remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guild.name}`,
       );
       scheduleManager.updateJob(
         forceId,
         remindTimestamp.minus({ seconds: settings?.force?.seconds }).toJSDate(),
-        () => this.sendForceRemind(remind, guild)
+        () => this.sendForceRemind(remind, guild),
       );
     }
 
@@ -162,7 +162,7 @@ export class ReminderScheduleManager {
   public async forceRemindReplacement(
     guild: Guild,
     type: MonitoringType | number,
-    force: number
+    force: number,
   ) {
     const { id: guildId } = guild;
     const remind = await this.remindRepository.findRemind(guildId, type);
@@ -178,13 +178,13 @@ export class ReminderScheduleManager {
 
     this.forceRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, timestamp, () =>
-      this.sendForceRemind(remind, guild)
+      this.sendForceRemind(remind, guild),
     );
   }
 
   public async commonRemindReplacement(
     guild: Guild,
-    type: MonitoringType | number
+    type: MonitoringType | number,
   ) {
     const { id: guildId } = guild;
     const remind = await this.remindRepository.findRemind(guildId, type);
@@ -197,7 +197,7 @@ export class ReminderScheduleManager {
 
     this.commonRemindDeletion(guildId, type);
     scheduleManager.startOnceJob(forceId, remind?.timestamp, () =>
-      this.sendCommonRemind(remind, guild)
+      this.sendCommonRemind(remind, guild),
     );
   }
 
@@ -207,7 +207,7 @@ export class ReminderScheduleManager {
 
   public deleteAllCommonRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.commonRemindDeletion(guildId, v)
+      this.commonRemindDeletion(guildId, v),
     );
   }
 
@@ -217,7 +217,7 @@ export class ReminderScheduleManager {
 
   public deleteAllForceRemind(guildId: string) {
     Object.values(MonitoringType).forEach((v) =>
-      this.forceRemindDeletion(guildId, v)
+      this.forceRemindDeletion(guildId, v),
     );
   }
 
@@ -232,7 +232,7 @@ export class ReminderScheduleManager {
       remind,
       guild,
       (settings, commandName, commandId) =>
-        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, пора использовать команду ${chatInputApplicationCommandMention(commandName, commandId)}!`
+        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, пора использовать команду ${chatInputApplicationCommandMention(commandName, commandId)}!`,
     );
   }
 
@@ -242,7 +242,7 @@ export class ReminderScheduleManager {
       remind,
       guild,
       (settings, commandName, commandId) =>
-        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, команда ${chatInputApplicationCommandMention(commandName, commandId)} будет доступа ${time(Math.floor((Date.now() + settings.force!.seconds * 1_000) / 1_000), TimestampStyles.RelativeTime)}`
+        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, команда ${chatInputApplicationCommandMention(commandName, commandId)} будет доступа ${time(Math.floor((Date.now() + settings.force!.seconds * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
     );
   }
 
@@ -252,8 +252,8 @@ export class ReminderScheduleManager {
     messageBuilder: (
       settings: SettingsDocument,
       commandName: string,
-      commandId: string
-    ) => string
+      commandId: string,
+    ) => string,
   ) {
     const commandName = getCommandNameByRemindType(remind.type)!;
     const commandId = getCommandIdByRemindType(remind.type)!;
@@ -273,7 +273,7 @@ export class ReminderScheduleManager {
       monitoring: { command: commandName },
       aproximatedNotificationUsers: members
         .filter((m) =>
-          m.roles.cache.some((r) => settings.roles.pingRoles?.includes(r.id))
+          m.roles.cache.some((r) => settings.roles.pingRoles?.includes(r.id)),
         )
         .map((m) => m.id),
       channelName: payload.channel.name!,
@@ -292,8 +292,8 @@ export class ReminderScheduleManager {
     message: (
       remind: Remind,
       settings: SettingsDocument,
-      ch: TextChannel
-    ) => MessageCreateOptions
+      ch: TextChannel,
+    ) => MessageCreateOptions,
   ) {
     const settings = await this.settingsRepository.findGuildSettings(guild.id);
 
@@ -307,7 +307,7 @@ export class ReminderScheduleManager {
 
     try {
       await (channel as TextChannel)?.send?.(
-        message(remind, settings!, channel as TextChannel)
+        message(remind, settings!, channel as TextChannel),
       );
       return {
         remind,

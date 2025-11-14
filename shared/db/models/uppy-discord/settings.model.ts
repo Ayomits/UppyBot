@@ -1,10 +1,12 @@
 import {
   buildSchema,
   type DocumentType,
-  getModelForClass,
   prop,
 } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
+
+import { mainMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 export class Settings extends TimeStamps {
   @prop({ alias: "guild_id", required: true, index: true, unique: true })
@@ -119,11 +121,16 @@ export class Settings extends TimeStamps {
 
 export const SettingsCollectionName = "settings";
 
-export const SettingsModel = getModelForClass(Settings, {
-  options: {
-    customName: SettingsCollectionName,
+export const SettingsModel = createLazyModel(
+  () => mainMongoConnection,
+  Settings,
+  {
+    options: {
+      customName: SettingsCollectionName,
+    },
+    existingConnection: mainMongoConnection!,
   },
-});
+);
 
 export type SettingsDocument = DocumentType<Settings>;
 

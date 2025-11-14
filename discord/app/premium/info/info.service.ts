@@ -23,7 +23,7 @@ export class PremiumInfoService {
     const container = new ContainerBuilder().addTextDisplayComponents(
       (builder) => builder.setContent(heading("Статус премиум подписки")),
     );
-    const premium = await PremiumModel.findOne({
+    const premium = await PremiumModel.model.findOne({
       guildId: interaction.guildId,
     });
 

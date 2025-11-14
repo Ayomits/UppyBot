@@ -19,12 +19,12 @@ export class WebhookManager {
 
   createCommandExecutedPayload(
     guildId: string,
-    payload: WebhookCommandSuccessNotification
+    payload: WebhookCommandSuccessNotification,
   ) {
     return this.createPayload(
       guildId,
       WebhookNotificationType.CommandSuccess,
-      payload
+      payload,
     );
   }
 
@@ -33,7 +33,7 @@ export class WebhookManager {
     type:
       | typeof WebhookNotificationType.BumpBanCreation
       | typeof WebhookNotificationType.BumpBanRemoval,
-    payload: WebhookBumpBanNotification
+    payload: WebhookBumpBanNotification,
   ) {
     return this.createPayload(guildId, type, payload);
   }
@@ -46,7 +46,7 @@ export class WebhookManager {
     return this.createPayload(
       guildId,
       WebhookNotificationType.ForceRemind,
-      payload
+      payload,
     );
   }
 
@@ -59,7 +59,7 @@ export class WebhookManager {
   private createPayload<T>(
     guildId: string,
     type: WebhookNotificationType,
-    payload: T
+    payload: T,
   ): WebhookNotification<T> {
     return {
       guildId,
@@ -79,7 +79,7 @@ export class WebhookManager {
   async sendNotification<T>(
     url: string,
     token: string,
-    payload: WebhookNotification<T>
+    payload: WebhookNotification<T>,
   ) {
     return await axios
       .post(url, payload, {

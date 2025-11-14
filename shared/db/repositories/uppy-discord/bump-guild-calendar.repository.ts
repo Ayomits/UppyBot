@@ -21,10 +21,11 @@ export class BumpGuildCalendarRepository {
       this.generateId(guildId),
       this.ttl,
       async () =>
-        await BumpGuildCalendarModel.find({
-          guildId,
-          ...filter,
-        })
+        await BumpGuildCalendarModel.model
+          .find({
+            guildId,
+            ...filter,
+          })
           .sort({ timestamp: -1 })
           .limit(25),
     );
@@ -40,7 +41,7 @@ export class BumpGuildCalendarRepository {
     };
 
     await Promise.all([
-      BumpGuildCalendarModel.findOneAndUpdate(
+      BumpGuildCalendarModel.model.findOneAndUpdate(
         {
           guildId,
           timestamp: timestampFilter,

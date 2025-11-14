@@ -12,7 +12,7 @@ export const notificationsMenuId = "notifications_menu";
 
 async function toggleNotification(
   ctx: AppContext,
-  field: keyof NotificationUser["notifications"]
+  field: keyof NotificationUser["notifications"],
 ) {
   const repository = NotificationUserRepository.create();
 
@@ -33,7 +33,7 @@ async function toggleNotification(
 function createNotificationToggler(
   range: MenuRange<AppContext>,
   existed: NotificationUser,
-  field: keyof NotificationUser["notifications"]
+  field: keyof NotificationUser["notifications"],
 ) {
   const fieldTexts: Record<keyof NotificationUser["notifications"], string> = {
     ds: "DS Monitoring",
@@ -45,7 +45,7 @@ function createNotificationToggler(
     `${existed?.notifications?.[field] ? Emojis.GREEN_CIRCLE : Emojis.RED_CIRCLE} ${fieldTexts[field]}`,
     protectedInteraction,
     (ctx) =>
-      toggleNotification(ctx, field as keyof NotificationUser["notifications"])
+      toggleNotification(ctx, field as keyof NotificationUser["notifications"]),
   );
 }
 
@@ -55,7 +55,7 @@ export const notificationsMenu = new Menu<AppContext>(notificationsMenuId)
 
     const fields: (keyof NotificationUser["notifications"])[][] = chunkArray(
       ["ds", "sdc", "server", "disboard"],
-      2
+      2,
     );
 
     const repository = NotificationUserRepository.create();

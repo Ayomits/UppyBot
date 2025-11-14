@@ -3,7 +3,7 @@ export const QueueMessages = {
     send: "",
   },
   telegram: {
-    notification: "telegram.notification"
+    notification: "telegram.notification",
   },
   webhooks: {
     send: "webhooks.send",
@@ -11,5 +11,4 @@ export const QueueMessages = {
   like: {
     sync: "likes.sync",
   },
-
 } as const;

@@ -23,7 +23,7 @@ export class NotificationUserTokenRepository {
       return false;
     }
 
-    const entry = await NotificationUserTokenModel.findOne({
+    const entry = await NotificationUserTokenModel.model.findOne({
       _id: decrypted._id,
     });
 
@@ -49,13 +49,13 @@ export class NotificationUserTokenRepository {
       return false;
     }
 
-    await NotificationUserTokenModel.deleteOne({ _id: decrypted._id });
+    await NotificationUserTokenModel.model.deleteOne({ _id: decrypted._id });
 
     return true;
   }
 
   async sign(tgId: number) {
-    const token = await NotificationUserTokenModel.create({
+    const token = await NotificationUserTokenModel.model.create({
       telegram_user_id: tgId,
     });
 

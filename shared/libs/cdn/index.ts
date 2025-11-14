@@ -10,7 +10,7 @@ export class DiscordCdn {
   getUserAvatar(
     id: string,
     avatar: string | null | undefined,
-    size?: ImageSize
+    size?: ImageSize,
   ) {
     if (!avatar) {
       const defaultIndex = (BigInt(id) >> 22n) % 6n;

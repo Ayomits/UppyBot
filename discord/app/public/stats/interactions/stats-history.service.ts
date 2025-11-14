@@ -37,7 +37,7 @@ export class UppyStatsService extends BaseUppyService {
       filter.executorId = user.id;
     }
 
-    const count = await BumpLogModel.countDocuments(filter);
+    const count = await BumpLogModel.model.countDocuments(filter);
 
     const maxPages = this.calculateMaxPages(count);
 
@@ -87,7 +87,8 @@ export class UppyStatsService extends BaseUppyService {
     page: number,
     filter: mongoose.FilterQuery<BumpLogDocument>,
   ) {
-    return await BumpLogModel.find(filter)
+    return await BumpLogModel.model
+      .find(filter)
       .sort({ createdAt: -1 })
       .skip(page * PaginationLimit)
       .limit(PaginationLimit);

@@ -1,11 +1,13 @@
 import {
   buildSchema,
   type DocumentType,
-  getModelForClass,
   index,
   prop,
 } from "@typegoose/typegoose";
 import type { Snowflake } from "discord.js";
+
+import { mainMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 @index({ guildId: 1, userId: 1, createdAt: 1 })
 export class BumpUser {
@@ -38,8 +40,13 @@ export const BumpUserSchema = buildSchema(BumpUser);
 
 export const BumpUserCollectionName = "bump_users";
 
-export const BumpUserModel = getModelForClass(BumpUser, {
-  options: { customName: BumpUserCollectionName },
-});
+export const BumpUserModel = createLazyModel(
+  () => mainMongoConnection,
+  BumpUser,
+  {
+    options: { customName: BumpUserCollectionName },
+    existingConnection: mainMongoConnection!,
+  },
+);
 
 export type BumpUserDocument = DocumentType<BumpUser>;

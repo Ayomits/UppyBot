@@ -13,14 +13,14 @@ export class RemindRepository {
   }
 
   async findMany(filter: FilterQuery<Remind>) {
-    return await RemindModel.find(filter);
+    return await RemindModel.model.find(filter);
   }
 
   async findRemind(guildId: string, type: number) {
     return await useCachedQuery(
       this.generateId(guildId, type),
       this.ttl,
-      async () => await RemindModel.findOne({ guildId, type }),
+      async () => await RemindModel.model.findOne({ guildId, type }),
     );
   }
 
@@ -29,7 +29,7 @@ export class RemindRepository {
       this.generateId(guildId, type),
       this.ttl,
       async () =>
-        await RemindModel.findOneAndUpdate(
+        await RemindModel.model.findOneAndUpdate(
           { guildId, type },
           { timestamp },
           { upsert: true, new: true },

@@ -65,7 +65,7 @@ export class StatsInfoService extends BaseUppyService {
         fromDate.toJSDate(),
         toDate.toJSDate(),
       ),
-      BumpBanModel.findOne({
+      BumpBanModel.model.findOne({
         guildId: interaction.guildId,
         userId: user.id,
         type: MonitoringType.ServerMonitoring,
@@ -234,7 +234,10 @@ export class StatsInfoService extends BaseUppyService {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
       this.settingsRepository.findGuildSettings(interaction.guildId!),
-      BumpBanModel.findOne({ guildId: interaction.guildId, userId: member.id }),
+      BumpBanModel.model.findOne({
+        guildId: interaction.guildId,
+        userId: member.id,
+      }),
     ]);
 
     if (!bumpBan) {

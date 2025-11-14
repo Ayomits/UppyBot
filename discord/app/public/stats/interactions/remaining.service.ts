@@ -24,8 +24,8 @@ import {
 import { DateTime } from "luxon";
 import { injectable } from "tsyringe";
 
-import type { RemindDocument} from "#/shared/db/models/uppy-discord/remind.model.js";
-import {RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
+import type { RemindDocument } from "#/shared/db/models/uppy-discord/remind.model.js";
+import { RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
@@ -110,10 +110,11 @@ export class UppyRemainingService extends BaseUppyService {
       types.push(MonitoringType.DisboardMonitoring);
     }
 
-    const monitorings = await RemindModel.find({
-      type: { $in: types },
-      guildId: interaction.guildId,
-    })
+    const monitorings = await RemindModel.model
+      .find({
+        type: { $in: types },
+        guildId: interaction.guildId,
+      })
       .sort({ timestamp: -1, createdAt: -1 })
       .limit(types.length);
 

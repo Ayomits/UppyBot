@@ -5,21 +5,51 @@ import { logger } from "#/shared/libs/logger/logger.js";
 
 import { redisClient } from "./redis.js";
 
+export const MongoDbNames = {
+  Main: "Uppy",
+  Notifications: "UppyNotifications",
+};
+
+export let mainMongoConnection: mongoose.Connection | null = null;
+export let notificationMongoConnection: mongoose.Connection | null = null;
+
 export async function createMongoDbConnection(
-  options?: mongoose.ConnectOptions
-) {
-  await mongoose
-    .connect(Env.MongoUrl, {
-      autoCreate: true,
+  options?: mongoose.ConnectOptions,
+): Promise<mongoose.Connection> {
+  const mongooseInstance = await mongoose
+    .createConnection(Env.MongoUrl, {
+      autoCreate: false,
+      autoIndex: true,
       ...options,
     })
-    .catch(logger.error);
+    .asPromise();
+
+  return mongooseInstance;
+}
+
+export async function createMainMongoConnection(): Promise<mongoose.Connection> {
+  mainMongoConnection = await createMongoDbConnection({
+    dbName: MongoDbNames.Main,
+  });
+  logger.success(`Connected to main mongo db`);
+
+  return mainMongoConnection;
+}
+
+export async function createNotificationsMongoConnection(): Promise<mongoose.Connection> {
+  notificationMongoConnection = await createMongoDbConnection({
+    dbName: MongoDbNames.Notifications,
+  });
+
+  logger.success(`Connected to notifications mongo db`);
+
+  return notificationMongoConnection;
 }
 
 export async function useCachedQuery<T>(
   key: string,
   ttl: number,
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   const cached = await redisClient.getJson<T>(key);
   if (cached) {
@@ -35,7 +65,7 @@ export async function useCachedQuery<T>(
 export async function useCachedUpdate<T>(
   key: string,
   ttl: number,
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   await redisClient.del(key);
   return await useCachedQuery(key, ttl, queryFn);
@@ -43,7 +73,7 @@ export async function useCachedUpdate<T>(
 
 export async function useCachedDelete<T>(
   key: string | string[],
-  queryFn: () => Promise<T>
+  queryFn: () => Promise<T>,
 ) {
   await queryFn();
   await redisClient.del(key);

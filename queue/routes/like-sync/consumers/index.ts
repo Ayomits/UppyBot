@@ -1,11 +1,9 @@
-
 import { discordClient } from "#/discord/client.js";
 import { WebLikeSyncManager } from "#/discord/loops/like.js";
 import type { Consumer } from "#/queue/utils/types.js";
 import { logger } from "#/shared/libs/logger/logger.js";
 
 import type { LikeSyncPayload } from "../types.js";
-
 
 export const likeSyncConsumer: Consumer = async (msg, ch) => {
   logger.log(`Like syncing task consumer started`);

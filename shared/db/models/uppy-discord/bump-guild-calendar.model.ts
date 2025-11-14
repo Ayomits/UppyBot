@@ -1,11 +1,13 @@
 import {
   buildSchema,
   type DocumentType,
-  getModelForClass,
   index,
   prop,
 } from "@typegoose/typegoose";
 import type { Snowflake } from "discord.js";
+
+import { mainMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 @index({ guildId: 1, userId: 1 })
 export class BumpGuildCalendar {
@@ -23,8 +25,12 @@ export const BumpGuildCalendarSchema = buildSchema(BumpGuildCalendar);
 
 export const BumpGuildCalendarCollectionName = "bump_guild_calendar";
 
-export const BumpGuildCalendarModel = getModelForClass(BumpGuildCalendar, {
-  options: { customName: BumpGuildCalendarCollectionName },
-});
+export const BumpGuildCalendarModel = createLazyModel(
+  () => mainMongoConnection,
+  BumpGuildCalendar,
+  {
+    options: { customName: BumpGuildCalendarCollectionName },
+  },
+);
 
 export type BumpGuildCalendarDocument = DocumentType<BumpGuildCalendar>;

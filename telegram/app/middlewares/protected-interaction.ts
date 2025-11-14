@@ -8,7 +8,7 @@ import { createRequireAuthMessage } from "../messages/auth.message.js";
 
 export async function protectedInteraction(
   ctx: AppContext,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const repository = NotificationUserRepository.create();
   const user = await repository.findByTgId(ctx.from!.id);

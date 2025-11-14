@@ -1,5 +1,8 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import {  prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
+
+import { notificationMongoConnection } from "../../mongo.js";
+import { createLazyModel } from "../../utils/create-lazy-model.js";
 
 export class NotificationUser extends TimeStamps {
   @prop({ required: true, unique: true })
@@ -46,8 +49,13 @@ export class NotificationUser extends TimeStamps {
   };
 }
 
-export const NotificationUserModel = getModelForClass(NotificationUser, {
-  options: {
-    customName: "users",
+export const NotificationUserModel = createLazyModel(
+  () => notificationMongoConnection,
+  NotificationUser,
+  {
+    options: {
+      customName: "users",
+    },
+    existingConnection: notificationMongoConnection!,
   },
-});
+);
