@@ -9,8 +9,8 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
   async (ctx) => {
     const repository = NotificationUserTokenRepository.create();
     const token = await repository.sign(ctx.chatId!);
-    const payload = await fetchOauth2UppyUrl(ctx.chatId!, token).catch(
-      logger.error
+    const payload = await fetchOauth2UppyUrl(ctx.chatId!, token).catch((err) =>
+      logger.error(err.data)
     );
 
     const range = new MenuRange<AppContext>();
