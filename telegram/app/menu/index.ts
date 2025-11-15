@@ -4,6 +4,7 @@ import type { AppContext } from "#/telegram/utils/ctx.js";
 
 import { oauth2Menu } from "./oauth2_menu/index.js";
 import { profileMenu } from "./profile_menu/index.js";
+import { additionalMenu } from "./profile_menu/settings_menu/additional_menu/index.js";
 import { guildsMenu } from "./profile_menu/settings_menu/guilds_menu/index.js";
 import { settingsMenu } from "./profile_menu/settings_menu/index.js";
 import { notificationsMenu } from "./profile_menu/settings_menu/notifications_menu/index.js";
@@ -13,7 +14,7 @@ export function initMenus(app: Bot<AppContext>) {
   app.use(oauth2Menu);
 
   // SETTINGS
-  settingsMenu.register([notificationsMenu, guildsMenu]);
+  settingsMenu.register([notificationsMenu, guildsMenu, additionalMenu]);
 
   // PROFILE
   profileMenu.register(settingsMenu);

@@ -1,4 +1,4 @@
-import {  prop } from "@typegoose/typegoose";
+import { prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import { notificationMongoConnection } from "../../mongo.js";
@@ -41,11 +41,13 @@ export class NotificationUser extends TimeStamps {
     default: {
       selected_guilds: [],
       allow_force_reminds: false,
+      bump_ban: false,
     },
   })
   settings: {
     selected_guilds: string[];
     allow_force_reminds: boolean;
+    bump_ban: boolean;
   };
 }
 
@@ -57,5 +59,5 @@ export const NotificationUserModel = createLazyModel(
       customName: "users",
     },
     existingConnection: notificationMongoConnection!,
-  },
+  }
 );

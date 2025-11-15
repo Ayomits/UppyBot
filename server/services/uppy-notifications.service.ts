@@ -1,11 +1,16 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { telegramRemindNotificationProduce } from "#/queue/routes/telegram-notification/producers/index.js";
+import {
+  telegramBumpBanNotificationProduce,
+  telegramRemindNotificationProduce,
+} from "#/queue/routes/telegram-notification/producers/index.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
-import { logger } from "#/shared/libs/logger/logger.js";
-import type { WebhookRemindNotication } from "#/shared/webhooks/webhook.types.js";
+import type {
+  WebhookBumpBanNotification,
+  WebhookRemindNotication,
+} from "#/shared/webhooks/webhook.types.js";
 import {
   type WebhookNotification,
   WebhookNotificationType,
@@ -19,7 +24,7 @@ export class UppyNotificationService {
   }
 
   async handleNotificationWebhook(req: FastifyRequest, reply: FastifyReply) {
-    const data = req.body as WebhookNotification<WebhookRemindNotication>;
+    const data = req.body as WebhookNotification<unknown>;
 
     if (data.type === WebhookNotificationType.Test) {
       return reply.send("OK");
@@ -36,17 +41,25 @@ export class UppyNotificationService {
       });
     }
 
-    logger.info("Received new webhook:", data.type);
-
     if (data.type === WebhookNotificationType.Remind) {
-      logger.info(
-        `Remind Users: ${data.data.aproximatedNotificationUsers.length}`
-      );
+      const payload = data as WebhookNotification<WebhookRemindNotication>;
       await telegramRemindNotificationProduce({
         guildId: data.guildId,
-        original: data.data,
-        users: data.data.aproximatedNotificationUsers,
-        type: data.data.type,
+        original: payload.data,
+        users: payload.data.aproximatedNotificationUsers,
+        type: payload.data.type,
+      });
+    }
+
+    if (
+      data.type === WebhookNotificationType.BumpBanRemoval ||
+      data.type === WebhookNotificationType.BumpBanCreation
+    ) {
+      const payload = data as WebhookNotification<WebhookBumpBanNotification>;
+      await telegramBumpBanNotificationProduce({
+        guildId: payload.guildId,
+        type: payload.type,
+        userId: payload.data.userId,
       });
     }
 

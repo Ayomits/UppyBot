@@ -8,18 +8,18 @@ import { protectedInteraction } from "#/telegram/app/middlewares/protected-inter
 import type { AppContext } from "#/telegram/utils/ctx.js";
 import { Emojis } from "#/telegram/utils/emojis.js";
 
-export const notificationsMenuId = "notifications_menu";
+export const additionalMenuId = "additional_menu";
 
-async function toggleNotification(
+async function toggleSetting(
   ctx: AppContext,
-  field: keyof NotificationUser["notifications"]
+  field: keyof NotificationUser["settings"]
 ) {
   const repository = NotificationUserRepository.create();
 
   const existed = await repository.findByTgId(ctx.from!.id);
 
   const user = await repository.updateByTgId(ctx.from!.id, {
-    [`notifications.${field}`]: !existed?.notifications?.[field],
+    [`settings.${field}`]: !existed?.settings?.[field],
   });
 
   const msg = await createMainProfileMessage(user);
@@ -30,33 +30,31 @@ async function toggleNotification(
   });
 }
 
-function createNotificationToggler(
+function createAdditionalToggler(
   range: MenuRange<AppContext>,
   existed: NotificationUser,
-  field: keyof NotificationUser["notifications"]
+  field: keyof NotificationUser["settings"]
 ) {
   const fieldTexts: Partial<
-    Record<keyof NotificationUser["notifications"], string>
+    Record<keyof NotificationUser["settings"], string>
   > = {
-    ds: "DS Monitoring",
-    sdc: "SDC Monitoring",
-    disboard: "Disboard Monitoring",
-    server: "Server Monitoring",
+    bump_ban: "Бамп баны",
+    allow_force_reminds: "Преждевременные напоминания",
   } as const;
   return range.text(
-    `${existed?.notifications?.[field] ? Emojis.GREEN_CIRCLE : Emojis.RED_CIRCLE} ${fieldTexts[field]}`,
+    `${existed?.settings?.[field] ? Emojis.GREEN_CIRCLE : Emojis.RED_CIRCLE} ${fieldTexts[field]}`,
     protectedInteraction,
     (ctx) =>
-      toggleNotification(ctx, field as keyof NotificationUser["notifications"])
+      toggleSetting(ctx, field as keyof NotificationUser["settings"])
   );
 }
 
-export const notificationsMenu = new Menu<AppContext>(notificationsMenuId)
+export const additionalMenu = new Menu<AppContext>(additionalMenuId)
   .dynamic(async (ctx) => {
     const range = new MenuRange<AppContext>();
 
-    const fields: (keyof NotificationUser["notifications"])[][] = chunkArray(
-      ["ds", "sdc", "server", "disboard"],
+    const fields: (keyof NotificationUser["settings"])[][] = chunkArray(
+      ["allow_force_reminds", "bump_ban"],
       2
     );
 
@@ -65,7 +63,7 @@ export const notificationsMenu = new Menu<AppContext>(notificationsMenuId)
 
     for (const chunk of fields) {
       for (const field of chunk) {
-        createNotificationToggler(range, existed!, field);
+        createAdditionalToggler(range, existed!, field);
       }
       range.row();
     }

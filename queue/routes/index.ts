@@ -1,5 +1,6 @@
 import { registerLikeSyncConsumers } from "./like-sync/index.js";
 import {
+  registerTelegramNotificationBumpBanConsumer,
   registerTelegramNotificationRemindConsumer,
   registerTelegramNotifyConsumer,
 } from "./telegram-notification/index.js";
@@ -13,4 +14,5 @@ export async function registerDiscordConsumers() {
 export async function registerTelegramConsumers() {
   await registerTelegramNotifyConsumer();
   await registerTelegramNotificationRemindConsumer();
+  await registerTelegramNotificationBumpBanConsumer();
 }

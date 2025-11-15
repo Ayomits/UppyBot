@@ -4,7 +4,8 @@ export const QueueMessages = {
   },
   telegram: {
     notification: "telegram.notification",
-    remind: "telegram.remind"
+    remind: "telegram.remind",
+    bumpBan: "telegram.bumpban"
   },
   webhooks: {
     send: "webhooks.send",

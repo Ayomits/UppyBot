@@ -14,3 +14,9 @@ export type TelegramRemindNotificationsPayload = {
   type: number;
   original: Omit<WebhookRemindNotication, "aproximatedNotificationUsers" | "">;
 };
+
+export type TelegramBumpBanNotificationPayload = {
+  userId: string;
+  guildId: string;
+  type: number;
+};
