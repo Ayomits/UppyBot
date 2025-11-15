@@ -64,12 +64,6 @@ export class UppyNotificationService {
 
     const settings = await settingsRepository.findGuildSettings(guildId);
 
-    console.log(
-      settings.webhooks.url !== `${Env.UppyUrl}/uppy/notifications`,
-      settings.webhooks.url,
-      Env.UppyUrl
-    );
-
     if (
       !settings.webhooks.url ||
       settings.webhooks.url !== `${Env.UppyUrl}/uppy/notifications`
