@@ -27,11 +27,11 @@ export const Env = {
 
   DiscordToken: configService.get("DISCORD_TOKEN"),
 
-  UppyUrl: configService.get("UPPY_URL", "http://localhost:4200"),
-  
+  UppyUrl: configService.get("UPPY_URL"),
+
   MongoUrl: configService.get(
     "MONGO_URL",
-    "mongodb://localhost:27018/?authSource=admin",
+    "mongodb://localhost:27018/?authSource=admin"
   ),
 
   RedisHost: configService.get("REDIS_HOST", "localhost"),

@@ -292,16 +292,19 @@ export class WebhookService {
     token: string
   ): Promise<boolean> {
     const remindType = randomArrValue(Object.values(MonitoringType));
-    const payload = this.webhookManager.createRemindPayload(
-      interaction.guildId!,
-      {
-        channelName: (interaction.channel as TextChannel).name,
-        commandName: `/${getCommandNameByRemindType(remindType)}`,
-        guildName: interaction.guild!.name,
-        type: remindType,
-        aproximatedNotificationUsers: [interaction.user.id],
-      }
-    );
+    const fn =
+      notificationType === WebhookNotificationType.Remind
+        ? this.webhookManager.createRemindPayload.bind(this.webhookManager)
+        : this.webhookManager.createForceRemindPayload.bind(
+            this.webhookManager
+          );
+    const payload = fn(interaction.guildId!, {
+      channelName: (interaction.channel as TextChannel).name,
+      commandName: `/${getCommandNameByRemindType(remindType)}`,
+      guildName: interaction.guild!.name,
+      type: remindType,
+      aproximatedNotificationUsers: [interaction.user.id],
+    });
 
     return !!this.webhookManager.sendNotification(url, token, payload);
   }

@@ -4,6 +4,7 @@ import { telegramRemindNotificationProduce } from "#/queue/routes/telegram-notif
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 import type { WebhookRemindNotication } from "#/shared/webhooks/webhook.types.js";
 import {
   type WebhookNotification,
@@ -11,7 +12,6 @@ import {
 } from "#/shared/webhooks/webhook.types.js";
 
 import { HTTPStatus } from "../const/status.js";
-import { logger } from "#/shared/libs/logger/logger.js";
 
 export class UppyNotificationService {
   static create() {
@@ -39,7 +39,9 @@ export class UppyNotificationService {
     logger.info("Received new webhook:", data.type);
 
     if (data.type === WebhookNotificationType.Remind) {
-      logger.info(`Remind Users: ${data.data.aproximatedNotificationUsers.length}`);
+      logger.info(
+        `Remind Users: ${data.data.aproximatedNotificationUsers.length}`
+      );
       await telegramRemindNotificationProduce({
         guildId: data.guildId,
         original: data.data,
@@ -61,6 +63,12 @@ export class UppyNotificationService {
     const settingsRepository = SettingsRepository.create();
 
     const settings = await settingsRepository.findGuildSettings(guildId);
+
+    console.log(
+      settings.webhooks.url !== `${Env.UppyUrl}/uppy/notifications`,
+      settings.webhooks.url,
+      Env.UppyUrl
+    );
 
     if (
       !settings.webhooks.url ||
