@@ -1,6 +1,7 @@
 import { parseConsumerData } from "#/queue/utils/parseData.js";
 import type { Consumer } from "#/queue/utils/types.js";
 import { NotificationUserRepository } from "#/shared/db/repositories/uppy-telegram/user.repository.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 import { telegramApp } from "#/telegram/client.js";
 import { Emojis } from "#/telegram/utils/emojis.js";
 import { bold, cursive, inlineCode } from "#/telegram/utils/html-markdown.js";
@@ -27,19 +28,24 @@ export const telegramSingleNotificationConsumer: Consumer = async (msg, ch) => {
 export const telegramRemindNotificationConsumer: Consumer = async (msg, ch) => {
   const data = parseConsumerData<TelegramRemindNotificationsPayload>(msg);
 
+  logger.info(`Start notify telegram users for guild: ${data.guildId}`);
+  logger.info(`Users: ${data.users.length}`);
+
   try {
     const repository = NotificationUserRepository.create();
 
     const filter = {
       discord_user_id: { $in: data.users },
       [`notifications.${repository.getNotificationFieldByMonitoring(data.type)}`]: true,
-      [`settings.selected_guilds`]: `${data.guildId}-${data.original.guildName}`,
+      [`settings.selected_guilds`]: data.guildId,
     };
 
     const users = await repository.find(filter);
 
+    logger.info(`Found ${users.length} users for notify`);
+
     for (const user of users) {
-      telegramSingleNotificationProduce({
+      await telegramSingleNotificationProduce({
         content: [
           `${Emojis.ALARM_CLOCK} ${bold("Напоминание")}`,
           ``,
@@ -56,7 +62,7 @@ export const telegramRemindNotificationConsumer: Consumer = async (msg, ch) => {
 
     ch.ack(msg);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     ch.nack(msg, false, false);
   }
 };

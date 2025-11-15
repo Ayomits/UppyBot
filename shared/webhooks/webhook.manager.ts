@@ -66,8 +66,12 @@ export class WebhookManager {
     };
   }
 
-  pushConsumer<T>(url: string, token: string, data: WebhookNotification<T>) {
-    sendWebhookNotification({
+  async pushConsumer<T>(
+    url: string,
+    token: string,
+    data: WebhookNotification<T>
+  ) {
+    return sendWebhookNotification({
       url,
       token,
       data,

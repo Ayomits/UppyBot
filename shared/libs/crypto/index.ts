@@ -29,4 +29,14 @@ export class CryptographyService {
 
     return decryptedBytes.toString(CryptoJS.enc.Utf8);
   }
+
+  encodeBase64<T>(payload: T): string {
+    const jsonString = JSON.stringify(payload);
+    return Buffer.from(jsonString, "utf8").toString("base64");
+  }
+
+  decodeBase64<T>(state: string): T {
+    const jsonString = Buffer.from(state, "base64").toString("utf8");
+    return JSON.parse(jsonString) as T;
+  }
 }

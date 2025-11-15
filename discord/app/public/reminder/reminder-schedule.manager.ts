@@ -290,7 +290,7 @@ export class ReminderScheduleManager {
       channelName: payload.channel.name!,
     });
 
-    sendWebhookNotification({
+    await sendWebhookNotification({
       url: settings.webhooks.url,
       token: this.cryptography.decrypt(settings.webhooks.token),
       data: webhookData,

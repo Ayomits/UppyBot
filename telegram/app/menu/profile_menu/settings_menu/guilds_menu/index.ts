@@ -23,7 +23,6 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
     let selectedGuilds = user?.settings.selected_guilds ?? [];
     const ids = selectedGuilds.map((g) => g.split("-")[0]);
     const hasGuild = (id: string) => ids.includes(id);
-    const toFormat = (id: string, name: string) => `${id}-${name}`;
 
     const guilds = await getUserGuilds(
       cryptography.decrypt(user.tokens.access_token)
@@ -36,11 +35,9 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
           protectedInteraction,
           async (ctx) => {
             if (hasGuild(guild.id)) {
-              selectedGuilds = selectedGuilds.filter(
-                (g) => g !== toFormat(guild.id, guild.name)
-              );
+              selectedGuilds = selectedGuilds.filter((g) => g !== guild.id);
             } else {
-              selectedGuilds.push(toFormat(guild.id, guild.name));
+              selectedGuilds.push(guild.id);
             }
 
             const newUsr = await userRepository.updateByTgId(ctx.from!.id, {

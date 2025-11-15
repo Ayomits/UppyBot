@@ -63,12 +63,16 @@ export class DiscordAuthService {
       });
     }
 
+    const cryptography = CryptographyService.create();
+
     const params = new URLSearchParams({
       client_id: clientId,
       response_type: "code",
       scope: "guilds identify",
       redirect_uri: redirectUri,
-      state: btoa(JSON.stringify(this.createPayload(chatId, token))),
+      state: cryptography.encodeBase64(
+        JSON.stringify(this.createPayload(chatId, token))
+      ),
     });
 
     return reply.code(HTTPStatus.Ok).send({
@@ -78,6 +82,8 @@ export class DiscordAuthService {
 
   async handleDiscordCallback(req: FastifyRequest, reply: FastifyReply) {
     const [code, state] = [req.query?.["code"], req.query?.["state"]];
+
+    const cryptography = CryptographyService.create();
 
     if (!code) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
@@ -91,7 +97,7 @@ export class DiscordAuthService {
       });
     }
 
-    const stateJson = JSON.parse(atob(state)) as Payload;
+    const stateJson = JSON.parse(cryptography.decodeBase64(state)) as Payload;
 
     if (!stateJson.token) {
       return reply.code(HTTPStatus.UnprocessableEntity).send({
@@ -131,8 +137,6 @@ export class DiscordAuthService {
     });
 
     const tokenQuery = await fetchDiscordOauth2Tokens(params);
-
-    const cryptography = CryptographyService.create();
 
     const accessToken = tokenQuery.data.access_token;
     const refreshToken = tokenQuery.data.refresh_token;
