@@ -19,7 +19,7 @@ async function start() {
   registerDiscordAuthController(app);
   registerUppyNotificationController(app);
 
-  app.listen({ port: 4200 }, async () => {
+  app.listen({ port: 4200, host: "0.0.0.0" }, async () => {
     await createStoreConnection();
     await createNotificationsMongoConnection();
     logger.info(`Server started: http://localhost:4200`);
