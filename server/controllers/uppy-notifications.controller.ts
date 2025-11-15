@@ -5,7 +5,7 @@ export const registerUppyNotificationController: Controller = (app) => {
   const service = UppyNotificationService.create();
 
   app.post(
-    "/uppy/notifications",
-    service.handleNotificationWebhook.bind(service),
+    "/api/uppy/notifications",
+    service.handleNotificationWebhook.bind(service)
   );
 };
