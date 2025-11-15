@@ -39,3 +39,4 @@ export type WebhookNotification<T> = {
   type: number;
   data: T;
 };
+
