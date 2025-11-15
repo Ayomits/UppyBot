@@ -1,16 +1,20 @@
 import { getModelForClass } from "@typegoose/typegoose";
-import type { IModelOptions } from "@typegoose/typegoose/lib/types.js";
+import type {
+  AnyParamConstructor,
+  IModelOptions,
+} from "@typegoose/typegoose/lib/types.js";
+import type { Model } from "mongoose";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function createLazyModel(
+export function createLazyModel<T>(
   getConnection: () => any,
-  modelClass: any,
-  options: IModelOptions,
+  modelClass: AnyParamConstructor<T>,
+  options: IModelOptions
 ) {
   let model: any = null;
 
   return {
-    get model() {
+    get model(): Model<any> {
       if (!model) {
         const connection = getConnection();
         if (!connection) throw new Error("Connection not available");

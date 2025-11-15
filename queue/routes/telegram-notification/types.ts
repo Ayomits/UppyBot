@@ -1,7 +1,16 @@
 import type { ParseMode } from "grammy/types";
 
-export type TelegramNotifyPayload = {
+import type { WebhookRemindNotication } from "#/shared/webhooks/webhook.types.js";
+
+export type TelegramSingleNotificationPayload = {
   telegram_id: number;
   content: string;
   parse_mode: ParseMode;
+};
+
+export type TelegramRemindNotificationsPayload = {
+  guildId: string;
+  users: string[];
+  type: number;
+  original: Omit<WebhookRemindNotication, "aproximatedNotificationUsers" | "">;
 };

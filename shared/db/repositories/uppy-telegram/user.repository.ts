@@ -1,4 +1,6 @@
-import type { UpdateQuery } from "mongoose";
+import type { FilterQuery, UpdateQuery } from "mongoose";
+
+import { MonitoringType } from "#/discord/app/public/reminder/reminder.const.js";
 
 import type { NotificationUser } from "../../models/uppy-telegram/user.model.js";
 import { NotificationUserModel } from "../../models/uppy-telegram/user.model.js";
@@ -8,9 +10,13 @@ export class NotificationUserRepository {
     return new NotificationUserRepository();
   }
 
+  async find(filter: FilterQuery<NotificationUser>) {
+    return await NotificationUserModel.model.find(filter);
+  }
+
   async createUser(
     payload: Partial<NotificationUser> &
-      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">,
+      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">
   ) {
     return await NotificationUserModel.model.findOneAndUpdate(
       {
@@ -24,7 +30,7 @@ export class NotificationUserRepository {
         upsert: true,
         setDefaultsOnInsert: true,
         new: true,
-      },
+      }
     );
   }
 
@@ -42,7 +48,7 @@ export class NotificationUserRepository {
     return await NotificationUserModel.model.findOneAndUpdate(
       { discord_user_id: dsId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true },
+      { upsert: true, setDefaultsOnInsert: true, new: true }
     );
   }
 
@@ -50,7 +56,22 @@ export class NotificationUserRepository {
     return await NotificationUserModel.model.findOneAndUpdate(
       { telegram_user_id: tgId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true },
+      { upsert: true, setDefaultsOnInsert: true, new: true }
     );
+  }
+
+  getNotificationFieldByMonitoring(
+    type: number
+  ): keyof NotificationUser["notifications"] | undefined {
+    switch (type) {
+      case MonitoringType.SdcMonitoring:
+        return "sdc";
+      case MonitoringType.DisboardMonitoring:
+        return "disboard";
+      case MonitoringType.ServerMonitoring:
+        return "server";
+      case MonitoringType.DiscordMonitoring:
+        return "ds";
+    }
   }
 }

@@ -1,7 +1,10 @@
 import { QueueMessages } from "#/queue/const/index.js";
 import { rabbitMq } from "#/shared/db/rabbitmq.js";
 
-import { telegramNotificationConsumer } from "./consumers/index.js";
+import {
+  telegramRemindNotificationConsumer,
+  telegramSingleNotificationConsumer,
+} from "./consumers/index.js";
 
 export async function registerTelegramNotifyConsumer() {
   const channel = await rabbitMq.createChannel();
@@ -12,6 +15,19 @@ export async function registerTelegramNotifyConsumer() {
   });
 
   await channel.consume(QueueMessages.telegram.notification, (msg) => {
-    telegramNotificationConsumer(msg!, channel);
+    telegramSingleNotificationConsumer(msg!, channel);
+  });
+}
+
+export async function registerTelegramNotificationRemindConsumer() {
+  const channel = await rabbitMq.createChannel();
+
+  await channel.assertQueue(QueueMessages.telegram.remind, {
+    durable: true,
+    autoDelete: false,
+  });
+
+  await channel.consume(QueueMessages.telegram.remind, (msg) => {
+    telegramRemindNotificationConsumer(msg!, channel);
   });
 }
