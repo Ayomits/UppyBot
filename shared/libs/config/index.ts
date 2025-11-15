@@ -22,17 +22,22 @@ export const configService = new ConfigService();
 
 export const Env = {
   AppEnv: configService.getOrThrow("APP_ENV", "dev"),
-  SecretKey: configService.getOrThrow("SECRET_KEY", "super-secret-key"),
+
   EncryptionKey: configService.getOrThrow("ENCRYPTION_KEY", "super-secret-key"),
+
   DiscordToken: configService.getOrThrow("DISCORD_TOKEN"),
+
   UppyUrl: configService.getOrThrow("UPPY_URL", "http://localhost:4200"),
+  
   MongoUrl: configService.getOrThrow(
     "MONGO_URL",
     "mongodb://localhost:27018/?authSource=admin",
   ),
+
   RedisHost: configService.getOrThrow("REDIS_HOST", "localhost"),
   RedisPort: Number(configService.getOrThrow("REDIS_PORT", "6379")),
   RedisUsername: configService.get("REDIS_USER", undefined),
   RedisPassword: configService.get("REDIS_PASSWORD", undefined),
+
   RabbitMQUri: configService.getOrThrow("RABBITMQ_URI"),
 } as const;
