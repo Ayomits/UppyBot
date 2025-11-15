@@ -20,6 +20,10 @@ export class UppyNotificationService {
   async handleNotificationWebhook(req: FastifyRequest, reply: FastifyReply) {
     const data = req.body as WebhookNotification<WebhookRemindNotication>;
 
+    if (data.type === WebhookNotificationType.Test) {
+      return reply.send("OK");
+    }
+
     const isValidToken = await this.validateToken(
       data.guildId,
       req.query?.["token"]
