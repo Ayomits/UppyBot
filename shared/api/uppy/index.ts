@@ -7,7 +7,7 @@ export const uppyApi = axios.create({
 });
 
 export async function fetchOauth2UppyUrl(chatId: number, token: string) {
-  return await uppyApi.get<{ url: string }>("/discord/login", {
+  return await uppyApi.get<{ url: string }>("/api/discord/login", {
     params: {
       chat_id: chatId,
       token,
