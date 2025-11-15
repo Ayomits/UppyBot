@@ -31,21 +31,17 @@ export class UppyNotificationService {
       });
     }
 
-    if (data.type !== WebhookNotificationType.Remind) {
-      return reply.code(HTTPStatus.BadRequest).send({
-        message: "incorrect webhook type",
+    if (data.type === WebhookNotificationType.Remind) {
+      telegramRemindNotificationProduce({
+        guildId: data.guildId,
+        original: data.data,
+        users: data.data.aproximatedNotificationUsers,
+        type: data.data.type,
       });
     }
 
-    telegramRemindNotificationProduce({
-      guildId: data.guildId,
-      original: data.data,
-      users: data.data.aproximatedNotificationUsers,
-      type: data.data.type,
-    });
-
     return reply.send({
-      message: "In queue...",
+      message: "OK",
     });
   }
 
