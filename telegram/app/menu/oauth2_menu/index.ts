@@ -13,7 +13,9 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
     const token = await repository.sign(authorId);
     const payload = await fetchOauth2UppyUrl(authorId, token).catch(
       (err: AxiosError) => {
-        logger.info(err.status, err.response?.data);
+        logger.info(err.status);
+        console.log(err.response?.data);
+        console.log(token);
         return null;
       }
     );
