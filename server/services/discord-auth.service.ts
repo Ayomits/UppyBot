@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { DateTime } from "luxon";
 
-import { telegramNotificationProduce } from "#/queue/routes/telegram-notification/producers/index.js";
+import { telegramSingleNotificationProduce } from "#/queue/routes/telegram-notification/producers/index.js";
 import {
   fetchDiscordOauth2Tokens,
   fetchDiscordOauth2User,
@@ -155,7 +155,7 @@ export class DiscordAuthService {
       tokens,
     });
 
-    telegramNotificationProduce({
+    telegramSingleNotificationProduce({
       content: `Вы успешно авторизировались как <strong>${discordUser.global_name ?? discordUser.username}</strong>`,
       telegram_id: stateJson.chatId,
       parse_mode: "HTML",

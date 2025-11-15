@@ -1,8 +1,12 @@
 import { QueueMessages } from "#/queue/const/index.js";
 import { publishMessage } from "#/queue/utils/publishMessage.js";
 
-import type { TelegramNotifyPayload } from "../types.js";
+import type { TelegramRemindNotificationsPayload, TelegramSingleNotificationPayload } from "../types.js";
 
-export function telegramNotificationProduce(payload: TelegramNotifyPayload) {
+export function telegramSingleNotificationProduce(payload: TelegramSingleNotificationPayload) {
   publishMessage(QueueMessages.telegram.notification, payload);
+}
+
+export function telegramRemindNotificationProduce(payload: TelegramRemindNotificationsPayload) {
+  publishMessage(QueueMessages.telegram.remind, payload);
 }

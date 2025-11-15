@@ -4,6 +4,7 @@ import { injectable } from "tsyringe";
 import { getFieldByRemindType } from "#/discord/app/public/reminder/reminder.const.js";
 import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 
+import type { BumpUserDocument} from "../../models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "../../models/uppy-discord/bump-user.model.js";
 import { useCachedQuery } from "../../mongo.js";
 import { redisClient } from "../../redis.js";
@@ -68,7 +69,7 @@ export class BumpUserRepository {
     from: Date,
     to: Date,
   ) {
-    return await BumpUserModel.model.aggregate([
+    return await BumpUserModel.model.aggregate<Partial<BumpUserDocument>>([
       {
         $match: {
           guildId,

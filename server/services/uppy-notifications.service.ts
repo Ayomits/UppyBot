@@ -1,9 +1,14 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
+import { telegramRemindNotificationProduce } from "#/queue/routes/telegram-notification/producers/index.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
-import type { WebhookNotification } from "#/shared/webhooks/webhook.types.js";
+import type { WebhookRemindNotication } from "#/shared/webhooks/webhook.types.js";
+import {
+  type WebhookNotification,
+  WebhookNotificationType,
+} from "#/shared/webhooks/webhook.types.js";
 
 import { HTTPStatus } from "../const/status.js";
 
@@ -13,11 +18,11 @@ export class UppyNotificationService {
   }
 
   async handleNotificationWebhook(req: FastifyRequest, reply: FastifyReply) {
-    const data = req.body as WebhookNotification<unknown>;
+    const data = req.body as WebhookNotification<WebhookRemindNotication>;
 
     const isValidToken = await this.validateToken(
       data.guildId,
-      req.query?.["token"],
+      req.query?.["token"]
     );
 
     if (!isValidToken) {
@@ -26,12 +31,27 @@ export class UppyNotificationService {
       });
     }
 
-    return reply.send(req.body);
+    if (data.type !== WebhookNotificationType.Remind) {
+      return reply.code(HTTPStatus.BadRequest).send({
+        message: "incorrect webhook type",
+      });
+    }
+
+    telegramRemindNotificationProduce({
+      guildId: data.guildId,
+      original: data.data,
+      users: data.data.aproximatedNotificationUsers,
+      type: data.data.type,
+    });
+
+    return reply.send({
+      message: "In queue...",
+    });
   }
 
   private async validateToken(
     guildId: string,
-    token?: string,
+    token?: string
   ): Promise<boolean> {
     if (!token) return false;
     const settingsRepository = SettingsRepository.create();

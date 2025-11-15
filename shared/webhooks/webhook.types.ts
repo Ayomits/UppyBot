@@ -27,16 +27,15 @@ export type WebhookBumpBanNotification = {
 };
 
 export type WebhookRemindNotication = {
-  monitoring: {
-    command: string;
-  };
+  commandName: string;
   guildName: string;
   channelName: string;
   aproximatedNotificationUsers: string[];
+  type: number;
 };
 
 export type WebhookNotification<T> = {
   guildId: string;
-  type: WebhookNotificationType;
+  type: number;
   data: T;
 };
