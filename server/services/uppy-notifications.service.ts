@@ -11,6 +11,7 @@ import {
 } from "#/shared/webhooks/webhook.types.js";
 
 import { HTTPStatus } from "../const/status.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 
 export class UppyNotificationService {
   static create() {
@@ -35,8 +36,11 @@ export class UppyNotificationService {
       });
     }
 
+    logger.info("Received new webhook:", data.type);
+
     if (data.type === WebhookNotificationType.Remind) {
-      telegramRemindNotificationProduce({
+      logger.info(`Remind Users: ${data.data.aproximatedNotificationUsers.length}`);
+      await telegramRemindNotificationProduce({
         guildId: data.guildId,
         original: data.data,
         users: data.data.aproximatedNotificationUsers,
