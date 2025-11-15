@@ -15,13 +15,14 @@ export async function getUserGuilds(
 
   const ids = dbGuilds.map((g) => g.guildId);
 
+  const guildNames = Object.fromEntries(
+    dbGuilds.map((g) => [g.guildId, g.guildName])
+  );
+
   if (user) {
     return user.settings.selected_guilds
-      .filter((g) => ids.includes(g.split("-")[0]))
-      .map((g) => {
-        const splitted = g.split("-");
-        return { id: splitted[0], name: splitted[1] };
-      });
+      .filter((g) => ids.includes(g))
+      .map((g) => ({ id: g, name: guildNames[g] }));
   }
   return dbGuilds?.map((g) => ({ id: g.guildId, name: g.guildName })) ?? [];
 }

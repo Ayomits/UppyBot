@@ -21,7 +21,7 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
     const cryptography = CryptographyService.create();
 
     let selectedGuilds = user?.settings.selected_guilds ?? [];
-    const ids = selectedGuilds.map((g) => g.split("-")[0]);
+    const ids = selectedGuilds.map((g) => g);
     const hasGuild = (id: string) => ids.includes(id);
 
     const guilds = await getUserGuilds(
