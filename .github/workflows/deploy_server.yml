@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./server/Dockerfile
+          file: ./docker/images/server/Dockerfile
           push: true
           tags: |
             registry.gitlab.com/ayomits/fear-helper:server_latest

@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./telegram/Dockerfile
+          file: ./docker/images/telegram/Dockerfile
           push: true
           tags: |
             registry.gitlab.com/ayomits/fear-helper:notifications_latest
