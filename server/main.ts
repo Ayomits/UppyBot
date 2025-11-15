@@ -12,16 +12,17 @@ import { registerUppyNotificationController } from "./controllers/uppy-notificat
 
 async function start() {
   const app = Fastify({
-    logger: false,
+    logger: true,
     querystringParser: (str) => qs.parse(str),
   });
 
   registerDiscordAuthController(app);
   registerUppyNotificationController(app);
 
+  await createStoreConnection();
+  await createNotificationsMongoConnection();
+
   app.listen({ port: 4200, host: "0.0.0.0" }, async () => {
-    await createStoreConnection();
-    await createNotificationsMongoConnection();
     logger.info(`Server started: http://localhost:4200`);
   });
 }
