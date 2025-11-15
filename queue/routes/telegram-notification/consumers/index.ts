@@ -1,6 +1,7 @@
 import { parseConsumerData } from "#/queue/utils/parseData.js";
 import type { Consumer } from "#/queue/utils/types.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { NotificationUserRepository } from "#/shared/db/repositories/uppy-telegram/user.repository.js";
 import { logger } from "#/shared/libs/logger/logger.js";
 import { WebhookNotificationType } from "#/shared/webhooks/webhook.types.js";
@@ -39,7 +40,7 @@ export const telegramRemindNotificationConsumer: Consumer = async (msg, ch) => {
 
     const filter = {
       discord_user_id: { $in: data.users },
-      [`notifications.${repository.getNotificationFieldByMonitoring(data.type)}`]: true,
+      [`notifications.${repository.getNotificationFieldByMonitoring(data.monitoring)}`]: true,
       [`settings.selected_guilds`]: data.guildId,
     };
 
@@ -47,7 +48,19 @@ export const telegramRemindNotificationConsumer: Consumer = async (msg, ch) => {
 
     logger.info(`Found ${users.length} users for notify`);
 
+    const settingsRepository = SettingsRepository.create();
+    const settings = await settingsRepository.findGuildSettings(data.guildId);
+
     for (const user of users) {
+      const isForce = data.type === WebhookNotificationType.ForceRemind;
+      if (isForce && !user.settings?.allow_force_reminds) {
+        continue;
+      }
+
+      const actionText = isForce
+        ? `Не торопись, команду можно будет выполнить через ${bold(`${settings.force?.seconds ?? 0}`)} секунд`
+        : `Пора выполнить команду!`;
+        
       await telegramSingleNotificationProduce({
         content: [
           `${Emojis.ALARM_CLOCK} ${bold("Напоминание")}`,
@@ -56,7 +69,7 @@ export const telegramRemindNotificationConsumer: Consumer = async (msg, ch) => {
           `${Emojis.KEYBOARD} ${bold("Команда:")} ${inlineCode(data.original.commandName)}`,
           `${Emojis.FOLDER} ${bold("Канал:")} ${inlineCode(`#${data.original.channelName}`)}`,
           ``,
-          `${Emojis.STAR} ${cursive("Пора выполнить команду!")}`,
+          `${Emojis.STAR} ${actionText}`,
         ].join("\n"),
         parse_mode: "HTML",
         telegram_id: user.telegram_user_id,

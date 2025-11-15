@@ -41,13 +41,17 @@ export class UppyNotificationService {
       });
     }
 
-    if (data.type === WebhookNotificationType.Remind) {
+    if (
+      data.type === WebhookNotificationType.Remind ||
+      data.type === WebhookNotificationType.ForceRemind
+    ) {
       const payload = data as WebhookNotification<WebhookRemindNotication>;
       await telegramRemindNotificationProduce({
         guildId: data.guildId,
         original: payload.data,
         users: payload.data.aproximatedNotificationUsers,
-        type: payload.data.type,
+        type: payload.type,
+        monitoring: payload.data.type,
       });
     }
 
