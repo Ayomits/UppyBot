@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - discord/**
+      - server/**
       - shared/**
       - models/**
       - queue/**
@@ -31,11 +31,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./discord/Dockerfile
+          file: ./server/Dockerfile
           push: true
           tags: |
-            registry.gitlab.com/ayomits/fear-helper:bot_latest
-            registry.gitlab.com/ayomits/fear-helper:bot
+            registry.gitlab.com/ayomits/fear-helper:server_latest
+            registry.gitlab.com/ayomits/fear-helper:server
           build-args:
             APP_ENV=prod
           no-cache: true
@@ -49,6 +49,6 @@ jobs:
           -H 'Content-Type: application/json' \
           -d '{
               "json":{
-                  "applicationId": "6KaTqA9QGRK-vBjKE49HM"
+                  "applicationId": "xM8pjKj2xLQUlEjzstBuP"
               }
           }'
