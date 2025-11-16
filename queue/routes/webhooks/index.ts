@@ -1,22 +1,18 @@
 import { QueueMessages } from "#/queue/const/index.js";
-import { rabbitMq } from "#/shared/db/rabbitmq.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { createRoute } from "#/queue/utils/create-route.js";
+import { WebhookManager } from "#/shared/webhooks/webhook.manager.js";
 
-import { webhookCreatedConsumer } from "./consumers/index.js";
+import type { WebhookCreatedPayload } from "./types.js";
 
-export async function registerWebhookConsumers() {
-  const channel = await rabbitMq.createChannel();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const webhookRoute = createRoute<WebhookCreatedPayload<any>>({
+  queue: QueueMessages.webhooks.send,
+  async consumeCallback(msg) {
+    const data = JSON.parse(
+      msg.content.toString()
+    ) as WebhookCreatedPayload<object>;
 
-  const queue = QueueMessages.webhooks.send;
-
-  await channel.assertQueue(queue, {
-    durable: true,
-    autoDelete: false,
-  });
-
-  await channel.consume(queue, (msg) => {
-    webhookCreatedConsumer(msg!, channel);
-  });
-
-  logger.log(`${queue} consumer successfully connected`);
-}
+    const webhookManager = WebhookManager.create();
+    await webhookManager.sendNotification(data.url, data.token, data.data);
+  },
+});

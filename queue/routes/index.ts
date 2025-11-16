@@ -1,18 +1,18 @@
-import { registerLikeSyncConsumers } from "./like-sync/index.js";
+import { likeSyncRoute } from "./like-sync/index.js";
 import {
-  registerTelegramNotificationBumpBanConsumer,
-  registerTelegramNotificationRemindConsumer,
-  registerTelegramNotifyConsumer,
+  telegramNotificationBumpBanRoute,
+  telegramNotificationRemindRoute,
+  telegramNotificationRoute,
 } from "./telegram-notification/index.js";
-import { registerWebhookConsumers } from "./webhooks/index.js";
+import { webhookRoute } from "./webhooks/index.js";
 
 export async function registerDiscordConsumers() {
-  await registerWebhookConsumers();
-  await registerLikeSyncConsumers();
+  await webhookRoute.register();
+  await likeSyncRoute.register();
 }
 
 export async function registerTelegramConsumers() {
-  await registerTelegramNotifyConsumer();
-  await registerTelegramNotificationRemindConsumer();
-  await registerTelegramNotificationBumpBanConsumer();
+  await telegramNotificationRoute.register();
+  await telegramNotificationRemindRoute.register();
+  await telegramNotificationBumpBanRoute.register();
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { injectable } from "tsyringe";
 
-import { sendWebhookNotification } from "#/queue/routes/webhooks/producers/index.js";
+import { webhookRoute } from "#/queue/routes/webhooks/index.js";
 
 import type {
   WebhookBumpBanNotification,
@@ -71,7 +71,7 @@ export class WebhookManager {
     token: string,
     data: WebhookNotification<T>
   ) {
-    return sendWebhookNotification({
+    return webhookRoute.produce({
       url,
       token,
       data,

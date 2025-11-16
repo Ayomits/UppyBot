@@ -11,7 +11,7 @@ import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
-import { sendWebhookNotification } from "#/queue/routes/webhooks/producers/index.js";
+import { webhookRoute } from "#/queue/routes/webhooks/index.js";
 import type { Remind } from "#/shared/db/models/uppy-discord/remind.model.js";
 import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
@@ -290,7 +290,7 @@ export class ReminderScheduleManager {
       channelName: payload.channel.name!,
     });
 
-    await sendWebhookNotification({
+    await webhookRoute.produce({
       url: settings.webhooks.url,
       token: this.cryptography.decrypt(settings.webhooks.token),
       data: webhookData,

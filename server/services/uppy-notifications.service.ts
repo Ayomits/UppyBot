@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import {
-  telegramBumpBanNotificationProduce,
-  telegramRemindNotificationProduce,
-} from "#/queue/routes/telegram-notification/producers/index.js";
+  telegramNotificationBumpBanRoute,
+  telegramNotificationRemindRoute,
+} from "#/queue/routes/telegram-notification/index.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
@@ -54,7 +54,7 @@ export class UppyNotificationService {
       data.type === WebhookNotificationType.ForceRemind
     ) {
       const payload = data as WebhookNotification<WebhookRemindNotication>;
-      await telegramRemindNotificationProduce({
+      await telegramNotificationRemindRoute.produce({
         guildId: data.guildId,
         original: payload.data,
         users: payload.data.aproximatedNotificationUsers,
@@ -68,7 +68,7 @@ export class UppyNotificationService {
       data.type === WebhookNotificationType.BumpBanCreation
     ) {
       const payload = data as WebhookNotification<WebhookBumpBanNotification>;
-      await telegramBumpBanNotificationProduce({
+      await telegramNotificationBumpBanRoute.produce({
         guildId: payload.guildId,
         type: payload.type,
         userId: payload.data.userId,

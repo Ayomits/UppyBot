@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
-import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
+import { likeSyncRoute } from "#/queue/routes/like-sync/index.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { BumpLogRepository } from "#/shared/db/repositories/uppy-discord/bump-log-repository.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
@@ -80,7 +80,7 @@ export class WebLikeSyncManager implements Loop {
       })
     ).map((guild) => guild.guildId);
     for (const guildId of guilds) {
-      likeSyncProduce({ guildId: guildId });
+      likeSyncRoute.produce({ guildId: guildId });
     }
   }
 

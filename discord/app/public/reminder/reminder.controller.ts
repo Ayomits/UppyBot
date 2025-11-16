@@ -3,7 +3,7 @@ import { type ArgsOf, type Client, Discord, Guard, On } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { GuildOnly } from "#/discord/guards/is-guild-only.js";
-import { likeSyncProduce } from "#/queue/routes/like-sync/producers/index.js";
+import { likeSyncRoute } from "#/queue/routes/like-sync/index.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
 import { ReminderScheduleManager } from "./reminder-schedule.manager.js";
@@ -37,6 +37,6 @@ export class BumpReminderController {
 
   @On({ event: "guildCreate" })
   async onGuildCreate([guild]: ArgsOf<"guildCreate">) {
-    likeSyncProduce({ guildId: guild.id });
+    likeSyncRoute.produce({ guildId: guild.id });
   }
 }

@@ -1,20 +1,18 @@
+import { discordClient } from "#/discord/client.js";
+import { WebLikeSyncManager } from "#/discord/loops/like.js";
 import { QueueMessages } from "#/queue/const/index.js";
-import { rabbitMq } from "#/shared/db/rabbitmq.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { createRoute } from "#/queue/utils/create-route.js";
 
-import { likeSyncConsumer } from "./consumers/index.js";
+import type { LikeSyncPayload } from "./types.js";
 
-export async function registerLikeSyncConsumers() {
-  const channel = await rabbitMq.createChannel();
+export const likeSyncRoute = createRoute<LikeSyncPayload>({
+  queue: QueueMessages.like.sync,
+  async consumeCallback(msg) {
+    const payload = JSON.parse(msg.content.toString()) as LikeSyncPayload;
 
-  const queue = QueueMessages.like.sync;
-
-  await channel.assertQueue(queue, {
-    durable: true,
-    autoDelete: false,
-  });
-
-  await channel.consume(queue, (msg) => likeSyncConsumer(msg!, channel));
-
-  logger.info(`${queue} consumer successfully connected`);
-}
+    const likeSyncManager = WebLikeSyncManager.create();
+    await likeSyncManager.syncGuildLikes(
+      discordClient.guilds.cache.get(payload.guildId)
+    );
+  },
+});
