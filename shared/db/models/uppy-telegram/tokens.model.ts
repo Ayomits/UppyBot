@@ -6,7 +6,7 @@ import { createLazyModel } from "../../utils/create-lazy-model.js";
 export class NotificationUserToken {
   @prop({
     required: true,
-    expires: 600_000,
+    expires: 600,
   })
   expired_at: Date;
 
