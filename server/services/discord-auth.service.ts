@@ -83,25 +83,29 @@ export class DiscordAuthService {
   async handleDiscordCallback(req: FastifyRequest, reply: FastifyReply) {
     const [code, state] = [req.query?.["code"], req.query?.["state"]];
 
+    reply.type("html");
+
     const cryptography = CryptographyService.create();
 
+    const templatePath = "auth/login";
+
     if (!code) {
-      return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "code must be provided in query",
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
     if (!state) {
-      return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "state must be provided in query",
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
     const stateJson = JSON.parse(cryptography.decodeBase64(state)) as Payload;
 
     if (!stateJson.token) {
-      return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "property token must be in state",
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
@@ -110,20 +114,20 @@ export class DiscordAuthService {
     const isValid = await tokenRepository.validate(stateJson.token);
 
     if (!isValid) {
-      return reply.code(HTTPStatus.Unauthorized).send({
-        message: `Token invalid`,
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
     if (!stateJson.chatId) {
-      return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "property chatId must be in state",
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
     if (Number.isNaN(stateJson.chatId)) {
-      return reply.code(HTTPStatus.UnprocessableEntity).send({
-        message: "chatId must be a valid number",
+      return reply.view(templatePath, {
+        isSuccess: false,
       });
     }
 
@@ -153,7 +157,7 @@ export class DiscordAuthService {
 
     const discordUser = await fetchDiscordOauth2User(accessToken);
 
-    const user = await userRepository.createUser({
+    await userRepository.createUser({
       discord_user_id: discordUser.id,
       telegram_user_id: stateJson.chatId,
       tokens,
@@ -167,7 +171,10 @@ export class DiscordAuthService {
 
     await tokenRepository.invalidate(stateJson.token);
 
-    return reply.code(HTTPStatus.Ok).send(user);
+    return reply.view(templatePath, {
+      isSuccess: true,
+      username: discordUser.global_name ?? discordUser.username,
+    });
   }
 
   private createPayload(chatId: number, token: string): Payload {

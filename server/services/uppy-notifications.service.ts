@@ -41,6 +41,14 @@ export class UppyNotificationService {
       });
     }
 
+    await this.handleNotification(data);
+
+    return reply.send({
+      message: "OK",
+    });
+  }
+
+  private async handleNotification(data: WebhookNotification<unknown>) {
     if (
       data.type === WebhookNotificationType.Remind ||
       data.type === WebhookNotificationType.ForceRemind
@@ -66,10 +74,6 @@ export class UppyNotificationService {
         userId: payload.data.userId,
       });
     }
-
-    return reply.send({
-      message: "OK",
-    });
   }
 
   private async validateToken(

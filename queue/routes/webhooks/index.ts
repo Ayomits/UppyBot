@@ -1,17 +1,22 @@
 import { QueueMessages } from "#/queue/const/index.js";
 import { rabbitMq } from "#/shared/db/rabbitmq.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 
 import { webhookCreatedConsumer } from "./consumers/index.js";
 
 export async function registerWebhookConsumers() {
   const channel = await rabbitMq.createChannel();
 
-  await channel.assertQueue(QueueMessages.webhooks.send, {
+  const queue = QueueMessages.webhooks.send;
+
+  await channel.assertQueue(queue, {
     durable: true,
     autoDelete: false,
   });
 
-  await channel.consume(QueueMessages.webhooks.send, (msg) => {
+  await channel.consume(queue, (msg) => {
     webhookCreatedConsumer(msg!, channel);
   });
+
+  logger.log(`${queue} consumer successfully connected`);
 }

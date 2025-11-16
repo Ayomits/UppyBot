@@ -1,5 +1,6 @@
 import { QueueMessages } from "#/queue/const/index.js";
 import { rabbitMq } from "#/shared/db/rabbitmq.js";
+import { logger } from "#/shared/libs/logger/logger.js";
 
 import {
   telegramBumpBanNotificationConsumer,
@@ -10,38 +11,50 @@ import {
 export async function registerTelegramNotifyConsumer() {
   const channel = await rabbitMq.createChannel();
 
-  await channel.assertQueue(QueueMessages.telegram.notification, {
+  const queue = QueueMessages.telegram.notification;
+
+  await channel.assertQueue(queue, {
     durable: true,
     autoDelete: false,
   });
 
-  await channel.consume(QueueMessages.telegram.notification, (msg) => {
+  await channel.consume(queue, (msg) => {
     telegramSingleNotificationConsumer(msg!, channel);
   });
+
+  logger.log(`${queue} consumer successfully connected`);
 }
 
 export async function registerTelegramNotificationRemindConsumer() {
   const channel = await rabbitMq.createChannel();
 
-  await channel.assertQueue(QueueMessages.telegram.remind, {
+  const queue = QueueMessages.telegram.remind;
+
+  await channel.assertQueue(queue, {
     durable: true,
     autoDelete: false,
   });
 
-  await channel.consume(QueueMessages.telegram.remind, (msg) => {
+  await channel.consume(queue, (msg) => {
     telegramRemindNotificationConsumer(msg!, channel);
   });
+
+  logger.log(`${queue} consumer successfully connected`);
 }
 
 export async function registerTelegramNotificationBumpBanConsumer() {
   const channel = await rabbitMq.createChannel();
 
-  await channel.assertQueue(QueueMessages.telegram.bumpBan, {
+  const queue = QueueMessages.telegram.bumpBan;
+
+  await channel.assertQueue(queue, {
     durable: true,
     autoDelete: false,
   });
 
-  await channel.consume(QueueMessages.telegram.bumpBan, (msg) => {
+  await channel.consume(queue, (msg) => {
     telegramBumpBanNotificationConsumer(msg!, channel);
   });
+
+  logger.log(`${queue} consumer successfully connected`);
 }

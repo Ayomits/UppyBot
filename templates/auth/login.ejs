@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      <%= isSuccess ? "Успешная авторизация" : "Авторизация не удалась" %>
+    </title>
+    <link rel="stylesheet" href="/public/reset.css" />
+    <link rel="stylesheet" href="/public/auth/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <main class="login-container">
+      <div class="login-content">
+        <img src="<%= isSuccess ? "/public/static/ok.svg" : '/public/static/x.svg' %>" alt="Картинка с результатом логина">
+        <div class="login-content-caption-container">
+          <p><%= isSuccess ? "Авторизация прошла успешно" : "Что-то пошло не так..." %></p>
+          <p class="login-content-caption"><%= isSuccess ? `Поздравляю вы вошли как ` + username : "Попробуйте снова!" %></p>
+        </div>
+        <a href="https://t.me/UppyNotificationsBot">
+          Вернуться в телеграмм
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,19 +1,14 @@
 import type {
   Message,
-  ModalSubmitInteraction,
   StringSelectMenuInteraction,
   TextChannel,
 } from "discord.js";
 import {
   ActionRowBuilder,
   type ChatInputCommandInteraction,
-  inlineCode,
   MessageFlags,
-  ModalBuilder,
-  spoiler,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  TextInputStyle,
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
@@ -29,43 +24,20 @@ import {
   getCommandNameByRemindType,
   MonitoringType,
 } from "../public/reminder/reminder.const.js";
-import { WebhookIds } from "./webhook.const.js";
+import { NotificationsIds } from "./notifications.const.js";
 
 @injectable()
-export class WebhookService {
+export class NotificationsService {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
     @inject(CryptographyService) private cryptography: CryptographyService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
-  async handleWebhookSetup(interaction: ChatInputCommandInteraction) {
-    const modal = new ModalBuilder()
-      .setCustomId(WebhookIds.setup)
-      .setTitle("Настройка вебхуков")
-      .addLabelComponents((builder) =>
-        builder
-          .setLabel("URL")
-          .setTextInputComponent((builder) =>
-            builder
-              .setCustomId("url")
-              .setPlaceholder("Введите ссылку")
-              .setStyle(TextInputStyle.Short)
-              .setRequired(true)
-          )
-      );
-    return interaction.showModal(modal);
-  }
-
-  async handleWebhookSetupModal(interaction: ModalSubmitInteraction) {
+  async handleNotificationSetup(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const url = interaction.fields.getTextInputValue("url");
 
-    if (!url.startsWith("https://") && Env.AppEnv !== "dev") {
-      return interaction.editReply({
-        content: `URL должен начинатся с ${inlineCode(`https://`)}`,
-      });
-    }
+    const url = `${Env.UppyUrl}/uppy/notifications`;
 
     const token = this.cryptography.encrypt(interaction.id);
     const isSended = await this.webhookManager.sendNotification(
@@ -76,7 +48,7 @@ export class WebhookService {
 
     if (!isSended) {
       return interaction.editReply({
-        content: "Не удалось выслать тестовое уведомление",
+        content: "Произошла внутренняя ошибка, уведомления были не подключены",
       });
     }
 
@@ -88,35 +60,11 @@ export class WebhookService {
     });
 
     return interaction.editReply({
-      content: [
-        "Тестовое уведомление успешно выслано",
-        `Ваш токен: ${spoiler(token)}`,
-      ].join("\n"),
+      content: ["Уведомления успешно подключены!"].join("\n"),
     });
   }
 
-  async handleWebhookTokenReveal(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
-    );
-    if (!settings.webhooks?.url) {
-      return interaction.editReply({
-        content: "У вас не включена система вебхуков",
-      });
-    }
-    const token = this.cryptography.encrypt(interaction.id);
-
-    await this.settingsRepository.update(interaction.guildId!, {
-      "webhooks.token": this.cryptography.encrypt(token),
-    });
-
-    return interaction.editReply({
-      content: `Токен сброшен: ${spoiler(token)}`,
-    });
-  }
-
-  async handleWebhookTest(interaction: ChatInputCommandInteraction) {
+  async handleNotificationTest(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const settings = await this.settingsRepository.findGuildSettings(
@@ -159,7 +107,7 @@ export class WebhookService {
     ];
 
     return new StringSelectMenuBuilder()
-      .setCustomId(WebhookIds.selectTest)
+      .setCustomId(NotificationsIds.selectTest)
       .setPlaceholder("Выберите тип уведомления")
       .addOptions(
         options.map((option) =>
