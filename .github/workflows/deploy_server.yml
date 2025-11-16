@@ -12,6 +12,7 @@ on:
       - repositories/**
       - .github/workflows/deploy_telegram.yml
       - docker/**
+      - templates/**
 
 jobs:
   deploy:
