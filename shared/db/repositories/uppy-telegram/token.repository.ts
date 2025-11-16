@@ -57,7 +57,7 @@ export class NotificationUserTokenRepository {
   async sign(tgId: number) {
     const token = await NotificationUserTokenModel.model.create({
       telegram_user_id: tgId,
-      expired_at: DateTime.now().plus({ minutes: 10 }).toJSDate(),
+      expired_at: DateTime.now().plus({ minutes: 2 }).toJSDate(),
     });
 
     return this.cryptography.encrypt(JSON.stringify(token));

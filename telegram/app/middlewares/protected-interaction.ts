@@ -8,7 +8,7 @@ import { createRequireAuthMessage } from "../messages/auth.message.js";
 
 export async function protectedInteraction(
   ctx: AppContext,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const repository = NotificationUserRepository.create();
   const user = await repository.findByTgId(ctx.from!.id);
@@ -19,6 +19,7 @@ export async function protectedInteraction(
     const msg = createRequireAuthMessage();
     await ctx.reply(msg.text, {
       reply_markup: msg.reply_markup,
+      parse_mode: "HTML",
     });
     // @ts-expect-error this method should exists i guess
     await ctx.menu.close();
