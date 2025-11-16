@@ -18,7 +18,7 @@
         <img src="<%= isSuccess ? "/public/static/ok.svg" : '/public/static/x.svg' %>" alt="Картинка с результатом логина">
         <div class="login-content-caption-container">
           <p><%= isSuccess ? "Авторизация прошла успешно" : "Что-то пошло не так..." %></p>
-          <p class="login-content-caption"><%= isSuccess ? `Поздравляю вы вошли как ` + username : "Попробуйте снова!" %></p>
+          <p class="login-content-caption"><%= isSuccess ? `Поздравляю! Вы вошли как ` + username : "Попробуйте снова!" %></p>
         </div>
         <a href="https://t.me/UppyNotificationsBot">
           Вернуться в телеграмм
