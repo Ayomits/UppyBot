@@ -1,5 +1,4 @@
 import { prop } from "@typegoose/typegoose";
-import { DateTime } from "luxon";
 
 import { notificationMongoConnection } from "../../mongo.js";
 import { createLazyModel } from "../../utils/create-lazy-model.js";
@@ -7,7 +6,6 @@ import { createLazyModel } from "../../utils/create-lazy-model.js";
 export class NotificationUserToken {
   @prop({
     required: true,
-    default: DateTime.now().plus({ minutes: 10 }),
     expires: 600_000,
   })
   expired_at: Date;
