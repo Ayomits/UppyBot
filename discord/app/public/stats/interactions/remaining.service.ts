@@ -40,7 +40,7 @@ import { StaffCustomIds } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
-export class UppyRemainingService extends BaseUppyService {
+export class RemainingService extends BaseUppyService {
   async handleRemainingCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const repl = await interaction.editReply(

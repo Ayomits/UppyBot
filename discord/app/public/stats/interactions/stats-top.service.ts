@@ -4,10 +4,7 @@ import type { ChatInputCommandInteraction, User } from "discord.js";
 import { bold, MessageFlags, userMention } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { EmptyStaffRoleError } from "#/discord/errors/errors.js";
-import type {
-  BumpUser,
-} from "#/shared/db/models/uppy-discord/bump-user.model.js";
+import type { BumpUser } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
@@ -16,9 +13,9 @@ import { PaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
-export class UppyLeaderboardService extends BaseUppyService {
+export class LeaderboardService extends BaseUppyService {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {
     super();
   }
@@ -26,23 +23,30 @@ export class UppyLeaderboardService extends BaseUppyService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
 
     if (
       !settings?.roles.staffRoles ||
       settings?.roles.staffRoles?.length === 0
     ) {
-      return EmptyStaffRoleError.throw(interaction);
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDefaults(interaction.user)
+            .setTitle("Ошибка")
+            .setDescription(`На сервере не настроены роли сотрудников`),
+        ],
+      });
     }
 
     const hasStaffRolesIds = interaction.guild?.members.cache
       .filter((m) =>
-        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id)),
+        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id))
       )
       .map((m) => m.id);
 
@@ -72,7 +76,7 @@ export class UppyLeaderboardService extends BaseUppyService {
             page,
             maxPages,
             data,
-            interaction.user,
+            interaction.user
           ),
         ],
       };
@@ -108,7 +112,7 @@ export class UppyLeaderboardService extends BaseUppyService {
 
   private async fetchLeaderboardPage(
     page: number,
-    filter: mongoose.FilterQuery<BumpUser>,
+    filter: mongoose.FilterQuery<BumpUser>
   ) {
     const skip = page * PaginationLimit;
     const [data] = await BumpUserModel.model.aggregate([
@@ -168,7 +172,7 @@ export class UppyLeaderboardService extends BaseUppyService {
     page: number,
     maxPages: number,
     payload: Awaited<ReturnType<typeof this.fetchLeaderboardPage>>,
-    user: User,
+    user: User
   ) {
     const embed = new EmbedBuilder().setDefaults(user);
     const description =
@@ -184,7 +188,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   serverMonitoring,
                   _id: userId,
                 },
-                index,
+                index
               ) => {
                 const position = page * PaginationLimit + index + 1;
                 return [
@@ -193,7 +197,7 @@ export class UppyLeaderboardService extends BaseUppyService {
                   `• Up: ${sdcMonitoring} | Like: ${dsMonitoring} | Bump: ${serverMonitoring}`,
                   "",
                 ].join("\n");
-              },
+              }
             )
             .join("\n");
 

@@ -23,7 +23,7 @@ import { PaginationLimit } from "../stats.const.js";
 import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
-export class UppyStatsService extends BaseUppyService {
+export class StatsHistoryService extends BaseUppyService {
   public async handleStatsCommand(
     interaction: ChatInputCommandInteraction,
     user: User,

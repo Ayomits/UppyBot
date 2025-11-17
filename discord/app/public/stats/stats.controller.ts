@@ -19,11 +19,11 @@ import { inject, singleton } from "tsyringe";
 import { GuildOnly } from "#/discord/guards/is-guild-only.js";
 import { IsHelper } from "#/discord/guards/is-staff.guard.js";
 
-import { UppyRemainingService } from "./interactions/remaining.service.js";
-import { UppyAutocompleteService } from "./interactions/stats-autocomplete.service.js";
-import { UppyStatsService } from "./interactions/stats-history.service.js";
+import { RemainingService } from "./interactions/remaining.service.js";
+import { StatsAutocompleteService } from "./interactions/stats-autocomplete.service.js";
+import { StatsHistoryService } from "./interactions/stats-history.service.js";
 import { StatsInfoService } from "./interactions/stats-info.service.js";
-import { UppyLeaderboardService } from "./interactions/stats-top.service.js";
+import { LeaderboardService } from "./interactions/stats-top.service.js";
 
 @Discord()
 @singleton()
@@ -34,11 +34,11 @@ import { UppyLeaderboardService } from "./interactions/stats-top.service.js";
 })
 export class UppyController {
   constructor(
-    @inject(UppyStatsService) private uppyStatsService: UppyStatsService,
-    @inject(UppyLeaderboardService)
-    private uppyTopService: UppyLeaderboardService,
-    @inject(UppyRemainingService)
-    private uppyRemainingService: UppyRemainingService,
+    @inject(StatsHistoryService) private uppyStatsService: StatsHistoryService,
+    @inject(LeaderboardService)
+    private uppyTopService: LeaderboardService,
+    @inject(RemainingService)
+    private uppyRemainingService: RemainingService,
     @inject(StatsInfoService) private uppyInfoService: StatsInfoService,
   ) {}
 
@@ -70,8 +70,8 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
-        UppyAutocompleteService,
+      autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
+        StatsAutocompleteService,
       ),
       required: false,
     })
@@ -80,8 +80,8 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
-        UppyAutocompleteService,
+      autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
+        StatsAutocompleteService,
       ),
       required: false,
     })
@@ -102,8 +102,8 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
-      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
-        UppyAutocompleteService,
+      autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
+        StatsAutocompleteService,
       ),
       required: false,
     })
@@ -112,8 +112,8 @@ export class UppyController {
       type: ApplicationCommandOptionType.String,
       name: "to",
       description: "До какой даты",
-      autocomplete: UppyAutocompleteService.handleTopAutocomplete.bind(
-        UppyAutocompleteService,
+      autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
+        StatsAutocompleteService,
       ),
       required: false,
     })

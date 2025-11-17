@@ -9,7 +9,7 @@ import { endDateValue, startDateValue } from "#/shared/libs/time/const.js";
 import { formatDate } from "#/shared/libs/time/to-format.js";
 
 @injectable()
-export class UppyAutocompleteService {
+export class StatsAutocompleteService {
   public static async handleTopAutocomplete(
     interaction: AutocompleteInteraction,
   ) {
