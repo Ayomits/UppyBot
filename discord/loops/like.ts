@@ -10,6 +10,7 @@ import { parse } from "node-html-parser";
 import { inject, injectable } from "tsyringe";
 
 import { likeSyncRoute } from "#/queue/routes/like-sync/index.js";
+import { BumpLogSourceType } from "#/shared/db/models/uppy-discord/bump-log.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { BumpLogRepository } from "#/shared/db/repositories/uppy-discord/bump-log-repository.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
@@ -80,7 +81,7 @@ export class WebLikeSyncManager implements Loop {
       })
     ).map((guild) => guild.guildId);
     for (const guildId of guilds) {
-      likeSyncRoute.produce({ guildId: guildId });
+      await likeSyncRoute.produce({ guildId: guildId });
     }
   }
 
@@ -97,11 +98,15 @@ export class WebLikeSyncManager implements Loop {
     const lastUser = users[users.length - 1];
     logger.info(`${users.length} users for ${guildId} syncing`);
     await Promise.all([
-      ...users
-        .filter((usr) => usr.isSite)
-        .map((user) =>
-          this.ensureBumpUser(guild!, user.id, user.timestamp, settings)
-        ),
+      ...users.map((user) =>
+        this.ensureBumpUser(
+          guild!,
+          user.id,
+          user.timestamp,
+          user.isSite,
+          settings
+        )
+      ),
       this.ensureRemind(guild!, lastUser.timestamp, settings),
     ]);
     logger.info(`${users.length} users for ${guildId} synced`);
@@ -111,17 +116,20 @@ export class WebLikeSyncManager implements Loop {
     guild: Guild,
     executorId: string,
     timestamp: Date,
+    isSite: boolean,
     settings: SettingsDocument
   ) {
     if (!guild) {
       return;
     }
+
     const hasLog = await this.bumpLogRepository.findByTimestamp(
       guild?.id,
       executorId,
       timestamp,
       MonitoringType.DiscordMonitoring
     );
+
     if (hasLog) {
       return;
     }
@@ -154,6 +162,7 @@ export class WebLikeSyncManager implements Loop {
       points,
       type: MonitoringType.DiscordMonitoring,
       timestamp,
+      source: isSite ? BumpLogSourceType.Web : BumpLogSourceType.Discord,
     });
 
     const author = await guild.members.fetch(executorId).catch(null);
@@ -178,8 +187,12 @@ export class WebLikeSyncManager implements Loop {
         .addTextDisplayComponents((builder) =>
           builder.setContent(
             [
-              heading("Команда /like на сайте"),
-              unorderedList([`Исполнитель: ${author}`, `Поинты: ${points}`]),
+              heading(`Синхронизация /like команды с сайтом`),
+              unorderedList([
+                `Исполнитель: ${author}`,
+                `Поинты: ${points}`,
+                `Где выполнена: ${isSite ? "На сайте" : "На сервере"}`,
+              ]),
             ].join("\n")
           )
         )

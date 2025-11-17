@@ -9,7 +9,6 @@ export const likeSyncRoute = createRoute<LikeSyncPayload>({
   queue: QueueMessages.like.sync,
   async consumeCallback(msg) {
     const payload = JSON.parse(msg.content.toString()) as LikeSyncPayload;
-
     const likeSyncManager = WebLikeSyncManager.create();
     await likeSyncManager.syncGuildLikes(
       discordClient.guilds.cache.get(payload.guildId)

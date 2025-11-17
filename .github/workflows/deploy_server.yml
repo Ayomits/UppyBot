@@ -44,7 +44,7 @@ jobs:
       - name: Trigger Dokploy Deployment
         run: |
           curl -X 'POST' \
-          'http://31.13.208.85:3000/api/trpc/application.deploy' \
+          'https://dokploy.uppy-bot.ru/api/trpc/application.deploy' \
           -H 'accept: application/json' \
           -H "x-api-key: ${{ secrets.DOKPLOY_TOKEN }}" \
           -H 'Content-Type: application/json' \

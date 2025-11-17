@@ -261,7 +261,7 @@ export class ReminderScheduleManager {
     const commandName = getCommandNameByRemindType(remind.type)!;
     const commandId = getCommandIdByRemindType(remind.type)!;
     const settings = await this.settingsRepository.findGuildSettings(guild.id);
-    const members = guild.members.cache;
+    const members = await guild.members.fetch();
 
     const payload = await this.sendRemind(remind, guild, (_, settings) => ({
       content: messageBuilder(settings, commandName, commandId),

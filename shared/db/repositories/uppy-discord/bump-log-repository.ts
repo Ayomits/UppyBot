@@ -5,12 +5,9 @@ import {
   BumpLogModel,
   BumpLogSourceType,
 } from "../../models/uppy-discord/bump-log.model.js";
-import { useCachedQuery } from "../../mongo.js";
 
 @injectable()
 export class BumpLogRepository {
-  private ttl = 600_000;
-
   static create() {
     return new BumpLogRepository();
   }
@@ -32,54 +29,48 @@ export class BumpLogRepository {
     source?: number;
     points?: number;
   }) {
-    return await useCachedQuery(
-      this.generateId(guildId, executorId, timestamp.getTime(), type),
-      this.ttl,
-      async () =>
-        await BumpLogModel.model.create({
-          guildId,
-          executorId,
-          messageId,
-          points,
-          type,
-          source,
-          createdAt: timestamp,
-        }),
-    );
+    return await BumpLogModel.model.create({
+      guildId,
+      executorId,
+      messageId,
+      points,
+      type,
+      source,
+      createdAt: timestamp,
+    });
   }
 
   async findByTimestamp(
     guildId: string,
     executorId: string,
     timestamp: Date,
-    type: number,
+    type: number
   ) {
     const [startPeriod, endPeriod] = [
-      DateTime.fromJSDate(timestamp).set({ millisecond: 0 }),
-      DateTime.fromJSDate(timestamp).set({ millisecond: 999 }),
+      DateTime.fromJSDate(timestamp)
+        .minus({ minutes: 1 })
+        .set({ millisecond: 0 }),
+      DateTime.fromJSDate(timestamp)
+        .plus({ minutes: 1 })
+        .set({ millisecond: 999 }),
     ];
 
-    return await useCachedQuery(
-      this.generateId(guildId, executorId, timestamp.getTime(), type),
-      this.ttl,
-      async () =>
-        await BumpLogModel.model.findOne({
-          guildId,
-          executorId,
-          type,
-          createdAt: {
-            $gte: startPeriod.toJSDate(),
-            $lte: endPeriod.toJSDate(),
-          },
-        }),
-    );
+    return await BumpLogModel.model.findOne({
+      guildId,
+      executorId,
+      type,
+      createdAt: {
+        $gte: startPeriod.toJSDate(),
+        $lte: endPeriod.toJSDate(),
+      },
+    });
   }
 
   private generateId(
     guildId: string,
     executorId: string,
     timestamp: number,
-    type: number,
+    type: number
   ) {
     return `${guildId}-${executorId}-${timestamp}-${type}-log`;
   }

@@ -1,8 +1,4 @@
-import {
-  buildSchema,
-  type DocumentType,
-  prop,
-} from "@typegoose/typegoose";
+import { buildSchema, type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
@@ -34,7 +30,6 @@ export class BumpLog extends TimeStamps {
   @prop({
     required: false,
     default: null,
-    index: true,
     alias: "message_id",
   })
   messageId: string | null;
@@ -54,7 +49,7 @@ export const BumpLogModel = createLazyModel(
     options: {
       customName: BumpLogCollectionName,
     },
-  },
+  }
 );
 
 export type BumpLogDocument = DocumentType<BumpLog>;
