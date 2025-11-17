@@ -241,8 +241,7 @@ export class StatsInfoService extends BaseUppyService {
     ctx.fillText(
       bumpBanText,
       baseCoordinates.x + 40,
-      baseCoordinates.y + 24 + 106,
-      221
+      baseCoordinates.y + 24 + 106
     );
 
     return canvas.toBuffer("image/png");
