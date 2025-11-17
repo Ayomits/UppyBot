@@ -20,6 +20,7 @@ import path from "path";
 import { inject, injectable } from "tsyringe";
 import { pathToFileURL } from "url";
 
+import type { BumpBan } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import type { BumpUserDocument } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { BumpUserRepository } from "#/shared/db/repositories/uppy-discord/bump-user.repository.js";
@@ -40,7 +41,7 @@ export class StatsInfoService extends BaseUppyService {
   constructor(
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository
   ) {
     super();
   }
@@ -51,7 +52,7 @@ export class StatsInfoService extends BaseUppyService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
@@ -63,7 +64,7 @@ export class StatsInfoService extends BaseUppyService {
         interaction.guildId!,
         user.id,
         fromDate.toJSDate(),
-        toDate.toJSDate(),
+        toDate.toJSDate()
       ),
       BumpBanModel.model.findOne({
         guildId: interaction.guildId,
@@ -81,7 +82,7 @@ export class StatsInfoService extends BaseUppyService {
     const canManage = authorMember.roles.cache.some(
       (r) =>
         settings?.roles.managerRoles &&
-        settings?.roles.managerRoles.includes(r.id),
+        settings?.roles.managerRoles.includes(r.id)
     );
     const canRemove =
       bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
@@ -91,15 +92,16 @@ export class StatsInfoService extends BaseUppyService {
         .setLabel("Снять бамп бан")
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove),
+        .setDisabled(!canRemove)
     );
 
     const banner = new AttachmentBuilder(
       await this.drawBanner(
         user,
         entry[0],
-        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`,
-      ),
+        bumpBan,
+        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`
+      )
     ).setName("image.png");
 
     const container = new ContainerBuilder()
@@ -107,8 +109,8 @@ export class StatsInfoService extends BaseUppyService {
         builder.addItems((builder) =>
           builder
             .setDescription("Баннер пользователя")
-            .setURL("attachment://image.png"),
-        ),
+            .setURL("attachment://image.png")
+        )
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -138,7 +140,8 @@ export class StatsInfoService extends BaseUppyService {
   private async drawBanner(
     user: User,
     entry: Partial<BumpUserDocument> | undefined | null,
-    interval: string,
+    bumpBan: BumpBan | undefined | null,
+    interval: string
   ) {
     const canvas = createCanvas(680, 240);
 
@@ -148,12 +151,12 @@ export class StatsInfoService extends BaseUppyService {
 
     const bannerPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/images/user-profile.png`,
+      `${root}/assets/images/user-profile.png`
     );
 
     const fontPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/fonts/Onest-ExtraBold.ttf`,
+      `${root}/assets/fonts/Onest-ExtraBold.ttf`
     );
 
     GlobalFonts.registerFromPath(fontPath, "onest-extrabold");
@@ -173,10 +176,10 @@ export class StatsInfoService extends BaseUppyService {
       36,
       29.5,
       183,
-      180,
+      180
     );
 
-    const baseCoordinates = { x: 317, y: 74 };
+    const baseCoordinates = { x: 294, y: 46.5 };
 
     function getMaxStringLength(str: string) {
       const maxLength = 18;
@@ -188,8 +191,8 @@ export class StatsInfoService extends BaseUppyService {
     ctx.fillText(
       getMaxStringLength(UsersUtility.getUsername(user)),
       baseCoordinates.x + 40,
-      baseCoordinates.y + 26,
-      105,
+      baseCoordinates.y + 24,
+      105
     );
 
     // Нижняя (команды)
@@ -199,12 +202,12 @@ export class StatsInfoService extends BaseUppyService {
           entry?.dsMonitoring ?? 0,
           entry?.sdcMonitoring ?? 0,
           entry?.serverMonitoring ?? 0,
-          entry?.disboardMonitoring ?? 0,
-        ).toString(),
+          entry?.disboardMonitoring ?? 0
+        ).toString()
       ),
       baseCoordinates.x + 40,
-      baseCoordinates.y + 26 + 50,
-      105,
+      baseCoordinates.y + 24 + 50,
+      105
     );
 
     // Правая строка (дата)
@@ -212,16 +215,34 @@ export class StatsInfoService extends BaseUppyService {
     ctx.fillText(
       getMaxStringLength(interval),
       baseCoordinates.x + 40 + 174,
-      baseCoordinates.y + 26,
-      105,
+      baseCoordinates.y + 24,
+      105
     );
 
     // Нижняя (поинты)
     ctx.fillText(
       getMaxStringLength((entry?.points ?? 0).toString()),
       baseCoordinates.x + 40 + 174,
-      baseCoordinates.y + 26 + 50,
-      105,
+      baseCoordinates.y + 24 + 50,
+      105
+    );
+
+    // Бамп бан
+
+    const bumpBanCount =
+      bumpBan && bumpBan.removeIn < BumpBanLimit
+        ? BumpBanLimit - bumpBan.removeIn
+        : 0;
+    const bumpBanText =
+      bumpBanCount === 0
+        ? "Команду /bump можно использовать"
+        : `${bumpBanCount} команд до снятия БАМП БАНА`;
+
+    ctx.fillText(
+      bumpBanText,
+      baseCoordinates.x + 40,
+      baseCoordinates.y + 24 + 106,
+      221
     );
 
     return canvas.toBuffer("image/png");
@@ -229,7 +250,7 @@ export class StatsInfoService extends BaseUppyService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember,
+    member: GuildMember
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
@@ -258,7 +279,7 @@ export class StatsInfoService extends BaseUppyService {
       !authorMember.roles.cache.some(
         (r) =>
           settings?.roles.managerRoles &&
-          settings?.roles.managerRoles.includes(r.id),
+          settings?.roles.managerRoles.includes(r.id)
       )
     ) {
       return interaction.editReply({
