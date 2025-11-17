@@ -3,6 +3,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { Snowflake } from "discord.js";
 
 import type { LiteralEnum } from "#/shared/libs/djs/types.js";
+import { Time } from "#/shared/libs/time/time.js";
 
 import { mainMongoConnection } from "../../mongo.js";
 import { createLazyModel } from "../../utils/create-lazy-model.js";
@@ -48,6 +49,9 @@ export const BumpLogModel = createLazyModel(
   {
     options: {
       customName: BumpLogCollectionName,
+    },
+    schemaOptions: {
+      expireAfterSeconds: Time.month * 2,
     },
   }
 );

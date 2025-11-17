@@ -6,6 +6,8 @@ import {
 } from "@typegoose/typegoose";
 import type { Snowflake } from "discord.js";
 
+import { Time } from "#/shared/libs/time/time.js";
+
 import { mainMongoConnection } from "../../mongo.js";
 import { createLazyModel } from "../../utils/create-lazy-model.js";
 
@@ -30,7 +32,10 @@ export const BumpGuildCalendarModel = createLazyModel(
   BumpGuildCalendar,
   {
     options: { customName: BumpGuildCalendarCollectionName },
-  },
+    schemaOptions: {
+      expireAfterSeconds: Time.month * 2,
+    },
+  }
 );
 
 export type BumpGuildCalendarDocument = DocumentType<BumpGuildCalendar>;
