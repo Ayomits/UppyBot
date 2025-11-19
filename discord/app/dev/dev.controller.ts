@@ -1,3 +1,4 @@
+import { IsGuildUser } from "@discordx/utilities";
 import type { ChatInputCommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import {
@@ -24,10 +25,9 @@ import { PremiumGiveService } from "./premium-give/give.service.js";
   dmPermission: false,
 })
 @SlashGroup("dev")
-@Guard(SelectedGuildsOnly(developerGuilds))
 export class DevController {
   constructor(
-    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService,
+    @inject(PremiumGiveService) private premiumGiveService: PremiumGiveService
   ) {}
 
   @Slash({
@@ -36,6 +36,7 @@ export class DevController {
     defaultMemberPermissions: ["Administrator"],
     guilds: developerGuilds,
   })
+  @Guard(IsGuildUser(SelectedGuildsOnly(developerGuilds)))
   handleGiveCommand(
     @SlashChoice("hour", "day", "week", "month", "year")
     @SlashOption({
@@ -60,13 +61,13 @@ export class DevController {
       required: true,
     })
     guildId: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.premiumGiveService.handleGive(
       period,
       amount,
       guildId,
-      interaction,
+      interaction
     );
   }
 }

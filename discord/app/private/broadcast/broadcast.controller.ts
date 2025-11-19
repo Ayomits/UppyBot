@@ -1,3 +1,4 @@
+import { IsGuildUser } from "@discordx/utilities";
 import type {
   MessageContextMenuCommandInteraction,
   MessageCreateOptions,
@@ -18,7 +19,7 @@ export class BroadcastController {
     defaultMemberPermissions: ["Administrator"],
     type: ApplicationCommandType.Message,
   })
-  @Guard(SelectedGuildsOnly(developerGuilds))
+  @Guard(IsGuildUser(SelectedGuildsOnly(developerGuilds)))
   async handleBroadcast(interaction: MessageContextMenuCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const client = interaction.client;
@@ -46,7 +47,7 @@ export class BroadcastController {
         } catch {
           // nothing here
         }
-      }),
+      })
     );
     interaction.editReply({ content: `Выслано: ${count} овнерам` });
   }
