@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import type { APIGuild, APIUser } from "discord.js";
 
 import { DISCORD_URL } from "#/server/const/index.js";
+import { useCachedQuery } from "#/shared/db/mongo.js";
 import { Env } from "#/shared/libs/config/index.js";
 
 const discordApi = axios.create({
@@ -32,42 +33,42 @@ export async function fetchDiscordOauth2User(
   access_token: string,
   refresh_token: string
 ) {
-  // return await useCachedQuery(`discord-profile`, 60_000, async () => {
-  const user = await fetchWithRefreshToken(
-    async (token) =>
-      await discordApi.get<APIUser>(`/api/users/@me`, {
-        headers: {
-          Authorization: `Bearer ${token ?? access_token}`,
-        },
-      }),
-    refresh_token
-  );
+  return await useCachedQuery(`discord-profile`, 60_000, async () => {
+    const user = await fetchWithRefreshToken(
+      async (token) =>
+        await discordApi.get<APIUser>(`/api/users/@me`, {
+          headers: {
+            Authorization: `Bearer ${token ?? access_token}`,
+          },
+        }),
+      refresh_token
+    );
 
-  return user;
-  // });
+    return user;
+  });
 }
 
 export async function fetchDiscordOauth2Guilds(
   access_token: string,
   refresh_token: string
 ) {
-  // return await useCachedQuery(
-  //   `discord-user-guilds-${access_token}`,
-  //   60_000,
-  //   async () => {
-  const guilds = await fetchWithRefreshToken(
-    async (token) =>
-      await discordApi.get<APIGuild[]>(`/api/users/@me/guilds`, {
-        headers: {
-          Authorization: `Bearer ${token ?? access_token}`,
-        },
-      }),
-    refresh_token
-  );
+  return await useCachedQuery(
+    `discord-user-guilds-${access_token}`,
+    60_000,
+    async () => {
+      const guilds = await fetchWithRefreshToken(
+        async (token) =>
+          await discordApi.get<APIGuild[]>(`/api/users/@me/guilds`, {
+            headers: {
+              Authorization: `Bearer ${token ?? access_token}`,
+            },
+          }),
+        refresh_token
+      );
 
-  return guilds;
-  // }
-  // );
+      return guilds;
+    }
+  );
 }
 
 export async function fetchWithRefreshToken(
