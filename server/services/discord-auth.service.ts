@@ -155,16 +155,16 @@ export class DiscordAuthService {
 
     const userRepository = NotificationUserRepository.create();
 
-    const discordUser = await fetchDiscordOauth2User(accessToken);
+    const discordUser = await fetchDiscordOauth2User(accessToken, refreshToken);
 
     await userRepository.createUser({
-      discord_user_id: discordUser.id,
+      discord_user_id: discordUser!.data.id,
       telegram_user_id: stateJson.chatId,
       tokens,
     });
 
     telegramNotificationRoute.produce({
-      content: `Вы успешно авторизировались как <strong>${discordUser.global_name ?? discordUser.username}</strong>`,
+      content: `Вы успешно авторизировались как <strong>${discordUser?.data.global_name ?? discordUser?.data.username}</strong>`,
       telegram_id: stateJson.chatId,
       parse_mode: "HTML",
     });
@@ -173,7 +173,7 @@ export class DiscordAuthService {
 
     return reply.view(templatePath, {
       isSuccess: true,
-      username: discordUser.global_name ?? discordUser.username,
+      username: discordUser?.data.global_name ?? discordUser?.data.username,
     });
   }
 

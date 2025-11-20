@@ -17,16 +17,17 @@ import type {
   TelegramSingleNotificationPayload,
 } from "./types.js";
 
-export const telegramNotificationRoute = createRoute({
-  queue: QueueMessages.telegram.notification,
-  async consumeCallback(msg) {
-    const data = parseConsumerData<TelegramSingleNotificationPayload>(msg);
+export const telegramNotificationRoute =
+  createRoute<TelegramSingleNotificationPayload>({
+    queue: QueueMessages.telegram.notification,
+    async consumeCallback(msg) {
+      const data = parseConsumerData<TelegramSingleNotificationPayload>(msg);
 
-    await telegramApp.api.sendMessage(data.telegram_id, data.content, {
-      parse_mode: data.parse_mode,
-    });
-  },
-});
+      await telegramApp.api.sendMessage(data.telegram_id, data.content, {
+        parse_mode: data.parse_mode,
+      });
+    },
+  });
 
 export const telegramNotificationRemindRoute = createRoute({
   queue: QueueMessages.telegram.remind,

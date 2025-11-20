@@ -1,7 +1,6 @@
 import { Menu, MenuRange } from "@grammyjs/menu";
 
 import { NotificationUserRepository } from "#/shared/db/repositories/uppy-telegram/user.repository.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { chunkArray } from "#/shared/libs/json/chunk.js";
 import { createMainProfileMessage } from "#/telegram/app/messages/main-profile.message.js";
 import { protectedInteraction } from "#/telegram/app/middlewares/protected-interaction.js";
@@ -18,17 +17,13 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
     const userRepository = NotificationUserRepository.create();
     const user = await userRepository.findByTgId(ctx.from!.id);
 
-    const cryptography = CryptographyService.create();
-
     let selectedGuilds = user?.settings.selected_guilds ?? [];
     const ids = selectedGuilds.map((g) => g);
     const hasGuild = (id: string) => ids.includes(id);
 
-    const guilds = await getUserGuilds(
-      cryptography.decrypt(user.tokens.access_token)
-    );
+    const guilds = await getUserGuilds(user);
 
-    for (const chunk of chunkArray(guilds, 2)) {
+    for (const chunk of chunkArray(guilds.guilds, 2)) {
       for (const guild of chunk) {
         builder.text(
           `${hasGuild(guild.id) ? Emojis.RED_CIRCLE : Emojis.GREEN_CIRCLE} ${guild.name}`,

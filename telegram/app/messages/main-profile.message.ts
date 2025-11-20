@@ -1,30 +1,43 @@
 import type { DocumentType } from "@typegoose/typegoose";
 import type { ParseMode } from "grammy/types";
 
-import { fetchDiscordOauth2User } from "#/shared/api/discord/index.js";
 import type { NotificationUser } from "#/shared/db/models/uppy-telegram/user.model.js";
 import { DiscordCdn } from "#/shared/libs/cdn/index.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { getDiscordUser } from "#/telegram/utils/get-discord-user-data.js";
 import { getUserGuilds } from "#/telegram/utils/get-user-guilds.js";
 import { bold, cursive, inlineCode } from "#/telegram/utils/html-markdown.js";
 import { resolveBoolean } from "#/telegram/utils/resolve-boolean.js";
 
-type MessageRes = { text: string; image: string | null; parse_mode: ParseMode };
+type MessageRes = {
+  text: string;
+  image: string | null;
+  parse_mode: ParseMode;
+  shouldContinue: boolean;
+};
 
 export async function createMainProfileMessage(
   usr: DocumentType<NotificationUser>
 ): Promise<Partial<MessageRes>> {
   const entries: string[] = [];
-  const cryptography = CryptographyService.create();
   const res: Partial<MessageRes> = {};
 
-  const accessToken = cryptography.decrypt(usr!.tokens.access_token!);
+  const discordUser = await getDiscordUser(usr);
 
-  const discordGuilds = await getUserGuilds(accessToken, usr);
-  const discordUser = await fetchDiscordOauth2User(accessToken);
+  if (!discordUser.discord) {
+    entries.push("Ваш аккаунт был отвязан...");
+    res.text = entries.join("\n");
+    res.shouldContinue = false;
+    return res;
+  }
+
+  const discordGuilds = await getUserGuilds(discordUser.user);
 
   const cdn = DiscordCdn.create();
-  res.image = cdn.getUserAvatar(discordUser.id, discordUser.avatar, 4096);
+  res.image = cdn.getUserAvatar(
+    discordUser?.discord?.data.id,
+    discordUser?.discord?.data.avatar,
+    4096
+  );
 
   entries.push(
     bold(`Данные пользователя:`),
@@ -43,8 +56,8 @@ export async function createMainProfileMessage(
     ``,
     bold(`Подключенные серверы:`),
     `${
-      discordGuilds.length
-        ? discordGuilds
+      discordGuilds.guilds.length
+        ? discordGuilds.guilds
             .map((g, i) => `${bold((i + 1).toString())}. ${cursive(g.name)}`)
             .join("\n")
         : cursive(`Нет`)
@@ -53,6 +66,7 @@ export async function createMainProfileMessage(
 
   res.text = entries.join("\n");
   res.parse_mode = "HTML";
+  res.shouldContinue = false;
 
   return res;
 }

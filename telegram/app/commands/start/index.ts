@@ -14,11 +14,15 @@ export const startCommand: AppCommand = async (ctx) => {
 
   const isProfileConnected = verifyProfileConnection(usr);
 
+  const waitingMessage = await ctx.reply("Подождите...");
+
   const msg = isProfileConnected
     ? await createMainProfileMessage(usr!)
     : createRequireAuthMessage();
 
-  const menu = !isProfileConnected ? oauth2Menu : profileMenu;
+  const menu = !msg.shouldContinue ? oauth2Menu : profileMenu;
+
+  await waitingMessage.delete();
 
   if (isProfileConnected && "image" in msg && msg.image) {
     const isGif = msg.image.startsWith("a_");

@@ -10,24 +10,32 @@ export class CryptographyService {
   }
 
   encrypt(plainText: string) {
-    const key = CryptoJS.enc.Utf8.parse(Env.EncryptionKey);
-    const encrypted = CryptoJS.AES.encrypt(plainText, key, {
-      mode: CryptoJS.mode.ECB,
-      padding: CryptoJS.pad.Pkcs7,
-    });
+    try {
+      const key = CryptoJS.enc.Utf8.parse(Env.EncryptionKey);
+      const encrypted = CryptoJS.AES.encrypt(plainText, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      });
 
-    return encrypted.toString();
+      return encrypted.toString();
+    } catch {
+      return "";
+    }
   }
 
   decrypt(encryptedText: string) {
-    const key = CryptoJS.enc.Utf8.parse(Env.EncryptionKey);
+    try {
+      const key = CryptoJS.enc.Utf8.parse(Env.EncryptionKey);
 
-    const decryptedBytes = CryptoJS.AES.decrypt(encryptedText, key, {
-      mode: CryptoJS.mode.ECB,
-      padding: CryptoJS.pad.Pkcs7,
-    });
+      const decryptedBytes = CryptoJS.AES.decrypt(encryptedText, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      });
 
-    return decryptedBytes.toString(CryptoJS.enc.Utf8);
+      return decryptedBytes.toString(CryptoJS.enc.Utf8);
+    } catch {
+      return "";
+    }
   }
 
   encodeBase64<T>(payload: T): string {

@@ -10,6 +10,7 @@ export function createRequireAuthMessage() {
       `Если вы не успели, пропишите команду ${inlineCode(`start`)} заново`,
     ].join("\n"),
     reply_markup: oauth2Menu,
-    parse_mode: "Markdown"
+    parse_mode: "Markdown",
+    shouldContinue: false,
   };
 }
