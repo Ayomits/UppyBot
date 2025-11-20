@@ -27,9 +27,9 @@ export const Env = {
 
   DiscordToken: configService.get("DISCORD_TOKEN"),
 
-  DiscordClientId: configService.getOrThrow("DISCORD_CLIENT_ID"),
-  DiscordClientSecret: configService.getOrThrow("DISCORD_CLIENT_SECRET"),
-  DiscordRedirectUri: configService.getOrThrow("DISCORD_REDIRECT_URI"),
+  DiscordClientId: configService.get("DISCORD_CLIENT_ID"),
+  DiscordClientSecret: configService.get("DISCORD_CLIENT_SECRET"),
+  DiscordRedirectUri: configService.get("DISCORD_REDIRECT_URI"),
 
   UppyUrl: configService.get("UPPY_URL"),
 
