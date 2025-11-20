@@ -66,7 +66,7 @@ export async function createMainProfileMessage(
 
   res.text = entries.join("\n");
   res.parse_mode = "HTML";
-  res.shouldContinue = false;
+  res.shouldContinue = true;
 
   return res;
 }

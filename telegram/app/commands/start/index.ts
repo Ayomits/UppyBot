@@ -20,7 +20,7 @@ export const startCommand: AppCommand = async (ctx) => {
     ? await createMainProfileMessage(usr!)
     : createRequireAuthMessage();
 
-  const menu = !msg.shouldContinue ? oauth2Menu : profileMenu;
+  const menu = msg.shouldContinue ? profileMenu : oauth2Menu;
 
   await waitingMessage.delete();
 
