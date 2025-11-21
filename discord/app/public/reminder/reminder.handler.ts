@@ -54,14 +54,14 @@ export class ReminderHandler {
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot,
+          message.author.id as MonitoringBot
         )
       ) {
         return;
@@ -75,7 +75,7 @@ export class ReminderHandler {
       }
 
       const settings = await this.settingsRepository.findGuildSettings(
-        guildId!,
+        guildId!
       );
 
       const remind = await this.scheduleManager.remind({
@@ -95,7 +95,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument | null,
+    lastRemind: RemindDocument | null
   ) {
     const existed = await BumpLogModel.model.findOne({ messageId: message.id });
 
@@ -120,10 +120,15 @@ export class ReminderHandler {
 
     const command = getCommandIdByRemindType(type)!;
 
+    const reactionTime = calculateDiffTime(
+      lastRemind?.timestamp ?? new Date(),
+      message.createdAt
+    );
+
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!))
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
@@ -135,13 +140,13 @@ export class ReminderHandler {
                   ? `Поинты: ${bold(`${points} поинтов`)}`
                   : "",
                 `Исполнитель: ${userMention(user!.id)}`,
-                `Время реакции: ${calculateDiffTime(message.createdAt, lastRemind?.timestamp ?? new Date())}`,
+                `Время реакции: ${reactionTime}`,
               ]
                 .filter(Boolean)
                 .join("\n"),
-            ].join("\n"),
-          ),
-        ),
+            ].join("\n")
+          )
+        )
     );
 
     if (settings.webhooks?.url) {
@@ -154,7 +159,7 @@ export class ReminderHandler {
           points,
           type,
           userId: user!.id,
-        }),
+        })
       );
     }
 
@@ -174,10 +179,7 @@ export class ReminderHandler {
         user!,
         type as MonitoringType,
         points,
-        calculateDiffTime(
-          message.createdAt,
-          lastRemind?.timestamp ?? new Date(),
-        ),
+        reactionTime
       ),
       createBump({
         guildId: guild!.id,
@@ -214,7 +216,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: SettingsDocument,
+    settings: SettingsDocument
   ) {
     if (!settings.bumpBan.enabled) {
       return;
@@ -230,7 +232,7 @@ export class ReminderHandler {
           $inc: {
             removeIn: 1,
           },
-        },
+        }
       ),
       this.bumpBanService.addBumpBan({
         member,
