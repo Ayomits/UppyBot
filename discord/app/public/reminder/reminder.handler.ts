@@ -84,6 +84,7 @@ export class ReminderHandler {
         payload.guild!.id,
         payload.type
       );
+
       await this.scheduleManager.remind({
         settings: settings!,
         ...payload,
@@ -127,7 +128,7 @@ export class ReminderHandler {
     const command = getCommandIdByRemindType(type)!;
 
     const reactionTime = calculateDiffTime(
-      lastRemind?.timestamp ?? new Date(),
+      new Date(lastRemind!.timestamp!),
       message.createdAt
     );
 
