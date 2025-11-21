@@ -20,6 +20,7 @@ import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js"
 import { BumpLogModel } from "#/shared/db/models/uppy-discord/bump-log.model.js";
 import type { RemindDocument } from "#/shared/db/models/uppy-discord/remind.model.js";
 import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
+import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { createBump } from "#/shared/db/utils/create-bump.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
@@ -54,7 +55,8 @@ export class ReminderHandler {
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
+    @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
   public async handleCommand(message: Message) {
@@ -78,13 +80,17 @@ export class ReminderHandler {
         guildId!
       );
 
-      const remind = await this.scheduleManager.remind({
+      const lastRemind = await this.remindRepository.findRemind(
+        payload.guild!.id,
+        payload.type
+      );
+      await this.scheduleManager.remind({
         settings: settings!,
         ...payload,
       });
 
       if (process.env.APP_ENV == "dev" || payload.success) {
-        return this.handleSuccess(message, payload, settings!, remind!);
+        return this.handleSuccess(message, payload, settings!, lastRemind!);
       }
     } catch (err) {
       logger.error(err);
