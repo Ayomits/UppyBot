@@ -21,7 +21,7 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
     const ids = selectedGuilds.map((g) => g);
     const hasGuild = (id: string) => ids.includes(id);
 
-    const guilds = await getUserGuilds(user);
+    const guilds = await getUserGuilds(ctx.from!.id);
 
     for (const chunk of chunkArray(guilds.guilds, 2)) {
       for (const guild of chunk) {
