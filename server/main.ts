@@ -21,6 +21,11 @@ const __dirname = dirname(__filename);
 async function start() {
   const app = Fastify({
     querystringParser: (str) => qs.parse(str),
+    logger: {
+      transport: {
+        target: "@subnoto/fastify-logger",
+      },
+    },
   });
 
   app.register(fastifyView, {
