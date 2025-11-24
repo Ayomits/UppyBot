@@ -1,43 +1,4 @@
 services:
-  uppy-discord:
-    container_name: uppy-discord
-    network_mode: host
-    build:
-      args:
-        - APP_ENV=dev
-      dockerfile: ./docker/images/discord/Dockerfile
-    volumes:
-      - ./:/app
-    ports:
-      - "0.0.0.0:9001:9001"
-    restart: always
-  
-  uppy-server:
-    container_name: uppy-server
-    network_mode: host
-    build:
-      args:
-       - APP_ENV=dev
-      dockerfile: ./docker/images/server/Dockerfile
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./:/app
-    restart: always
-
-  uppy-telegram:
-    container_name: uppy-telegram
-    network_mode: host
-    build:
-      args:
-       - APP_ENV=dev
-      dockerfile: ./docker/images/telegram/Dockerfile
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./:/app
-    restart: always
-    
 
   uppy-redis:
     container_name: uppy-redis
