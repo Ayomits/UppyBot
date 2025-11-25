@@ -263,7 +263,7 @@ export class BumpBanService {
         this.cryptography.decrypt(options.settings.webhooks.token!),
         this.webhookManager.createBumpBanPayload(
           guild.id,
-          WebhookNotificationType.BumpBanRemoval,
+          WebhookNotificationType.BumpBanCreation,
           {
             userId: options.member.id,
             executedAt: new Date(),
