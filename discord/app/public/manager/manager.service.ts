@@ -154,18 +154,20 @@ export class ManagerService {
 
     let text: string = "";
 
+    const errorMsg = "У бота недостаточно прав для редактирования канала";
+
     if (type_ === ManagerPanelAction.channelClose) {
       text = "Канал закрыт";
       await channel.permissionOverwrites
         .edit(interaction.guild!.roles.everyone, { SendMessages: false })
-        .catch(() => (text = "У бота недостаточно прав для редактирования"));
+        .catch(() => (text = errorMsg));
     }
 
     if (type_ === ManagerPanelAction.channelOpen) {
       text = "Канал открыт";
       await channel.permissionOverwrites
         .edit(interaction.guild!.roles.everyone, { SendMessages: true })
-        .catch(() => (text = "У бота недостаточно прав для редактирования"));
+        .catch(() => (text = errorMsg));
     }
 
     await interaction.editReply({ content: text });
@@ -175,6 +177,28 @@ export class ManagerService {
     interaction: ButtonInteraction,
     type: string
   ) {
+    const settings = await this.settingsRepository.findGuildSettings(
+      interaction.guildId!
+    );
+
+    if (!settings.bumpBan.enabled || !settings.bumpBan.roleId) {
+      return interaction.reply({
+        content: "Система бамп бан не настроена на сервере",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    const role = await interaction.guild?.roles
+      .fetch(settings.bumpBan.roleId)
+      .catch(() => null);
+
+    if (!role) {
+      return interaction.reply({
+        content: "Роль бамп бан недействительна",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
     const modal = new ModalBuilder()
       .setTitle("Бамп бан")
       .setCustomId(`${ManagerPanelIds.modal}_${type}`)
