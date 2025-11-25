@@ -44,17 +44,10 @@ export class LeaderboardService extends BaseUppyService {
       });
     }
 
-    const hasStaffRolesIds = interaction.guild?.members.cache
-      .filter((m) =>
-        m.roles.cache.some((r) => settings?.roles.staffRoles?.includes(r.id))
-      )
-      .map((m) => m.id);
-
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
     const filter = {
       guildId: interaction.guild!.id,
-      userId: { $in: hasStaffRolesIds },
       timestamp: {
         $lte: toDate,
         $gte: fromDate,
