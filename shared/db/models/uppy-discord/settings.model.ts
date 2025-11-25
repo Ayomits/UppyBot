@@ -1,8 +1,4 @@
-import {
-  buildSchema,
-  type DocumentType,
-  prop,
-} from "@typegoose/typegoose";
+import { buildSchema, type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import { mainMongoConnection } from "../../mongo.js";
@@ -29,11 +25,13 @@ export class Settings extends TimeStamps {
     default: {
       pingChannelId: null,
       actionLogChannelId: null,
+      bumpChannelId: null,
     },
   })
   channels: {
     pingChannelId: string | null;
     actionLogChannelId: string | null;
+    bumpChannelId: string | null;
   };
 
   @prop({ default: { enabled: true } })
@@ -129,7 +127,7 @@ export const SettingsModel = createLazyModel(
       customName: SettingsCollectionName,
     },
     existingConnection: mainMongoConnection!,
-  },
+  }
 );
 
 export type SettingsDocument = DocumentType<Settings>;

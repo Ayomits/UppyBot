@@ -19,7 +19,7 @@ import { UppyBotPingService } from "./interactions/bot-ping.service.js";
 export class UppyCoreController {
   constructor(
     @inject(UppyBotPingService) private pingService: UppyBotPingService,
-    @inject(BotInviteService) private inviteService: BotInviteService,
+    @inject(BotInviteService) private inviteService: BotInviteService
   ) {}
 
   @On({ event: Events.ClientReady })
@@ -32,11 +32,6 @@ export class UppyCoreController {
 
   @Slash({ name: "ping", description: "Задержка бота" })
   handlePing(interaction: ChatInputCommandInteraction) {
-    return this.pingService.handleLatencyCommand(interaction);
-  }
-
-  @Slash({ name: "latency", description: "Задержка бота" })
-  handleLatency(interaction: ChatInputCommandInteraction) {
     return this.pingService.handleLatencyCommand(interaction);
   }
 
