@@ -17,7 +17,6 @@ import {
 import { inject, singleton } from "tsyringe";
 
 import { GuildOnly } from "#/discord/guards/is-guild-only.js";
-import { IsHelper } from "#/discord/guards/is-staff.guard.js";
 
 import { RemainingService } from "./interactions/remaining.service.js";
 import { StatsAutocompleteService } from "./interactions/stats-autocomplete.service.js";
@@ -39,7 +38,7 @@ export class UppyController {
     private uppyTopService: LeaderboardService,
     @inject(RemainingService)
     private uppyRemainingService: RemainingService,
-    @inject(StatsInfoService) private uppyInfoService: StatsInfoService,
+    @inject(StatsInfoService) private uppyInfoService: StatsInfoService
   ) {}
 
   @Slash({
@@ -47,7 +46,7 @@ export class UppyController {
     description: "Время до команд",
     dmPermission: false,
   })
-  @Guard(IsHelper, IsGuildUser(GuildOnly))
+  @Guard(IsGuildUser(GuildOnly))
   remaining(interaction: ChatInputCommandInteraction) {
     return this.uppyRemainingService.handleRemainingCommand(interaction);
   }
@@ -57,7 +56,7 @@ export class UppyController {
     description: "Статистика сотрудника",
   })
   @SlashGroup("stats")
-  @Guard(IsHelper, IsGuildUser(GuildOnly))
+  @Guard(IsGuildUser(GuildOnly))
   uppyInfoSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
@@ -71,7 +70,7 @@ export class UppyController {
       name: "from",
       description: "От какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService,
+        StatsAutocompleteService
       ),
       required: false,
     })
@@ -81,12 +80,12 @@ export class UppyController {
       name: "to",
       description: "До какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService,
+        StatsAutocompleteService
       ),
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.uppyInfoService.handleInfoCommand(interaction, user, from, to);
   }
@@ -96,14 +95,14 @@ export class UppyController {
     description: "Таблица лидеров",
   })
   @SlashGroup("stats")
-  @Guard(IsHelper, IsGuildUser(GuildOnly))
+  @Guard(IsGuildUser(GuildOnly))
   uppyTopSlash(
     @SlashOption({
       type: ApplicationCommandOptionType.String,
       name: "from",
       description: "От какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService,
+        StatsAutocompleteService
       ),
       required: false,
     })
@@ -113,12 +112,12 @@ export class UppyController {
       name: "to",
       description: "До какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService,
+        StatsAutocompleteService
       ),
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.uppyTopService.handleTopCommand(interaction, from, to);
   }
@@ -127,11 +126,11 @@ export class UppyController {
     name: "Статистика пользователя",
     type: ApplicationCommandType.User,
   })
-  @Guard(IsHelper, IsGuildUser(GuildOnly))
+  @Guard(IsGuildUser(GuildOnly))
   uppyInfoContext(interaction: UserContextMenuCommandInteraction) {
     return this.uppyInfoService.handleInfoCommand(
       interaction,
-      interaction.targetUser,
+      interaction.targetUser
     );
   }
 
@@ -140,7 +139,7 @@ export class UppyController {
     description: "История команд",
   })
   @SlashGroup("stats")
-  @Guard(IsHelper, IsGuildUser(GuildOnly))
+  @Guard(IsGuildUser(GuildOnly))
   uppyHistory(
     @SlashOption({
       type: ApplicationCommandOptionType.User,
@@ -149,7 +148,7 @@ export class UppyController {
       required: false,
     })
     user: User,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction
   ) {
     return this.uppyStatsService.handleStatsCommand(interaction, user);
   }

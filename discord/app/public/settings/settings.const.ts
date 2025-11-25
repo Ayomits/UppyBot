@@ -118,7 +118,7 @@ const createNumberInput = (id: string, label: string, value?: number) =>
 // Конфигурации разделов
 export const SettingsRolesPipeline = {
   pingRoles: baseConfigs.multiRole("roles.pingRoles", "Роли для упоминаний"),
-  staffRoles: baseConfigs.multiRole("roles.staffRoles", "Роли для сотрудников"),
+  // staffRoles: baseConfigs.multiRole("roles.staffRoles", "Роли для сотрудников"),
   managerRoles: baseConfigs.multiRole(
     "roles.managerRoles",
     "Роли с расширенными правами",
