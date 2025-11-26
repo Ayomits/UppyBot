@@ -10,7 +10,7 @@ on:
       - models/**
       - queue/**
       - repositories/**
-      - .github/workflows/deploy_telegram.yml
+      - .github/workflows/deploy_discord.yml
       - docker/**
       - migrate.ts
 
