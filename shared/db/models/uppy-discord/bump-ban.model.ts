@@ -1,7 +1,4 @@
-import {
-  type DocumentType,
-  prop,
-} from "@typegoose/typegoose";
+import { type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import { BumpBanLimit } from "#/discord/app/public/reminder/reminder.const.js";
@@ -20,17 +17,19 @@ export class BumpBan extends TimeStamps {
   userId: string;
 
   @prop({ required: true, default: 0, min: 0, max: BumpBanLimit })
-  removeIn: number;
+  counter: number;
 }
+
+export const BumpBanCollectionName = "bump_bans";
 
 export const BumpBanModel = createLazyModel(
   () => mainMongoConnection,
   BumpBan,
   {
     options: {
-      customName: "bump_bans",
+      customName: BumpBanCollectionName,
     },
-  },
+  }
 );
 
 export type BumpBanDocument = DocumentType<typeof BumpBanModel>;

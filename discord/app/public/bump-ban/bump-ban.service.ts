@@ -170,7 +170,7 @@ export class BumpBanService {
       return;
     }
 
-    const canRemoveBumpBan = (bumpBan?.removeIn ?? 0) >= BumpBanLimit;
+    const canRemoveBumpBan = (bumpBan?.counter ?? 0) >= BumpBanLimit;
     const hasRole = member.roles.cache.has(role.id);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
@@ -222,7 +222,7 @@ export class BumpBanService {
     };
   }
 
-  async addBumpBan(options: ActionOptions & { removeIn?: number }) {
+  async addBumpBan(options: ActionOptions & { counter?: number }) {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
@@ -275,9 +275,7 @@ export class BumpBanService {
     await Promise.all([
       BumpBanModel.model.findOneAndUpdate(
         filter,
-        {
-          removeIn: options.removeIn ?? BumpBanLimit,
-        },
+        {},
         { upsert: true, setDefaultsOnInsert: true }
       ),
       options.member.roles.add(role).catch(() => null),

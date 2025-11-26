@@ -230,8 +230,8 @@ export class StatsInfoService extends BaseUppyService {
     // Бамп бан
 
     const bumpBanCount =
-      bumpBan && bumpBan.removeIn < BumpBanLimit
-        ? BumpBanLimit - bumpBan.removeIn
+      bumpBan && bumpBan.counter < BumpBanLimit
+        ? BumpBanLimit - bumpBan.counter
         : 0;
     const bumpBanText =
       bumpBanCount === 0

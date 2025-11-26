@@ -278,7 +278,7 @@ export class ManagerService {
         await this.bumpBanService.addBumpBan({
           member: member,
           type: MonitoringType.ServerMonitoring,
-          removeIn: BumpBanLimit - count,
+          counter: BumpBanLimit - count,
         });
         break;
       }
