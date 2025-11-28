@@ -33,19 +33,23 @@ export async function fetchDiscordOauth2User(
   access_token: string,
   refresh_token: string
 ) {
-  return await useCachedQuery(`discord-profile`, 60_000, async () => {
-    const user = await fetchWithRefreshToken(
-      async (token) =>
-        await discordApi.get<APIUser>(`/api/users/@me`, {
-          headers: {
-            Authorization: `Bearer ${token ?? access_token}`,
-          },
-        }),
-      refresh_token
-    );
+  return await useCachedQuery(
+    `discord-profile-${access_token}`,
+    60_000,
+    async () => {
+      const user = await fetchWithRefreshToken(
+        async (token) =>
+          await discordApi.get<APIUser>(`/api/users/@me`, {
+            headers: {
+              Authorization: `Bearer ${token ?? access_token}`,
+            },
+          }),
+        refresh_token
+      );
 
-    return user;
-  });
+      return user;
+    }
+  );
 }
 
 export async function fetchDiscordOauth2Guilds(
