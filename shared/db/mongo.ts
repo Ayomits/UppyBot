@@ -12,6 +12,7 @@ export const MongoDbNames = {
 
 export let mainMongoConnection: mongoose.Connection | null = null;
 export let notificationMongoConnection: mongoose.Connection | null = null;
+export let coreMongoConnection: mongoose.Connection | null = null;
 
 export async function createMongoDbConnection(
   options?: mongoose.ConnectOptions,
@@ -44,6 +45,16 @@ export async function createNotificationsMongoConnection(): Promise<mongoose.Con
   logger.success(`Connected to notifications mongo db`);
 
   return notificationMongoConnection;
+}
+
+export async function createCoreMongoConnection(): Promise<mongoose.Connection> {
+  coreMongoConnection = await createMongoDbConnection({
+    dbName: MongoDbNames.Notifications,
+  });
+
+  logger.success(`Connected to core mongo db`);
+
+  return coreMongoConnection;
 }
 
 export async function useCachedQuery<T>(

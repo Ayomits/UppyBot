@@ -6,17 +6,24 @@ import {
   type TextChannel,
   time,
   TimestampStyles,
+  userMention,
 } from "discord.js";
 import type { Client } from "discordx";
 import { DateTime } from "luxon";
 import { inject, injectable } from "tsyringe";
 
+import {
+  baseCommonRemindTemplate,
+  baseForceRemindTemplate,
+  resolveTemplateMention,
+} from "#/discord/libs/templates/index.js";
 import { webhookRoute } from "#/queue/routes/webhooks/index.js";
 import type { Remind } from "#/shared/db/models/uppy-discord/remind.model.js";
 import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { resolveTimestamp } from "#/shared/libs/embed/timestamp.js";
 import { logger } from "#/shared/libs/logger/logger.js";
 import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 import { WebhookManager } from "#/shared/webhooks/webhook.manager.js";
@@ -227,23 +234,47 @@ export class ReminderScheduleManager {
   }
 
   private async sendCommonRemind(remind: Remind, guild: Guild) {
-    console.log("remind sended");
     await this.sendRemindWithWebhook(
       remind,
       guild,
       (settings, commandName, commandId) =>
-        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, пора использовать команду ${chatInputApplicationCommandMention(commandName, commandId)}!`,
+        resolveTemplateMention(
+          settings.templates?.common ?? baseCommonRemindTemplate,
+          {
+            roles: settings.roles.pingRoles?.map(roleMention) ?? [],
+            command: chatInputApplicationCommandMention(commandName, commandId),
+            monitoring: userMention(getBotByRemindType(remind.type)!),
+            time: time(
+              resolveTimestamp(remind.timestamp),
+              TimestampStyles.ShortDateTime
+            ),
+          }
+        ),
       "common"
     );
   }
 
   private async sendForceRemind(remind: Remind, guild: Guild) {
-    console.log("remind sended");
     await this.sendRemindWithWebhook(
       remind,
       guild,
       (settings, commandName, commandId) =>
-        `${settings.roles.pingRoles?.map(roleMention).join(" ")}, команда ${chatInputApplicationCommandMention(commandName, commandId)} будет доступа ${time(Math.floor((Date.now() + settings.force!.seconds * 1_000) / 1_000), TimestampStyles.RelativeTime)}`,
+        resolveTemplateMention(
+          settings.templates?.force ?? baseForceRemindTemplate,
+          {
+            roles: settings.roles.pingRoles?.map(roleMention) ?? [],
+            command: chatInputApplicationCommandMention(commandName, commandId),
+            monitoring: userMention(getBotByRemindType(remind.type)!),
+            time: time(
+              resolveTimestamp(
+                DateTime.fromJSDate(remind.timestamp)
+                  .minus(settings.force!.seconds)
+                  .toJSDate()
+              ),
+              TimestampStyles.RelativeTime
+            ),
+          }
+        ),
       "force"
     );
   }

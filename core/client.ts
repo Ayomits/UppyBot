@@ -1,11 +1,3 @@
-import { GatewayIntentBits } from "discord.js";
-import { Client } from "discordx";
+import { createAppBoilerplate } from "#/shared/app/create-app.js";
 
-export const coreClient = new Client({
-  intents: [
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-  ],
-});
+export const coreClient = createAppBoilerplate();

@@ -13,7 +13,6 @@ import {
 import { inject, injectable } from "tsyringe";
 
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
-import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { randomArrValue } from "#/shared/libs/random/index.js";
@@ -33,36 +32,6 @@ export class NotificationsService {
     @inject(CryptographyService) private cryptography: CryptographyService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
-
-  async handleNotificationSetup(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-    const url = `${Env.UppyUrl}/uppy/notifications`;
-
-    const token = this.cryptography.encrypt(interaction.id);
-    const isSended = await this.webhookManager.sendNotification(
-      url,
-      token,
-      this.webhookManager.createTestNotificationPayload(interaction.guildId!)
-    );
-
-    if (!isSended) {
-      return interaction.editReply({
-        content: "Произошла внутренняя ошибка, уведомления были не подключены",
-      });
-    }
-
-    await this.settingsRepository.update(interaction.guildId!, {
-      webhooks: {
-        url,
-        token: this.cryptography.encrypt(token),
-      },
-    });
-
-    return interaction.editReply({
-      content: ["Уведомления успешно подключены!"].join("\n"),
-    });
-  }
 
   async handleNotificationTest(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -90,10 +59,6 @@ export class NotificationsService {
 
   private createTestNotificationSelectMenu(): StringSelectMenuBuilder {
     const options = [
-      {
-        label: "Команда выполнена успешно",
-        value: WebhookNotificationType.CommandSuccess,
-      },
       {
         label: "Бамп бан выдан",
         value: WebhookNotificationType.BumpBanCreation,

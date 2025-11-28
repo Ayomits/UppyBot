@@ -85,7 +85,7 @@ export class StatsInfoService extends BaseUppyService {
         settings?.roles.managerRoles.includes(r.id)
     );
     const canRemove =
-      bumpBan && (bumpBan?.removeIn ?? 0) < BumpBanLimit && canManage;
+      bumpBan && (bumpBan?.counter ?? 0) < BumpBanLimit && canManage;
 
     const removeBumpBan = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()

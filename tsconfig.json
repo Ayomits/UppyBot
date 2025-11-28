@@ -8,7 +8,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -29,6 +29,6 @@
     "dist",
     "vitest.config.ts",
     "**/**/*.spec.ts",
-    "**/**/*.test.ts"
+    "**/**/*.test.ts",
   ]
 }

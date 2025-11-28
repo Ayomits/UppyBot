@@ -1,4 +1,3 @@
-import { LocalCache } from "@ts-fetcher/cache";
 import {
   chatInputApplicationCommandMention,
   ContainerBuilder,
@@ -7,8 +6,6 @@ import {
   HeadingLevel,
   MessageFlags,
   SectionBuilder,
-  type Snowflake,
-  type TextChannel,
   TextDisplayBuilder,
   ThumbnailBuilder,
   unorderedList,
@@ -16,6 +13,7 @@ import {
 } from "discord.js";
 import { inject, singleton } from "tsyringe";
 
+import type { Settings } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
@@ -25,36 +23,25 @@ import {
   getCommandNameByRemindType,
 } from "../reminder/reminder.const.js";
 
-const LOGS_TIMEOUT = 5_000;
-
-type LogValue = {
-  channel: TextChannel;
-  components: ContainerBuilder[];
-};
-
 @singleton()
 export class BumpLogService {
-  private cache: LocalCache<Snowflake, LogValue>;
-
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-  ) {
-    this.cache = new LocalCache();
-  }
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+  ) {}
 
   public async sendCommandExecutionLog(
     guild: Guild,
     author: User,
     type: MonitoringType,
     points: number,
-    reactionTime: string,
+    reactionTime: string
   ) {
     const commandName = getCommandNameByRemindType(type)!;
     const commandId = getCommandIdByRemindType(type)!;
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
-      commandId,
+      commandId
     );
 
     const container = new ContainerBuilder().addSectionComponents(
@@ -69,15 +56,15 @@ export class BumpLogService {
                 `Исполнитель: ${author}`,
                 `Время реакции: ${reactionTime}`,
               ]),
-            ].join("\n"),
-          ),
+            ].join("\n")
+          )
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author)),
-        ),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(author))
+        )
     );
 
-    return await this.push(guild, container);
+    return await this.push(guild, container, "commandChannelId");
   }
 
   public async sendBumpBanCreationLog(guild: Guild, user: User) {
@@ -88,14 +75,14 @@ export class BumpLogService {
             [
               heading("Выдан бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n"),
-          ),
+            ].join("\n")
+          )
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
-        ),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
+        )
     );
-    return await this.push(guild, container);
+    return await this.push(guild, container, "bumpBanChannelId");
   }
 
   public async sendBumpBanRemovalLog(guild: Guild, user: User) {
@@ -106,66 +93,39 @@ export class BumpLogService {
             [
               heading("Снят бамп бан", HeadingLevel.Two),
               unorderedList([`Пользователь: ${user}`]),
-            ].join("\n"),
-          ),
+            ].join("\n")
+          )
         )
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user)),
-        ),
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user))
+        )
     );
-    return await this.push(guild, container);
+    return await this.push(guild, container, "bumpBanChannelId");
   }
 
-  private async push(guild: Guild, embed: ContainerBuilder) {
+  private async push(
+    guild: Guild,
+    embed: ContainerBuilder,
+    type: keyof Settings["channels"]
+  ) {
     const settings = await this.settingsRepository.findGuildSettings(guild.id);
 
     const logChannel = await guild.channels
-      .fetch(settings?.channels.actionLogChannelId ?? "")
+      .fetch(settings?.channels[type] ?? "")
       .catch(null);
 
-    if (!logChannel || !logChannel.isSendable()) {
+    if (!logChannel || !logChannel?.isSendable?.()) {
       return;
     }
 
-    const existed = this.cache.get<LogValue>(settings!.guildId);
-    this.cache.set(
-      settings!.guildId,
-      {
-        channel: logChannel as TextChannel,
-        components: [embed, ...(existed?.components ?? [])],
-      },
-      LOGS_TIMEOUT,
-      (_, value) => {
-        try {
-          const batch: ContainerBuilder[][] = [];
-          const maxComponentsSize = 5;
-          if (value.components.length > maxComponentsSize) {
-            const iterations = value.components.length % maxComponentsSize;
-            for (let n = 0; n < iterations; n++) {
-              const start = (n - 1) * maxComponentsSize;
-              const end = n * maxComponentsSize;
-              batch.push(value.components.slice(start, end));
-            }
-          } else {
-            batch.push(value.components);
-          }
-
-          batch.forEach((components) => {
-            setTimeout(() => {
-              value.channel
-                .send({
-                  components,
-                  flags: MessageFlags.IsComponentsV2,
-                  allowedMentions: {
-                    parse: [],
-                  },
-                })
-                .catch(null);
-            }, 500);
-          });
-          // eslint-disable-next-line no-empty
-        } catch {}
-      },
-    );
+    await logChannel
+      .send({
+        components: [embed],
+        flags: MessageFlags.IsComponentsV2,
+        allowedMentions: {
+          parse: [],
+        },
+      })
+      .catch(null);
   }
 }

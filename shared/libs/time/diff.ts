@@ -16,32 +16,32 @@ export function calculateDiffTime(curr: Date, diff: Date) {
   function format() {
     const toFormat: string[] = [];
 
-    if (years > 0) {
-      toFormat.push(`${Math.floor(years)} лет`);
+    if (Math.abs(years) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(years))} лет`);
     }
 
-    if (months > 0) {
-      toFormat.push(`${Math.floor(months)} месяцев`);
+    if (Math.abs(months) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(months))} месяцев`);
     }
 
-    if (weeks > 0) {
-      toFormat.push(`${Math.floor(weeks)} недель`);
+    if (Math.abs(weeks) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(weeks))} недель`);
     }
 
-    if (days > 0) {
-      toFormat.push(`${Math.floor(days)} дней`);
+    if (Math.abs(days) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(days))} дней`);
     }
 
-    if (hours > 0) {
-      toFormat.push(`${Math.floor(hours)} часов`);
+    if (Math.abs(hours) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(hours))} часов`);
     }
 
-    if (minutes > 0) {
-      toFormat.push(`${Math.floor(minutes)} минут`);
+    if (Math.abs(minutes) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(minutes))} минут`);
     }
 
-    if (seconds > 0) {
-      toFormat.push(`${Math.floor(seconds)} секунд`);
+    if (Math.abs(seconds) > 0) {
+      toFormat.push(`${Math.floor(Math.abs(seconds))} секунд`);
     }
 
     if (toFormat.length === 0) {

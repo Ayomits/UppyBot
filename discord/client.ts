@@ -1,19 +1,4 @@
-import { GatewayIntentBits } from "discord.js";
-import { Client } from "discordx";
+import { createAppBoilerplate } from "#/shared/app/create-app.js";
 
-import { Env } from "../shared/libs/config/index.js";
-import { logger } from "../shared/libs/logger/logger.js";
 
-export const discordClient = new Client({
-  intents: [
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-  ],
-  silent: Env.AppEnv !== "dev",
-  logger,
-  simpleCommand: {
-    prefix: "!",
-  },
-});
+export const discordClient = createAppBoilerplate();

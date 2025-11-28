@@ -32,7 +32,6 @@ import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
 import { BumpLogService } from "../logging/log.service.js";
 import {
-  DefaultTimezone,
   getCommandIdByRemindType,
   getCommandNameByCommandId,
   MonitoringBot,
@@ -110,7 +109,7 @@ export class ReminderHandler {
       return;
     }
 
-    const GMTNow = DateTime.now().setZone(DefaultTimezone);
+    const GMTNow = DateTime.now();
     const nowHours = GMTNow.hour;
     const guild = message.guild;
     const user = message.interactionMetadata?.user;
@@ -128,8 +127,8 @@ export class ReminderHandler {
     const command = getCommandIdByRemindType(type)!;
 
     const reactionTime = calculateDiffTime(
-      new Date(lastRemind!.timestamp!),
-      message.createdAt
+      message.createdAt,
+      new Date(lastRemind!.timestamp!)
     );
 
     const container = new ContainerBuilder().addSectionComponents(
@@ -237,7 +236,7 @@ export class ReminderHandler {
         },
         {
           $inc: {
-            removeIn: 1,
+            counter: 1,
           },
         }
       ),

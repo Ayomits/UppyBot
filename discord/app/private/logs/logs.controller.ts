@@ -22,7 +22,7 @@ export class PrivateLogController {
         return;
       }
 
-      if (channel.isSendable()) {
+      if (channel.isSendable?.()) {
         const embed = new EmbedBuilder()
           .setTitle("Новый сервер")
           .setThumbnail(guild.iconURL())
@@ -66,7 +66,7 @@ export class PrivateLogController {
         return;
       }
 
-      if (channel.isSendable()) {
+      if (channel.isSendable?.()) {
         const embed = new EmbedBuilder()
           .setTitle("Бот удалён с сервера")
           .setThumbnail(guild.iconURL())

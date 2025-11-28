@@ -18,6 +18,9 @@ export class BumpBan extends TimeStamps {
 
   @prop({ required: true, default: 0, min: 0, max: BumpBanLimit })
   counter: number;
+
+  @prop({ default: null })
+  givenRoleId: string | null;
 }
 
 export const BumpBanCollectionName = "bump_bans";

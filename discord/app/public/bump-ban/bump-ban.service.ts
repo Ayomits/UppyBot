@@ -66,7 +66,7 @@ export class BumpBanService {
       BumpBanModel.model.find({
         guildId: guild.id,
         type,
-        removeIn: { $gte: BumpBanLimit },
+        counter: { $gte: BumpBanLimit },
       }),
       await this.settingsRepository.findGuildSettings(guild.id),
     ]);

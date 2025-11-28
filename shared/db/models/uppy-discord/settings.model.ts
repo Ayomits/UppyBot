@@ -1,6 +1,11 @@
 import { buildSchema, type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
+import {
+  baseCommonRemindTemplate,
+  baseForceRemindTemplate,
+} from "#/discord/libs/templates/index.js";
+
 import { mainMongoConnection } from "../../mongo.js";
 import { createLazyModel } from "../../utils/create-lazy-model.js";
 
@@ -24,13 +29,17 @@ export class Settings extends TimeStamps {
   @prop({
     default: {
       pingChannelId: null,
-      actionLogChannelId: null,
+      bumpBanChannelId: null,
       bumpChannelId: null,
+      commandChannelId: null,
+      remindChannelId: null,
     },
   })
   channels: {
     pingChannelId: string | null;
-    actionLogChannelId: string | null;
+    bumpBanChannelId: string | null;
+    commandChannelId: string | null;
+    remindChannelId: string | null;
     bumpChannelId: string | null;
   };
 
@@ -114,6 +123,28 @@ export class Settings extends TimeStamps {
   webhooks: {
     url: string | null;
     token: string | null;
+  };
+
+  @prop({ default: { avatar: null, banner: null } })
+  theming: {
+    avatar: string | null;
+    banner: string | null;
+  };
+
+  @prop({ default: { enabled: false } })
+  telegram: {
+    enabled: boolean;
+  };
+
+  @prop({
+    default: {
+      common: baseCommonRemindTemplate,
+      force: baseForceRemindTemplate,
+    },
+  })
+  templates: {
+    common: string;
+    force: string;
   };
 }
 

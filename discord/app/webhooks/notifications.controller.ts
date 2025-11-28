@@ -17,11 +17,6 @@ import { NotificationsService } from "./notifications.service.js";
 export class NotificationsController {
   constructor(@inject(NotificationsService) private notificationService: NotificationsService) {}
 
-  @Slash({ name: "setup", description: "Настроить систему уведомления" })
-  handleWebhookSetup(interaction: ChatInputCommandInteraction) {
-    return this.notificationService.handleNotificationSetup(interaction);
-  }
-
   @Slash({ name: "test", description: "Отправить тестовое уведомление" })
   handleNotificationTest(interaction: ChatInputCommandInteraction) {
     return this.notificationService.handleNotificationTest(interaction);

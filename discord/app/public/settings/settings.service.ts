@@ -25,10 +25,13 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
+import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
+import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
+import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 import { getNestedValue } from "#/shared/libs/json/nested.js";
@@ -36,9 +39,13 @@ import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
 import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";
-import type { SettingsConfig } from "./settings.const.js";
-import { getSectionName, SettingsPipelines } from "./settings.const.js";
-import { SettingsIds, SettingsNavigation } from "./settings.const.js";
+import {
+  getSectionName,
+  SettingsNavigation,
+  SettingsPipelines,
+} from "./settings.config.js";
+import { SettingsIds, SettingsStartPipeline } from "./settings.const.js";
+import type { SettingsConfig } from "./settings.types.js";
 
 @injectable()
 export class SettingsService {
@@ -48,14 +55,14 @@ export class SettingsService {
     @inject(BotInviteService) private botInviteService: BotInviteService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(GuildRepository) private guildRepository: GuildRepository,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {}
 
-  // Основная команда настроек
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const reply = await interaction.editReply(
-      await this.buildMessage(interaction, "roles"),
+      await this.buildMessage(interaction, SettingsStartPipeline)
     );
 
     const collector = createSafeCollector(reply);
@@ -65,7 +72,6 @@ export class SettingsService {
         returnFull: true,
       });
 
-      // Обработчики разных типов взаимодействий
       const handlers = {
         [SettingsIds.navigation]: this.handleNav.bind(this),
         [SettingsIds.change]: this.handleSettingChange.bind(this),
@@ -76,7 +82,6 @@ export class SettingsService {
     });
   }
 
-  // Навигация по разделам
   private async handleNav(interaction: StringSelectMenuInteraction) {
     const pipelineName = interaction
       .values[0] as keyof typeof SettingsPipelines;
@@ -98,22 +103,20 @@ export class SettingsService {
       .catch(null);
   }
 
-  // Изменение конкретной настройки
   private async handleSettingChange(interaction: ButtonInteraction) {
     const [pipelineName, settingKey] = CustomIdParser.parseArguments(
       interaction.customId,
-      {},
+      {}
     );
 
     const pipeline = SettingsPipelines[pipelineName].pipeline;
     const config = pipeline[settingKey]! as SettingsConfig;
 
-    // Выбираем обработчик в зависимости от типа настройки
     if (config.toggle) {
       return this.handleToggleSetting(
         interaction,
         config,
-        pipelineName as keyof typeof SettingsPipelines,
+        pipelineName as keyof typeof SettingsPipelines
       );
     }
 
@@ -126,61 +129,54 @@ export class SettingsService {
     }
   }
 
-  // Обновление панели
   private async handleRefresh(interaction: ButtonInteraction) {
     await interaction.deferUpdate();
     const [pipelineName] = CustomIdParser.parseArguments(
       interaction.customId,
-      {},
+      {}
     );
     await interaction.editReply(
       await this.buildMessage(
         interaction,
-        pipelineName as keyof typeof SettingsPipelines,
-      ),
+        pipelineName as keyof typeof SettingsPipelines
+      )
     );
   }
 
-  // Переключение булевых настроек
   private async handleToggleSetting(
     interaction: ButtonInteraction,
     config: SettingsConfig,
-    pipelineName: keyof typeof SettingsPipelines,
+    pipelineName: keyof typeof SettingsPipelines
   ) {
     await interaction.deferUpdate();
 
-    // Получаем текущие настройки
     const currentSettings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
 
-    // Инвертируем значение
     const currentValue = getNestedValue(currentSettings, config.field);
     await this.settingsRepository.update(interaction.guildId!, {
       [config.field]: !currentValue,
     });
 
-    // Обновляем панель
     await interaction.editReply(
-      await this.buildMessage(interaction, pipelineName),
+      await this.buildMessage(interaction, pipelineName)
     );
     await this.postUpdateActions(interaction.guild!);
   }
 
-  // Обработка выбора из селекта (каналы/роли)
   private async handleSelectSetting(
     interaction: ButtonInteraction,
-    config: SettingsConfig,
+    config: SettingsConfig
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const currentSettings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
 
     const currentValue = getNestedValue(currentSettings, config.field);
 
-    // Создаем соответствующий селектор
     let selector: ChannelSelectMenuBuilder | RoleSelectMenuBuilder =
       new ChannelSelectMenuBuilder();
 
@@ -189,12 +185,9 @@ export class SettingsService {
         .setMinValues(0)
         .setMaxValues(1)
         .setDefaultChannels(
-          this.getValidSelectValues(
-            currentValue,
-            interaction.guild!,
-            "channel",
-          ),
-        );
+          this.getValidSelectValues(currentValue, interaction.guild!, "channel")
+        )
+        .setChannelTypes(config.select?.channelTypes ?? []);
     }
 
     if (config.type === "role") {
@@ -203,11 +196,10 @@ export class SettingsService {
         .setMinValues(0)
         .setMaxValues(1)
         .setDefaultRoles(
-          this.getValidSelectValues(currentValue, interaction.guild!, "role"),
+          this.getValidSelectValues(currentValue, interaction.guild!, "role")
         );
     }
 
-    // Мультивыбор если нужно
     if (config.select!.choice === "multi") {
       selector.setMaxValues(25);
     }
@@ -222,7 +214,6 @@ export class SettingsService {
       ],
     });
 
-    // Коллектор для обработки выбора
     const collector = createSafeCollector(reply, {
       filter: (i) => (i.member as GuildMember).permissions.has("Administrator"),
     });
@@ -247,15 +238,14 @@ export class SettingsService {
         });
 
         await this.postUpdateActions(selectInteraction.guild!);
-      },
+      }
     );
   }
 
-  // Фильтруем валидные значения для селекта
   private getValidSelectValues(
     value: string | string[],
     guild: Guild,
-    type: "channel" | "role",
+    type: "channel" | "role"
   ): string[] {
     if (!value) {
       return [];
@@ -268,13 +258,12 @@ export class SettingsService {
       : [cache.has(value) ? value : ""].filter(Boolean);
   }
 
-  // Показ модального окна
   private async handleModalSetting(
     interaction: ButtonInteraction,
-    config: SettingsConfig,
+    config: SettingsConfig
   ) {
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
 
     const modal = new ModalBuilder()
@@ -285,26 +274,31 @@ export class SettingsService {
     return interaction.showModal(modal);
   }
 
-  // Действия после обновления настроек
   private async postUpdateActions(guild: Guild) {
     const guildId = guild.id;
     const settings = await this.settingsRepository.findGuildSettings(guildId);
     const reminds = await RemindModel.model.find({ guildId });
 
-    // Управление напоминаниями в зависимости от настроек
-    if (!settings?.remind.enabled) {
-      return this.scheduleManager.deleteAll(guildId);
+    const isForceDisabled =
+      settings?.force.seconds === 0 || !settings.force.enabled;
+    const isCommonDisabled = !settings?.remind.enabled;
+
+    const isBumpBanDisabled = !settings.bumpBan?.enabled;
+
+    if (isCommonDisabled) {
+      this.scheduleManager.deleteAllCommonRemind(guildId);
     }
 
-    if (settings?.force.useForceOnly) {
-      return this.scheduleManager.deleteAllCommonRemind(guildId);
+    if (isForceDisabled) {
+      this.scheduleManager.deleteAllForceRemind(guildId);
     }
 
-    if (settings?.force.seconds === 0 || !settings.force.enabled) {
-      return this.scheduleManager.deleteAllForceRemind(guildId);
+    if (isBumpBanDisabled) {
+      this.postUpdateBumpBan(guild);
     }
 
-    // Пересоздаем напоминания
+    this.postUpdateTelegramNotifications(guild, !!settings.telegram?.enabled);
+
     for (const remind of reminds) {
       this.scheduleManager.remind({
         guild,
@@ -315,10 +309,37 @@ export class SettingsService {
     }
   }
 
-  // Построение основного сообщения с настройками
+  private async postUpdateTelegramNotifications(
+    guild: Guild,
+    enabled: boolean = false
+  ) {
+    await this.settingsRepository.update(guild.id, {
+      webhooks: {
+        url: !enabled ? null : webhookEndpoint,
+        token: !enabled
+          ? null
+          : this.cryptography.encrypt(this.cryptography.encrypt(guild.id)),
+      },
+    });
+  }
+
+  private async postUpdateBumpBan(guild: Guild) {
+    const bumpBanned = await BumpBanModel.model.find({ guildId: guild.id });
+
+    for (const banned of bumpBanned) {
+      const member = await guild.members.fetch(banned.userId).catch(() => null);
+
+      if (!member) {
+        return;
+      }
+
+      await member.roles.remove(banned.givenRoleId).catch(() => null);
+    }
+  }
+
   private async buildMessage(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines,
+    pipelineName: keyof typeof SettingsPipelines
   ): Promise<InteractionEditReplyOptions> {
     const [header, settingsPanel, navPanel] = [
       this.buildHeader(interaction),
@@ -336,13 +357,12 @@ export class SettingsService {
     };
   }
 
-  // Шапка панели настроек
   private buildHeader(interaction: Interaction): ContainerBuilder {
     const container = new ContainerBuilder()
       .addSectionComponents((section) =>
         section
           .setThumbnailAccessory((thumb) =>
-            thumb.setURL(UsersUtility.getAvatar(interaction.client.user)),
+            thumb.setURL(UsersUtility.getAvatar(interaction.client.user))
           )
           .addTextDisplayComponents((text) =>
             text.setContent(
@@ -350,16 +370,15 @@ export class SettingsService {
                 heading("Настройки Uppy"),
                 "",
                 "В этой панели вы сможете удобно настроить uppy",
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addActionRowComponents(this.botInviteService.buildResourcesLinks());
 
     return container;
   }
 
-  // Панель навигации
   private buildNavPanel(pipelineName: string): ContainerBuilder {
     const container = new ContainerBuilder().addActionRowComponents(
       (row) =>
@@ -367,35 +386,33 @@ export class SettingsService {
           new StringSelectMenuBuilder()
             .setCustomId(SettingsIds.navigation)
             .setPlaceholder("Выберите раздел")
-            .setOptions(SettingsNavigation),
+            .setOptions(SettingsNavigation)
         ),
       (row) =>
         row.addComponents(
           new ButtonBuilder()
             .setLabel("Обновить")
             .setStyle(ButtonStyle.Secondary)
-            .setCustomId(`${SettingsIds.refresh}_${pipelineName}`),
-        ),
+            .setCustomId(`${SettingsIds.refresh}_${pipelineName}`)
+        )
     );
 
     return container;
   }
 
-  // Панель с настройками текущего раздела
   private async buildSettingsPanel(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines,
+    pipelineName: keyof typeof SettingsPipelines
   ): Promise<ContainerBuilder> {
     const pipelineConfig = SettingsPipelines[pipelineName]!;
     const container = new ContainerBuilder().addTextDisplayComponents((text) =>
-      text.setContent(heading(getSectionName(pipelineName), HeadingLevel.Two)),
+      text.setContent(heading(getSectionName(pipelineName), HeadingLevel.Two))
     );
 
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
 
-    // Добавляем каждую настройку раздела
     for (const key in pipelineConfig.pipeline) {
       const config = pipelineConfig.pipeline[key]!;
       container.addSectionComponents((section) =>
@@ -404,7 +421,7 @@ export class SettingsService {
             button
               .setLabel("Изменить")
               .setStyle(ButtonStyle.Primary)
-              .setCustomId(`${SettingsIds.change}_${pipelineName}_${key}`),
+              .setCustomId(`${SettingsIds.change}_${pipelineName}_${key}`)
           )
           .addTextDisplayComponents((text) =>
             text.setContent(
@@ -413,20 +430,19 @@ export class SettingsService {
                 config.display
                   ? config.display(settings!)
                   : this.formatValue(settings!, config.field, config.type),
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       );
     }
 
     return container;
   }
 
-  // Форматирование значений для отображения
   private formatValue(
     settings: SettingsDocument,
     field: string,
-    type: SettingsConfig["type"],
+    type: SettingsConfig["type"]
   ) {
     if (!settings) {
       return "Нет";
@@ -448,15 +464,13 @@ export class SettingsService {
     }
   }
 
-  // Выбор функции для упоминания
   private getMentionFn(type: SettingsConfig["type"]) {
     return type === "channel" ? channelMention : roleMention;
   }
 
-  // Форматирование упоминаний
   private formatMentions(
     value: string[] | string | null | undefined,
-    type: SettingsConfig["type"],
+    type: SettingsConfig["type"]
   ): string {
     if (!value || value?.length === 0) {
       return "Нет";

@@ -16,9 +16,11 @@
     "dev:ds": "nodemon --config nodemon.discord.json",
     "dev:sr": "nodemon --config nodemon.server.json",
     "dev:tg": "nodemon --config nodemon.telegram.json",
+    "dev:core": "nodemon --config nodemon.core.json",
     "start:ds": "node dist/discord/main.js",
     "start:sr": "node dist/server/main.js",
     "start:tg": "node dist/telegram/main.js",
+    "start:core": "node dist/core/main.js",
     "test:ci": "vitest --no-watch"
   },
   "imports": {

@@ -1,22 +1,15 @@
 import {
   type ChatInputCommandInteraction,
   Events,
-  type ModalSubmitInteraction,
 } from "discord.js";
 import {
   Discord,
-  Guard,
-  ModalComponent,
   On,
   Slash,
   SlashGroup,
 } from "discordx";
 import { inject, singleton } from "tsyringe";
 
-import { PremiumOnly } from "#/discord/guards/premium-only.guard.js";
-
-import { BrandingChangeUrlModal } from "./branding/branding.const.js";
-import { BrandingService } from "./branding/branding.service.js";
 import { PremiumInfoService } from "./info/info.service.js";
 import { PremiumSubscribeCommandService } from "./subscribe/subscribe.service.js";
 import { PremiumSubscriptionManager } from "./subscription-manager/subscription.service.js";
@@ -27,7 +20,6 @@ import { PremiumSubscriptionManager } from "./subscription-manager/subscription.
 @SlashGroup("premium")
 export class PremiumController {
   constructor(
-    @inject(BrandingService) private brandingService: BrandingService,
     @inject(PremiumSubscribeCommandService)
     private premiumSubscribeCommandService: PremiumSubscribeCommandService,
     @inject(PremiumInfoService) private premiumInfoService: PremiumInfoService,
@@ -38,23 +30,6 @@ export class PremiumController {
   @On({ event: Events.ClientReady })
   handleReady() {
     return this.subscriptionService.init();
-  }
-
-  @Slash({
-    name: "branding",
-    description: "Настройка брендинга в боте",
-    defaultMemberPermissions: ["Administrator"],
-    dmPermission: false,
-  })
-  @Guard(PremiumOnly)
-  handleBranding(interaction: ChatInputCommandInteraction) {
-    return this.brandingService.handleBrandingCommand(interaction);
-  }
-
-  @ModalComponent({ id: new RegExp(`${BrandingChangeUrlModal}_(.+)$`) })
-  @Guard(PremiumOnly)
-  handleBrandingChangeUrl(interaction: ModalSubmitInteraction) {
-    return this.brandingService.handleChangeUrl(interaction);
   }
 
   @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
