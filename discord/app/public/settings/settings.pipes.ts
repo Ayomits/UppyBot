@@ -179,6 +179,8 @@ export const SettingsTemplatePipeline = createPipeline({
   common: createConfig({
     label: "Шаблон для обычных напоминаний",
     field: "templates.common",
+    display: (settings) =>
+      settings.templates?.common ?? baseCommonRemindTemplate,
     modal: {
       customId: `${templateModalId}_common`,
       fields: (settings) => [
@@ -199,6 +201,8 @@ export const SettingsTemplatePipeline = createPipeline({
   force: createConfig({
     label: "Шаблон для преждевременных напоминаний",
     field: "templates.force",
+    display: (settings) =>
+      settings.templates?.force ?? baseForceRemindTemplate,
     modal: {
       customId: `${templateModalId}_force`,
       fields: (settings) => [

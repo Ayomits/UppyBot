@@ -1,5 +1,7 @@
 import { buildSchema, type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
+import type { ColorResolvable} from "discord.js";
+import { Colors } from "discord.js";
 
 import {
   baseCommonRemindTemplate,
@@ -125,10 +127,11 @@ export class Settings extends TimeStamps {
     token: string | null;
   };
 
-  @prop({ default: { avatar: null, banner: null } })
+  @prop({ default: { avatar: null, banner: null, color: Colors.Default } })
   theming: {
     avatar: string | null;
     banner: string | null;
+    color: ColorResolvable | null;
   };
 
   @prop({ default: { enabled: false } })
