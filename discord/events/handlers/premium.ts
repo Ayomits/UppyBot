@@ -27,20 +27,14 @@ export class AppPremiumEventHandler extends AppEventHandler {
   async handlePremiumCreated(opts: AppPremiumCreated) {
     this.devLog("dev.premiumLogs", {
       components: [
-        new ContainerBuilder().addSectionComponents((b) => {
-          if (opts.guildAvatar) {
-            b.setThumbnailAccessory((b) => b.setURL(opts.guildAvatar));
-          }
-          b.addTextDisplayComponents((b) =>
-            b.setContent(
-              [
-                heading("Премиума подписка начислена", HeadingLevel.Two),
-                `Серверу ${opts.guildName} начислена подписка до: ${time(resolveTimestamp(opts.until), TimestampStyles.LongDateTime)}`,
-              ].join("\n")
-            )
-          );
-          return b;
-        }),
+        new ContainerBuilder().addTextDisplayComponents((b) =>
+          b.setContent(
+            [
+              heading("Премиума подписка начислена", HeadingLevel.Two),
+              `Серверу ${opts.guildName} начислена подписка до: ${time(resolveTimestamp(opts.until), TimestampStyles.LongDateTime)}`,
+            ].join("\n")
+          )
+        ),
       ],
     });
   }

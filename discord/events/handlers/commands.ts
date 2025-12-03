@@ -57,23 +57,18 @@ export class AppCommandEventHandler extends AppEventHandler {
 
     await this.sendChannelMessage(options.settings.channels.commandChannelId, {
       components: [
-        new ContainerBuilder().addSectionComponents((b) => {
-          if (options.avatarUrl) {
-            b.setThumbnailAccessory((b) => b.setURL(options.avatarUrl!));
-          }
-          return b.addTextDisplayComponents((b) => {
-            return b.setContent(
-              [
-                heading(`Выполнена команда ${commandName}`, HeadingLevel.Two),
-                unorderedList([
-                  `Команда: ${commandMention}`,
-                  `Поинты: ${options.points}`,
-                  `Исполнитель: ${userMention(options.userId)}`,
-                  `Время реакции: ${options.reactionTime}`,
-                ]),
-              ].join("\n")
-            );
-          });
+        new ContainerBuilder().addTextDisplayComponents((b) => {
+          return b.setContent(
+            [
+              heading(`Выполнена команда ${commandName}`, HeadingLevel.Two),
+              unorderedList([
+                `Команда: ${commandMention}`,
+                `Поинты: ${options.points}`,
+                `Исполнитель: ${userMention(options.userId)}`,
+                `Время реакции: ${options.reactionTime}`,
+              ]),
+            ].join("\n")
+          );
         }),
       ],
       flags: MessageFlags.IsComponentsV2,
