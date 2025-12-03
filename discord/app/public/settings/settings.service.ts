@@ -27,6 +27,7 @@ import { inject, injectable } from "tsyringe";
 
 import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
 import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
+import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
 import { RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
@@ -222,14 +223,12 @@ export class SettingsService {
       "collect",
       async (selectInteraction: StringSelectMenuInteraction) => {
         await selectInteraction.deferUpdate();
-        const selectedValues = selectInteraction.values;
+        const values = selectInteraction.values;
+        const selectedValue =
+          config.select?.choice === "single" ? values[0] : values;
 
-        // Обновляем настройки
         await this.settingsRepository.update(interaction.guildId!, {
-          [config.field]:
-            selectedValues.length === 0 && config.select?.choice === "single"
-              ? null
-              : selectedValues,
+          [config.field]: selectedValue ?? null,
         });
 
         await selectInteraction.editReply({
@@ -286,11 +285,11 @@ export class SettingsService {
     const isBumpBanDisabled = !settings.bumpBan?.enabled;
 
     if (isCommonDisabled) {
-      this.scheduleManager.deleteAllCommonRemind(guildId);
+      this.scheduleManager.deleteAllReminds(guildId, "common");
     }
 
     if (isForceDisabled) {
-      this.scheduleManager.deleteAllForceRemind(guildId);
+      this.scheduleManager.deleteAllReminds(guildId, "force");
     }
 
     if (isBumpBanDisabled) {
@@ -344,7 +343,7 @@ export class SettingsService {
     const [header, settingsPanel, navPanel] = [
       this.buildHeader(interaction),
       await this.buildSettingsPanel(interaction, pipelineName),
-      this.buildNavPanel(pipelineName),
+      await this.buildNavPanel(pipelineName, interaction.guildId!),
     ];
 
     return {
@@ -379,14 +378,25 @@ export class SettingsService {
     return container;
   }
 
-  private buildNavPanel(pipelineName: string): ContainerBuilder {
+  private async buildNavPanel(
+    pipelineName: string,
+    guildId: string
+  ): Promise<ContainerBuilder> {
+    const guild = await this.guildRepository.findGuild(guildId);
     const container = new ContainerBuilder().addActionRowComponents(
       (row) =>
         row.addComponents(
           new StringSelectMenuBuilder()
             .setCustomId(SettingsIds.navigation)
             .setPlaceholder("Выберите раздел")
-            .setOptions(SettingsNavigation)
+            .setOptions(
+              SettingsNavigation.filter((opt) => {
+                if (opt.public) {
+                  return true;
+                }
+                return guild.type >= GuildType.Developer;
+              })
+            )
         ),
       (row) =>
         row.addComponents(

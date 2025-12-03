@@ -16,6 +16,7 @@ import {
 import { DateTime } from "luxon";
 import { inject, singleton } from "tsyringe";
 
+import { appEventEmitter } from "#/discord/events/emitter.js";
 import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { BumpLogModel } from "#/shared/db/models/uppy-discord/bump-log.model.js";
 import type { RemindDocument } from "#/shared/db/models/uppy-discord/remind.model.js";
@@ -23,14 +24,11 @@ import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.
 import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { createBump } from "#/shared/db/utils/create-bump.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 import { logger } from "#/shared/libs/logger/index.js";
 import { calculateDiffTime } from "#/shared/libs/time/diff.js";
 
-import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
 import { BumpBanService } from "../bump-ban/bump-ban.service.js";
-import { BumpLogService } from "../logging/log.service.js";
 import {
   getCommandIdByRemindType,
   getCommandNameByCommandId,
@@ -50,11 +48,8 @@ export class ReminderHandler {
     @inject(ReminderParser) private commandParser: ReminderParser,
     @inject(ReminderScheduleManager)
     private scheduleManager: ReminderScheduleManager,
-    @inject(BumpLogService) private logService: BumpLogService,
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService,
     @inject(RemindRepository) private remindRepository: RemindRepository
   ) {}
 
@@ -155,20 +150,17 @@ export class ReminderHandler {
         )
     );
 
-    if (settings.webhooks?.url) {
-      this.webhookManager.pushConsumer(
-        settings.webhooks?.url,
-        this.cryptography.decrypt(settings.webhooks.token!),
-        this.webhookManager.createCommandExecutedPayload(guild!.id, {
-          channelId: message.channelId,
-          executedAt: new Date(),
-          points,
-          type,
-          userId: user!.id,
-        })
-      );
-    }
-
+    appEventEmitter.emit("command:executed", {
+      guildId: guild!.id,
+      settings,
+      channelId: message.channelId,
+      avatarUrl: UsersUtility.getAvatar(user!),
+      type,
+      userId: user!.id,
+      points,
+      reactionTime,
+    });
+    
     await Promise.allSettled([
       message
         .reply({
@@ -180,13 +172,6 @@ export class ReminderHandler {
           },
         })
         .catch(null),
-      this.logService.sendCommandExecutionLog(
-        guild!,
-        user!,
-        type as MonitoringType,
-        points,
-        reactionTime
-      ),
       createBump({
         guildId: guild!.id,
         executorId: user!.id,

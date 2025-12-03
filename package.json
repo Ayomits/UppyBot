@@ -7,6 +7,8 @@
   "scripts": {
     "format:fix": "prettier --write \"./**/*.ts\"",
     "format:check": "prettier --check \"./**/*.ts\"",
+    "code:lines": "cloc --include-lang=\"TypeScript\"  --exclude-dir=node_modules,dist .",
+    "code:arch": "tree -I \"node_modules|dist\"",
     "lint:check": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "migrate:create": "pnpm migrate create",

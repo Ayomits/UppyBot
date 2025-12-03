@@ -11,7 +11,7 @@ import { redisClient } from "../../redis.js";
 
 @injectable()
 export class BumpUserRepository {
-  private ttl = 600_000;
+  private ttl = 600;
 
   static create() {
     return new BumpUserRepository();

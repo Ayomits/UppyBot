@@ -201,8 +201,7 @@ export const SettingsTemplatePipeline = createPipeline({
   force: createConfig({
     label: "Шаблон для преждевременных напоминаний",
     field: "templates.force",
-    display: (settings) =>
-      settings.templates?.force ?? baseForceRemindTemplate,
+    display: (settings) => settings.templates?.force ?? baseForceRemindTemplate,
     modal: {
       customId: `${templateModalId}_force`,
       fields: (settings) => [
@@ -220,4 +219,28 @@ export const SettingsTemplatePipeline = createPipeline({
     },
     type: "value",
   }),
+});
+
+export const SettingsDevLogPipeline = createPipeline({
+  premiumLogs: createConfig(
+    baseConfigs.singleChannel(
+      "dev.premiumLogs",
+      "Логгирование премиума",
+      GuildType.Developer
+    )
+  ),
+  inviteLogs: createConfig(
+    baseConfigs.singleChannel(
+      "dev.inviteLogs",
+      "Логгирование инвайтов",
+      GuildType.Developer
+    )
+  ),
+  remindLogs: createConfig(
+    baseConfigs.singleChannel(
+      "dev.remindLogs",
+      "Логи напоминаний (чужих)",
+      GuildType.Developer
+    )
+  ),
 });

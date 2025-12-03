@@ -2,15 +2,13 @@ import type { Guild, GuildMember, Role } from "discord.js";
 import type { Client } from "discordx";
 import { inject, injectable } from "tsyringe";
 
+import { appEventEmitter } from "#/discord/events/emitter.js";
 import type { BumpBan } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
+import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 
-import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
-import { WebhookNotificationType } from "../../../../shared/webhooks/webhook.types.js";
-import { BumpLogService } from "../logging/log.service.js";
 import { BumpBanLimit, MonitoringType } from "../reminder/reminder.const.js";
 
 type ActionOptions = {
@@ -27,10 +25,7 @@ type ActionOptions = {
 @injectable()
 export class BumpBanService {
   constructor(
-    @inject(BumpLogService) private logService: BumpLogService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
   async handleBumpBanInit(client: Client) {
@@ -257,21 +252,6 @@ export class BumpBanService {
       return false;
     }
 
-    if (options.settings?.webhooks?.url) {
-      this.webhookManager.pushConsumer(
-        options.settings.webhooks?.url,
-        this.cryptography.decrypt(options.settings.webhooks.token!),
-        this.webhookManager.createBumpBanPayload(
-          guild.id,
-          WebhookNotificationType.BumpBanCreation,
-          {
-            userId: options.member.id,
-            executedAt: new Date(),
-          }
-        )
-      );
-    }
-
     await Promise.all([
       BumpBanModel.model.findOneAndUpdate(
         filter,
@@ -279,7 +259,13 @@ export class BumpBanService {
         { upsert: true, setDefaultsOnInsert: true }
       ),
       options.member.roles.add(role).catch(() => null),
-      this.logService.sendBumpBanCreationLog(guild, options.member.user),
+      appEventEmitter.emit("bump-ban:created", {
+        guildId: guild.id,
+        settings: options.settings!,
+        type: options.type!,
+        userId: options.member.user.id!,
+        avatarUrl: UsersUtility.getAvatar(options.member.user),
+      }),
     ]);
 
     return true;
@@ -321,25 +307,16 @@ export class BumpBanService {
       return false;
     }
 
-    if (options.settings?.webhooks?.url) {
-      this.webhookManager.pushConsumer(
-        options.settings.webhooks?.url,
-        this.cryptography.decrypt(options.settings.webhooks.token!),
-        this.webhookManager.createBumpBanPayload(
-          guild.id,
-          WebhookNotificationType.BumpBanRemoval,
-          {
-            userId: options.member.id,
-            executedAt: new Date(),
-          }
-        )
-      );
-    }
-
     await Promise.all([
       options.member.roles.remove(role),
       BumpBanModel.model.deleteOne(filter),
-      this.logService.sendBumpBanRemovalLog(guild, options.member.user),
+      appEventEmitter.emit("bump-ban:created", {
+        guildId: guild.id,
+        settings: options.settings!,
+        type: options.type!,
+        userId: options.member.user.id!,
+        avatarUrl: UsersUtility.getAvatar(options.member.user),
+      }),
     ]);
     return true;
   }

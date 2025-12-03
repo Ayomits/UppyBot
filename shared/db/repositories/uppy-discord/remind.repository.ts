@@ -7,7 +7,7 @@ import { useCachedQuery, useCachedUpdate } from "../../mongo.js";
 
 @injectable()
 export class RemindRepository {
-  private ttl: number = 600_000;
+  private ttl: number = 600;
   static create() {
     return new RemindRepository();
   }

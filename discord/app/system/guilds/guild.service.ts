@@ -23,7 +23,7 @@ import { BotInviteService } from "../../public/bot/interactions/bot-invite.servi
 export class GuildService {
   constructor(
     @inject(BotInviteService) private botInviteService: BotInviteService,
-    @inject(GuildRepository) private guildRepository: GuildRepository,
+    @inject(GuildRepository) private guildRepository: GuildRepository
   ) {}
 
   async handleGuildSync(client: Client) {
@@ -32,11 +32,17 @@ export class GuildService {
       return;
     }
 
-    const input = guilds.map((g) => ({ name: g.name, id: g.id }));
+    const input = guilds.map((g) => ({
+      name: g.name,
+      id: g.id,
+      avatar: g.iconURL(),
+    }));
     this.syncGuilds(input);
   }
 
-  private async syncGuilds(input: { name: string; id: string }[]) {
+  private async syncGuilds(
+    input: { name: string; id: string; avatar: string | null }[]
+  ) {
     const ids = input.map((g) => g.id);
 
     const existingGuilds = await this.guildRepository.findMany({
@@ -56,6 +62,7 @@ export class GuildService {
               $set: {
                 guildName: guild.name,
                 isActive: true,
+                guildAvatar: guild.avatar,
               },
             },
           },
@@ -66,6 +73,7 @@ export class GuildService {
             document: {
               guildId: guild.id,
               guildName: guild.name,
+              guildAvatar: guild.avatar,
               isActive: true,
               type: GuildType.Common,
               createdAt: new Date(),
@@ -107,6 +115,7 @@ export class GuildService {
   async handleGuildUpdate(guild: DjsGuild) {
     await this.guildRepository.update(guild.id, {
       guildName: guild.name,
+      guildAvatar: guild.iconURL(),
       isActive: true,
     });
   }
@@ -118,7 +127,7 @@ export class GuildService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(guild.client.user)),
+            builder.setURL(UsersUtility.getAvatar(guild.client.user))
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
@@ -126,9 +135,9 @@ export class GuildService {
                 heading("Спасибо, что добавили", HeadingLevel.One),
                 "",
                 "Мы уверены, что этот бот поможет стать вашему серверу лучше !",
-              ].join("\n"),
-            ),
-          ),
+              ].join("\n")
+            )
+          )
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.botInviteService.buildResourcesLinks());

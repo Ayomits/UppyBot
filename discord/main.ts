@@ -11,6 +11,7 @@ import { registerDiscordConsumers } from "../queue/routes/index.js";
 import { Env } from "../shared/libs/config/index.js";
 import { logger } from "../shared/libs/logger/index.js";
 import { discordClient } from "./client.js";
+import { AppEventSubscriber } from "./events/sub.js";
 
 async function createClient() {
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
@@ -19,6 +20,7 @@ async function createClient() {
 }
 
 async function start() {
+  new AppEventSubscriber();
   await createStoreConnection();
   await createMainMongoConnection();
   await registerDiscordConsumers();
