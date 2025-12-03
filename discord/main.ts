@@ -9,7 +9,7 @@ import { createMainMongoConnection } from "#/shared/db/mongo.js";
 
 import { registerDiscordConsumers } from "../queue/routes/index.js";
 import { Env } from "../shared/libs/config/index.js";
-import { logger } from "../shared/libs/logger/logger.js";
+import { logger } from "../shared/libs/logger/index.js";
 import { discordClient } from "./client.js";
 
 async function createClient() {

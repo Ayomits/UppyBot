@@ -2,7 +2,7 @@ import type { RedisOptions } from "ioredis";
 import { Redis } from "ioredis";
 
 import { Env } from "#/shared/libs/config/index.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 function createRedis() {
   const options: RedisOptions = {

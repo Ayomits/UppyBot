@@ -1,7 +1,7 @@
 import type { Message } from "amqplib";
 
 import { rabbitMq } from "#/shared/db/rabbitmq.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 import { publishMessage } from "./publish-message.js";
 

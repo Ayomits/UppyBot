@@ -1,4 +1,4 @@
-import { logger } from "../libs/logger/logger.js";
+import { logger } from "../libs/logger/index.js";
 import { createRabbitConnection } from "./rabbitmq.js";
 import { createRedisConnection } from "./redis.js";
 

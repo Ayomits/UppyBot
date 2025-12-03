@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 import { createStoreConnection } from "#/shared/db/connections.js";
 import { createNotificationsMongoConnection } from "#/shared/db/mongo.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 import { registerDiscordAuthController } from "./controllers/discord-auth.controller.js";
 import { registerUppyNotificationController } from "./controllers/uppy-notifications.controller.js";
