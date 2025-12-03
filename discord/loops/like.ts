@@ -19,7 +19,7 @@ import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settin
 import { createBump } from "#/shared/db/utils/create-bump.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 import { fetchServer } from "../../shared/api/ds-monitoring/index.js";
 import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";

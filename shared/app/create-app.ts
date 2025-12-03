@@ -3,7 +3,7 @@ import { GatewayIntentBits } from "discord.js";
 import { Client } from "discordx";
 
 import { Env } from "../libs/config/index.js";
-import { logger } from "../libs/logger/logger.js";
+import { logger } from "../libs/logger/index.js";
 
 export function createAppBoilerplate() {
   const client = new Client({

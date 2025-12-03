@@ -1,6 +1,6 @@
 import type { Bot } from "grammy";
 
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 import type { AppContext } from "../utils/ctx.js";
 import { initCommands } from "./commands/index.js";

@@ -3,7 +3,7 @@ import type { AxiosError } from "axios";
 
 import { fetchOauth2UppyUrl } from "#/shared/api/uppy/index.js";
 import { NotificationUserTokenRepository } from "#/shared/db/repositories/uppy-telegram/token.repository.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 import type { AppContext } from "#/telegram/utils/ctx.js";
 
 export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(

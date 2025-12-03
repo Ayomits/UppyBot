@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import { Env } from "#/shared/libs/config/index.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 
 import { redisClient } from "./redis.js";
 

@@ -12,8 +12,8 @@ export default defineConfig({
     },
     alias: [
       {
-        find: "@fear/helper-bot",
-        replacement: path.resolve(__dirname, "./apps/helper/dist/index.js"),
+        find: "#/",
+        replacement: path.resolve(__dirname, "./dist"),
       },
     ],
     coverage: {

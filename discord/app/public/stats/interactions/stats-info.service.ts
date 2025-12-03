@@ -28,7 +28,7 @@ import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settin
 import { drawRoundedImage } from "#/shared/libs/canvas/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
-import { sum } from "#/shared/libs/number/sum.js";
+import { sum } from "#/shared/libs/number/index.js";
 import { formatDate } from "#/shared/libs/time/to-format.js";
 
 import { BumpBanService } from "../../bump-ban/bump-ban.service.js";

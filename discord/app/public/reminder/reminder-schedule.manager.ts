@@ -24,7 +24,7 @@ import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.r
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { resolveTimestamp } from "#/shared/libs/embed/timestamp.js";
-import { logger } from "#/shared/libs/logger/logger.js";
+import { logger } from "#/shared/libs/logger/index.js";
 import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 import { WebhookManager } from "#/shared/webhooks/webhook.manager.js";
 
