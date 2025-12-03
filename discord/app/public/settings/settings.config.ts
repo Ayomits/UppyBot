@@ -2,6 +2,7 @@ import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
 
 import {
   SettingsBumpBanPipeline,
+  SettingsDevLogPipeline,
   SettingsForceRemindsPipeline,
   SettingsLoggingPipeline,
   SettingsPointsPipeline,
@@ -15,46 +16,61 @@ export const SettingsNavigation: {
   label: string;
   value: keyof typeof SettingsPipelines;
   description?: string;
+  public: boolean;
 }[] = [
   {
     label: "Напоминания",
     value: "reminds",
     description: "Настройка напоминаний",
+    public: true,
   },
   {
     label: "Преждевременные напоминания",
     value: "force",
     description: "Настройка преждевременных уведомлений",
+    public: true,
   },
   {
     label: "Бамп баны",
     value: "bumpBan",
     description: "Кд5 система",
+    public: true,
   },
   {
     label: "Логгирование",
     value: "logging",
     description: "Логи для каждого события",
+    public: true,
   },
   {
     label: "Поинты",
     value: "points",
     description: "Система баллов",
-  },
-  {
-    label: "Брендирование",
-    value: "theming",
-    description: "Кастом аватар, баннер и тема",
+    public: true,
   },
   {
     label: "Телеграмм уведомления",
     value: "telegram",
     description: "Включить/Выключить напоминания в телеграмме для сервера",
+    public: true,
+  },
+  {
+    label: "Брендирование",
+    value: "theming",
+    description: "Кастом аватар, баннер и тема",
+    public: true,
   },
   {
     label: "Шаблоны напоминаний",
     value: "templates",
     description: "Кастомные сообщения для напоминаний",
+    public: true,
+  },
+  {
+    label: "Логи дев сервера",
+    value: "devlogs",
+    description: "Логи для сервера разработчиков",
+    public: false,
   },
 ];
 
@@ -69,6 +85,7 @@ export function getSectionName(name: keyof typeof SettingsPipelines) {
     theming: "Настройка брендирования",
     telegram: "Подключить телеграмм уведомления",
     templates: "Шаблоны напоминаний",
+    devlogs: "Логи сервера разработчиков",
   };
 
   return names[name] || "";
@@ -106,5 +123,9 @@ export const SettingsPipelines = {
   templates: {
     pipeline: SettingsTemplatePipeline,
     access: GuildType.Premium,
+  },
+  devlogs: {
+    pipeline: SettingsDevLogPipeline,
+    access: GuildType.Developer,
   },
 } as const;

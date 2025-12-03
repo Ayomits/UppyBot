@@ -13,7 +13,7 @@ import { redisClient } from "../../redis.js";
 
 @injectable()
 export class PremiumRepository {
-  private ttl: number = 600_000;
+  private ttl: number = 600;
 
   static create() {
     return new PremiumRepository();

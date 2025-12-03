@@ -62,8 +62,6 @@ export class WebLikeSyncManager implements Loop {
       new ReminderScheduleManager(
         settingsRepository,
         remindRepository,
-        webhookManager,
-        cryptography
       ),
       settingsRepository,
       BumpLogRepository.create(),

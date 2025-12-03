@@ -8,7 +8,7 @@ import { useCachedQuery, useCachedUpdate } from "../../mongo.js";
 
 @injectable()
 export class SettingsRepository {
-  private ttl = 600_000;
+  private ttl = 600;
   static create() {
     return new SettingsRepository();
   }

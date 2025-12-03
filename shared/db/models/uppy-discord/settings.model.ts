@@ -1,6 +1,6 @@
 import { buildSchema, type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
-import type { ColorResolvable} from "discord.js";
+import type { ColorResolvable } from "discord.js";
 import { Colors } from "discord.js";
 
 import {
@@ -148,6 +148,13 @@ export class Settings extends TimeStamps {
   templates: {
     common: string;
     force: string;
+  };
+
+  @prop({ default: { remindLogs: null, premiumLogs: null, inviteLogs: null } })
+  dev: {
+    remindLogs: string | null;
+    premiumLogs: string | null;
+    inviteLogs: string | null;
   };
 }
 

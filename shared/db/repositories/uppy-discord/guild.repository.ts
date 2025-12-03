@@ -11,7 +11,7 @@ import { redisClient } from "../../redis.js";
 export class GuildRepository {
   constructor() {}
 
-  private ttl: number = 600_000;
+  private ttl: number = 600;
 
   static create() {
     return new GuildRepository();
