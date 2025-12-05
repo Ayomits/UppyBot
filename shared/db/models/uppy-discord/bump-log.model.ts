@@ -53,7 +53,7 @@ export const BumpLogModel = createLazyModel(
     schemaOptions: {
       expireAfterSeconds: Time.month * 2,
     },
-  }
+  },
 );
 
 export type BumpLogDocument = DocumentType<BumpLog>;

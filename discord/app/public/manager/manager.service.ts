@@ -31,7 +31,7 @@ import { ManagerPanelAction, ManagerPanelIds } from "./manager.const.js";
 export class ManagerService {
   constructor(
     @inject(BumpBanService) private bumpBanService: BumpBanService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {}
 
   async handleManagerPanel(interaction: ChatInputCommandInteraction) {
@@ -40,37 +40,37 @@ export class ManagerService {
       .addSectionComponents((builder) =>
         builder
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user))
+            builder.setURL(UsersUtility.getAvatar(interaction.user)),
           )
           .addTextDisplayComponents((builder) =>
             builder.setContent(
               [
                 heading("Добро пожаловать"),
                 "Это ваша личная панель менеджера, где вы сможете совершать действия над участниками",
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents((row) =>
         row.addComponents(
           this.createManagerButton(
             "Выдать бамп бан",
-            ManagerPanelAction.bumpBanCreation
+            ManagerPanelAction.bumpBanCreation,
           ),
           this.createManagerButton(
             "Снять бамп бан",
-            ManagerPanelAction.bumpBanRemoval
+            ManagerPanelAction.bumpBanRemoval,
           ),
           this.createManagerButton(
             "Открыть канал",
-            ManagerPanelAction.channelOpen
+            ManagerPanelAction.channelOpen,
           ),
           this.createManagerButton(
             "Закрыть канал",
-            ManagerPanelAction.channelClose
-          )
-        )
+            ManagerPanelAction.channelClose,
+          ),
+        ),
       );
 
     const reply = await interaction.editReply({
@@ -129,11 +129,11 @@ export class ManagerService {
 
   private async handleChannelAction(
     interaction: ButtonInteraction,
-    type_: string
+    type_: string,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     if (!settings.channels.bumpChannelId) {
@@ -143,7 +143,7 @@ export class ManagerService {
     }
 
     const channel = (await interaction.guild?.channels.fetch(
-      settings.channels.bumpChannelId
+      settings.channels.bumpChannelId,
     )) as GuildChannel;
 
     if (!channel) {
@@ -175,10 +175,10 @@ export class ManagerService {
 
   private async handleBumpBanAction(
     interaction: ButtonInteraction,
-    type: string
+    type: string,
   ) {
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     if (!settings.bumpBan.enabled || !settings.bumpBan.roleId) {
@@ -208,8 +208,8 @@ export class ManagerService {
           .setUserSelectMenuComponent((builder) =>
             builder
               .setCustomId(ManagerPanelIds.usrSelect)
-              .setPlaceholder("Выберите пользователя")
-          )
+              .setPlaceholder("Выберите пользователя"),
+          ),
       );
 
     if (type === ManagerPanelAction.bumpBanCreation) {
@@ -223,8 +223,8 @@ export class ManagerService {
               .setMinLength(1)
               .setMaxLength(1)
               .setRequired(true)
-              .setStyle(TextInputStyle.Short)
-          )
+              .setStyle(TextInputStyle.Short),
+          ),
       );
     }
 
@@ -233,7 +233,7 @@ export class ManagerService {
 
   private async handleBumpBanModal(
     interaction: ModalSubmitInteraction,
-    type_: string
+    type_: string,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -273,7 +273,7 @@ export class ManagerService {
         text = "Бамп бан выдан";
         const count = Math.min(
           BumpBanLimit,
-          Math.max(1, Number(interaction.fields.getTextInputValue("count")))
+          Math.max(1, Number(interaction.fields.getTextInputValue("count"))),
         );
         await this.bumpBanService.addBumpBan({
           member: member,

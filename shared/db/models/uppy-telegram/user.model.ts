@@ -59,5 +59,5 @@ export const NotificationUserModel = createLazyModel(
       customName: "users",
     },
     existingConnection: notificationMongoConnection!,
-  }
+  },
 );

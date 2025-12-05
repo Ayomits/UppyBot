@@ -18,14 +18,14 @@ export async function getDiscordUser(data: number | NotificationUser) {
   const cryptography = CryptographyService.create();
   const discord = await fetchDiscordOauth2User(
     cryptography.decrypt(user.tokens.access_token),
-    cryptography.decrypt(user.tokens.refresh_token)
+    cryptography.decrypt(user.tokens.refresh_token),
   );
 
   if (discord?.tokens) {
     user = await userRepository.updateByTgId(telegramId, {
       "tokens.access_token": cryptography.encrypt(discord.tokens?.access_token),
       "tokens.refresh_token": cryptography.encrypt(
-        discord.tokens?.refresh_token
+        discord.tokens?.refresh_token,
       ),
     });
   }
@@ -57,14 +57,14 @@ export async function getDiscordUserGuilds(data: number | NotificationUser) {
   const cryptography = CryptographyService.create();
   const discord = await fetchDiscordOauth2Guilds(
     cryptography.decrypt(user.tokens.access_token),
-    cryptography.decrypt(user.tokens.refresh_token)
+    cryptography.decrypt(user.tokens.refresh_token),
   );
 
   if (discord?.tokens) {
     user = await userRepository.updateByTgId(telegramId, {
       "tokens.access_token": cryptography.encrypt(discord.tokens.access_token),
       "tokens.refresh_token": cryptography.encrypt(
-        discord.tokens.refresh_token
+        discord.tokens.refresh_token,
       ),
     });
   }

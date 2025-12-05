@@ -3,7 +3,7 @@ import type { LiteralEnum } from "#/shared/libs/djs/types.js";
 export const ManagerPanelIds = {
   modal: "@manager/modal",
   button: "@manager/action",
-  usrSelect: "@manager/usrselect"
+  usrSelect: "@manager/usrselect",
 } as const;
 
 export const ManagerPanelAction = {

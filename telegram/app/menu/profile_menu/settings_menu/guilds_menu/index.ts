@@ -44,7 +44,7 @@ export const guildsMenu = new Menu<AppContext>(guildsMenuId)
               caption: msg.text!,
               parse_mode: msg.parse_mode!,
             });
-          }
+          },
         );
       }
       builder.row();

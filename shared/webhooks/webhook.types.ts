@@ -31,6 +31,7 @@ export type WebhookRemindNotication = {
   guildName: string;
   channelName: string;
   aproximatedNotificationUsers: string[];
+  // type of monitoring
   type: number;
 };
 
@@ -39,4 +40,3 @@ export type WebhookNotification<T> = {
   type: number;
   data: T;
 };
-

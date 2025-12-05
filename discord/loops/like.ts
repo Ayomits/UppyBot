@@ -39,7 +39,7 @@ export class WebLikeSyncManager implements Loop {
     @inject(BumpLogRepository) private bumpLogRepository: BumpLogRepository,
     @inject(WebhookManager) private webhookManager: WebhookManager,
     @inject(CryptographyService)
-    private cryptographyService: CryptographyService
+    private cryptographyService: CryptographyService,
   ) {}
 
   async create() {
@@ -59,14 +59,11 @@ export class WebLikeSyncManager implements Loop {
     const webhookManager = WebhookManager.create();
     const cryptography = CryptographyService.create();
     return new WebLikeSyncManager(
-      new ReminderScheduleManager(
-        settingsRepository,
-        remindRepository,
-      ),
+      new ReminderScheduleManager(settingsRepository, remindRepository),
       settingsRepository,
       BumpLogRepository.create(),
       webhookManager,
-      cryptography
+      cryptography,
     );
   }
 
@@ -102,8 +99,8 @@ export class WebLikeSyncManager implements Loop {
           user.id,
           user.timestamp,
           user.isSite,
-          settings
-        )
+          settings,
+        ),
       ),
       this.ensureRemind(guild!, lastUser.timestamp, settings),
     ]);
@@ -115,7 +112,7 @@ export class WebLikeSyncManager implements Loop {
     executorId: string,
     timestamp: Date,
     isSite: boolean,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     if (!guild) {
       return;
@@ -125,7 +122,7 @@ export class WebLikeSyncManager implements Loop {
       guild?.id,
       executorId,
       timestamp,
-      MonitoringType.DiscordMonitoring
+      MonitoringType.DiscordMonitoring,
     );
 
     if (hasLog) {
@@ -150,7 +147,7 @@ export class WebLikeSyncManager implements Loop {
           points,
           type: MonitoringType.DiscordMonitoring,
           userId: executorId,
-        })
+        }),
       );
     }
 
@@ -180,7 +177,7 @@ export class WebLikeSyncManager implements Loop {
     const container = new ContainerBuilder().addSectionComponents((builder) =>
       builder
         .setThumbnailAccessory((builder) =>
-          builder.setURL(UsersUtility.getAvatar(author))
+          builder.setURL(UsersUtility.getAvatar(author)),
         )
         .addTextDisplayComponents((builder) =>
           builder.setContent(
@@ -191,9 +188,9 @@ export class WebLikeSyncManager implements Loop {
                 `Поинты: ${points}`,
                 `Где выполнена: ${isSite ? "На сайте" : "На сервере"}`,
               ]),
-            ].join("\n")
-          )
-        )
+            ].join("\n"),
+          ),
+        ),
     );
 
     try {
@@ -214,7 +211,7 @@ export class WebLikeSyncManager implements Loop {
   private async ensureRemind(
     guild: Guild,
     timestamp: Date,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     await this.remindScheduleManager.remind({
       guild,

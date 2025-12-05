@@ -24,16 +24,19 @@ import {
 export const SettingsRemindsPipeline = createPipeline({
   enabled: createConfig(baseConfigs.toggle("remind.enabled", "Состояние")),
   pingRoles: createConfig(
-    baseConfigs.multiRole("roles.pingRoles", "Роли для упоминаний")
+    baseConfigs.multiRole("roles.pingRoles", "Роли для упоминаний"),
   ),
   managerRoles: createConfig(
-    baseConfigs.multiRole("roles.managerRoles", "Роли с расширенными правами")
+    baseConfigs.multiRole("roles.managerRoles", "Роли с расширенными правами"),
   ),
   pingChannelId: createConfig(
-    baseConfigs.singleChannel("channels.pingChannelId", "Канал для напоминаний")
+    baseConfigs.singleChannel(
+      "channels.pingChannelId",
+      "Канал для напоминаний",
+    ),
   ),
   bumpChannelId: createConfig(
-    baseConfigs.singleChannel("channels.bumpChannelId", "Канал для команд")
+    baseConfigs.singleChannel("channels.bumpChannelId", "Канал для команд"),
   ),
 });
 
@@ -51,7 +54,7 @@ export const SettingsForceRemindsPipeline = createPipeline({
         new LabelBuilder()
           .setLabel("Секунды")
           .setTextInputComponent(
-            createNumberInput("value", settings.force?.seconds ?? 0)
+            createNumberInput("value", settings.force?.seconds ?? 0),
           ),
       ],
     },
@@ -62,14 +65,14 @@ export const SettingsForceRemindsPipeline = createPipeline({
 export const SettingsPointsPipeline = createPipeline({
   enabled: createConfig(baseConfigs.toggle("points.enabled", "Состояние")),
   dsMonitoring: createConfig(
-    createPointsMonitoringConfig("dsMonitoring", "Ds monitoring")
+    createPointsMonitoringConfig("dsMonitoring", "Ds monitoring"),
   ),
   disboard: createConfig(
-    createPointsMonitoringConfig("disboard", "Disboard monitoring")
+    createPointsMonitoringConfig("disboard", "Disboard monitoring"),
   ),
   sdc: createConfig(createPointsMonitoringConfig("sdc", "Sdc monitoring")),
   server: createConfig(
-    createPointsMonitoringConfig("server", "Server Monitoring")
+    createPointsMonitoringConfig("server", "Server Monitoring"),
   ),
 });
 
@@ -128,7 +131,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("url")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? "")
+            .setValue(settings.theming?.banner ?? ""),
         ),
       ],
       title: "Аватар",
@@ -146,7 +149,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("url")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? "")
+            .setValue(settings.theming?.banner ?? ""),
         ),
       ],
       title: "Баннер",
@@ -164,14 +167,14 @@ export const SettingsLoggingPipeline = createPipeline({
   bumpBanLogs: createConfig(
     baseConfigs.singleChannel(
       "channels.bumpBanChannelId",
-      "Логгирование бамп банов"
-    )
+      "Логгирование бамп банов",
+    ),
   ),
   commandLogs: createConfig(
     baseConfigs.singleChannel(
       "channels.commandChannelId",
-      "Логгирование команд"
-    )
+      "Логгирование команд",
+    ),
   ),
 });
 
@@ -191,7 +194,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.common ?? baseCommonRemindTemplate)
+            .setValue(settings.templates.common ?? baseCommonRemindTemplate),
         ),
       ],
       title: "Шаблон для обычных напоминаний",
@@ -212,7 +215,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.force ?? baseForceRemindTemplate)
+            .setValue(settings.templates.force ?? baseForceRemindTemplate),
         ),
       ],
       title: "Шаблон для преждевременных напоминаний",
@@ -226,21 +229,21 @@ export const SettingsDevLogPipeline = createPipeline({
     baseConfigs.singleChannel(
       "dev.premiumLogs",
       "Логгирование премиума",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
   inviteLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.inviteLogs",
       "Логгирование инвайтов",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
   remindLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.remindLogs",
       "Логи напоминаний (чужих)",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
 });

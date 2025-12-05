@@ -24,6 +24,6 @@ export const IsManager: IsGuardUserCallback = async ({ guild, user }) => {
   }
 
   return member.roles.cache.some((r) =>
-    settings.roles.managerRoles.includes(r.id)
+    settings.roles.managerRoles.includes(r.id),
   );
 };

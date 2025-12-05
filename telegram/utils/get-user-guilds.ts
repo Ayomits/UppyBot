@@ -14,7 +14,7 @@ export async function getUserGuilds(user: NotificationUser | number) {
   const ids = dbGuilds.map((g) => g.guildId);
 
   const guildNames = Object.fromEntries(
-    dbGuilds.map((g) => [g.guildId, g.guildName])
+    dbGuilds.map((g) => [g.guildId, g.guildName]),
   );
 
   if (user && typeof user !== "number") {

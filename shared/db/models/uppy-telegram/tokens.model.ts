@@ -22,5 +22,5 @@ export const NotificationUserTokenModel = createLazyModel(
       customName: "tokens",
     },
     existingConnection: notificationMongoConnection!,
-  }
+  },
 );

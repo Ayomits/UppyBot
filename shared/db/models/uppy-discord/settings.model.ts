@@ -168,7 +168,7 @@ export const SettingsModel = createLazyModel(
       customName: SettingsCollectionName,
     },
     existingConnection: mainMongoConnection!,
-  }
+  },
 );
 
 export type SettingsDocument = DocumentType<Settings>;

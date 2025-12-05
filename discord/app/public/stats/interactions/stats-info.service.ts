@@ -41,7 +41,7 @@ export class StatsInfoService extends BaseUppyService {
   constructor(
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository
+    @inject(BumpUserRepository) private bumpUserRepository: BumpUserRepository,
   ) {
     super();
   }
@@ -52,7 +52,7 @@ export class StatsInfoService extends BaseUppyService {
       | UserContextMenuCommandInteraction,
     user?: User,
     from?: string,
-    to?: string
+    to?: string,
   ) {
     await interaction.deferReply();
     user = typeof user === "undefined" ? interaction.user : user;
@@ -64,7 +64,7 @@ export class StatsInfoService extends BaseUppyService {
         interaction.guildId!,
         user.id,
         fromDate.toJSDate(),
-        toDate.toJSDate()
+        toDate.toJSDate(),
       ),
       BumpBanModel.model.findOne({
         guildId: interaction.guildId,
@@ -82,7 +82,7 @@ export class StatsInfoService extends BaseUppyService {
     const canManage = authorMember.roles.cache.some(
       (r) =>
         settings?.roles.managerRoles &&
-        settings?.roles.managerRoles.includes(r.id)
+        settings?.roles.managerRoles.includes(r.id),
     );
     const canRemove =
       bumpBan && (bumpBan?.counter ?? 0) < BumpBanLimit && canManage;
@@ -92,7 +92,7 @@ export class StatsInfoService extends BaseUppyService {
         .setLabel("Снять бамп бан")
         .setCustomId(StaffCustomIds.info.buttons.actions.removeBumpBan)
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(!canRemove)
+        .setDisabled(!canRemove),
     );
 
     const banner = new AttachmentBuilder(
@@ -100,8 +100,8 @@ export class StatsInfoService extends BaseUppyService {
         user,
         entry[0],
         bumpBan,
-        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`
-      )
+        `${formatDate(fromDate.toJSDate())}-${formatDate(toDate.toJSDate())}`,
+      ),
     ).setName("image.png");
 
     const container = new ContainerBuilder()
@@ -109,8 +109,8 @@ export class StatsInfoService extends BaseUppyService {
         builder.addItems((builder) =>
           builder
             .setDescription("Баннер пользователя")
-            .setURL("attachment://image.png")
-        )
+            .setURL("attachment://image.png"),
+        ),
       )
       .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
       .addActionRowComponents(removeBumpBan);
@@ -141,7 +141,7 @@ export class StatsInfoService extends BaseUppyService {
     user: User,
     entry: Partial<BumpUserDocument> | undefined | null,
     bumpBan: BumpBan | undefined | null,
-    interval: string
+    interval: string,
   ) {
     const canvas = createCanvas(680, 240);
 
@@ -151,12 +151,12 @@ export class StatsInfoService extends BaseUppyService {
 
     const bannerPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/images/user-profile.png`
+      `${root}/assets/images/user-profile.png`,
     );
 
     const fontPath = path.join(
       dirname(import.meta.url),
-      `${root}/assets/fonts/Onest-ExtraBold.ttf`
+      `${root}/assets/fonts/Onest-ExtraBold.ttf`,
     );
 
     GlobalFonts.registerFromPath(fontPath, "onest-extrabold");
@@ -176,7 +176,7 @@ export class StatsInfoService extends BaseUppyService {
       36,
       29.5,
       183,
-      180
+      180,
     );
 
     const baseCoordinates = { x: 294, y: 46.5 };
@@ -192,7 +192,7 @@ export class StatsInfoService extends BaseUppyService {
       getMaxStringLength(UsersUtility.getUsername(user)),
       baseCoordinates.x + 40,
       baseCoordinates.y + 24,
-      105
+      105,
     );
 
     // Нижняя (команды)
@@ -202,12 +202,12 @@ export class StatsInfoService extends BaseUppyService {
           entry?.dsMonitoring ?? 0,
           entry?.sdcMonitoring ?? 0,
           entry?.serverMonitoring ?? 0,
-          entry?.disboardMonitoring ?? 0
-        ).toString()
+          entry?.disboardMonitoring ?? 0,
+        ).toString(),
       ),
       baseCoordinates.x + 40,
       baseCoordinates.y + 24 + 50,
-      105
+      105,
     );
 
     // Правая строка (дата)
@@ -216,7 +216,7 @@ export class StatsInfoService extends BaseUppyService {
       getMaxStringLength(interval),
       baseCoordinates.x + 40 + 174,
       baseCoordinates.y + 24,
-      105
+      105,
     );
 
     // Нижняя (поинты)
@@ -224,7 +224,7 @@ export class StatsInfoService extends BaseUppyService {
       getMaxStringLength((entry?.points ?? 0).toString()),
       baseCoordinates.x + 40 + 174,
       baseCoordinates.y + 24 + 50,
-      105
+      105,
     );
 
     // Бамп бан
@@ -241,7 +241,7 @@ export class StatsInfoService extends BaseUppyService {
     ctx.fillText(
       bumpBanText,
       baseCoordinates.x + 40,
-      baseCoordinates.y + 24 + 106
+      baseCoordinates.y + 24 + 106,
     );
 
     return canvas.toBuffer("image/png");
@@ -249,7 +249,7 @@ export class StatsInfoService extends BaseUppyService {
 
   private async handleBumpBanRemoval(
     interaction: ButtonInteraction,
-    member: GuildMember
+    member: GuildMember,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const [settings, bumpBan] = await Promise.all([
@@ -278,7 +278,7 @@ export class StatsInfoService extends BaseUppyService {
       !authorMember.roles.cache.some(
         (r) =>
           settings?.roles.managerRoles &&
-          settings?.roles.managerRoles.includes(r.id)
+          settings?.roles.managerRoles.includes(r.id),
       )
     ) {
       return interaction.editReply({

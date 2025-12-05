@@ -44,7 +44,7 @@ export class BumpLogRepository {
     guildId: string,
     executorId: string,
     timestamp: Date,
-    type: number
+    type: number,
   ) {
     const [startPeriod, endPeriod] = [
       DateTime.fromJSDate(timestamp)
@@ -70,7 +70,7 @@ export class BumpLogRepository {
     guildId: string,
     executorId: string,
     timestamp: number,
-    type: number
+    type: number,
   ) {
     return `${guildId}-${executorId}-${timestamp}-${type}-log`;
   }

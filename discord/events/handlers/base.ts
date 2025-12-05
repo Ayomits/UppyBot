@@ -12,7 +12,7 @@ export class AppEventHandler {
 
   protected async sendChannelMessage(
     channelId: string,
-    payload: MessageCreateOptions
+    payload: MessageCreateOptions,
   ) {
     const channel = (await discordClient.channels
       .fetch(channelId)

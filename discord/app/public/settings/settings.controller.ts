@@ -23,7 +23,7 @@ import { SettingsModalService } from "./settings-modals.service.js";
 export class SettingsController {
   constructor(
     @inject(SettingsService) private settingsService: SettingsService,
-    @inject(SettingsModalService) private settingsModals: SettingsModalService
+    @inject(SettingsModalService) private settingsModals: SettingsModalService,
   ) {}
 
   @Slash({
