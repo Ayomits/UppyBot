@@ -9,7 +9,7 @@ import type { Model } from "mongoose";
 export function createLazyModel<T>(
   getConnection: () => any,
   modelClass: AnyParamConstructor<T>,
-  options: IModelOptions
+  options: IModelOptions,
 ) {
   let model: any = null;
 

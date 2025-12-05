@@ -50,14 +50,14 @@ export class ReminderHandler {
     private scheduleManager: ReminderScheduleManager,
     @inject(BumpBanService) private bumpBanService: BumpBanService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(RemindRepository) private remindRepository: RemindRepository
+    @inject(RemindRepository) private remindRepository: RemindRepository,
   ) {}
 
   public async handleCommand(message: Message) {
     try {
       if (
         !Object.values(MonitoringBot).includes(
-          message.author.id as MonitoringBot
+          message.author.id as MonitoringBot,
         )
       ) {
         return;
@@ -71,12 +71,12 @@ export class ReminderHandler {
       }
 
       const settings = await this.settingsRepository.findGuildSettings(
-        guildId!
+        guildId!,
       );
 
       const lastRemind = await this.remindRepository.findRemind(
         payload.guild!.id,
-        payload.type
+        payload.type,
       );
 
       await this.scheduleManager.remind({
@@ -96,7 +96,7 @@ export class ReminderHandler {
     message: Message,
     { type }: ParserValue,
     settings: SettingsDocument,
-    lastRemind: RemindDocument | null
+    lastRemind: RemindDocument | null,
   ) {
     const existed = await BumpLogModel.model.findOne({ messageId: message.id });
 
@@ -123,13 +123,13 @@ export class ReminderHandler {
 
     const reactionTime = calculateDiffTime(
       message.createdAt,
-      new Date(lastRemind!.timestamp!)
+      new Date(lastRemind!.timestamp!),
     );
 
     const container = new ContainerBuilder().addSectionComponents(
       new SectionBuilder()
         .setThumbnailAccessory(
-          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!))
+          new ThumbnailBuilder().setURL(UsersUtility.getAvatar(user!)),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
@@ -145,9 +145,9 @@ export class ReminderHandler {
               ]
                 .filter(Boolean)
                 .join("\n"),
-            ].join("\n")
-          )
-        )
+            ].join("\n"),
+          ),
+        ),
     );
 
     appEventEmitter.emit("command:executed", {
@@ -160,7 +160,7 @@ export class ReminderHandler {
       points,
       reactionTime,
     });
-    
+
     await Promise.allSettled([
       message
         .reply({
@@ -207,7 +207,7 @@ export class ReminderHandler {
     member: GuildMember,
     guild: Guild,
     type: MonitoringType,
-    settings: SettingsDocument
+    settings: SettingsDocument,
   ) {
     if (!settings.bumpBan.enabled) {
       return;
@@ -223,7 +223,7 @@ export class ReminderHandler {
           $inc: {
             counter: 1,
           },
-        }
+        },
       ),
       this.bumpBanService.addBumpBan({
         member,

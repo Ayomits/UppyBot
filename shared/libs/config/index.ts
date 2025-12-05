@@ -35,7 +35,7 @@ export const Env = {
 
   MongoUrl: configService.get(
     "MONGO_URL",
-    "mongodb://localhost:27018/?authSource=admin"
+    "mongodb://localhost:27018/?authSource=admin",
   ),
 
   RedisHost: configService.get("REDIS_HOST", "localhost"),

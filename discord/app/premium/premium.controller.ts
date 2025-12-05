@@ -1,13 +1,5 @@
-import {
-  type ChatInputCommandInteraction,
-  Events,
-} from "discord.js";
-import {
-  Discord,
-  On,
-  Slash,
-  SlashGroup,
-} from "discordx";
+import { type ChatInputCommandInteraction, Events } from "discord.js";
+import { Discord, On, Slash, SlashGroup } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { PremiumInfoService } from "./info/info.service.js";

@@ -12,7 +12,7 @@ export type TelegramRemindNotificationsPayload = {
   guildId: string;
   users: string[];
   type: number;
-  monitoring: number
+  monitoring: number;
   original: Omit<WebhookRemindNotication, "aproximatedNotificationUsers">;
 };
 

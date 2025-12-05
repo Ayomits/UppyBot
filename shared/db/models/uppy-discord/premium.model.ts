@@ -21,7 +21,7 @@ export const PremiumModel = createLazyModel(
       customName: "premium_subscriptions",
     },
     existingConnection: mainMongoConnection!,
-  }
+  },
 );
 
 export type PremiumDocument = DocumentType<Premium>;

@@ -15,7 +15,7 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
       (err: AxiosError) => {
         logger.info(err.status);
         return null;
-      }
+      },
     );
 
     const range = new MenuRange<AppContext>();
@@ -25,5 +25,5 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
     }
 
     if (payload.data) return range.url(`Авторизироваться`, payload.data.url);
-  }
+  },
 );

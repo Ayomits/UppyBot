@@ -14,7 +14,7 @@ discordApi.interceptors.response.use(
   (response) => response,
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export async function fetchDiscordOauth2Tokens(params: URLSearchParams) {
@@ -31,7 +31,7 @@ export async function fetchDiscordOauth2Tokens(params: URLSearchParams) {
 
 export async function fetchDiscordOauth2User(
   access_token: string,
-  refresh_token: string
+  refresh_token: string,
 ) {
   return await useCachedQuery(
     `discord-profile-${access_token}`,
@@ -44,17 +44,17 @@ export async function fetchDiscordOauth2User(
               Authorization: `Bearer ${token ?? access_token}`,
             },
           }),
-        refresh_token
+        refresh_token,
       );
 
       return user;
-    }
+    },
   );
 }
 
 export async function fetchDiscordOauth2Guilds(
   access_token: string,
-  refresh_token: string
+  refresh_token: string,
 ) {
   return await useCachedQuery(
     `discord-user-guilds-${access_token}`,
@@ -67,18 +67,18 @@ export async function fetchDiscordOauth2Guilds(
               Authorization: `Bearer ${token ?? access_token}`,
             },
           }),
-        refresh_token
+        refresh_token,
       );
 
       return guilds;
-    }
+    },
   );
 }
 
 export async function fetchWithRefreshToken(
   fn: (access_token?: string) => Promise<AxiosResponse>,
   refresh_token: string,
-  tokens: Awaited<ReturnType<typeof fetchDiscordOauth2Tokens>> | null = null
+  tokens: Awaited<ReturnType<typeof fetchDiscordOauth2Tokens>> | null = null,
 ) {
   try {
     const data = await fn(tokens?.data?.access_token);

@@ -32,7 +32,7 @@ export class UppyNotificationService {
 
     const isValidToken = await this.validateToken(
       data.guildId,
-      req.query?.["token"]
+      req.query?.["token"],
     );
 
     if (!isValidToken) {
@@ -78,7 +78,7 @@ export class UppyNotificationService {
 
   private async validateToken(
     guildId: string,
-    token?: string
+    token?: string,
   ): Promise<boolean> {
     if (!token) return false;
     const settingsRepository = SettingsRepository.create();

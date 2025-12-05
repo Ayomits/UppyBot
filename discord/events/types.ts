@@ -43,6 +43,6 @@ export type AppEvents = {
   readonly "premium:expired": AppEventHandler<AppPremiumExpired>;
   readonly "premium:created": AppEventHandler<AppPremiumCreated>;
 
-  readonly "remind:common": AppEventHandler<AppRemindExecute>
-  readonly "remind:force": AppEventHandler<AppRemindExecute>
+  readonly "remind:common": AppEventHandler<AppRemindExecute>;
+  readonly "remind:force": AppEventHandler<AppRemindExecute>;
 };

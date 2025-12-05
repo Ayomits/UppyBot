@@ -9,7 +9,7 @@ export const webhookRoute = createRoute<WebhookCreatedPayload<any>>({
   queue: QueueMessages.webhooks.send,
   async consumeCallback(msg) {
     const data = JSON.parse(
-      msg.content.toString()
+      msg.content.toString(),
     ) as WebhookCreatedPayload<object>;
 
     const webhookManager = WebhookManager.create();

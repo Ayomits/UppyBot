@@ -71,7 +71,7 @@ export class DiscordAuthService {
       scope: "guilds identify",
       redirect_uri: redirectUri,
       state: cryptography.encodeBase64(
-        JSON.stringify(this.createPayload(chatId, token))
+        JSON.stringify(this.createPayload(chatId, token)),
       ),
     });
 

@@ -19,7 +19,7 @@ export const baseConfigs = {
   multiRole: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common
+    access: GuildType = GuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -31,7 +31,7 @@ export const baseConfigs = {
   singleChannel: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common
+    access: GuildType = GuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -47,7 +47,7 @@ export const baseConfigs = {
   toggle: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common
+    access: GuildType = GuildType.Common,
   ): SettingsConfig => ({
     label,
     field,
@@ -59,7 +59,7 @@ export const baseConfigs = {
 
 export const createPointsMonitoringConfig = (
   service: string,
-  label: string
+  label: string,
 ): SettingsConfig => ({
   label,
   field: `points.${service}`,
@@ -76,12 +76,12 @@ export const createPointsMonitoringConfig = (
       new LabelBuilder()
         .setLabel("Обычно")
         .setTextInputComponent(
-          createNumberInput("default", settings.points?.[service]?.default)
+          createNumberInput("default", settings.points?.[service]?.default),
         ),
       new LabelBuilder()
         .setLabel("Бонус")
         .setTextInputComponent(
-          createNumberInput("bonus", settings.points?.[service]?.bonus)
+          createNumberInput("bonus", settings.points?.[service]?.bonus),
         ),
     ],
   },

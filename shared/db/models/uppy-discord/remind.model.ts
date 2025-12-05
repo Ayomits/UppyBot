@@ -1,7 +1,4 @@
-import {
-  type DocumentType,
-  prop,
-} from "@typegoose/typegoose";
+import { type DocumentType, prop } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 
 import { mainMongoConnection } from "../../mongo.js";

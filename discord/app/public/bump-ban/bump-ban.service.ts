@@ -25,7 +25,7 @@ type ActionOptions = {
 @injectable()
 export class BumpBanService {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {}
 
   async handleBumpBanInit(client: Client) {
@@ -129,7 +129,7 @@ export class BumpBanService {
     member: GuildMember,
     type: number,
     settings?: SettingsDocument | null,
-    bumpBan?: BumpBan | null
+    bumpBan?: BumpBan | null,
   ): Promise<
     | {
         params: ActionOptions["force"];
@@ -193,7 +193,7 @@ export class BumpBanService {
       member: GuildMember;
       role: Role;
       type: number;
-    }
+    },
   ) {
     let hasRole: boolean = options.shouldRoleAction === true;
     let hasBumpBan: boolean = options.shouldDbQuery === false;
@@ -221,7 +221,7 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id
+          options.member.guild.id,
         );
 
     const guild = options.member.guild;
@@ -256,7 +256,7 @@ export class BumpBanService {
       BumpBanModel.model.findOneAndUpdate(
         filter,
         {},
-        { upsert: true, setDefaultsOnInsert: true }
+        { upsert: true, setDefaultsOnInsert: true },
       ),
       options.member.roles.add(role).catch(() => null),
       appEventEmitter.emit("bump-ban:created", {
@@ -275,13 +275,13 @@ export class BumpBanService {
     options.settings = options.settings
       ? options.settings
       : await this.settingsRepository.findGuildSettings(
-          options.member.guild.id
+          options.member.guild.id,
         );
 
     const guild = options.member.guild;
 
     const role = await guild.roles.fetch(
-      options.settings?.bumpBan.roleId ?? ""
+      options.settings?.bumpBan.roleId ?? "",
     );
 
     if (!role) {

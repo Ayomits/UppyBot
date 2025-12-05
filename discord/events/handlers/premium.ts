@@ -32,8 +32,8 @@ export class AppPremiumEventHandler extends AppEventHandler {
             [
               heading("Премиума подписка начислена", HeadingLevel.Two),
               `Серверу ${opts.guildName} начислена подписка до: ${time(resolveTimestamp(opts.until), TimestampStyles.LongDateTime)}`,
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         ),
       ],
     });
@@ -52,8 +52,8 @@ export class AppPremiumEventHandler extends AppEventHandler {
                 heading("Премиума подписка закончилась", HeadingLevel.Two),
                 `У сервера ${bold(opts.guildName)} срок действия подписки был окончен`,
                 `Дата начисления: ${time(resolveTimestamp(opts.created), TimestampStyles.LongDateTime)}`,
-              ].join("\n")
-            )
+              ].join("\n"),
+            ),
           );
           return b;
         }),

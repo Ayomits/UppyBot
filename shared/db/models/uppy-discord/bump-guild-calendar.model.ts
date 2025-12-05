@@ -35,7 +35,7 @@ export const BumpGuildCalendarModel = createLazyModel(
     schemaOptions: {
       expireAfterSeconds: Time.month * 2,
     },
-  }
+  },
 );
 
 export type BumpGuildCalendarDocument = DocumentType<BumpGuildCalendar>;

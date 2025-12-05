@@ -26,12 +26,12 @@ export class BotInviteService {
                 heading("Основные ресурсы бота", HeadingLevel.Two),
                 "",
                 "Ниже вы сможете найти все официальные ресурсы связанные с Uppy",
-              ].join("\n")
-            )
+              ].join("\n"),
+            ),
           )
           .setThumbnailAccessory((builder) =>
-            builder.setURL(UsersUtility.getAvatar(interaction.user))
-          )
+            builder.setURL(UsersUtility.getAvatar(interaction.user)),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents(this.buildResourcesLinks());
@@ -64,7 +64,7 @@ export class BotInviteService {
         new ButtonBuilder()
           .setLabel("Документация")
           .setStyle(ButtonStyle.Link)
-          .setURL(ExternalLinks.DocsUrl)
+          .setURL(ExternalLinks.DocsUrl),
       ),
     ];
   }

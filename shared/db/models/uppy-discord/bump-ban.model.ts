@@ -32,7 +32,7 @@ export const BumpBanModel = createLazyModel(
     options: {
       customName: BumpBanCollectionName,
     },
-  }
+  },
 );
 
 export type BumpBanDocument = DocumentType<typeof BumpBanModel>;

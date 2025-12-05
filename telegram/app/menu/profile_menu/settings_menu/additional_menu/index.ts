@@ -12,7 +12,7 @@ export const additionalMenuId = "additional_menu";
 
 async function toggleSetting(
   ctx: AppContext,
-  field: keyof NotificationUser["settings"]
+  field: keyof NotificationUser["settings"],
 ) {
   const repository = NotificationUserRepository.create();
 
@@ -33,7 +33,7 @@ async function toggleSetting(
 function createAdditionalToggler(
   range: MenuRange<AppContext>,
   existed: NotificationUser,
-  field: keyof NotificationUser["settings"]
+  field: keyof NotificationUser["settings"],
 ) {
   const fieldTexts: Partial<
     Record<keyof NotificationUser["settings"], string>
@@ -44,8 +44,7 @@ function createAdditionalToggler(
   return range.text(
     `${existed?.settings?.[field] ? Emojis.GREEN_CIRCLE : Emojis.RED_CIRCLE} ${fieldTexts[field]}`,
     protectedInteraction,
-    (ctx) =>
-      toggleSetting(ctx, field as keyof NotificationUser["settings"])
+    (ctx) => toggleSetting(ctx, field as keyof NotificationUser["settings"]),
   );
 }
 
@@ -55,7 +54,7 @@ export const additionalMenu = new Menu<AppContext>(additionalMenuId)
 
     const fields: (keyof NotificationUser["settings"])[][] = chunkArray(
       ["allow_force_reminds", "bump_ban"],
-      2
+      2,
     );
 
     const repository = NotificationUserRepository.create();

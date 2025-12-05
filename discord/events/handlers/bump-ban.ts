@@ -21,34 +21,34 @@ import { AppEventHandler } from "./base.js";
 export class AppBumpBanEventHandler extends AppEventHandler {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {
     super();
     appEventEmitter.on("bump-ban:created", (opts) =>
-      this.handleBumpBanLog(opts, "created")
+      this.handleBumpBanLog(opts, "created"),
     );
     appEventEmitter.on("bump-ban:removed", (opts) =>
-      this.handleBumpBanLog(opts, "removed")
+      this.handleBumpBanLog(opts, "removed"),
     );
 
     appEventEmitter.on("bump-ban:created", (opts) =>
-      this.handleBumpBanSendWebhook(opts, "created")
+      this.handleBumpBanSendWebhook(opts, "created"),
     );
     appEventEmitter.on("bump-ban:removed", (opts) =>
-      this.handleBumpBanSendWebhook(opts, "removed")
+      this.handleBumpBanSendWebhook(opts, "removed"),
     );
   }
 
   static create() {
     return new AppBumpBanEventHandler(
       WebhookManager.create(),
-      CryptographyService.create()
+      CryptographyService.create(),
     );
   }
 
   private async handleBumpBanLog(
     options: AppEventOptions,
-    type: "removed" | "created"
+    type: "removed" | "created",
   ) {
     if (options.settings.channels?.bumpBanChannelId) {
       const actionText =
@@ -65,25 +65,25 @@ export class AppBumpBanEventHandler extends AppEventHandler {
                     unorderedList([
                       `Пользователь: ${userMention(options.userId)}`,
                     ]),
-                  ].join("\n")
-                )
+                  ].join("\n"),
+                ),
               )
               .setThumbnailAccessory(
-                new ThumbnailBuilder().setURL(options.avatarUrl!)
+                new ThumbnailBuilder().setURL(options.avatarUrl!),
               ),
           ],
           flags: MessageFlags.IsComponentsV2,
           allowedMentions: {
             users: [],
           },
-        }
+        },
       );
     }
   }
 
   private handleBumpBanSendWebhook(
     options: AppEventOptions,
-    type: "removed" | "created"
+    type: "removed" | "created",
   ) {
     if (options.settings?.webhooks?.url) {
       this.webhookManager.pushConsumer(
@@ -97,8 +97,8 @@ export class AppBumpBanEventHandler extends AppEventHandler {
           {
             userId: options.userId,
             executedAt: new Date(),
-          }
-        )
+          },
+        ),
       );
     }
   }

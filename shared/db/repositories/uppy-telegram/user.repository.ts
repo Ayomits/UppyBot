@@ -16,7 +16,7 @@ export class NotificationUserRepository {
 
   async createUser(
     payload: Partial<NotificationUser> &
-      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">
+      Pick<NotificationUser, "discord_user_id" | "telegram_user_id">,
   ) {
     return await NotificationUserModel.model.findOneAndUpdate(
       {
@@ -30,7 +30,7 @@ export class NotificationUserRepository {
         upsert: true,
         setDefaultsOnInsert: true,
         new: true,
-      }
+      },
     );
   }
 
@@ -48,7 +48,7 @@ export class NotificationUserRepository {
     return await NotificationUserModel.model.findOneAndUpdate(
       { discord_user_id: dsId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true }
+      { upsert: true, setDefaultsOnInsert: true, new: true },
     );
   }
 
@@ -56,12 +56,12 @@ export class NotificationUserRepository {
     return await NotificationUserModel.model.findOneAndUpdate(
       { telegram_user_id: tgId },
       update,
-      { upsert: true, setDefaultsOnInsert: true, new: true }
+      { upsert: true, setDefaultsOnInsert: true, new: true },
     );
   }
 
   getNotificationFieldByMonitoring(
-    type: number
+    type: number,
   ): keyof NotificationUser["notifications"] | undefined {
     switch (type) {
       case MonitoringType.SdcMonitoring:

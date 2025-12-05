@@ -56,14 +56,14 @@ export class SettingsService {
     @inject(BotInviteService) private botInviteService: BotInviteService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(GuildRepository) private guildRepository: GuildRepository,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {}
 
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const reply = await interaction.editReply(
-      await this.buildMessage(interaction, SettingsStartPipeline)
+      await this.buildMessage(interaction, SettingsStartPipeline),
     );
 
     const collector = createSafeCollector(reply);
@@ -107,7 +107,7 @@ export class SettingsService {
   private async handleSettingChange(interaction: ButtonInteraction) {
     const [pipelineName, settingKey] = CustomIdParser.parseArguments(
       interaction.customId,
-      {}
+      {},
     );
 
     const pipeline = SettingsPipelines[pipelineName].pipeline;
@@ -117,7 +117,7 @@ export class SettingsService {
       return this.handleToggleSetting(
         interaction,
         config,
-        pipelineName as keyof typeof SettingsPipelines
+        pipelineName as keyof typeof SettingsPipelines,
       );
     }
 
@@ -134,25 +134,25 @@ export class SettingsService {
     await interaction.deferUpdate();
     const [pipelineName] = CustomIdParser.parseArguments(
       interaction.customId,
-      {}
+      {},
     );
     await interaction.editReply(
       await this.buildMessage(
         interaction,
-        pipelineName as keyof typeof SettingsPipelines
-      )
+        pipelineName as keyof typeof SettingsPipelines,
+      ),
     );
   }
 
   private async handleToggleSetting(
     interaction: ButtonInteraction,
     config: SettingsConfig,
-    pipelineName: keyof typeof SettingsPipelines
+    pipelineName: keyof typeof SettingsPipelines,
   ) {
     await interaction.deferUpdate();
 
     const currentSettings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     const currentValue = getNestedValue(currentSettings, config.field);
@@ -161,19 +161,19 @@ export class SettingsService {
     });
 
     await interaction.editReply(
-      await this.buildMessage(interaction, pipelineName)
+      await this.buildMessage(interaction, pipelineName),
     );
     await this.postUpdateActions(interaction.guild!);
   }
 
   private async handleSelectSetting(
     interaction: ButtonInteraction,
-    config: SettingsConfig
+    config: SettingsConfig,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const currentSettings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     const currentValue = getNestedValue(currentSettings, config.field);
@@ -186,7 +186,11 @@ export class SettingsService {
         .setMinValues(0)
         .setMaxValues(1)
         .setDefaultChannels(
-          this.getValidSelectValues(currentValue, interaction.guild!, "channel")
+          this.getValidSelectValues(
+            currentValue,
+            interaction.guild!,
+            "channel",
+          ),
         )
         .setChannelTypes(config.select?.channelTypes ?? []);
     }
@@ -197,7 +201,7 @@ export class SettingsService {
         .setMinValues(0)
         .setMaxValues(1)
         .setDefaultRoles(
-          this.getValidSelectValues(currentValue, interaction.guild!, "role")
+          this.getValidSelectValues(currentValue, interaction.guild!, "role"),
         );
     }
 
@@ -237,14 +241,14 @@ export class SettingsService {
         });
 
         await this.postUpdateActions(selectInteraction.guild!);
-      }
+      },
     );
   }
 
   private getValidSelectValues(
     value: string | string[],
     guild: Guild,
-    type: "channel" | "role"
+    type: "channel" | "role",
   ): string[] {
     if (!value) {
       return [];
@@ -259,10 +263,10 @@ export class SettingsService {
 
   private async handleModalSetting(
     interaction: ButtonInteraction,
-    config: SettingsConfig
+    config: SettingsConfig,
   ) {
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     const modal = new ModalBuilder()
@@ -310,7 +314,7 @@ export class SettingsService {
 
   private async postUpdateTelegramNotifications(
     guild: Guild,
-    enabled: boolean = false
+    enabled: boolean = false,
   ) {
     await this.settingsRepository.update(guild.id, {
       webhooks: {
@@ -338,7 +342,7 @@ export class SettingsService {
 
   private async buildMessage(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines
+    pipelineName: keyof typeof SettingsPipelines,
   ): Promise<InteractionEditReplyOptions> {
     const [header, settingsPanel, navPanel] = [
       this.buildHeader(interaction),
@@ -361,7 +365,7 @@ export class SettingsService {
       .addSectionComponents((section) =>
         section
           .setThumbnailAccessory((thumb) =>
-            thumb.setURL(UsersUtility.getAvatar(interaction.client.user))
+            thumb.setURL(UsersUtility.getAvatar(interaction.client.user)),
           )
           .addTextDisplayComponents((text) =>
             text.setContent(
@@ -369,9 +373,9 @@ export class SettingsService {
                 heading("Настройки Uppy"),
                 "",
                 "В этой панели вы сможете удобно настроить uppy",
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       )
       .addActionRowComponents(this.botInviteService.buildResourcesLinks());
 
@@ -380,7 +384,7 @@ export class SettingsService {
 
   private async buildNavPanel(
     pipelineName: string,
-    guildId: string
+    guildId: string,
   ): Promise<ContainerBuilder> {
     const guild = await this.guildRepository.findGuild(guildId);
     const container = new ContainerBuilder().addActionRowComponents(
@@ -395,16 +399,16 @@ export class SettingsService {
                   return true;
                 }
                 return guild.type >= GuildType.Developer;
-              })
-            )
+              }),
+            ),
         ),
       (row) =>
         row.addComponents(
           new ButtonBuilder()
             .setLabel("Обновить")
             .setStyle(ButtonStyle.Secondary)
-            .setCustomId(`${SettingsIds.refresh}_${pipelineName}`)
-        )
+            .setCustomId(`${SettingsIds.refresh}_${pipelineName}`),
+        ),
     );
 
     return container;
@@ -412,15 +416,15 @@ export class SettingsService {
 
   private async buildSettingsPanel(
     interaction: Interaction,
-    pipelineName: keyof typeof SettingsPipelines
+    pipelineName: keyof typeof SettingsPipelines,
   ): Promise<ContainerBuilder> {
     const pipelineConfig = SettingsPipelines[pipelineName]!;
     const container = new ContainerBuilder().addTextDisplayComponents((text) =>
-      text.setContent(heading(getSectionName(pipelineName), HeadingLevel.Two))
+      text.setContent(heading(getSectionName(pipelineName), HeadingLevel.Two)),
     );
 
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!
+      interaction.guildId!,
     );
 
     for (const key in pipelineConfig.pipeline) {
@@ -431,7 +435,7 @@ export class SettingsService {
             button
               .setLabel("Изменить")
               .setStyle(ButtonStyle.Primary)
-              .setCustomId(`${SettingsIds.change}_${pipelineName}_${key}`)
+              .setCustomId(`${SettingsIds.change}_${pipelineName}_${key}`),
           )
           .addTextDisplayComponents((text) =>
             text.setContent(
@@ -440,9 +444,9 @@ export class SettingsService {
                 config.display
                   ? config.display(settings!)
                   : this.formatValue(settings!, config.field, config.type),
-              ].join("\n")
-            )
-          )
+              ].join("\n"),
+            ),
+          ),
       );
     }
 
@@ -452,7 +456,7 @@ export class SettingsService {
   private formatValue(
     settings: SettingsDocument,
     field: string,
-    type: SettingsConfig["type"]
+    type: SettingsConfig["type"],
   ) {
     if (!settings) {
       return "Нет";
@@ -480,7 +484,7 @@ export class SettingsService {
 
   private formatMentions(
     value: string[] | string | null | undefined,
-    type: SettingsConfig["type"]
+    type: SettingsConfig["type"],
   ): string {
     if (!value || value?.length === 0) {
       return "Нет";

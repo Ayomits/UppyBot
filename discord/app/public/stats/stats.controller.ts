@@ -38,7 +38,7 @@ export class UppyController {
     private uppyTopService: LeaderboardService,
     @inject(RemainingService)
     private uppyRemainingService: RemainingService,
-    @inject(StatsInfoService) private uppyInfoService: StatsInfoService
+    @inject(StatsInfoService) private uppyInfoService: StatsInfoService,
   ) {}
 
   @Slash({
@@ -70,7 +70,7 @@ export class UppyController {
       name: "from",
       description: "От какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService
+        StatsAutocompleteService,
       ),
       required: false,
     })
@@ -80,12 +80,12 @@ export class UppyController {
       name: "to",
       description: "До какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService
+        StatsAutocompleteService,
       ),
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.uppyInfoService.handleInfoCommand(interaction, user, from, to);
   }
@@ -102,7 +102,7 @@ export class UppyController {
       name: "from",
       description: "От какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService
+        StatsAutocompleteService,
       ),
       required: false,
     })
@@ -112,12 +112,12 @@ export class UppyController {
       name: "to",
       description: "До какой даты",
       autocomplete: StatsAutocompleteService.handleTopAutocomplete.bind(
-        StatsAutocompleteService
+        StatsAutocompleteService,
       ),
       required: false,
     })
     to: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.uppyTopService.handleTopCommand(interaction, from, to);
   }
@@ -130,7 +130,7 @@ export class UppyController {
   uppyInfoContext(interaction: UserContextMenuCommandInteraction) {
     return this.uppyInfoService.handleInfoCommand(
       interaction,
-      interaction.targetUser
+      interaction.targetUser,
     );
   }
 
@@ -148,7 +148,7 @@ export class UppyController {
       required: false,
     })
     user: User,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.uppyStatsService.handleStatsCommand(interaction, user);
   }
