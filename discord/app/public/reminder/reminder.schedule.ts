@@ -135,7 +135,6 @@ export class ReminderScheduleManager {
 
     if (shouldStartCommon) {
       this.logRemindStart(type, guildName, "common");
-      this.sendRemind(remindData, "common");
       scheduleManager.updateJob(commonId, remindTimestamp.toJSDate(), () =>
         this.sendRemind(remindData, "common")
       );
