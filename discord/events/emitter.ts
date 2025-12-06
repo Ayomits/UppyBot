@@ -22,7 +22,6 @@ export class AppEventEmitter<T extends Record<string, any>> {
   }
 
   on<K extends keyof T & string>(eventName: K, handler: T[K]): this {
-    console.log(eventName);
     this.emitter.on(eventName, handler as any);
     return this;
   }

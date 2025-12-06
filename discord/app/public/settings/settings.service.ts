@@ -39,7 +39,7 @@ import { getNestedValue } from "#/shared/libs/json/nested.js";
 import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
-import { ReminderScheduleManager } from "../reminder/reminder-schedule.manager.js";
+import { ReminderScheduleManager } from "../reminder/reminder.schedule.js";
 import {
   getSectionName,
   SettingsNavigation,
