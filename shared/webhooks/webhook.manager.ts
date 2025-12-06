@@ -90,6 +90,6 @@ export class WebhookManager {
           token,
         },
       })
-      .catch((err) => console.log(url));
+      .catch(() => null);
   }
 }
