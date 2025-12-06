@@ -6,7 +6,7 @@ import { GuildOnly } from "#/discord/guards/is-guild-only.js";
 import { likeSyncRoute } from "#/queue/routes/like-sync/index.js";
 
 import { ReminderHandler } from "./reminder.handler.js";
-import { ReminderScheduleManager } from "./reminder-schedule.manager.js";
+import { ReminderScheduleManager } from "./reminder.schedule.js";
 
 @Discord()
 @singleton()

@@ -24,7 +24,7 @@ import { logger } from "#/shared/libs/logger/index.js";
 import { fetchServer } from "../../shared/api/ds-monitoring/index.js";
 import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";
 import { MonitoringType } from "../app/public/reminder/reminder.const.js";
-import { ReminderScheduleManager } from "../app/public/reminder/reminder-schedule.manager.js";
+import { ReminderScheduleManager } from "../app/public/reminder/reminder.schedule.js";
 import { discordClient } from "../client.js";
 import type { Loop } from "./__interface.js";
 
