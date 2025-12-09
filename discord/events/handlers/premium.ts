@@ -22,9 +22,18 @@ import { AppEventHandler } from "./base.js";
 export class AppPremiumEventHandler extends AppEventHandler {
   constructor() {
     super();
-    appEventEmitter.on("premium:created", this.handlePremiumCreatedLog.bind(this));
-    appEventEmitter.on("premium:expired", this.handlePremiumExpiredLog.bind(this));
-    appEventEmitter.on("premium:expired", this.handlePremiumExpiredTheming.bind(this));
+    appEventEmitter.on(
+      "premium:created",
+      this.handlePremiumCreatedLog.bind(this),
+    );
+    appEventEmitter.on(
+      "premium:expired",
+      this.handlePremiumExpiredLog.bind(this),
+    );
+    appEventEmitter.on(
+      "premium:expired",
+      this.handlePremiumExpiredTheming.bind(this),
+    );
   }
 
   static create() {

@@ -39,4 +39,3 @@ export function parseDuration(input: string): number | null {
 
   return total > 0 ? total : null;
 }
-

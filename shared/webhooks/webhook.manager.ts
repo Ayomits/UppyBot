@@ -85,7 +85,7 @@ export class WebhookManager {
       url: webhookEndpoint,
       token: Env.UppyInternalToken,
       data,
-      internal: true
+      internal: true,
     });
   }
 

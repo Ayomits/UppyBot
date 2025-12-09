@@ -23,7 +23,7 @@ export class PremiumController {
     @inject(PremiumSubscriptionManager)
     private subscriptionService: PremiumSubscriptionManager,
     @inject(PremiumActivatePromocodeService)
-    private premiumActivatePromocodeService: PremiumActivatePromocodeService
+    private premiumActivatePromocodeService: PremiumActivatePromocodeService,
   ) {}
 
   @On({ event: Events.ClientReady })
@@ -34,7 +34,7 @@ export class PremiumController {
   @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
   handleSubscribeCommand(interaction: ChatInputCommandInteraction) {
     return this.premiumSubscribeCommandService.handleSubscribeCommand(
-      interaction
+      interaction,
     );
   }
 
@@ -47,11 +47,11 @@ export class PremiumController {
       required: true,
     })
     code: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     return this.premiumActivatePromocodeService.handleActivatePromocode(
       code,
-      interaction
+      interaction,
     );
   }
 

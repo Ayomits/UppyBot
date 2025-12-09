@@ -31,7 +31,7 @@ export const PromocodeModel = createLazyModel(
       customName: "promocodes",
     },
     existingConnection: mainMongoConnection!,
-  }
+  },
 );
 
 export type PromocodeDocument = DocumentType<Promocode>;
