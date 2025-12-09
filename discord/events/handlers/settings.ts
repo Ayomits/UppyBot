@@ -14,7 +14,6 @@ export class AppSettingsEventHandler {
   constructor() {
     appEventEmitter.on("settings:updated", this.handleBumpBanUpdate.bind(this));
     appEventEmitter.on("settings:updated", this.handleRemindUpdate.bind(this));
-    appEventEmitter.on("settings:updated", this.handleThemingUpdate.bind(this));
   }
 
   static create() {
