@@ -2,11 +2,10 @@ import { Pagination, PaginationResolver } from "@discordx/pagination";
 import type { mongoose } from "@typegoose/typegoose";
 import type { ChatInputCommandInteraction, User } from "discord.js";
 import { bold, MessageFlags, userMention } from "discord.js";
-import { inject, injectable } from "tsyringe";
+import { injectable } from "tsyringe";
 
 import type { BumpUser } from "#/shared/db/models/uppy-discord/bump-user.model.js";
 import { BumpUserModel } from "#/shared/db/models/uppy-discord/bump-user.model.js";
-import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { EmbedBuilder } from "#/shared/libs/embed/embed.builder.js";
 
 import { PaginationLimit } from "../stats.const.js";
@@ -14,35 +13,16 @@ import { BaseUppyService } from "../stats.service.js";
 
 @injectable()
 export class LeaderboardService extends BaseUppyService {
-  constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-  ) {
+  constructor() {
     super();
   }
 
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string,
+    to?: string
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
-    );
-
-    if (
-      !settings?.roles.staffRoles ||
-      settings?.roles.staffRoles?.length === 0
-    ) {
-      return interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setDefaults(interaction.user)
-            .setTitle("Ошибка")
-            .setDescription(`На сервере не настроены роли сотрудников`),
-        ],
-      });
-    }
 
     const { fromDate, toDate } = this.parseOptionsDateString(from, to);
 
@@ -69,7 +49,7 @@ export class LeaderboardService extends BaseUppyService {
             page,
             maxPages,
             data,
-            interaction.user,
+            interaction.user
           ),
         ],
       };
@@ -105,7 +85,7 @@ export class LeaderboardService extends BaseUppyService {
 
   private async fetchLeaderboardPage(
     page: number,
-    filter: mongoose.FilterQuery<BumpUser>,
+    filter: mongoose.FilterQuery<BumpUser>
   ) {
     const skip = page * PaginationLimit;
     const [data] = await BumpUserModel.model.aggregate([
@@ -165,7 +145,7 @@ export class LeaderboardService extends BaseUppyService {
     page: number,
     maxPages: number,
     payload: Awaited<ReturnType<typeof this.fetchLeaderboardPage>>,
-    user: User,
+    user: User
   ) {
     const embed = new EmbedBuilder().setDefaults(user);
     const description =
@@ -181,7 +161,7 @@ export class LeaderboardService extends BaseUppyService {
                   serverMonitoring,
                   _id: userId,
                 },
-                index,
+                index
               ) => {
                 const position = page * PaginationLimit + index + 1;
                 return [
@@ -190,7 +170,7 @@ export class LeaderboardService extends BaseUppyService {
                   `• Up: ${sdcMonitoring} | Like: ${dsMonitoring} | Bump: ${serverMonitoring}`,
                   "",
                 ].join("\n");
-              },
+              }
             )
             .join("\n");
 
