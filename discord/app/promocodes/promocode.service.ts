@@ -34,10 +34,12 @@ export class PromocodeService {
   }
 
   async activatePromocode(guildId: string, code: string) {
-    return await PromocodeModel.model.updateOne({
-      code,
-      entries: { $push: guildId },
-    });
+    return await PromocodeModel.model.updateOne(
+      { code: code },
+      {
+        $push: { entries: guildId },
+      }
+    );
   }
 
   async isPromocodeActivated(guildId: string, code: string) {
@@ -48,7 +50,7 @@ export class PromocodeService {
     const promo = await PromocodeModel.model.findOneAndUpdate(
       { code: dto.code },
       dto,
-      { upsert: true, setDefaultsOnInsert: true, new: true },
+      { upsert: true, setDefaultsOnInsert: true, new: true }
     );
     this.pushSchedule(promo._id, promo.expiresAt);
   }
