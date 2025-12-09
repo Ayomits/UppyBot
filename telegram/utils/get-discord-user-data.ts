@@ -1,4 +1,4 @@
-import { telegramNotificationRoute } from "#/queue/routes/telegram-notification/index.js";
+import { telegramUserNotificationRoute } from "#/queue/routes/telegram-notification/index.js";
 import {
   fetchDiscordOauth2Guilds,
   fetchDiscordOauth2User,
@@ -77,7 +77,7 @@ export async function getDiscordUserGuilds(data: number | NotificationUser) {
       },
       discord_user_id: null,
     });
-    telegramNotificationRoute.produce({
+    telegramUserNotificationRoute.produce({
       telegram_id: telegramId,
       content: `Ваша авторизация в боте была отозвана`,
       parse_mode: "HTML",

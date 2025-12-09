@@ -39,4 +39,5 @@ export type WebhookNotification<T> = {
   guildId: string;
   type: number;
   data: T;
+  internal?: true;
 };

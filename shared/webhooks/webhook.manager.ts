@@ -1,7 +1,9 @@
 import axios from "axios";
 import { injectable } from "tsyringe";
 
+import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
 import { webhookRoute } from "#/queue/routes/webhooks/index.js";
+import { Env } from "#/shared/libs/config/index.js";
 
 import type {
   WebhookBumpBanNotification,
@@ -19,19 +21,19 @@ export class WebhookManager {
 
   createCommandExecutedPayload(
     guildId: string,
-    payload: WebhookCommandSuccessNotification
+    payload: WebhookCommandSuccessNotification,
   ) {
     return this.createPayload(
       guildId,
       WebhookNotificationType.CommandSuccess,
-      payload
+      payload,
     );
   }
 
   createBumpBanPayload(
     guildId: string,
     type: number,
-    payload: WebhookBumpBanNotification
+    payload: WebhookBumpBanNotification,
   ) {
     return this.createPayload(guildId, type, payload);
   }
@@ -44,7 +46,7 @@ export class WebhookManager {
     return this.createPayload(
       guildId,
       WebhookNotificationType.ForceRemind,
-      payload
+      payload,
     );
   }
 
@@ -57,7 +59,7 @@ export class WebhookManager {
   private createPayload<T>(
     guildId: string,
     type: number,
-    payload: T
+    payload: T,
   ): WebhookNotification<T> {
     return {
       guildId,
@@ -69,7 +71,7 @@ export class WebhookManager {
   async pushConsumer<T>(
     url: string,
     token: string,
-    data: WebhookNotification<T>
+    data: WebhookNotification<T>,
   ) {
     return webhookRoute.produce({
       url,
@@ -78,10 +80,19 @@ export class WebhookManager {
     });
   }
 
+  async pushTelegramNotification<T>(data: WebhookNotification<T>) {
+    return webhookRoute.produce({
+      url: webhookEndpoint,
+      token: Env.UppyInternalToken,
+      data,
+      internal: true
+    });
+  }
+
   async sendNotification<T>(
     url: string,
     token: string,
-    payload: WebhookNotification<T>
+    payload: WebhookNotification<T>,
   ) {
     return await axios
       .post(url, payload, {

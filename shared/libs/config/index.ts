@@ -32,6 +32,7 @@ export const Env = {
   DiscordRedirectUri: configService.get("DISCORD_REDIRECT_URI"),
 
   UppyUrl: configService.get("UPPY_URL"),
+  UppyInternalToken: configService.get("UPPY_INTERNAL_TOKEN"),
 
   MongoUrl: configService.get(
     "MONGO_URL",

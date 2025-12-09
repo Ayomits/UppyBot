@@ -2,7 +2,7 @@ import { likeSyncRoute } from "./like-sync/index.js";
 import {
   telegramNotificationBumpBanRoute,
   telegramNotificationRemindRoute,
-  telegramNotificationRoute,
+  telegramUserNotificationRoute,
 } from "./telegram-notification/index.js";
 import { webhookRoute } from "./webhooks/index.js";
 
@@ -12,7 +12,7 @@ export async function registerDiscordConsumers() {
 }
 
 export async function registerTelegramConsumers() {
-  await telegramNotificationRoute.register();
+  await telegramUserNotificationRoute.register();
   await telegramNotificationRemindRoute.register();
   await telegramNotificationBumpBanRoute.register();
 }

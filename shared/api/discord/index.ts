@@ -35,7 +35,7 @@ export async function fetchDiscordOauth2User(
 ) {
   return await useCachedQuery(
     `discord-profile-${access_token}`,
-    60_000,
+    60,
     async () => {
       const user = await fetchWithRefreshToken(
         async (token) =>
@@ -58,7 +58,7 @@ export async function fetchDiscordOauth2Guilds(
 ) {
   return await useCachedQuery(
     `discord-user-guilds-${access_token}`,
-    60_000,
+    60,
     async () => {
       const guilds = await fetchWithRefreshToken(
         async (token) =>

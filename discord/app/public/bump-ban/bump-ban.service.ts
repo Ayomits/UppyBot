@@ -28,6 +28,10 @@ export class BumpBanService {
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
   ) {}
 
+  static create() {
+    return new BumpBanService(SettingsRepository.create());
+  }
+
   async handleBumpBanInit(client: Client) {
     const guilds = client.guilds.cache;
 
@@ -310,7 +314,7 @@ export class BumpBanService {
     await Promise.all([
       options.member.roles.remove(role),
       BumpBanModel.model.deleteOne(filter),
-      appEventEmitter.emit("bump-ban:created", {
+      appEventEmitter.emit("bump-ban:removed", {
         guildId: guild.id,
         settings: options.settings!,
         type: options.type!,

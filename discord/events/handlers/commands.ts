@@ -23,7 +23,7 @@ import { AppEventHandler } from "./base.js";
 export class AppCommandEventHandler extends AppEventHandler {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {
     super();
 
@@ -31,14 +31,20 @@ export class AppCommandEventHandler extends AppEventHandler {
     this.handleCommandSuccessWebhook =
       this.handleCommandSuccessWebhook.bind(this);
 
-    appEventEmitter.on("command:executed", this.handleCommandSuccessLog);
-    appEventEmitter.on("command:executed", this.handleCommandSuccessWebhook);
+    appEventEmitter.on(
+      "command:executed",
+      this.handleCommandSuccessLog.bind(this)
+    );
+    appEventEmitter.on(
+      "command:executed",
+      this.handleCommandSuccessWebhook.bind(this)
+    );
   }
 
   static create() {
     return new AppCommandEventHandler(
       WebhookManager.create(),
-      CryptographyService.create(),
+      CryptographyService.create()
     );
   }
 
@@ -52,7 +58,7 @@ export class AppCommandEventHandler extends AppEventHandler {
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
-      commandId,
+      commandId
     );
 
     await this.sendChannelMessage(options.settings.channels.commandChannelId, {
@@ -67,7 +73,7 @@ export class AppCommandEventHandler extends AppEventHandler {
                 `Исполнитель: ${userMention(options.userId)}`,
                 `Время реакции: ${options.reactionTime}`,
               ]),
-            ].join("\n"),
+            ].join("\n")
           );
         }),
       ],
@@ -89,7 +95,7 @@ export class AppCommandEventHandler extends AppEventHandler {
           points: options.points,
           type: options.type,
           userId: options.userId,
-        }),
+        })
       );
     }
   }

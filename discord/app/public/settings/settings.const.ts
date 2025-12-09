@@ -13,7 +13,8 @@ export const SettingsIds = {
 export const forceModalId = "@settings/force";
 export const pointModalId = "@settings/points";
 export const templateModalId = "@settings/modal";
-export const brandinModalId = "@settings/branding";
+export const brandingModalId = "@settings/branding";
+export const webhookModalId = "@settings/webhook";
 
 export const SettingsStartPipeline: ObjectKeys<typeof SettingsPipelines> =
   "reminds";

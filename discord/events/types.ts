@@ -26,6 +26,7 @@ export type AppPremiumCreated = {
 };
 
 export type AppPremiumExpired = {
+  guildId: string;
   guildName: string;
   guildAvatar: string;
   created: Date;
@@ -45,4 +46,6 @@ export type AppEvents = {
 
   readonly "remind:common": AppEventHandler<AppRemindExecute>;
   readonly "remind:force": AppEventHandler<AppRemindExecute>;
+
+  readonly "settings:updated": AppEventHandler<Partial<Settings>>;
 };

@@ -12,7 +12,9 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
+import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
+import { Env } from "#/shared/libs/config/index.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { randomArrValue } from "#/shared/libs/random/index.js";
@@ -30,14 +32,18 @@ export class NotificationsService {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
     @inject(CryptographyService) private cryptography: CryptographyService,
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
-  async handleNotificationTest(interaction: ChatInputCommandInteraction) {
+  async handleNotificationTest(
+    type: string,
+    interaction: ChatInputCommandInteraction
+  ) {
+    const isHttp = type == "http";
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const settings = await this.settingsRepository.findGuildSettings(
-      interaction.guildId!,
+      interaction.guildId!
     );
     if (!settings.webhooks?.url) {
       return interaction.editReply({
@@ -49,12 +55,12 @@ export class NotificationsService {
     const reply = await interaction.editReply({
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-          selectMenu,
+          selectMenu
         ),
       ],
     });
 
-    this.setupSelectMenuCollector(reply, interaction.guildId!);
+    this.setupSelectMenuCollector(reply, interaction.guildId!, isHttp);
   }
 
   private createTestNotificationSelectMenu(): StringSelectMenuBuilder {
@@ -78,30 +84,36 @@ export class NotificationsService {
         options.map((option) =>
           new StringSelectMenuOptionBuilder()
             .setLabel(option.label)
-            .setValue(option.value.toString()),
-        ),
+            .setValue(option.value.toString())
+        )
       );
   }
 
-  private setupSelectMenuCollector(reply: Message, guildId: string): void {
+  private setupSelectMenuCollector(
+    reply: Message,
+    guildId: string,
+    isHttp: boolean
+  ): void {
     const collector = createSafeCollector(reply);
 
     collector.on(
       "collect",
       async (interaction: StringSelectMenuInteraction) => {
-        await this.handleNotificationSelection(interaction, guildId);
-      },
+        await this.handleNotificationSelection(interaction, guildId, isHttp);
+      }
     );
   }
 
   private async handleNotificationSelection(
     interaction: StringSelectMenuInteraction,
     guildId: string,
+    isHttp: boolean
   ): Promise<void> {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const settings = await this.settingsRepository.findGuildSettings(guildId);
-    if (!settings.webhooks?.url) {
+    const url = isHttp ? settings.webhooks?.url : webhookEndpoint;
+    if (!url) {
       await interaction.editReply({
         content: "У вас не включена система вебхуков",
       });
@@ -112,7 +124,11 @@ export class NotificationsService {
     const isSended = await this.sendTestNotification(
       interaction,
       notificationType,
-      settings.webhooks,
+      {
+        ...settings.webhooks,
+        url,
+      },
+      isHttp
     );
 
     await interaction.editReply({
@@ -124,8 +140,11 @@ export class NotificationsService {
     interaction: StringSelectMenuInteraction,
     notificationType: number,
     webhookConfig: { url: string; token: string },
+    isHttp: boolean
   ): Promise<boolean> {
-    const token = this.cryptography.decrypt(webhookConfig.token);
+    const token = isHttp
+      ? this.cryptography.decrypt(webhookConfig.token)
+      : Env.UppyInternalToken;
     const channel = interaction.channel as TextChannel;
 
     switch (notificationType) {
@@ -134,7 +153,7 @@ export class NotificationsService {
           interaction,
           channel,
           webhookConfig.url,
-          token,
+          token
         );
 
       case WebhookNotificationType.BumpBanCreation:
@@ -143,7 +162,7 @@ export class NotificationsService {
           interaction,
           notificationType,
           webhookConfig.url,
-          token,
+          token
         );
 
       case WebhookNotificationType.Remind:
@@ -152,7 +171,7 @@ export class NotificationsService {
           interaction,
           notificationType,
           webhookConfig.url,
-          token,
+          token
         );
 
       default:
@@ -164,7 +183,7 @@ export class NotificationsService {
     interaction: StringSelectMenuInteraction,
     channel: TextChannel,
     url: string,
-    token: string,
+    token: string
   ): Promise<boolean> {
     const payload = this.webhookManager.createCommandExecutedPayload(
       interaction.guildId!,
@@ -174,7 +193,7 @@ export class NotificationsService {
         type: randomArrValue(Object.values(MonitoringType)),
         points: 10,
         userId: interaction.user.id,
-      },
+      }
     );
 
     return !!this.webhookManager.sendNotification(url, token, payload);
@@ -184,7 +203,7 @@ export class NotificationsService {
     interaction: StringSelectMenuInteraction,
     notificationType: number,
     url: string,
-    token: string,
+    token: string
   ): Promise<boolean> {
     const payload = this.webhookManager.createBumpBanPayload(
       interaction.guildId!,
@@ -192,7 +211,7 @@ export class NotificationsService {
       {
         executedAt: new Date(),
         userId: interaction.user.id,
-      },
+      }
     );
 
     return !!this.webhookManager.sendNotification(url, token, payload);
@@ -202,14 +221,14 @@ export class NotificationsService {
     interaction: StringSelectMenuInteraction,
     notificationType: WebhookNotificationType,
     url: string,
-    token: string,
+    token: string
   ): Promise<boolean> {
     const remindType = randomArrValue(Object.values(MonitoringType));
     const fn =
       notificationType === WebhookNotificationType.Remind
         ? this.webhookManager.createRemindPayload.bind(this.webhookManager)
         : this.webhookManager.createForceRemindPayload.bind(
-            this.webhookManager,
+            this.webhookManager
           );
     const payload = fn(interaction.guildId!, {
       channelName: (interaction.channel as TextChannel).name,

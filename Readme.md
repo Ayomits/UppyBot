@@ -57,6 +57,7 @@ TELEGRAM_TOKEN="8117414458:AAHYekMzJ2dKdlEmgMtN24P_5Dr3t0ltpeU"
 DISCORD_TOKEN="MTM5NTcxOTgwNTc0NjY3OTg0OA.GL4Jfr.QO7oJuOEXmJ9xtV5tlSOOGyagYGCMjljTpK5YM"
 
 UPPY_URL="http://localhost:4200"
+UPPY_INTERNAL_TOKEN="super-secret-token"
 
 MONGO_URL="mongodb://localhost:27018/?authSource=admin"
 
@@ -76,6 +77,7 @@ DISCORD_CLIENT_SECRET="Dt5ZSrLvTdY2LEoU35MHubpTy7oqmEj_"
 DISCORD_REDIRECT_URI="http://localhost:4200/discord/callback"
 
 UPPY_URL="http://localhost:4200"
+UPPY_INTERNAL_TOKEN="super-secret-token"
 
 MONGO_URL="mongodb://localhost:27018/?authSource=admin"
 

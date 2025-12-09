@@ -50,6 +50,6 @@ jobs:
           -H 'Content-Type: application/json' \
           -d '{
               "json":{
-                  "applicationId": "xM8pjKj2xLQUlEjzstBuP"
+                  "applicationId": "K11In93jpWIGIaGkUPLrA"
               }
           }'

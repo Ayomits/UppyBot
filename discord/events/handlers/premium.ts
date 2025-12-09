@@ -7,6 +7,12 @@ import {
   TimestampStyles,
 } from "discord.js";
 
+import { discordClient } from "#/discord/client.js";
+import {
+  baseCommonRemindTemplate,
+  baseForceRemindTemplate,
+} from "#/discord/libs/templates/index.js";
+import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { resolveTimestamp } from "#/shared/libs/embed/timestamp.js";
 
 import { appEventEmitter } from "../emitter.js";
@@ -16,15 +22,16 @@ import { AppEventHandler } from "./base.js";
 export class AppPremiumEventHandler extends AppEventHandler {
   constructor() {
     super();
-    appEventEmitter.on("premium:created", this.handlePremiumCreated);
-    appEventEmitter.on("premium:expired", this.handlePremiumExpired);
+    appEventEmitter.on("premium:created", this.handlePremiumCreatedLog.bind(this));
+    appEventEmitter.on("premium:expired", this.handlePremiumExpiredLog.bind(this));
+    appEventEmitter.on("premium:expired", this.handlePremiumExpiredTheming.bind(this));
   }
 
   static create() {
     return new AppPremiumEventHandler();
   }
 
-  async handlePremiumCreated(opts: AppPremiumCreated) {
+  private async handlePremiumCreatedLog(opts: AppPremiumCreated) {
     this.devLog("dev.premiumLogs", {
       components: [
         new ContainerBuilder().addTextDisplayComponents((b) =>
@@ -39,7 +46,7 @@ export class AppPremiumEventHandler extends AppEventHandler {
     });
   }
 
-  async handlePremiumExpired(opts: AppPremiumExpired) {
+  private async handlePremiumExpiredLog(opts: AppPremiumExpired) {
     this.devLog("dev.premiumLogs", {
       components: [
         new ContainerBuilder().addSectionComponents((b) => {
@@ -59,5 +66,33 @@ export class AppPremiumEventHandler extends AppEventHandler {
         }),
       ],
     });
+  }
+
+  private async handlePremiumExpiredTheming(opts: AppPremiumExpired) {
+    const guild = await discordClient.guilds
+      .fetch(opts.guildId)
+      .catch(() => null);
+    const settings = await SettingsRepository.create();
+
+    if (!guild) {
+      return;
+    }
+
+    await guild.members.editMe({
+      bio: null,
+      avatar: null,
+      banner: null,
+    });
+
+    appEventEmitter.emit(
+      "settings:updated",
+      await settings.update(opts.guildId, {
+        "theming.avatar": null,
+        "theming.banner": null,
+        "theming.bio": null,
+        "templates.force": baseForceRemindTemplate,
+        "templates.common": baseCommonRemindTemplate,
+      }),
+    );
   }
 }

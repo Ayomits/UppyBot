@@ -22,8 +22,15 @@ import type { ParserValue } from "./reminder.parser.js";
 export class ReminderScheduleManager {
   constructor(
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
-    @inject(RemindRepository) private remindRepository: RemindRepository
+    @inject(RemindRepository) private remindRepository: RemindRepository,
   ) {}
+
+  static create() {
+    return new ReminderScheduleManager(
+      SettingsRepository.create(),
+      RemindRepository.create(),
+    );
+  }
 
   async initReminds(client: Client) {
     const { entriesMap, guilds } = await this.fetchRemindData(client);
@@ -33,7 +40,7 @@ export class ReminderScheduleManager {
         timestamp: entry.remind?.timestamp,
         settings: entry.settings,
         type: entry.remind?.type as MonitoringType,
-      })
+      }),
     );
 
     await Promise.all(promises);
@@ -51,14 +58,14 @@ export class ReminderScheduleManager {
     ]);
 
     const settingsMap = Object.fromEntries(
-      settings?.map((s) => [s.guildId, s])
+      settings?.map((s) => [s.guildId, s]),
     );
 
     const entriesMap = Object.fromEntries(
       reminds.map((remind) => [
         `remind.guildId-${Math.random()}`,
         { remind, settings: settingsMap[remind.guildId] },
-      ])
+      ]),
     );
 
     return {
@@ -90,7 +97,7 @@ export class ReminderScheduleManager {
     const remind = await this.remindRepository.findOrCreate(
       guild.id,
       type,
-      timestamp!
+      timestamp!,
     );
 
     if (DateTime.now().toMillis() >= remind.timestamp!.getTime()) {
@@ -105,7 +112,7 @@ export class ReminderScheduleManager {
     guild: Guild,
     remind: Awaited<ReturnType<RemindRepository["findOrCreate"]>>,
     settings: SettingsDocument,
-    type: number
+    type: number,
   ) {
     const { id: guildId, name: guildName } = guild;
     const remindTimestamp = DateTime.fromJSDate(remind.timestamp!);
@@ -136,7 +143,7 @@ export class ReminderScheduleManager {
     if (shouldStartCommon) {
       this.logRemindStart(type, guildName, "common");
       scheduleManager.updateJob(commonId, remindTimestamp.toJSDate(), () =>
-        this.sendRemind(remindData, "common")
+        this.sendRemind(remindData, "common"),
       );
     }
 
@@ -145,7 +152,7 @@ export class ReminderScheduleManager {
       scheduleManager.updateJob(
         forceId,
         remindTimestamp.minus({ seconds: forceSeconds }).toJSDate(),
-        () => this.sendRemind(remindData, "force")
+        () => this.sendRemind(remindData, "force"),
       );
     }
   }
@@ -153,17 +160,17 @@ export class ReminderScheduleManager {
   private logRemindStart(
     type: number,
     guildName: string,
-    scheduleType: "force" | "common"
+    scheduleType: "force" | "common",
   ) {
     logger.info(
-      `${scheduleType === "force" ? "Force" : "Common"} remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guildName}`
+      `${scheduleType === "force" ? "Force" : "Common"} remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guildName}`,
     );
   }
 
   private generateId(
     guildId: string,
     type: MonitoringType | number,
-    suffix?: string
+    suffix?: string,
   ) {
     return `${guildId}-${type}-remind${suffix ? `-${suffix}` : ""}`;
   }
@@ -171,7 +178,7 @@ export class ReminderScheduleManager {
   public async handleRemindReplacement(
     guild: Guild,
     type: MonitoringType | number,
-    options: { force?: number; mode: "force" | "common" }
+    options: { force?: number; mode: "force" | "common" },
   ) {
     const { id: guildId } = guild;
     const remind = await this.remindRepository.findRemind(guildId, type);
@@ -200,19 +207,19 @@ export class ReminderScheduleManager {
           settings,
           timestamp: remind.timestamp!,
         },
-        options.mode
-      )
+        options.mode,
+      ),
     );
   }
 
   public deleteRemind(
     guildId: string,
     type: MonitoringType | number,
-    mode?: "force" | "common"
+    mode?: "force" | "common",
   ) {
     if (mode) {
       scheduleManager.stopJob(
-        this.generateId(guildId, type, mode === "force" ? "force" : undefined)
+        this.generateId(guildId, type, mode === "force" ? "force" : undefined),
       );
     } else {
       scheduleManager.stopJob(this.generateId(guildId, type));
