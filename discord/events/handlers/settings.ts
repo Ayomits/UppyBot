@@ -96,6 +96,4 @@ export class AppSettingsEventHandler {
       });
     }
   }
-
-  private async handleThemingUpdate(opts: Partial<Settings>) {}
 }
