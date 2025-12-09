@@ -10,7 +10,7 @@ import { GuildOnly } from "#/discord/guards/is-guild-only.js";
 import { PremiumOnly } from "#/discord/guards/premium-only.guard.js";
 
 import {
-  brandinModalId,
+  brandingModalId,
   forceModalId,
   pointModalId,
   templateModalId,
@@ -53,7 +53,7 @@ export class SettingsController {
     return this.settingsModals.handleTemplateModal(interaction);
   }
 
-  @ModalComponent({ id: new RegExp(`${brandinModalId}_(.+)$`) })
+  @ModalComponent({ id: new RegExp(`${brandingModalId}_(.+)$`) })
   @Guard(PremiumOnly)
   handleBranding(interaction: ModalSubmitInteraction) {
     return this.settingsModals.handleBrandingModal(interaction);

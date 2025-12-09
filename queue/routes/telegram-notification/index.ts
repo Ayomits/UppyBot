@@ -1,11 +1,15 @@
 import { logger } from "@typegoose/typegoose/lib/logSettings.js";
 
+import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
 import { QueueMessages } from "#/queue/const/index.js";
+import { webhookRoute } from "#/queue/routes/webhooks/index.js";
 import { createRoute } from "#/queue/utils/create-route.js";
 import { parseConsumerData } from "#/queue/utils/parse-data.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { NotificationUserRepository } from "#/shared/db/repositories/uppy-telegram/user.repository.js";
+import { Env } from "#/shared/libs/config/index.js";
+import type { WebhookNotification } from "#/shared/webhooks/webhook.types.js";
 import { WebhookNotificationType } from "#/shared/webhooks/webhook.types.js";
 import { telegramApp } from "#/telegram/client.js";
 import { Emojis } from "#/telegram/utils/emojis.js";
@@ -17,7 +21,7 @@ import type {
   TelegramSingleNotificationPayload,
 } from "./types.js";
 
-export const telegramNotificationRoute =
+export const telegramUserNotificationRoute =
   createRoute<TelegramSingleNotificationPayload>({
     queue: QueueMessages.telegram.notification,
     async consumeCallback(msg) {
@@ -59,7 +63,7 @@ export const telegramNotificationRemindRoute = createRoute({
         ? `Не торопись, команду можно будет выполнить через ${bold(`${settings.force?.seconds ?? 0}`)} секунд`
         : `Пора выполнить команду!`;
 
-      await telegramNotificationRoute.produce({
+      await telegramUserNotificationRoute.produce({
         content: [
           `${Emojis.ALARM_CLOCK} ${bold("Напоминание")}`,
           ``,
@@ -91,7 +95,7 @@ export const telegramNotificationBumpBanRoute = createRoute({
         : cursive("Чилл-аут, ты был слишком хорош!");
       const guildRepository = GuildRepository.create();
       const guild = await guildRepository.findGuild(data.guildId);
-      await telegramNotificationRoute.produce({
+      await telegramUserNotificationRoute.produce({
         content: [
           `${Emojis.ALARM_CLOCK} ${bold(`Бамп бан ${titleAction}`)}`,
           ``,
@@ -102,5 +106,21 @@ export const telegramNotificationBumpBanRoute = createRoute({
         telegram_id: user.telegram_user_id,
       });
     }
+  },
+});
+
+export const telegramServerNotificationRoute = createRoute<
+  WebhookNotification<unknown>
+>({
+  queue: QueueMessages.telegram.server,
+  async consumeCallback(msg) {
+    const data = parseConsumerData<WebhookNotification<unknown>>(msg);
+
+    await webhookRoute.produce({
+      url: webhookEndpoint,
+      token: Env.UppyInternalToken,
+      internal: true,
+      data,
+    });
   },
 });

@@ -58,7 +58,7 @@ export class SettingsModalService {
   }
 
   public async handleBrandingModal(interaction: ModalSubmitInteraction) {
-    const url = interaction.fields.getTextInputValue("url");
+    const url = interaction.fields.getTextInputValue("value");
     const [type] = CustomIdParser.parseArguments(interaction.customId, {});
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 

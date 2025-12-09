@@ -1,5 +1,8 @@
-import type { ChatInputCommandInteraction } from "discord.js";
-import { Discord, Slash, SlashGroup } from "discordx";
+import {
+  ApplicationCommandOptionType,
+  ChatInputCommandInteraction,
+} from "discord.js";
+import { Discord, Slash, SlashChoice, SlashGroup, SlashOption } from "discordx";
 import { inject, singleton } from "tsyringe";
 
 import { NotificationsService } from "./notifications.service.js";
@@ -19,7 +22,16 @@ export class NotificationsController {
   ) {}
 
   @Slash({ name: "test", description: "Отправить тестовое уведомление" })
-  handleNotificationTest(interaction: ChatInputCommandInteraction) {
-    return this.notificationService.handleNotificationTest(interaction);
+  handleNotificationTest(
+    @SlashChoice("http", "telegram")
+    @SlashOption({
+      name: "type",
+      description: "Тип уведомлений",
+      type: ApplicationCommandOptionType.String,
+    })
+    type: "http" | "telegram",
+    interaction: ChatInputCommandInteraction,
+  ) {
+    return this.notificationService.handleNotificationTest(type, interaction);
   }
 }

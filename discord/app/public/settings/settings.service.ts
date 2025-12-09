@@ -25,21 +25,16 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
-import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
-import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
-import { RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
 import { getNestedValue } from "#/shared/libs/json/nested.js";
 import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 import { BotInviteService } from "../bot/interactions/bot-invite.service.js";
-import { ReminderScheduleManager } from "../reminder/reminder.schedule.js";
 import {
   getSectionName,
   SettingsNavigation,
@@ -47,16 +42,14 @@ import {
 } from "./settings.config.js";
 import { SettingsIds, SettingsStartPipeline } from "./settings.const.js";
 import type { SettingsConfig } from "./settings.types.js";
+import { appEventEmitter } from "#/discord/events/index.js";
 
 @injectable()
 export class SettingsService {
   constructor(
-    @inject(ReminderScheduleManager)
-    private scheduleManager: ReminderScheduleManager,
     @inject(BotInviteService) private botInviteService: BotInviteService,
     @inject(SettingsRepository) private settingsRepository: SettingsRepository,
     @inject(GuildRepository) private guildRepository: GuildRepository,
-    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {}
 
   public async handleSettingsCommand(interaction: ChatInputCommandInteraction) {
@@ -278,66 +271,8 @@ export class SettingsService {
   }
 
   private async postUpdateActions(guild: Guild) {
-    const guildId = guild.id;
-    const settings = await this.settingsRepository.findGuildSettings(guildId);
-    const reminds = await RemindModel.model.find({ guildId });
-
-    const isForceDisabled =
-      settings?.force.seconds === 0 || !settings.force.enabled;
-    const isCommonDisabled = !settings?.remind.enabled;
-
-    const isBumpBanDisabled = !settings.bumpBan?.enabled;
-
-    if (isCommonDisabled) {
-      this.scheduleManager.deleteAllReminds(guildId, "common");
-    }
-
-    if (isForceDisabled) {
-      this.scheduleManager.deleteAllReminds(guildId, "force");
-    }
-
-    if (isBumpBanDisabled) {
-      this.postUpdateBumpBan(guild);
-    }
-
-    this.postUpdateTelegramNotifications(guild, !!settings.telegram?.enabled);
-
-    for (const remind of reminds) {
-      this.scheduleManager.remind({
-        guild,
-        settings: settings!,
-        type: remind.type!,
-        timestamp: remind.timestamp,
-      });
-    }
-  }
-
-  private async postUpdateTelegramNotifications(
-    guild: Guild,
-    enabled: boolean = false,
-  ) {
-    await this.settingsRepository.update(guild.id, {
-      webhooks: {
-        url: !enabled ? null : webhookEndpoint,
-        token: !enabled
-          ? null
-          : this.cryptography.encrypt(this.cryptography.encrypt(guild.id)),
-      },
-    });
-  }
-
-  private async postUpdateBumpBan(guild: Guild) {
-    const bumpBanned = await BumpBanModel.model.find({ guildId: guild.id });
-
-    for (const banned of bumpBanned) {
-      const member = await guild.members.fetch(banned.userId).catch(() => null);
-
-      if (!member) {
-        return;
-      }
-
-      await member.roles.remove(banned.givenRoleId).catch(() => null);
-    }
+    const settings = await this.settingsRepository.findGuildSettings(guild.id);
+    appEventEmitter.emit("settings:updated", settings);
   }
 
   private async buildMessage(

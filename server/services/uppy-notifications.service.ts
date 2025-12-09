@@ -26,23 +26,14 @@ export class UppyNotificationService {
   async handleNotificationWebhook(req: FastifyRequest, reply: FastifyReply) {
     const data = req.body as WebhookNotification<unknown>;
 
-    console.log(data);
+    if (req.query?.["token"] !== Env.UppyInternalToken) {
+      return reply.code(HTTPStatus.Forbidden).send({
+        message: "Invalid code",
+      });
+    }
 
     if (data.type === WebhookNotificationType.Test) {
       return reply.send("OK");
-    }
-
-    const isValidToken = await this.validateToken(
-      data.guildId,
-      req.query?.["token"]
-    );
-
-    console.log(isValidToken);
-
-    if (!isValidToken) {
-      return reply.code(HTTPStatus.Forbidden).send({
-        message: "Invalid token provided",
-      });
     }
 
     await this.handleNotification(data);

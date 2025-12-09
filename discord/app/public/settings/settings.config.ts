@@ -10,6 +10,7 @@ import {
   SettingsTelegramPipeline,
   SettingsTemplatePipeline,
   SettingsThemingPipeline,
+  SettingsWebhookPipeline,
 } from "./settings.pipes.js";
 
 export const SettingsNavigation: {
@@ -72,6 +73,12 @@ export const SettingsNavigation: {
     description: "Логи для сервера разработчиков",
     public: false,
   },
+  {
+    label: "Вебхуки",
+    value: "webhooks",
+    description: "HTTP уведомления (только для разработчиков)",
+    public: true,
+  },
 ];
 
 export function getSectionName(name: keyof typeof SettingsPipelines) {
@@ -86,6 +93,7 @@ export function getSectionName(name: keyof typeof SettingsPipelines) {
     telegram: "Подключить телеграмм уведомления",
     templates: "Шаблоны напоминаний",
     devlogs: "Логи сервера разработчиков",
+    webhooks: "HTTP уведомления",
   };
 
   return names[name] || "";
@@ -127,5 +135,9 @@ export const SettingsPipelines = {
   devlogs: {
     pipeline: SettingsDevLogPipeline,
     access: GuildType.Developer,
+  },
+  webhooks: {
+    pipeline: SettingsWebhookPipeline,
+    access: GuildType.Common,
   },
 } as const;

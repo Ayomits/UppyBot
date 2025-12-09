@@ -127,10 +127,13 @@ export class Settings extends TimeStamps {
     token: string | null;
   };
 
-  @prop({ default: { avatar: null, banner: null, color: Colors.Default } })
+  @prop({
+    default: { avatar: null, banner: null, bio: null, color: Colors.Default },
+  })
   theming: {
     avatar: string | null;
     banner: string | null;
+    bio: string | null;
     color: ColorResolvable | null;
   };
 

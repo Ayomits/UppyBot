@@ -1,7 +1,12 @@
-import { type ChatInputCommandInteraction, Events } from "discord.js";
-import { Discord, On, Slash, SlashGroup } from "discordx";
+import {
+  ApplicationCommandOptionType,
+  type ChatInputCommandInteraction,
+  Events,
+} from "discord.js";
+import { Discord, On, Slash, SlashGroup, SlashOption } from "discordx";
 import { inject, singleton } from "tsyringe";
 
+import { PremiumActivatePromocodeService } from "./activate/activate.service.js";
 import { PremiumInfoService } from "./info/info.service.js";
 import { PremiumSubscribeCommandService } from "./subscribe/subscribe.service.js";
 import { PremiumSubscriptionManager } from "./subscription-manager/subscription.service.js";
@@ -17,6 +22,8 @@ export class PremiumController {
     @inject(PremiumInfoService) private premiumInfoService: PremiumInfoService,
     @inject(PremiumSubscriptionManager)
     private subscriptionService: PremiumSubscriptionManager,
+    @inject(PremiumActivatePromocodeService)
+    private premiumActivatePromocodeService: PremiumActivatePromocodeService
   ) {}
 
   @On({ event: Events.ClientReady })
@@ -27,7 +34,24 @@ export class PremiumController {
   @Slash({ name: "subscribe", description: "Информация о премиум подписке" })
   handleSubscribeCommand(interaction: ChatInputCommandInteraction) {
     return this.premiumSubscribeCommandService.handleSubscribeCommand(
-      interaction,
+      interaction
+    );
+  }
+
+  @Slash({ name: "activate", description: "Активировать промокод" })
+  handleActivateCommand(
+    @SlashOption({
+      type: ApplicationCommandOptionType.String,
+      name: "code",
+      description: "Название промокода",
+      required: true,
+    })
+    code: string,
+    interaction: ChatInputCommandInteraction
+  ) {
+    return this.premiumActivatePromocodeService.handleActivatePromocode(
+      code,
+      interaction
     );
   }
 

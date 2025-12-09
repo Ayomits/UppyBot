@@ -1,4 +1,4 @@
-import { LabelBuilder, TextInputStyle } from "discord.js";
+import { LabelBuilder, spoiler, TextInputStyle } from "discord.js";
 
 import {
   baseCommonRemindTemplate,
@@ -8,9 +8,10 @@ import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 
 import {
-  brandinModalId,
+  brandingModalId,
   forceModalId,
   templateModalId,
+  webhookModalId,
 } from "./settings.const.js";
 import {
   baseConfigs,
@@ -124,11 +125,11 @@ export const SettingsTelegramPipeline = createPipeline({
 export const SettingsThemingPipeline = createPipeline({
   avatar: createConfig({
     modal: {
-      customId: `${brandinModalId}_avatar`,
+      customId: `${brandingModalId}_avatar`,
       fields: (settings) => [
         new LabelBuilder().setLabel("URL").setTextInputComponent((builder) =>
           builder
-            .setCustomId("url")
+            .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
             .setValue(settings.theming?.banner ?? ""),
@@ -142,11 +143,11 @@ export const SettingsThemingPipeline = createPipeline({
   }),
   banner: createConfig({
     modal: {
-      customId: `${brandinModalId}_banner`,
+      customId: `${brandingModalId}_banner`,
       fields: (settings) => [
         new LabelBuilder().setLabel("URL").setTextInputComponent((builder) =>
           builder
-            .setCustomId("url")
+            .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
             .setValue(settings.theming?.banner ?? ""),
@@ -157,6 +158,26 @@ export const SettingsThemingPipeline = createPipeline({
     label: "Баннер",
     field: "theming.banner",
     type: "value",
+  }),
+  bio: createConfig({
+    label: "Обо мне",
+    type: "value",
+    field: "theming.bio",
+    modal: {
+      customId: `${brandingModalId}_bio`,
+      fields: (settings) => [
+        new LabelBuilder()
+          .setLabel("Обо мне")
+          .setTextInputComponent((builder) =>
+            builder
+              .setCustomId("value")
+              .setStyle(TextInputStyle.Paragraph)
+              .setRequired(false)
+              .setValue(settings.theming?.bio ?? ""),
+          ),
+      ],
+      title: "Обо мне",
+    },
   }),
 });
 
@@ -246,4 +267,29 @@ export const SettingsDevLogPipeline = createPipeline({
       GuildType.Developer,
     ),
   ),
+});
+
+export const SettingsWebhookPipeline = createPipeline({
+  url: createConfig({
+    label: "URL",
+    field: "webhooks.url",
+    type: "value",
+    display: (settings) =>
+      settings.webhooks.url ? spoiler(settings.webhooks.url) : "Нет",
+    modal: {
+      customId: webhookModalId,
+      fields: (settings) => [
+        new LabelBuilder().setLabel("URL").setTextInputComponent((builder) =>
+          builder
+            .setCustomId("url")
+            .setPlaceholder("Введите ссылку")
+            .setMinLength(0)
+            .setStyle(TextInputStyle.Short)
+            .setValue(settings.webhooks.url ?? "")
+            .setRequired(false),
+        ),
+      ],
+      title: "Webhook Endpoint",
+    },
+  }),
 });
