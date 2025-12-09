@@ -8,7 +8,7 @@ import { PromocodeService } from "./promocode.service.js";
 @singleton()
 export class PromocodeController {
   constructor(
-    @inject(PromocodeService) private promocodeService: PromocodeService
+    @inject(PromocodeService) private promocodeService: PromocodeService,
   ) {}
 
   @On({ event: Events.ClientReady })

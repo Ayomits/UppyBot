@@ -22,41 +22,41 @@ import { AppEventHandler } from "./base.js";
 export class AppBumpBanEventHandler extends AppEventHandler {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService
+    @inject(CryptographyService) private cryptography: CryptographyService,
   ) {
     super();
     appEventEmitter.on("bump-ban:created", (opts) =>
-      this.handleBumpBanLog.bind(this)(opts, "created")
+      this.handleBumpBanLog.bind(this)(opts, "created"),
     );
     appEventEmitter.on("bump-ban:removed", (opts) =>
-      this.handleBumpBanLog.bind(this)(opts, "removed")
+      this.handleBumpBanLog.bind(this)(opts, "removed"),
     );
 
     appEventEmitter.on("bump-ban:created", (opts) =>
-      this.handleBumpBanSendWebhook.bind(this)(opts, "created")
+      this.handleBumpBanSendWebhook.bind(this)(opts, "created"),
     );
     appEventEmitter.on("bump-ban:removed", (opts) =>
-      this.handleBumpBanSendWebhook.bind(this)(opts, "removed")
+      this.handleBumpBanSendWebhook.bind(this)(opts, "removed"),
     );
 
-     appEventEmitter.on("bump-ban:created", (opts) =>
-      this.handleBumpBanSendTelegram.bind(this)(opts, "created")
+    appEventEmitter.on("bump-ban:created", (opts) =>
+      this.handleBumpBanSendTelegram.bind(this)(opts, "created"),
     );
     appEventEmitter.on("bump-ban:removed", (opts) =>
-      this.handleBumpBanSendTelegram.bind(this)(opts, "removed")
+      this.handleBumpBanSendTelegram.bind(this)(opts, "removed"),
     );
   }
 
   static create() {
     return new AppBumpBanEventHandler(
       WebhookManager.create(),
-      CryptographyService.create()
+      CryptographyService.create(),
     );
   }
 
   private async handleBumpBanLog(
     options: AppEventOptions,
-    type: "removed" | "created"
+    type: "removed" | "created",
   ) {
     if (options.settings.channels?.bumpBanChannelId) {
       const actionText =
@@ -74,41 +74,47 @@ export class AppBumpBanEventHandler extends AppEventHandler {
                       unorderedList([
                         `Пользователь: ${userMention(options.userId)}`,
                       ]),
-                    ].join("\n")
-                  )
+                    ].join("\n"),
+                  ),
                 )
                 .setThumbnailAccessory(
-                  new ThumbnailBuilder().setURL(options.avatarUrl!)
-                )
+                  new ThumbnailBuilder().setURL(options.avatarUrl!),
+                ),
             ),
           ],
           flags: MessageFlags.IsComponentsV2,
           allowedMentions: {
             users: [],
           },
-        }
+        },
       );
     }
   }
 
   private handleBumpBanSendWebhook(
     opts: AppEventOptions,
-    type: "removed" | "created"
+    type: "removed" | "created",
   ) {
     if (opts.settings?.webhooks?.url) {
       const crypto = CryptographyService.create();
       const url = opts.settings.webhooks.url;
       const token = crypto.decrypt(opts.settings.webhooks.token!);
 
-      this.webhookManager.pushConsumer(url, token, this.getWebhookData(opts, type));
+      this.webhookManager.pushConsumer(
+        url,
+        token,
+        this.getWebhookData(opts, type),
+      );
     }
   }
 
-  private handleBumpBanSendTelegram(opts: AppEventOptions,
-    type: "removed" | "created") {
+  private handleBumpBanSendTelegram(
+    opts: AppEventOptions,
+    type: "removed" | "created",
+  ) {
     this.webhookManager.pushTelegramNotification(
-        this.getWebhookData(opts, type)
-      );
+      this.getWebhookData(opts, type),
+    );
   }
 
   private getWebhookData(opts: AppEventOptions, type: "removed" | "created") {
@@ -120,7 +126,7 @@ export class AppBumpBanEventHandler extends AppEventHandler {
       {
         userId: opts.userId,
         executedAt: new Date(),
-      }
+      },
     );
   }
 }

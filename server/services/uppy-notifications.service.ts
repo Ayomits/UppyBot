@@ -73,7 +73,7 @@ export class UppyNotificationService {
 
   private async validateToken(
     guildId: string,
-    token?: string
+    token?: string,
   ): Promise<boolean> {
     if (!token) return false;
     const settingsRepository = SettingsRepository.create();

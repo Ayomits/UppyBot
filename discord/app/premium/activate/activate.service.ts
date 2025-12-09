@@ -13,12 +13,12 @@ export class PremiumActivatePromocodeService {
   constructor(
     @inject(PremiumSubscriptionManager)
     private subscriptionManager: PremiumSubscriptionManager,
-    @inject(PromocodeService) private promocodeService: PromocodeService
+    @inject(PromocodeService) private promocodeService: PromocodeService,
   ) {}
 
   async handleActivatePromocode(
     code: string,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const promocode = await PromocodeModel.model.findOne({
@@ -39,7 +39,7 @@ export class PremiumActivatePromocodeService {
 
     const isActivated = await this.promocodeService.isPromocodeActivated(
       interaction.guildId!,
-      code
+      code,
     );
 
     if (isActivated) {
@@ -49,7 +49,7 @@ export class PremiumActivatePromocodeService {
     }
 
     const existedPremium = await this.subscriptionManager.findExisted(
-      interaction.guildId!
+      interaction.guildId!,
     );
     const expiresAt = existedPremium
       ? DateTime.fromJSDate(existedPremium.expiresAt)
@@ -59,7 +59,7 @@ export class PremiumActivatePromocodeService {
 
     await this.subscriptionManager.reveal(
       interaction.guildId!,
-      newExpires.toJSDate()
+      newExpires.toJSDate(),
     );
 
     await this.promocodeService.activatePromocode(interaction.guildId!, code);

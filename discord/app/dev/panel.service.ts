@@ -30,7 +30,7 @@ export class DevPanelService {
   constructor(
     @inject(PremiumSubscriptionManager)
     private premiumSubscriptionManager: PremiumSubscriptionManager,
-    @inject(PromocodeService) private promocodeService: PromocodeService
+    @inject(PromocodeService) private promocodeService: PromocodeService,
   ) {}
 
   async handlePanel(interaction: ChatInputCommandInteraction) {
@@ -41,12 +41,12 @@ export class DevPanelService {
         builder
           .addTextDisplayComponents((builder) =>
             builder.setContent(
-              [heading("Добро пожаловать в панель разработчика")].join("\n")
-            )
+              [heading("Добро пожаловать в панель разработчика")].join("\n"),
+            ),
           )
           .setThumbnailAccessory((b) =>
-            b.setURL(UsersUtility.getAvatar(interaction.user))
-          )
+            b.setURL(UsersUtility.getAvatar(interaction.user)),
+          ),
       )
       .addSeparatorComponents((builder) => builder.setDivider(true))
       .addActionRowComponents((row) =>
@@ -54,28 +54,28 @@ export class DevPanelService {
           this.createButton(
             "Создать промокод",
             DevIds.promocodes.create,
-            ButtonStyle.Success
+            ButtonStyle.Success,
           ),
           this.createButton(
             "Удалить промокод",
             DevIds.promocodes.revoke,
-            ButtonStyle.Danger
-          )
-        )
+            ButtonStyle.Danger,
+          ),
+        ),
       )
       .addActionRowComponents((row) =>
         row.addComponents(
           this.createButton(
             "Выдать премиум",
             DevIds.premium.assign,
-            ButtonStyle.Primary
+            ButtonStyle.Primary,
           ),
           this.createButton(
             "Забрать премиум",
             DevIds.premium.revoke,
-            ButtonStyle.Secondary
-          )
-        )
+            ButtonStyle.Secondary,
+          ),
+        ),
       );
 
     const collector = createSafeCollector(
@@ -85,7 +85,7 @@ export class DevPanelService {
       }),
       {
         filter: (i) => i.user.id === interaction.user.id,
-      }
+      },
     );
 
     collector.on("collect", (btn) => {
@@ -182,7 +182,7 @@ export class DevPanelService {
       if (expiresAt) {
         response += `\n• Истекает: ${time(
           resolveTimestamp(expiresAt),
-          TimestampStyles.RelativeTime
+          TimestampStyles.RelativeTime,
         )}`;
       }
 
@@ -214,16 +214,16 @@ export class DevPanelService {
 
   private async showPromocodeModal(
     interaction: ButtonInteraction,
-    action: "create" | "revoke"
+    action: "create" | "revoke",
   ) {
     const modal = new ModalBuilder()
       .setTitle(
-        action === "create" ? "Создание промокода" : "Удаление промокода"
+        action === "create" ? "Создание промокода" : "Удаление промокода",
       )
       .setCustomId(
         action === "create"
           ? DevIds.promocodes.create
-          : DevIds.promocodes.revoke
+          : DevIds.promocodes.revoke,
       )
       .addLabelComponents((builder) =>
         builder
@@ -235,8 +235,8 @@ export class DevPanelService {
               .setMinLength(3)
               .setMaxLength(50)
               .setRequired(true)
-              .setStyle(TextInputStyle.Short)
-          )
+              .setStyle(TextInputStyle.Short),
+          ),
       );
 
     if (action === "create") {
@@ -251,8 +251,8 @@ export class DevPanelService {
                 .setMinLength(1)
                 .setMaxLength(10)
                 .setRequired(true)
-                .setStyle(TextInputStyle.Short)
-            )
+                .setStyle(TextInputStyle.Short),
+            ),
         )
         .addLabelComponents((builder) =>
           builder
@@ -263,8 +263,8 @@ export class DevPanelService {
                 .setPlaceholder("Например: 1h")
                 .setMinLength(2)
                 .setRequired(true)
-                .setStyle(TextInputStyle.Short)
-            )
+                .setStyle(TextInputStyle.Short),
+            ),
         )
         .addLabelComponents((builder) =>
           builder
@@ -275,8 +275,8 @@ export class DevPanelService {
                 .setPlaceholder("Например: 1h")
                 .setMinLength(2)
                 .setRequired(true)
-                .setStyle(TextInputStyle.Short)
-            )
+                .setStyle(TextInputStyle.Short),
+            ),
         );
     }
 
@@ -285,12 +285,12 @@ export class DevPanelService {
 
   private async showPremiumModal(
     interaction: ButtonInteraction,
-    action: "assign" | "revoke"
+    action: "assign" | "revoke",
   ) {
     const modal = new ModalBuilder()
       .setTitle(action === "assign" ? "Выдать премиум" : "Снять премиум")
       .setCustomId(
-        action === "assign" ? DevIds.premium.assign : DevIds.premium.revoke
+        action === "assign" ? DevIds.premium.assign : DevIds.premium.revoke,
       )
       .addLabelComponents((builder) =>
         builder.setLabel("ID сервера").setTextInputComponent((builder) =>
@@ -299,8 +299,8 @@ export class DevPanelService {
             .setPlaceholder("Например: 123456789012345678")
             .setValue(interaction.guildId ?? "")
             .setRequired(true)
-            .setStyle(TextInputStyle.Short)
-        )
+            .setStyle(TextInputStyle.Short),
+        ),
       );
 
     if (action === "assign") {
@@ -312,8 +312,8 @@ export class DevPanelService {
               .setCustomId("duration")
               .setPlaceholder("1d 12h")
               .setRequired(true)
-              .setStyle(TextInputStyle.Short)
-          )
+              .setStyle(TextInputStyle.Short),
+          ),
       );
     }
 
@@ -363,7 +363,7 @@ export class DevPanelService {
       return interaction.editReply({
         content: `Премиум выдан до ${time(
           resolveTimestamp(newExpires),
-          TimestampStyles.LongDateTime
+          TimestampStyles.LongDateTime,
         )}`,
       });
     }

@@ -22,7 +22,7 @@ import { DevPanelService } from "./panel.service.js";
 @SlashGroup("dev")
 export class DevController {
   constructor(
-    @inject(DevPanelService) private devPanelService: DevPanelService
+    @inject(DevPanelService) private devPanelService: DevPanelService,
   ) {}
 
   @Slash({
