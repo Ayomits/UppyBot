@@ -1,6 +1,7 @@
+import type {
+  ChatInputCommandInteraction} from "discord.js";
 import {
-  ApplicationCommandOptionType,
-  ChatInputCommandInteraction,
+  ApplicationCommandOptionType
 } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashGroup, SlashOption } from "discordx";
 import { inject, singleton } from "tsyringe";
