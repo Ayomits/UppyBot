@@ -1,9 +1,7 @@
 import { Menu, MenuRange } from "@grammyjs/menu";
-import type { AxiosError } from "axios";
 
 import { fetchOauth2UppyUrl } from "#/shared/api/uppy/index.js";
 import { NotificationUserTokenRepository } from "#/shared/db/repositories/uppy-telegram/token.repository.js";
-import { logger } from "#/shared/libs/logger/index.js";
 import type { AppContext } from "#/telegram/utils/ctx.js";
 
 export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
@@ -12,8 +10,7 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
     const authorId = ctx.from!.id;
     const token = await repository.sign(authorId);
     const payload = await fetchOauth2UppyUrl(authorId, token).catch(
-      (err: AxiosError) => {
-        logger.info(err.status);
+      () => {
         return null;
       },
     );
