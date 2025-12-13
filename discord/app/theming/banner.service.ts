@@ -25,13 +25,13 @@ export class BannerService extends BaseThemingService {
 
     const bannerName = getBannerName(options.theme ?? AppThemes.Green);
     const bg = await this.loadImage(bannerName!);
+    await this.loadFont("Onest-Extrabold.ttf", "onest-extrabold");
+    
     ctx.drawImage(bg, 0, 0);
-
-    await this.loadFont("Onest-Extrabold.ttf", "Onest-Extrabold");
 
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#ffffff";
-    ctx.font = "48px Onest-Extrabold";
+    ctx.font = "48px onest-extrabold";
     ctx.textAlign = "left";
 
     const baseX = 1001;
@@ -42,23 +42,23 @@ export class BannerService extends BaseThemingService {
     ctx.strokeText(
       options.serversCount.toLocaleString(),
       baseX + 119,
-      baseY + 65,
+      baseY + 65
     );
     ctx.fillText(
       options.serversCount.toLocaleString(),
       baseX + 119,
-      baseY + 65,
+      baseY + 65
     );
 
     ctx.strokeText(
       options.memberCount.toLocaleString(),
       baseX + 119,
-      baseY + 160 + 45,
+      baseY + 160 + 45
     );
     ctx.fillText(
       options.memberCount.toLocaleString(),
       baseX + 119,
-      baseY + 160 + 45,
+      baseY + 160 + 45
     );
 
     return canvas.toBuffer("image/png");
