@@ -8,14 +8,9 @@ import type { AppRemindExecute } from "#/discord/events/types.js";
 import { type SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { RemindRepository } from "#/shared/db/repositories/uppy-discord/remind.repository.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
-import { logger } from "#/shared/libs/logger/index.js";
 import { scheduleManager } from "#/shared/libs/schedule/schedule.manager.js";
 
-import {
-  getBotByRemindType,
-  getCommandNameByRemindType,
-  MonitoringType,
-} from "./reminder.const.js";
+import { MonitoringType } from "./reminder.const.js";
 import type { ParserValue } from "./reminder.parser.js";
 
 @injectable()
@@ -114,7 +109,7 @@ export class ReminderScheduleManager {
     settings: SettingsDocument,
     type: number,
   ) {
-    const { id: guildId, name: guildName } = guild;
+    const { id: guildId } = guild;
     const remindTimestamp = DateTime.fromJSDate(remind.timestamp!);
     const currentTimestamp = DateTime.now();
 
@@ -141,30 +136,18 @@ export class ReminderScheduleManager {
     };
 
     if (shouldStartCommon) {
-      this.logRemindStart(type, guildName, "common");
       scheduleManager.updateJob(commonId, remindTimestamp.toJSDate(), () =>
         this.sendRemind(remindData, "common"),
       );
     }
 
     if (shouldStartForce) {
-      this.logRemindStart(type, guildName, "force");
       scheduleManager.updateJob(
         forceId,
         remindTimestamp.minus({ seconds: forceSeconds }).toJSDate(),
         () => this.sendRemind(remindData, "force"),
       );
     }
-  }
-
-  private logRemindStart(
-    type: number,
-    guildName: string,
-    scheduleType: "force" | "common",
-  ) {
-    logger.info(
-      `${scheduleType === "force" ? "Force" : "Common"} remind /${getCommandNameByRemindType(type)} (${getBotByRemindType(type)}) started for guild: ${guildName}`,
-    );
   }
 
   private generateId(
