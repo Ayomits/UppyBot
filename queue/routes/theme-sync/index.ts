@@ -25,10 +25,16 @@ export const themeSyncRoute = createRoute<ThemeSyncPayload>({
     const guildRepository = GuildRepository.create();
 
     const memberCount = sum(
-      ...discordClient.guilds.cache.map((g) => g.memberCount),
+      ...discordClient.guilds.cache.map((g) => g.memberCount)
     );
     const serversCount = await guildRepository.count({ isActive: true });
-    const guild = discordClient.guilds.cache.get(data.guildId);
+    const guild = await discordClient.guilds
+      .fetch(data.guildId)
+      .catch(() => null);
+
+    if (!guild) {
+      return;
+    }
 
     async function edit(field: string, value: Buffer) {
       await guild?.members
@@ -52,7 +58,7 @@ export const themeSyncRoute = createRoute<ThemeSyncPayload>({
           theme: data.theme,
           memberCount,
           serversCount,
-        }),
+        })
       );
     }
 
@@ -61,7 +67,7 @@ export const themeSyncRoute = createRoute<ThemeSyncPayload>({
         "avatar",
         await avatarService.draw({
           theme: data.theme,
-        }),
+        })
       );
     }
   },
@@ -74,7 +80,7 @@ export const themeSyncGlobal = createRoute({
     const guildRepository = GuildRepository.create();
 
     const memberCount = sum(
-      ...discordClient.guilds.cache.map((g) => g.memberCount),
+      ...discordClient.guilds.cache.map((g) => g.memberCount)
     );
     const serversCount = await guildRepository.count({ isActive: true });
 
