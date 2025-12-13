@@ -31,7 +31,20 @@ export class ThemingService {
         hasAvatar: !!settings.theming?.avatar,
         hasBanner: !!settings.theming?.banner,
       });
+      setInterval(() => {
+        this.handleInterval(guild!.id);
+      }, Time.minute * 30);
     }
+  }
+
+  async handleInterval(guildId: string) {
+    const settings = await this.settingsRepository.findGuildSettings(guildId);
+    themeSyncRoute.produce({
+      theme: settings.theming?.theme ?? AppThemes?.Green,
+      guildId: guildId,
+      hasAvatar: !!settings.theming?.avatar,
+      hasBanner: !!settings.theming?.banner,
+    });
   }
 
   async handleInitGlobal() {
