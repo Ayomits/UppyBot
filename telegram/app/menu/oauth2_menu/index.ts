@@ -9,11 +9,9 @@ export const oauth2Menu = new Menu<AppContext>("oauth2_menu").dynamic(
     const repository = NotificationUserTokenRepository.create();
     const authorId = ctx.from!.id;
     const token = await repository.sign(authorId);
-    const payload = await fetchOauth2UppyUrl(authorId, token).catch(
-      () => {
-        return null;
-      },
-    );
+    const payload = await fetchOauth2UppyUrl(authorId, token).catch(() => {
+      return null;
+    });
 
     const range = new MenuRange<AppContext>();
 

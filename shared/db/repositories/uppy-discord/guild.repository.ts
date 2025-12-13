@@ -21,6 +21,10 @@ export class GuildRepository {
     return await GuildModel.model.find(filter);
   }
 
+  async count(filter: FilterQuery<Guild>) {
+    return await GuildModel.model.countDocuments(filter);
+  }
+
   async createMany(docs: Guild[]) {
     return await GuildModel.model.insertMany(docs);
   }

@@ -180,7 +180,7 @@ export class DiscordAuthService {
   private createPayload(chatId: number, token: string): Payload {
     return {
       chatId,
-      token,
+      token: token.trim(),
     };
   }
 }

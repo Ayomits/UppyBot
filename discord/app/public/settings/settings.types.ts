@@ -1,4 +1,8 @@
-import type { ChannelType, LabelBuilder } from "discord.js";
+import type {
+  ChannelType,
+  LabelBuilder,
+  StringSelectMenuOptionBuilder,
+} from "discord.js";
 
 import type { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
@@ -13,6 +17,7 @@ export type SettingsConfig = {
     choice: "multi" | "single";
     placeholder: string;
     channelTypes?: ChannelType[];
+    choices?: StringSelectMenuOptionBuilder[];
   };
   toggle?: boolean;
   modal?: {

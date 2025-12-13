@@ -38,7 +38,7 @@ export class PromocodeService {
       { code: code },
       {
         $push: { entries: guildId },
-      }
+      },
     );
   }
 
@@ -50,7 +50,7 @@ export class PromocodeService {
     const promo = await PromocodeModel.model.findOneAndUpdate(
       { code: dto.code },
       dto,
-      { upsert: true, setDefaultsOnInsert: true, new: true }
+      { upsert: true, setDefaultsOnInsert: true, new: true },
     );
     this.pushSchedule(promo._id, promo.expiresAt);
   }

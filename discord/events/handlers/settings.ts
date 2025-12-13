@@ -2,7 +2,9 @@ import { BumpBanService } from "#/discord/app/public/bump-ban/bump-ban.service.j
 import { MonitoringType } from "#/discord/app/public/reminder/reminder.const.js";
 import { ReminderScheduleManager } from "#/discord/app/public/reminder/reminder.schedule.js";
 import { discordClient } from "#/discord/client.js";
+import { AppThemes } from "#/discord/const/themes.js";
 import { appEventEmitter } from "#/discord/events/index.js";
+import { themeSyncRoute } from "#/queue/routes/theme-sync/index.js";
 import { BumpBanModel } from "#/shared/db/models/uppy-discord/bump-ban.model.js";
 import { RemindModel } from "#/shared/db/models/uppy-discord/remind.model.js";
 import type {
@@ -14,6 +16,7 @@ export class AppSettingsEventHandler {
   constructor() {
     appEventEmitter.on("settings:updated", this.handleBumpBanUpdate.bind(this));
     appEventEmitter.on("settings:updated", this.handleRemindUpdate.bind(this));
+    appEventEmitter.on("settings:updated", this.handleThemingUpdate.bind(this));
   }
 
   static create() {
@@ -94,5 +97,14 @@ export class AppSettingsEventHandler {
         timestamp: remind.timestamp,
       });
     }
+  }
+
+  private async handleThemingUpdate(opts: Partial<Settings>) {
+    await themeSyncRoute.produce({
+      guildId: opts.guildId!,
+      theme: opts.theming?.theme ?? AppThemes.Green,
+      hasAvatar: !!opts.theming?.avatar,
+      hasBanner: !!opts.theming?.banner,
+    });
   }
 }

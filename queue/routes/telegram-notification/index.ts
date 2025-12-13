@@ -1,5 +1,3 @@
-import { logger } from "@typegoose/typegoose/lib/logSettings.js";
-
 import { webhookEndpoint } from "#/discord/libs/telegram/index.js";
 import { QueueMessages } from "#/queue/const/index.js";
 import { webhookRoute } from "#/queue/routes/webhooks/index.js";
@@ -47,8 +45,6 @@ export const telegramNotificationRemindRoute = createRoute({
     };
 
     const users = await repository.find(filter);
-
-    logger.info(`Found ${users.length} users for notify`);
 
     const settingsRepository = SettingsRepository.create();
     const settings = await settingsRepository.findGuildSettings(data.guildId);

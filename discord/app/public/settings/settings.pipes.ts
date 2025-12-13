@@ -1,6 +1,11 @@
 import { LabelBuilder, spoiler, TextInputStyle } from "discord.js";
 
 import {
+  AppThemes,
+  getThemeLabel,
+  getThemeStringSelectOptions,
+} from "#/discord/const/themes.js";
+import {
   baseCommonRemindTemplate,
   baseForceRemindTemplate,
 } from "#/discord/libs/templates/index.js";
@@ -177,6 +182,18 @@ export const SettingsThemingPipeline = createPipeline({
           ),
       ],
       title: "Обо мне",
+    },
+  }),
+  theme: createConfig({
+    label: "Обо мне",
+    type: "value",
+    field: "theming.theme",
+    display: (settings) =>
+      getThemeLabel(settings.theming?.theme ?? AppThemes.Green),
+    select: {
+      choice: "single",
+      placeholder: "Выберите тему",
+      choices: getThemeStringSelectOptions(),
     },
   }),
 });
