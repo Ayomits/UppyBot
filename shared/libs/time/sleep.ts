@@ -1,6 +1,2 @@
-export const sleep = async (time: number) =>
-  new Promise((resolve) =>
-    setTimeout(() => {
-      resolve(true);
-    }, time),
-  );
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
