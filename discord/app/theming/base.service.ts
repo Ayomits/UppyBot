@@ -13,7 +13,7 @@ export class BaseThemingService {
   }
 
   protected async loadFont(
-    name: string = "Onest-Extrabold.ttf",
+    name: string = "Onest-ExtraBold.ttf",
     alias?: string,
   ) {
     GlobalFonts.registerFromPath(
