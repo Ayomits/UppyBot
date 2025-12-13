@@ -84,14 +84,11 @@ export class WebLikeSyncManager implements Loop {
     if (!guild) return;
     const guildId = guild.id;
     const users = await this.parseHtml(guildId);
-    logger.info(`Start like sync for guild ${guildId}`);
     if (users.length === 0) {
-      logger.info(`No web like users for ${guildId}. Skip`);
       return;
     }
     const settings = await this.settingsRepository.findGuildSettings(guildId);
     const lastUser = users[users.length - 1];
-    logger.info(`${users.length} users for ${guildId} syncing`);
     await Promise.all([
       ...users.map((user) =>
         this.ensureBumpUser(
@@ -104,7 +101,6 @@ export class WebLikeSyncManager implements Loop {
       ),
       this.ensureRemind(guild!, lastUser.timestamp, settings),
     ]);
-    logger.info(`${users.length} users for ${guildId} synced`);
   }
 
   private async ensureBumpUser(

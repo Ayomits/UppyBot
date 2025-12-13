@@ -14,4 +14,8 @@ export const QueueMessages = {
   like: {
     sync: "likes.sync",
   },
+  theme: {
+    sync: "theme.sync",
+    syncGlobal: "theme.syncGlobal",
+  },
 } as const;

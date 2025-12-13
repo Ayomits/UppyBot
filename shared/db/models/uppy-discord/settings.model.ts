@@ -3,6 +3,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses.js";
 import type { ColorResolvable } from "discord.js";
 import { Colors } from "discord.js";
 
+import { AppThemes } from "#/discord/const/themes.js";
 import {
   baseCommonRemindTemplate,
   baseForceRemindTemplate,
@@ -128,13 +129,20 @@ export class Settings extends TimeStamps {
   };
 
   @prop({
-    default: { avatar: null, banner: null, bio: null, color: Colors.Default },
+    default: {
+      avatar: null,
+      banner: null,
+      bio: null,
+      color: Colors.Default,
+      theme: AppThemes.Green,
+    },
   })
   theming: {
     avatar: string | null;
     banner: string | null;
     bio: string | null;
     color: ColorResolvable | null;
+    theme: string;
   };
 
   @prop({ default: { enabled: false } })

@@ -25,6 +25,7 @@ import {
 } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
+import { appEventEmitter } from "#/discord/events/index.js";
 import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
 import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
 import { GuildRepository } from "#/shared/db/repositories/uppy-discord/guild.repository.js";
@@ -42,7 +43,6 @@ import {
 } from "./settings.config.js";
 import { SettingsIds, SettingsStartPipeline } from "./settings.const.js";
 import type { SettingsConfig } from "./settings.types.js";
-import { appEventEmitter } from "#/discord/events/index.js";
 
 @injectable()
 export class SettingsService {
@@ -171,8 +171,17 @@ export class SettingsService {
 
     const currentValue = getNestedValue(currentSettings, config.field);
 
-    let selector: ChannelSelectMenuBuilder | RoleSelectMenuBuilder =
-      new ChannelSelectMenuBuilder();
+    let selector:
+      | ChannelSelectMenuBuilder
+      | RoleSelectMenuBuilder
+      | StringSelectMenuBuilder = new ChannelSelectMenuBuilder();
+
+    if (config.type === "value" && (config.select?.choices?.length ?? 0) > 0) {
+      selector = new StringSelectMenuBuilder()
+        .setMinValues(0)
+        .setMaxValues(1)
+        .addOptions(config.select!.choices!);
+    }
 
     if (config.type === "channel") {
       selector = new ChannelSelectMenuBuilder()

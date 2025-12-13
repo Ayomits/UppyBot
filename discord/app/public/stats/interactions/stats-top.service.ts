@@ -20,7 +20,7 @@ export class LeaderboardService extends BaseUppyService {
   public async handleTopCommand(
     interaction: ChatInputCommandInteraction,
     from?: string,
-    to?: string
+    to?: string,
   ) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -49,7 +49,7 @@ export class LeaderboardService extends BaseUppyService {
             page,
             maxPages,
             data,
-            interaction.user
+            interaction.user,
           ),
         ],
       };
@@ -85,7 +85,7 @@ export class LeaderboardService extends BaseUppyService {
 
   private async fetchLeaderboardPage(
     page: number,
-    filter: mongoose.FilterQuery<BumpUser>
+    filter: mongoose.FilterQuery<BumpUser>,
   ) {
     const skip = page * PaginationLimit;
     const [data] = await BumpUserModel.model.aggregate([
@@ -145,7 +145,7 @@ export class LeaderboardService extends BaseUppyService {
     page: number,
     maxPages: number,
     payload: Awaited<ReturnType<typeof this.fetchLeaderboardPage>>,
-    user: User
+    user: User,
   ) {
     const embed = new EmbedBuilder().setDefaults(user);
     const description =
@@ -161,7 +161,7 @@ export class LeaderboardService extends BaseUppyService {
                   serverMonitoring,
                   _id: userId,
                 },
-                index
+                index,
               ) => {
                 const position = page * PaginationLimit + index + 1;
                 return [
@@ -170,7 +170,7 @@ export class LeaderboardService extends BaseUppyService {
                   `• Up: ${sdcMonitoring} | Like: ${dsMonitoring} | Bump: ${serverMonitoring}`,
                   "",
                 ].join("\n");
-              }
+              },
             )
             .join("\n");
 
