@@ -25,7 +25,7 @@ export class BannerService extends BaseThemingService {
 
     const bannerName = getBannerName(options.theme ?? AppThemes.Green);
     const bg = await this.loadImage(bannerName!);
-    await this.loadFont("Onest-Extrabold.ttf", "onest-extrabold");
+    await this.loadFont("Onest-ExtraBold.ttf", "onest-extrabold");
     
     ctx.drawImage(bg, 0, 0);
 
