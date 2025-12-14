@@ -185,7 +185,7 @@ export const SettingsThemingPipeline = createPipeline({
     },
   }),
   theme: createConfig({
-    label: "Обо мне",
+    label: "Тема",
     type: "value",
     field: "theming.theme",
     display: (settings) =>
