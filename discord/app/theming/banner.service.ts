@@ -50,17 +50,6 @@ export class BannerService extends BaseThemingService {
       baseY + 65
     );
 
-    ctx.strokeText(
-      options.memberCount.toLocaleString(),
-      baseX + 119,
-      baseY + 160 + 45
-    );
-    ctx.fillText(
-      options.memberCount.toLocaleString(),
-      baseX + 119,
-      baseY + 160 + 45
-    );
-
     return canvas.toBuffer("image/png");
   }
 }
