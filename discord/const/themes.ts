@@ -39,7 +39,7 @@ export function getThemeLabel(theme: string): string {
     [AppThemes.Orange]: "Оранжевая",
     [AppThemes.Pink]: "Розовая",
     [AppThemes.Purple]: "Фиолетовая",
-    [AppThemes.Sky]: "Небесная",
+    [AppThemes.Sky]: "Голубая",
     [AppThemes.White]: "Белая",
     [AppThemes.Yellow]: "Желтая",
   };
