@@ -12,13 +12,10 @@ export class BaseThemingService {
     return await loadCanvasImage(resultPath);
   }
 
-  protected async loadFont(
-    name: string = "Onest-ExtraBold.ttf",
-    alias?: string,
-  ) {
+  protected async loadFont(name: string, alias?: string) {
     GlobalFonts.registerFromPath(
       join(dirname(import.meta.url), `${this.root}/assets/fonts/${name}`),
-      alias,
+      alias
     );
   }
 }
