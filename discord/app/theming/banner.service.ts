@@ -39,15 +39,16 @@ export class BannerService extends BaseThemingService {
 
     ctx.lineWidth = 3;
 
-    ctx.strokeText(
-      options.serversCount.toLocaleString(),
-      baseX + 119,
-      baseY + 65
-    );
     ctx.fillText(
       options.serversCount.toLocaleString(),
       baseX + 119,
       baseY + 65
+    );
+
+    ctx.fillText(
+      options.memberCount.toLocaleString(),
+      baseX + 119,
+      baseY + 160 + 45
     );
 
     return canvas.toBuffer("image/png");
