@@ -19,7 +19,6 @@ import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settin
 import { createBump } from "#/shared/db/utils/create-bump.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { UsersUtility } from "#/shared/libs/embed/users.utility.js";
-import { logger } from "#/shared/libs/logger/index.js";
 
 import { fetchServer } from "../../shared/api/ds-monitoring/index.js";
 import { WebhookManager } from "../../shared/webhooks/webhook.manager.js";
@@ -43,13 +42,9 @@ export class WebLikeSyncManager implements Loop {
   ) {}
 
   async create() {
-    logger.log("Initial like sync stated");
     await this.task();
-    logger.log("Initial like sync ended");
     setInterval(async () => {
-      logger.log("Like sync started");
       await this.task();
-      logger.log("Like sync ended");
     }, 300_000);
   }
 

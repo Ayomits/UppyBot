@@ -201,7 +201,6 @@ export const themeSyncGlobal = createRoute({
       await checkCancelled();
 
       await discordClient.user?.edit(options).catch(async (err) => {
-        console.error(err);
         if (err instanceof DiscordAPIError) {
           if (err.code === 50035) {
             await sleep(Time.minute * 1.5);
