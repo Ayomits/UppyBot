@@ -74,7 +74,7 @@ class RedisClient {
   async delByPattern(pattern: string) {
     if (pattern === "*" || pattern === "") {
       throw new Error(
-        "Dangerous pattern detected. Use explicit method for full cleanup."
+        "Dangerous pattern detected. Use explicit method for full cleanup.",
       );
     }
 
@@ -88,7 +88,7 @@ class RedisClient {
         "MATCH",
         pattern,
         "COUNT",
-        100
+        100,
       );
       cursor = newCursor;
 

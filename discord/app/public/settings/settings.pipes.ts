@@ -37,14 +37,14 @@ export const SettingsRemindsPipeline = createPipeline({
   managerRoles: createConfig({
     ...baseConfigs.multiRole(
       "roles.managerRoles",
-      "Роли с расширенными правами"
+      "Роли с расширенными правами",
     ),
     disabled: (s) => createDisabledCondition("remind", s),
   }),
   pingChannelId: createConfig({
     ...baseConfigs.singleChannel(
       "channels.pingChannelId",
-      "Канал для напоминаний"
+      "Канал для напоминаний",
     ),
     disabled: (s) => createDisabledCondition("remind", s),
   }),
@@ -69,7 +69,7 @@ export const SettingsForceRemindsPipeline = createPipeline({
         new LabelBuilder()
           .setLabel("Секунды")
           .setTextInputComponent(
-            createNumberInput("value", settings.force?.seconds ?? 0)
+            createNumberInput("value", settings.force?.seconds ?? 0),
           ),
       ],
     },
@@ -157,7 +157,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? "")
+            .setValue(settings.theming?.banner ?? ""),
         ),
       ],
       title: "Аватар",
@@ -175,7 +175,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? "")
+            .setValue(settings.theming?.banner ?? ""),
         ),
       ],
       title: "Баннер",
@@ -198,7 +198,7 @@ export const SettingsThemingPipeline = createPipeline({
               .setCustomId("value")
               .setStyle(TextInputStyle.Paragraph)
               .setRequired(false)
-              .setValue(settings.theming?.bio ?? "")
+              .setValue(settings.theming?.bio ?? ""),
           ),
       ],
       title: "Обо мне",
@@ -225,14 +225,14 @@ export const SettingsLoggingPipeline = createPipeline({
   bumpBanLogs: createConfig({
     ...baseConfigs.singleChannel(
       "channels.bumpBanChannelId",
-      "Логгирование бамп банов"
+      "Логгирование бамп банов",
     ),
     disabled: (s) => createDisabledCondition("bumpBan", s),
   }),
   commandLogs: createConfig({
     ...baseConfigs.singleChannel(
       "channels.commandChannelId",
-      "Логгирование команд"
+      "Логгирование команд",
     ),
   }),
 });
@@ -253,7 +253,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.common ?? baseCommonRemindTemplate)
+            .setValue(settings.templates.common ?? baseCommonRemindTemplate),
         ),
       ],
       title: "Шаблон для обычных напоминаний",
@@ -274,7 +274,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.force ?? baseForceRemindTemplate)
+            .setValue(settings.templates.force ?? baseForceRemindTemplate),
         ),
       ],
       title: "Шаблон для преждевременных напоминаний",
@@ -288,22 +288,22 @@ export const SettingsDevLogPipeline = createPipeline({
     baseConfigs.singleChannel(
       "dev.premiumLogs",
       "Логгирование премиума",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
   inviteLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.inviteLogs",
       "Логгирование инвайтов",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
   remindLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.remindLogs",
       "Логи напоминаний (чужих)",
-      GuildType.Developer
-    )
+      GuildType.Developer,
+    ),
   ),
 });
 
@@ -324,7 +324,7 @@ export const SettingsWebhookPipeline = createPipeline({
             .setMinLength(0)
             .setStyle(TextInputStyle.Short)
             .setValue(settings.webhooks.url ?? "")
-            .setRequired(false)
+            .setRequired(false),
         ),
       ],
       title: "Webhook Endpoint",

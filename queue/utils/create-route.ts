@@ -24,7 +24,7 @@ export function createRoute<T = object>(opts: CreateRouteOptions<T>) {
         opts.queueOpts ?? {
           durable: true,
           autoDelete: false,
-        }
+        },
       );
 
       await channel.consume(queue, async (msg) => {
