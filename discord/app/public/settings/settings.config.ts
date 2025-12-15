@@ -12,6 +12,7 @@ import {
   SettingsThemingPipeline,
   SettingsWebhookPipeline,
 } from "./settings.pipes.js";
+import { type SettingsPipelinesConfig } from "./settings.types.js";
 
 export const SettingsNavigation: {
   label: string;
@@ -99,7 +100,7 @@ export function getSectionName(name: keyof typeof SettingsPipelines) {
   return names[name] || "";
 }
 
-export const SettingsPipelines = {
+export const SettingsPipelines: SettingsPipelinesConfig = {
   points: {
     access: GuildType.Common,
     pipeline: SettingsPointsPipeline,

@@ -22,21 +22,35 @@ function createRedis() {
   return new Redis(options);
 }
 
-const redis = createRedis();
+export const redis = createRedis();
 
 class RedisClient {
   static create() {
     return new RedisClient();
   }
 
-  async getJson<T>(key: string): Promise<T | null> {
+  async get(key: string) {
     const value = await redis.get(key);
     if (!value) {
       logger.debug("CACHE MISS:", key);
       return null;
     }
     logger.debug("CACHE HIT:", key);
+    return value;
+  }
+
+  async getJson<T>(key: string): Promise<T | null> {
+    const value = await this.get(key);
+    if (!value) {
+      return null;
+    }
     return JSON.parse(value) as T;
+  }
+
+  async set(key: string, value: string, ttl: number) {
+    return await redis
+      .set(key, JSON.stringify(value), "EX", ttl)
+      .then(() => logger.debug("CACHE SET:", key));
   }
 
   async setJson<T>(key: string, value: T, ttl: number) {
@@ -60,7 +74,7 @@ class RedisClient {
   async delByPattern(pattern: string) {
     if (pattern === "*" || pattern === "") {
       throw new Error(
-        "Dangerous pattern detected. Use explicit method for full cleanup.",
+        "Dangerous pattern detected. Use explicit method for full cleanup."
       );
     }
 
@@ -74,7 +88,7 @@ class RedisClient {
         "MATCH",
         pattern,
         "COUNT",
-        100,
+        100
       );
       cursor = newCursor;
 

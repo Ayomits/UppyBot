@@ -7,7 +7,10 @@ import {
 } from "discord.js";
 
 import { GuildType } from "#/shared/db/models/uppy-discord/guild.model.js";
-import type { SettingsDocument } from "#/shared/db/models/uppy-discord/settings.model.js";
+import type {
+  Settings,
+  SettingsDocument,
+} from "#/shared/db/models/uppy-discord/settings.model.js";
 
 import { pointModalId } from "./settings.const.js";
 import type {
@@ -19,7 +22,7 @@ export const baseConfigs = {
   multiRole: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -31,7 +34,7 @@ export const baseConfigs = {
   singleChannel: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -47,7 +50,7 @@ export const baseConfigs = {
   toggle: (
     field: string,
     label: string,
-    access: GuildType = GuildType.Common,
+    access: GuildType = GuildType.Common
   ): SettingsConfig => ({
     label,
     field,
@@ -59,7 +62,7 @@ export const baseConfigs = {
 
 export const createPointsMonitoringConfig = (
   service: string,
-  label: string,
+  label: string
 ): SettingsConfig => ({
   label,
   field: `points.${service}`,
@@ -76,12 +79,12 @@ export const createPointsMonitoringConfig = (
       new LabelBuilder()
         .setLabel("Обычно")
         .setTextInputComponent(
-          createNumberInput("default", settings.points?.[service]?.default),
+          createNumberInput("default", settings.points?.[service]?.default)
         ),
       new LabelBuilder()
         .setLabel("Бонус")
         .setTextInputComponent(
-          createNumberInput("bonus", settings.points?.[service]?.bonus),
+          createNumberInput("bonus", settings.points?.[service]?.bonus)
         ),
     ],
   },
@@ -101,3 +104,9 @@ export const createPipeline = (pipe: SettingsPipelineConfig) => {
 export const createConfig = (cfg: SettingsConfig) => {
   return cfg;
 };
+
+export function createDisabledCondition(field: keyof Settings, self: Settings) {
+  const value = self[field];
+  const fieldValue = !!value?.["enabled"];
+  return !fieldValue;
+}
