@@ -21,6 +21,7 @@ import {
 import {
   baseConfigs,
   createConfig,
+  createDisabledCondition,
   createNumberInput,
   createPipeline,
   createPointsMonitoringConfig,
@@ -29,21 +30,28 @@ import {
 // Напоминания
 export const SettingsRemindsPipeline = createPipeline({
   enabled: createConfig(baseConfigs.toggle("remind.enabled", "Состояние")),
-  pingRoles: createConfig(
-    baseConfigs.multiRole("roles.pingRoles", "Роли для упоминаний"),
-  ),
-  managerRoles: createConfig(
-    baseConfigs.multiRole("roles.managerRoles", "Роли с расширенными правами"),
-  ),
-  pingChannelId: createConfig(
-    baseConfigs.singleChannel(
-      "channels.pingChannelId",
-      "Канал для напоминаний",
+  pingRoles: createConfig({
+    ...baseConfigs.multiRole("roles.pingRoles", "Роли для упоминаний"),
+    disabled: (s) => createDisabledCondition("remind", s),
+  }),
+  managerRoles: createConfig({
+    ...baseConfigs.multiRole(
+      "roles.managerRoles",
+      "Роли с расширенными правами"
     ),
-  ),
-  bumpChannelId: createConfig(
-    baseConfigs.singleChannel("channels.bumpChannelId", "Канал для команд"),
-  ),
+    disabled: (s) => createDisabledCondition("remind", s),
+  }),
+  pingChannelId: createConfig({
+    ...baseConfigs.singleChannel(
+      "channels.pingChannelId",
+      "Канал для напоминаний"
+    ),
+    disabled: (s) => createDisabledCondition("remind", s),
+  }),
+  bumpChannelId: createConfig({
+    ...baseConfigs.singleChannel("channels.bumpChannelId", "Канал для команд"),
+    disabled: (s) => createDisabledCondition("remind", s),
+  }),
 });
 
 // Преждевременные напоминания
@@ -53,6 +61,7 @@ export const SettingsForceRemindsPipeline = createPipeline({
     label: "Секунд до преждевременного пинга",
     field: "force.seconds",
     type: "value" as const,
+    disabled: (s) => createDisabledCondition("force", s),
     modal: {
       customId: forceModalId,
       title: "Преждевременный пинг",
@@ -60,7 +69,7 @@ export const SettingsForceRemindsPipeline = createPipeline({
         new LabelBuilder()
           .setLabel("Секунды")
           .setTextInputComponent(
-            createNumberInput("value", settings.force?.seconds ?? 0),
+            createNumberInput("value", settings.force?.seconds ?? 0)
           ),
       ],
     },
@@ -70,16 +79,22 @@ export const SettingsForceRemindsPipeline = createPipeline({
 // Поинты
 export const SettingsPointsPipeline = createPipeline({
   enabled: createConfig(baseConfigs.toggle("points.enabled", "Состояние")),
-  dsMonitoring: createConfig(
-    createPointsMonitoringConfig("dsMonitoring", "Ds monitoring"),
-  ),
-  disboard: createConfig(
-    createPointsMonitoringConfig("disboard", "Disboard monitoring"),
-  ),
-  sdc: createConfig(createPointsMonitoringConfig("sdc", "Sdc monitoring")),
-  server: createConfig(
-    createPointsMonitoringConfig("server", "Server Monitoring"),
-  ),
+  dsMonitoring: createConfig({
+    ...createPointsMonitoringConfig("dsMonitoring", "Ds monitoring"),
+    disabled: (s) => createDisabledCondition("points", s),
+  }),
+  disboard: createConfig({
+    ...createPointsMonitoringConfig("disboard", "Disboard monitoring"),
+    disabled: (s) => createDisabledCondition("points", s),
+  }),
+  sdc: {
+    ...createConfig(createPointsMonitoringConfig("sdc", "Sdc monitoring")),
+    disabled: (s) => createDisabledCondition("points", s),
+  },
+  server: createConfig({
+    ...createPointsMonitoringConfig("server", "Server Monitoring"),
+    disabled: (s) => createDisabledCondition("points", s),
+  }),
 });
 
 // KD система
@@ -89,21 +104,25 @@ export const SettingsKdPipeline = createPipeline({
     ...baseConfigs.toggle("kd.enabled", "Состояние"),
   }),
   dsMonitoring: createConfig({
+    disabled: (s) => createDisabledCondition("kd", s),
     label: "Ds monitoring",
     field: "kd.dsMonitoring",
     type: "value" as const,
   }),
   disboard: createConfig({
+    disabled: (s) => createDisabledCondition("kd", s),
     label: "Disboard monitoring",
     field: "kd.disboard",
     type: "value" as const,
   }),
   sdc: createConfig({
+    disabled: (s) => createDisabledCondition("kd", s),
     label: "Sdc monitoring",
     field: "kd.sdc",
     type: "value" as const,
   }),
   server: createConfig({
+    disabled: (s) => createDisabledCondition("kd", s),
     label: "Server Monitoring",
     field: "kd.server",
     type: "value" as const,
@@ -114,6 +133,7 @@ export const SettingsKdPipeline = createPipeline({
 export const SettingsBumpBanPipeline = createPipeline({
   enabled: createConfig(baseConfigs.toggle("bumpBan.enabled", "Состояние")),
   roleId: createConfig({
+    disabled: (s) => createDisabledCondition("bumpBan", s),
     label: "Роль для бамп бана",
     field: "bumpBan.roleId",
     type: "role" as const,
@@ -137,7 +157,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? ""),
+            .setValue(settings.theming?.banner ?? "")
         ),
       ],
       title: "Аватар",
@@ -155,7 +175,7 @@ export const SettingsThemingPipeline = createPipeline({
             .setCustomId("value")
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
-            .setValue(settings.theming?.banner ?? ""),
+            .setValue(settings.theming?.banner ?? "")
         ),
       ],
       title: "Баннер",
@@ -178,7 +198,7 @@ export const SettingsThemingPipeline = createPipeline({
               .setCustomId("value")
               .setStyle(TextInputStyle.Paragraph)
               .setRequired(false)
-              .setValue(settings.theming?.bio ?? ""),
+              .setValue(settings.theming?.bio ?? "")
           ),
       ],
       title: "Обо мне",
@@ -202,18 +222,19 @@ export const SettingsLoggingPipeline = createPipeline({
   // remindLogs: createConfig(
   //   baseConfigs.singleChannel("channels.remindLogs", "Логгирование напоминаний")
   // ),
-  bumpBanLogs: createConfig(
-    baseConfigs.singleChannel(
+  bumpBanLogs: createConfig({
+    ...baseConfigs.singleChannel(
       "channels.bumpBanChannelId",
-      "Логгирование бамп банов",
+      "Логгирование бамп банов"
     ),
-  ),
-  commandLogs: createConfig(
-    baseConfigs.singleChannel(
+    disabled: (s) => createDisabledCondition("bumpBan", s),
+  }),
+  commandLogs: createConfig({
+    ...baseConfigs.singleChannel(
       "channels.commandChannelId",
-      "Логгирование команд",
+      "Логгирование команд"
     ),
-  ),
+  }),
 });
 
 export const SettingsTemplatePipeline = createPipeline({
@@ -232,7 +253,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.common ?? baseCommonRemindTemplate),
+            .setValue(settings.templates.common ?? baseCommonRemindTemplate)
         ),
       ],
       title: "Шаблон для обычных напоминаний",
@@ -253,7 +274,7 @@ export const SettingsTemplatePipeline = createPipeline({
             .setMinLength(1)
             .setMaxLength(120)
             .setStyle(TextInputStyle.Short)
-            .setValue(settings.templates.force ?? baseForceRemindTemplate),
+            .setValue(settings.templates.force ?? baseForceRemindTemplate)
         ),
       ],
       title: "Шаблон для преждевременных напоминаний",
@@ -267,22 +288,22 @@ export const SettingsDevLogPipeline = createPipeline({
     baseConfigs.singleChannel(
       "dev.premiumLogs",
       "Логгирование премиума",
-      GuildType.Developer,
-    ),
+      GuildType.Developer
+    )
   ),
   inviteLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.inviteLogs",
       "Логгирование инвайтов",
-      GuildType.Developer,
-    ),
+      GuildType.Developer
+    )
   ),
   remindLogs: createConfig(
     baseConfigs.singleChannel(
       "dev.remindLogs",
       "Логи напоминаний (чужих)",
-      GuildType.Developer,
-    ),
+      GuildType.Developer
+    )
   ),
 });
 
@@ -303,7 +324,7 @@ export const SettingsWebhookPipeline = createPipeline({
             .setMinLength(0)
             .setStyle(TextInputStyle.Short)
             .setValue(settings.webhooks.url ?? "")
-            .setRequired(false),
+            .setRequired(false)
         ),
       ],
       title: "Webhook Endpoint",

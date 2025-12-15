@@ -12,6 +12,7 @@ export type SettingsConfig = {
   label: string;
   field: string;
   type: "channel" | "role" | "value" | "toggle";
+  disabled?: (settings: SettingsDocument) => boolean;
   display?: (settings: SettingsDocument) => string;
   select?: {
     choice: "multi" | "single";
@@ -28,3 +29,5 @@ export type SettingsConfig = {
 };
 
 export type SettingsPipelineConfig = Record<string, SettingsConfig>;
+
+export type SettingsPipelinesConfig = Record<string, {access: number; pipeline: SettingsPipelineConfig}>
