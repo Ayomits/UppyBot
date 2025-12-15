@@ -30,4 +30,7 @@ export type SettingsConfig = {
 
 export type SettingsPipelineConfig = Record<string, SettingsConfig>;
 
-export type SettingsPipelinesConfig = Record<string, {access: number; pipeline: SettingsPipelineConfig}>
+export type SettingsPipelinesConfig = Record<
+  string,
+  { access: number; pipeline: SettingsPipelineConfig }
+>;

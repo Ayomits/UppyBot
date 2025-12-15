@@ -15,7 +15,7 @@ export class BaseThemingService {
   protected async loadFont(name: string, alias?: string) {
     GlobalFonts.registerFromPath(
       join(dirname(import.meta.url), `${this.root}/assets/fonts/${name}`),
-      alias
+      alias,
     );
   }
 }
