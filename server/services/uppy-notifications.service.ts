@@ -4,9 +4,7 @@ import {
   telegramNotificationBumpBanRoute,
   telegramNotificationRemindRoute,
 } from "#/queue/routes/telegram-notification/index.js";
-import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { Env } from "#/shared/libs/config/index.js";
-import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import type {
   WebhookBumpBanNotification,
   WebhookRemindNotication,
@@ -69,26 +67,5 @@ export class UppyNotificationService {
         userId: payload.data.userId,
       });
     }
-  }
-
-  private async validateToken(
-    guildId: string,
-    token?: string,
-  ): Promise<boolean> {
-    if (!token) return false;
-    const settingsRepository = SettingsRepository.create();
-
-    const settings = await settingsRepository.findGuildSettings(guildId);
-
-    if (
-      !settings.webhooks.url ||
-      settings.webhooks.url !== `${Env.UppyUrl}/uppy/notifications`
-    )
-      return false;
-
-    const cryptography = CryptographyService.create();
-    const decryptedToken = cryptography.decrypt(settings.webhooks.token ?? "");
-
-    return decryptedToken === token;
   }
 }
