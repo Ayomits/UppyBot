@@ -37,26 +37,26 @@ export class AppRemindEventHandler extends AppEventHandler {
     super();
 
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleRemindExecute.bind(this)(opts, "common"),
+      this.handleRemindExecute.bind(this)(opts, "common")
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleRemindExecute.bind(this)(opts, "force"),
+      this.handleRemindExecute.bind(this)(opts, "force")
     );
 
     // webhooks
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleWebhook.bind(this)(opts, "common"),
+      this.handleWebhook.bind(this)(opts, "common")
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleWebhook.bind(this)(opts, "force"),
+      this.handleWebhook.bind(this)(opts, "force")
     );
 
     // dev
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleDevLog.bind(this)(opts, "common"),
+      this.handleDevLog.bind(this)(opts, "common")
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleDevLog.bind(this)(opts, "force"),
+      this.handleDevLog.bind(this)(opts, "force")
     );
   }
 
@@ -81,8 +81,8 @@ export class AppRemindEventHandler extends AppEventHandler {
               `${bold("Сервер:")} ${guild.guildName}`,
               `${bold("Тип:")} ${type === "common" ? "Обычное" : "Преждевременное"}`,
               `${bold("Аватар:")} ${guild.guildAvatar ?? "Нет"}`,
-            ].join("\n"),
-          ),
+            ].join("\n")
+          )
         ),
       ],
       flags: MessageFlags.IsComponentsV2,
@@ -91,7 +91,7 @@ export class AppRemindEventHandler extends AppEventHandler {
 
   private async handleRemindExecute(
     opts: AppRemindExecute,
-    type: "common" | "force",
+    type: "common" | "force"
   ) {
     if (!opts.settings.channels?.pingChannelId) {
       return;
@@ -111,7 +111,7 @@ export class AppRemindEventHandler extends AppEventHandler {
       monitoring: userMention(getBotByRemindType(opts.type)!),
       time: time(
         resolveTimestamp(timestamp.toJSDate()),
-        TimestampStyles.RelativeTime,
+        TimestampStyles.RelativeTime
       ),
     });
 
@@ -122,7 +122,7 @@ export class AppRemindEventHandler extends AppEventHandler {
 
   private async handleWebhook(
     opts: AppRemindExecute,
-    type: "common" | "force",
+    type: "common" | "force"
   ) {
     const guild = await discordClient.guilds
       .fetch(opts.guildId)
@@ -134,14 +134,6 @@ export class AppRemindEventHandler extends AppEventHandler {
 
     const webhookManager = WebhookManager.create();
     const crypto = CryptographyService.create();
-
-    if (
-      !opts.settings?.telegram?.enabled ||
-      !opts.settings.webhooks?.url ||
-      !opts.settings.webhooks?.token
-    ) {
-      return;
-    }
 
     const channel = await guild.channels
       .fetch(opts.settings.channels!.pingChannelId!)
@@ -162,9 +154,6 @@ export class AppRemindEventHandler extends AppEventHandler {
         ? webhookManager.createRemindPayload.bind(webhookManager)
         : webhookManager.createForceRemindPayload.bind(webhookManager);
 
-    const url = opts.settings.webhooks.url;
-    const token = crypto.decrypt(opts.settings.webhooks.token);
-
     const data = fn(guild.id, {
       guildName: guild.name,
       channelName: channel.name,
@@ -173,15 +162,23 @@ export class AppRemindEventHandler extends AppEventHandler {
       aproximatedNotificationUsers: members
         .filter((m) =>
           m.roles.cache.some((r) =>
-            opts.settings?.roles?.pingRoles?.includes(r.id),
-          ),
+            opts.settings?.roles?.pingRoles?.includes(r.id)
+          )
         )
         .map((m) => m.id),
     });
 
-    await Promise.all([
-      webhookManager.pushConsumer(url, token, data),
-      webhookManager.pushTelegramNotification(data),
-    ]);
+    const token: string | null = opts.settings.webhooks?.token ?? null;
+    const url: string | null = opts.settings.webhooks?.url ?? null;
+
+    if (url) {
+      await webhookManager
+        .pushConsumer(url, crypto.decrypt(token!), data)
+        .catch(() => null);
+    }
+
+    if (opts.settings.telegram?.enabled) {
+      webhookManager.pushTelegramNotification(data);
+    }
   }
 }
