@@ -54,7 +54,7 @@ export const SettingsNavigation: {
     label: "Телеграмм уведомления",
     value: "telegram",
     description: "Включить/Выключить напоминания в телеграмме для сервера",
-    public: true,
+    public: false,
   },
   {
     label: "Брендирование",
