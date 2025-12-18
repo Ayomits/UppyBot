@@ -13,22 +13,6 @@ export class NotificationUser extends TimeStamps {
 
   @prop({
     required: true,
-    default: {
-      ds: false,
-      sdc: false,
-      server: false,
-      disboard: false,
-    },
-  })
-  notifications: {
-    ds: boolean;
-    sdc: boolean;
-    server: boolean;
-    disboard: boolean;
-  };
-
-  @prop({
-    required: true,
     default: { access_token: null, refresh_token: null, expires_at: null },
   })
   tokens: {

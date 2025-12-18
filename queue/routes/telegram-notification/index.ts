@@ -40,7 +40,6 @@ export const telegramNotificationRemindRoute = createRoute({
 
     const filter = {
       discord_user_id: { $in: data.users },
-      [`notifications.${repository.getNotificationFieldByMonitoring(data.monitoring)}`]: true,
       [`settings.selected_guilds`]: data.guildId,
     };
 
