@@ -8,7 +8,6 @@ import { Emojis } from "#/telegram/utils/emojis.js";
 
 import { additionalMenuId } from "./additional_menu/index.js";
 import { guildsMenuId } from "./guilds_menu/index.js";
-import { notificationsMenuId } from "./notifications_menu/index.js";
 
 export const settingsMenuId = "settings_menu";
 
@@ -16,18 +15,13 @@ export const settingsMenu = new Menu<AppContext>(settingsMenuId)
   .submenu(
     `${Emojis.ARROW_UP} Подключить серверы`,
     guildsMenuId,
-    protectedInteraction,
-  )
-  .submenu(
-    `${Emojis.ALARM_CLOCK} Уведомления`,
-    notificationsMenuId,
-    protectedInteraction,
+    protectedInteraction
   )
   .row()
   .submenu(
     `${Emojis.BEGINNER} Дополнительные`,
     additionalMenuId,
-    protectedInteraction,
+    protectedInteraction
   )
   .row()
   .text(
@@ -46,7 +40,7 @@ export const settingsMenu = new Menu<AppContext>(settingsMenuId)
         discord_user_id: null,
         tokens: { access_token: null, refresh_token: null, expires_at: null },
       });
-    },
+    }
   )
   .row()
   .back(`${Emojis.ARROW_LEFT} Назад`, protectedInteraction);
