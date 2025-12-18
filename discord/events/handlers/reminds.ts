@@ -177,8 +177,6 @@ export class AppRemindEventHandler extends AppEventHandler {
         .catch(() => null);
     }
 
-    if (opts.settings.telegram?.enabled) {
-      webhookManager.pushTelegramNotification(data);
-    }
+    await webhookManager.pushTelegramNotification(data);
   }
 }
