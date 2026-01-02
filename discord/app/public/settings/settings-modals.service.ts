@@ -2,13 +2,15 @@ import type { DiscordAPIError, ModalSubmitInteraction } from "discord.js";
 import { MessageFlags } from "discord.js";
 import { inject, injectable } from "tsyringe";
 
+import { AppThemes } from "#/discord/const/themes.js";
+import { themeSyncRoute } from "#/queue/routes/theme-sync/index.js";
 import { SettingsRepository } from "#/shared/db/repositories/uppy-discord/settings.repository.js";
 import { CustomIdParser } from "#/shared/libs/parser/custom-id.parser.js";
 
 @injectable()
 export class SettingsModalService {
   constructor(
-    @inject(SettingsRepository) private settingsRepository: SettingsRepository,
+    @inject(SettingsRepository) private settingsRepository: SettingsRepository
   ) {}
 
   public async handlePointsModal(interaction: ModalSubmitInteraction) {
@@ -58,22 +60,34 @@ export class SettingsModalService {
   }
 
   public async handleBrandingModal(interaction: ModalSubmitInteraction) {
-    const url = interaction.fields.getTextInputValue("value");
+    const url = interaction.fields.getTextInputValue("value") ?? null;
     const [type] = CustomIdParser.parseArguments(interaction.customId, {});
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     try {
       await interaction.guild?.members.editMe({
-        [type]: url ?? null,
+        [type]: url,
       });
 
       interaction.editReply({
         content: "Настройки применены",
       });
 
-      await this.settingsRepository.update(interaction.guildId!, {
-        [`theming.${type}`]: url,
-      });
+      const settings = await this.settingsRepository.update(
+        interaction.guildId!,
+        {
+          [`theming.${type}`]: url,
+        }
+      );
+
+      if (!url) {
+        await themeSyncRoute.produce({
+          guildId: interaction.guildId!,
+          theme: settings.theming.theme ?? AppThemes.Green,
+          hasAvatar: !!settings.theming?.avatar,
+          hasBanner: !!settings.theming?.banner,
+        });
+      }
     } catch (err) {
       if ((err as DiscordAPIError).code === 50035) {
         return interaction.editReply({
