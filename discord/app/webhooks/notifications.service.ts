@@ -66,6 +66,10 @@ export class NotificationsService {
   private createTestNotificationSelectMenu(): StringSelectMenuBuilder {
     const options = [
       {
+        label: "Команда выполнена успешно",
+        value: WebhookNotificationType.CommandSuccess,
+      },
+      {
         label: "Бамп бан выдан",
         value: WebhookNotificationType.BumpBanCreation,
       },
