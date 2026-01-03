@@ -138,7 +138,7 @@ curl -sSL https://dokploy.com/install.sh | sh
 
 ![alt text](dokploy_rabbit_deploy_env.png)
 
-![alt text](dokploy_rabbit_advanced.png)
+![alt text](dokploy_rabbit_deploy_advanced.png)
 
 ![alt text](dokploy_rabbit_ports.png)
 
