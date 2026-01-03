@@ -37,26 +37,26 @@ export class AppRemindEventHandler extends AppEventHandler {
     super();
 
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleRemindExecute.bind(this)(opts, "common")
+      this.handleRemindExecute.bind(this)(opts, "common"),
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleRemindExecute.bind(this)(opts, "force")
+      this.handleRemindExecute.bind(this)(opts, "force"),
     );
 
     // webhooks
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleWebhook.bind(this)(opts, "common")
+      this.handleWebhook.bind(this)(opts, "common"),
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleWebhook.bind(this)(opts, "force")
+      this.handleWebhook.bind(this)(opts, "force"),
     );
 
     // dev
     appEventEmitter.on("remind:common", (opts) =>
-      this.handleDevLog.bind(this)(opts, "common")
+      this.handleDevLog.bind(this)(opts, "common"),
     );
     appEventEmitter.on("remind:force", (opts) =>
-      this.handleDevLog.bind(this)(opts, "force")
+      this.handleDevLog.bind(this)(opts, "force"),
     );
   }
 
@@ -81,8 +81,8 @@ export class AppRemindEventHandler extends AppEventHandler {
               `${bold("Сервер:")} ${guild.guildName}`,
               `${bold("Тип:")} ${type === "common" ? "Обычное" : "Преждевременное"}`,
               `${bold("Аватар:")} ${guild.guildAvatar ?? "Нет"}`,
-            ].join("\n")
-          )
+            ].join("\n"),
+          ),
         ),
       ],
       flags: MessageFlags.IsComponentsV2,
@@ -91,7 +91,7 @@ export class AppRemindEventHandler extends AppEventHandler {
 
   private async handleRemindExecute(
     opts: AppRemindExecute,
-    type: "common" | "force"
+    type: "common" | "force",
   ) {
     if (!opts.settings.channels?.pingChannelId) {
       return;
@@ -111,7 +111,7 @@ export class AppRemindEventHandler extends AppEventHandler {
       monitoring: userMention(getBotByRemindType(opts.type)!),
       time: time(
         resolveTimestamp(timestamp.toJSDate()),
-        TimestampStyles.RelativeTime
+        TimestampStyles.RelativeTime,
       ),
     });
 
@@ -122,7 +122,7 @@ export class AppRemindEventHandler extends AppEventHandler {
 
   private async handleWebhook(
     opts: AppRemindExecute,
-    type: "common" | "force"
+    type: "common" | "force",
   ) {
     const guild = await discordClient.guilds
       .fetch(opts.guildId)
@@ -162,8 +162,8 @@ export class AppRemindEventHandler extends AppEventHandler {
       aproximatedNotificationUsers: members
         .filter((m) =>
           m.roles.cache.some((r) =>
-            opts.settings?.roles?.pingRoles?.includes(r.id)
-          )
+            opts.settings?.roles?.pingRoles?.includes(r.id),
+          ),
         )
         .map((m) => m.id),
     });

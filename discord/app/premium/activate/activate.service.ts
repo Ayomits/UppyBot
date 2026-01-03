@@ -5,7 +5,7 @@ import { inject, injectable } from "tsyringe";
 
 import { PromocodeModel } from "#/shared/db/models/uppy-discord/promocode.model.js";
 
-import { PromocodeService } from "../../promocodes/promocode.service.js";
+import { PromocodeService } from "../promocodes/promocode.service.js";
 import { PremiumSubscriptionManager } from "../subscription-manager/subscription.service.js";
 
 @injectable()

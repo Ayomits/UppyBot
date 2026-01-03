@@ -1,7 +1,7 @@
 import { DiscordAPIError } from "discord.js";
 
-import { AvatarService } from "#/discord/app/theming/avatar.service.js";
-import { BannerService } from "#/discord/app/theming/banner.service.js";
+import { AvatarService } from "#/discord/app/premium/theming/avatar.service.js";
+import { BannerService } from "#/discord/app/premium/theming/banner.service.js";
 import { discordClient } from "#/discord/client.js";
 import { AppThemes } from "#/discord/const/themes.js";
 import { QueueMessages } from "#/queue/const/index.js";

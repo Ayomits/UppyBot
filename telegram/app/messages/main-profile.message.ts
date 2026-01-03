@@ -16,7 +16,7 @@ type MessageRes = {
 };
 
 export async function createMainProfileMessage(
-  usr: DocumentType<NotificationUser>
+  usr: DocumentType<NotificationUser>,
 ): Promise<Partial<MessageRes>> {
   const entries: string[] = [];
   const res: Partial<MessageRes> = {};
@@ -36,7 +36,7 @@ export async function createMainProfileMessage(
   res.image = cdn.getUserAvatar(
     discordUser?.discord?.data.id,
     discordUser?.discord?.data.avatar,
-    4096
+    4096,
   );
 
   entries.push(
@@ -55,7 +55,7 @@ export async function createMainProfileMessage(
             .map((g, i) => `${bold((i + 1).toString())}. ${cursive(g.name)}`)
             .join("\n")
         : cursive(`Нет`)
-    }`
+    }`,
   );
 
   res.text = entries.join("\n");
