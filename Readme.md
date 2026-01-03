@@ -154,7 +154,7 @@ curl -sSL https://dokploy.com/install.sh | sh
 npm install -g pnpm && git clone https://github.com/Ayomits/UppyBot && cd UppyBot && pnpm install
 ```
 
-Вставьте следующее <br />
+Скопируйте следующее <br />
 
 ```.env
 APP_ENV=prod
