@@ -20,6 +20,7 @@
     "dev:tg": "nodemon --config nodemon.telegram.json",
     "dev:core": "nodemon --config nodemon.core.json",
     "dev": "concurrently 'pnpm run dev:tg' 'pnpm run dev:sr' 'pnpm run dev:ds'",
+    "prod": "concurrently 'pnpm run build' 'pnpm run prod:ds' 'pnpm run prod:sr' 'pnpm run prod:ds'",
     "start:ds": "node dist/discord/main.js",
     "start:sr": "node dist/server/main.js",
     "start:tg": "node dist/telegram/main.js",
