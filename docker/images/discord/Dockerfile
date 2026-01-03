@@ -12,6 +12,7 @@ COPY docker/runit/discord/dev.run /tmp/runit-dev.run
 COPY docker/runit/discord/prod.run /tmp/runit-prod.run
 
 RUN mkdir -p /etc/service/app /runit
+RUN npx puppeteer browsers install firefox
 
 RUN if [ "$APP_ENV" != "dev" ]; then \
   cp /tmp/runit-prod.run /etc/service/app/run; \
