@@ -1,3 +1,4 @@
+import { logger } from "@typegoose/typegoose/lib/logSettings.js";
 import axios from "axios";
 
 export const dsMonitoring = axios.create({
@@ -27,9 +28,13 @@ dsMonitoring.interceptors.request.use((config) => {
   return config;
 });
 
+export const dsMonitoringUrl = "https://discordserver.info";
+
 export async function fetchServer(guildId: string) {
-  const response = await dsMonitoring.get<string>(`/${guildId}`, {
-    timeout: 10000,
-  });
+  const response = await axios
+    .get<string>(`/${guildId}`, {
+      timeout: 10000,
+    })
+    .catch(logger.error);
   return response;
 }

@@ -7,12 +7,14 @@ import {
   unorderedList,
   userMention,
 } from "discord.js";
+import { DateTime } from "luxon";
 import { inject } from "tsyringe";
 
 import {
   getCommandIdByRemindType,
   getCommandNameByRemindType,
 } from "#/discord/app/public/reminder/reminder.const.js";
+import { BumpFireModel } from "#/shared/db/models/uppy-discord/fire.model.js";
 import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { WebhookManager } from "#/shared/webhooks/webhook.manager.js";
 
@@ -23,7 +25,7 @@ import { AppEventHandler } from "./base.js";
 export class AppCommandEventHandler extends AppEventHandler {
   constructor(
     @inject(WebhookManager) private webhookManager: WebhookManager,
-    @inject(CryptographyService) private cryptography: CryptographyService,
+    @inject(CryptographyService) private cryptography: CryptographyService
   ) {
     super();
 
@@ -33,19 +35,52 @@ export class AppCommandEventHandler extends AppEventHandler {
 
     appEventEmitter.on(
       "command:executed",
-      this.handleCommandSuccessLog.bind(this),
+      this.handleCommandSuccessLog.bind(this)
     );
     appEventEmitter.on(
       "command:executed",
-      this.handleCommandSuccessWebhook.bind(this),
+      this.handleCommandSuccessWebhook.bind(this)
     );
+
+    appEventEmitter.on("command:executed", this.handleFire.bind(this));
   }
 
   static create() {
     return new AppCommandEventHandler(
       WebhookManager.create(),
-      CryptographyService.create(),
+      CryptographyService.create()
     );
+  }
+
+  private async handleFire(options: AppCommandSuccessOptions) {
+    const existed = await BumpFireModel.model.findOneAndUpdate(
+      { userId: options.userId },
+      {
+        $setOnInsert: {
+          streak: 1,
+          userId: options.userId,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    const diff = DateTime.fromJSDate(existed.updatedAt).diffNow("days");
+
+    if (diff.days < 2) {
+      await BumpFireModel.model.updateOne(
+        { userId: options.userId },
+        { $inc: { streak: 1 } }
+      );
+    } else {
+      await BumpFireModel.model.updateOne(
+        { userId: options.userId },
+        { $set: { streak: 1 } }
+      );
+    }
+
+
   }
 
   private async handleCommandSuccessLog(options: AppCommandSuccessOptions) {
@@ -58,7 +93,7 @@ export class AppCommandEventHandler extends AppEventHandler {
 
     const commandMention = chatInputApplicationCommandMention(
       commandName,
-      commandId,
+      commandId
     );
 
     await this.sendChannelMessage(options.settings.channels.commandChannelId, {
@@ -73,7 +108,7 @@ export class AppCommandEventHandler extends AppEventHandler {
                 `Исполнитель: ${userMention(options.userId)}`,
                 `Время реакции: ${options.reactionTime}`,
               ]),
-            ].join("\n"),
+            ].join("\n")
           );
         }),
       ],
@@ -95,7 +130,7 @@ export class AppCommandEventHandler extends AppEventHandler {
           points: options.points,
           type: options.type,
           userId: options.userId,
-        }),
+        })
       );
     }
   }

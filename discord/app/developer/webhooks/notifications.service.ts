@@ -19,12 +19,12 @@ import { CryptographyService } from "#/shared/libs/crypto/index.js";
 import { createSafeCollector } from "#/shared/libs/djs/collector.js";
 import { randomArrValue } from "#/shared/libs/random/index.js";
 
-import { WebhookManager } from "../../../shared/webhooks/webhook.manager.js";
-import { WebhookNotificationType } from "../../../shared/webhooks/webhook.types.js";
+import { WebhookManager } from "../../../../shared/webhooks/webhook.manager.js";
+import { WebhookNotificationType } from "../../../../shared/webhooks/webhook.types.js";
 import {
   getCommandNameByRemindType,
   MonitoringType,
-} from "../public/reminder/reminder.const.js";
+} from "../../public/reminder/reminder.const.js";
 import { NotificationsIds } from "./notifications.const.js";
 
 @injectable()
