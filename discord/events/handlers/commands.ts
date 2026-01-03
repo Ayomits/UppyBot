@@ -66,21 +66,19 @@ export class AppCommandEventHandler extends AppEventHandler {
       }
     );
 
-    const diff = DateTime.fromJSDate(existed.updatedAt).diffNow("days");
+    // const diff = DateTime.fromJSDate(existed.updatedAt).diffNow("days");
 
-    if (diff.days < 2) {
-      await BumpFireModel.model.updateOne(
-        { userId: options.userId },
-        { $inc: { streak: 1 } }
-      );
-    } else {
-      await BumpFireModel.model.updateOne(
-        { userId: options.userId },
-        { $set: { streak: 1 } }
-      );
-    }
-
-
+    // if (diff.days < 2) {
+    //   await BumpFireModel.model.updateOne(
+    //     { userId: options.userId },
+    //     { $inc: { streak: 1 } }
+    //   );
+    // } else {
+    //   await BumpFireModel.model.updateOne(
+    //     { userId: options.userId },
+    //     { $set: { streak: 1 } }
+    //   );
+    // }
   }
 
   private async handleCommandSuccessLog(options: AppCommandSuccessOptions) {
