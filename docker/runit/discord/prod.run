@@ -1,4 +1,4 @@
 #!/bin/sh
 cd /app
 
-pnpm install && pnpx puppeteer browsers install firefox && pnpm run build && pnpm run start:ds
+pnpm install && pnpm run build && pnpm run start:ds
